@@ -1,0 +1,359 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap');
+
+:root {
+    /* Tipografía */
+    --font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    --font-weight-light: 300;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    /* Paleta de colores corporativa */
+    --color-primary: #2E3DB4;           /* Azul corporativo */
+    --color-background: #E0E0E0;        /* Gris medio */
+    --color-success: #28A745;           /* Verde confirmaciones */
+    --color-text-gray: #858585;         /* Gris letras */
+    --color-coral: #EF4444;             /* Rojo coral */
+    --color-border-cards: #3B82F6;      /* Celeste Tecnológico */
+    --color-card-background: #F8FBFF;   /* Celeste Claro */
+    --color-white: #ffffff;
+    --color-black: #000000;
+
+    /* Colores para estados del sistema */
+    --color-error: #DC3545;             /* Rojo error */
+    --color-warning: #FFC107;           /* Amarillo advertencia */
+    --color-info: #17A2B8;              /* Azul información */
+    --color-danger: var(--color-coral); /* Rojo peligro */
+    --color-light: #F8F9FA;             /* Gris muy claro */
+    --color-dark: #343A40;              /* Gris oscuro */
+    --color-muted: #6C757D;             /* Gris apagado */
+
+    /* Estados de elementos interactivos */
+    --color-hover: #1e2a8a;             /* Azul hover más oscuro */
+    --color-focus: #4338ca;             /* Azul focus */
+    --color-active: #1d4ed8;            /* Azul activo */
+    --color-disabled: #9CA3AF;          /* Gris deshabilitado */
+
+    /* Estados de validación */
+    --color-valid: #22C55E;             /* Verde válido */
+    --color-invalid: #f30404;           /* Rojo inválido */
+    --color-pending: #F59E0B;           /* Amarillo pendiente */
+
+    /* Colores de fondo para estados */
+    --bg-success-light: #D4EDDA;        /* Fondo verde claro */
+    --bg-error-light: #F8D7DA;          /* Fondo rojo claro */
+    --bg-warning-light: #FFF3CD;        /* Fondo amarillo claro */
+    --bg-info-light: #D1ECF1;           /* Fondo azul claro */
+
+    /* Bordes para estados */
+    --border-success: #C3E6CB;          /* Borde verde */
+    --border-error: #F5C6CB;            /* Borde rojo */
+    --border-warning: #FFEAA7;          /* Borde amarillo */
+    --border-info: #BEE5EB;             /* Borde azul */
+
+    /* Variables de espaciado */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+
+    /* Variables de bordes */
+    --border-radius-sm: 4px;
+    --border-radius: 8px;
+    --border-radius-lg: 12px;
+    --border-width: 1px;
+    --border-width-thick: 2px;
+
+    /* Sombras */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
+
+    /* Configuración base */
+    font-family: var(--font-family), serif;
+    line-height: 1.6;
+    font-weight: var(--font-weight-normal);
+    color: var(--color-text-gray);
+    background-color: var(--color-background);
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-family), serif;
+    background-color: var(--color-background);
+    color: var(--color-text-gray);
+    min-height: 100vh;
+}
+
+/* Tipografía */
+h1, h2, h3, h4, h5, h6 {
+    margin: 0 0 var(--spacing-md) 0;
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.2;
+    color: var(--color-primary);
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: var(--font-weight-bold);
+}
+
+h2 {
+    font-size: 2rem;
+}
+
+h3 {
+    font-size: 1.5rem;
+}
+
+p {
+    margin: 0 0 var(--spacing-md) 0;
+    line-height: 1.6;
+}
+
+/* Tarjetas */
+.card {
+    background-color: var(--color-card-background);
+    border: var(--border-width) solid var(--color-border-cards);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* Alertas y notificaciones */
+.alert {
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    border: var(--border-width) solid;
+    margin-bottom: var(--spacing-md);
+    font-weight: var(--font-weight-medium);
+}
+
+.alert-success {
+    background-color: var(--bg-success-light);
+    border-color: var(--border-success);
+    color: var(--color-success);
+}
+
+.alert-error {
+    background-color: var(--bg-error-light);
+    border-color: var(--border-error);
+    color: var(--color-error);
+}
+
+.alert-warning {
+    background-color: var(--bg-warning-light);
+    border-color: var(--border-warning);
+    color: #B45309;
+}
+
+.alert-info {
+    background-color: var(--bg-info-light);
+    border-color: var(--border-info);
+    color: var(--color-info);
+}
+
+/* Estados de inputs y formularios */
+input, textarea, select {
+    border: var(--border-width) solid var(--color-muted);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-sm);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--color-focus);
+    box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.1);
+}
+
+input.valid, textarea.valid, select.valid {
+    border-color: var(--color-valid);
+}
+
+input.invalid, textarea.invalid, select.invalid {
+    border-color: var(--color-invalid);
+}
+
+input:disabled, textarea:disabled, select:disabled {
+    background-color: var(--color-light);
+    color: var(--color-disabled);
+    cursor: not-allowed;
+}
+
+/* Estados de carga y spinners */
+.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--color-light);
+    border-top: 2px solid var(--color-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Badges y etiquetas de estado */
+.badge {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.75rem;
+    font-weight: var(--font-weight-semibold);
+    border-radius: var(--border-radius-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-success {
+    background-color: var(--color-success);
+    color: var(--color-white);
+}
+
+.badge-error {
+    background-color: var(--color-error);
+    color: var(--color-white);
+}
+
+.badge-warning {
+    background-color: var(--color-warning);
+    color: var(--color-dark);
+}
+
+.badge-info {
+    background-color: var(--color-info);
+    color: var(--color-white);
+}
+
+.badge-pending {
+    background-color: var(--color-pending);
+    color: var(--color-white);
+}
+
+/* Clases utilitarias de texto para estados */
+.text-primary {
+    color: var(--color-primary);
+}
+
+.text-success {
+    color: var(--color-success);
+}
+
+.text-danger {
+    color: var(--color-danger);
+}
+
+.text-error {
+    color: var(--color-error);
+}
+
+.text-warning {
+    color: var(--color-warning);
+}
+
+.text-info {
+    color: var(--color-info);
+}
+
+.text-muted {
+    color: var(--color-muted);
+}
+
+.text-light {
+    color: var(--color-light);
+}
+
+.text-dark {
+    color: var(--color-dark);
+}
+
+/* Clases utilitarias de fondo */
+.bg-success {
+    background-color: var(--color-success);
+}
+
+.bg-error {
+    background-color: var(--color-error);
+}
+
+.bg-warning {
+    background-color: var(--color-warning);
+}
+
+.bg-info {
+    background-color: var(--color-info);
+}
+
+.bg-light {
+    background-color: var(--color-light);
+}
+
+.bg-dark {
+    background-color: var(--color-dark);
+}
+
+/* Utilidades de visibilidad para estados */
+.hidden {
+    display: none;
+}
+
+.invisible {
+    visibility: hidden;
+}
+
+.opacity-50 {
+    opacity: 0.5;
+}
+
+.opacity-75 {
+    opacity: 0.75;
+}
+
+/* Diseño responsivo */
+@media (max-width: 768px) {
+    #app {
+        padding: var(--spacing-md);
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    .card {
+        padding: var(--spacing-md);
+    }
+}
