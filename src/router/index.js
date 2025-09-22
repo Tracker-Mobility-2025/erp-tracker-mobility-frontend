@@ -1,4 +1,6 @@
 import {createRouter, createWebHistory} from "vue-router";
+import ServiceOrderManagementComponent
+    from "../tracker-mobility/service-orders/pages/service-order-management.component.vue";
 
 
 
@@ -11,7 +13,7 @@ const router = createRouter({
 
         //{path: '/tracker-mobility/sign-in' , name: 'sign-in', component: SignInComponent, meta: { title:'Login'}},
 
-
+        {path: '/admin/service-orders', name: 'service-orders', component: ServiceOrderManagementComponent, meta: {title: 'Ordenes de servicio'}},
 
         /*
         {path: '/elixir-line/sign-up', name: 'sign-up', component: SignUpComponent, meta: { title: 'Sign Up'}},

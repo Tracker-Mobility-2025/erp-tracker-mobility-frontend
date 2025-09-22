@@ -106,37 +106,9 @@ export default {
   <pv-confirm-dialog />
 
   <div class="data-manager-container">
-    <!-- Header Section -->
-    <div class="flex align-items-center justify-content-between mb-4">
+    <!-- Header Section (Solo título) -->
+    <div class="flex align-items-center mb-4">
       <h2 class="text-2xl font-semibold text-900 m-0">{{ title.plural }}</h2>
-      <div class="flex align-items-center gap-2">
-        <pv-button 
-          v-if="showNew"
-          icon="pi pi-plus" 
-          label="Agregar" 
-          severity="success" 
-          size="small"
-          @click="newItem" 
-        />
-        <pv-button 
-          v-if="showDelete && showSelection"
-          :disabled="!selectedItems || !selectedItems.length" 
-          icon="pi pi-trash" 
-          label="Eliminar" 
-          severity="danger" 
-          size="small"
-          @click="confirmDeleteSelected" 
-        />
-        <pv-button 
-          v-if="showExport"
-          icon="pi pi-download" 
-          label="Exportar" 
-          severity="help" 
-          size="small"
-          outlined
-          @click="exportToCsv" 
-        />
-      </div>
     </div>
 
     <!-- Search and Filter Section -->
@@ -162,6 +134,36 @@ export default {
         outlined
         size="small"
         @click="clearFilters"
+      />
+    </div>
+
+    <!-- Action Buttons Section -->
+    <div class="flex align-items-center gap-2 mb-4">
+      <pv-button 
+        v-if="showNew"
+        icon="pi pi-plus" 
+        label="Agregar" 
+        severity="success" 
+        size="small"
+        @click="newItem" 
+      />
+      <pv-button 
+        v-if="showDelete && showSelection"
+        :disabled="!selectedItems || !selectedItems.length" 
+        icon="pi pi-trash" 
+        label="Eliminar" 
+        severity="danger" 
+        size="small"
+        @click="confirmDeleteSelected" 
+      />
+      <pv-button 
+        v-if="showExport"
+        icon="pi pi-download" 
+        label="Exportar" 
+        severity="help" 
+        size="small"
+        outlined
+        @click="exportToCsv" 
       />
     </div>
 
@@ -226,35 +228,14 @@ export default {
           body-style="text-align: center"
         >
           <template #body="slotProps">
-            <div class="flex align-items-center justify-content-center gap-2">
-              <pv-button 
-                icon="pi pi-eye" 
-                severity="info"
-                text 
-                rounded 
-                size="small"
-                v-tooltip.top="'Ver detalles'"
-                @click="$emit('view-item-requested-manager', slotProps.data)"
-              />
-              <pv-button 
-                icon="pi pi-pencil" 
-                severity="success"
-                text 
-                rounded 
-                size="small"
-                v-tooltip.top="'Editar'"
-                @click="editItem(slotProps.data)"
-              />
-              <pv-button 
-                icon="pi pi-trash" 
-                severity="danger"
-                text 
-                rounded 
-                size="small"
-                v-tooltip.top="'Eliminar'"
-                @click="confirmDeleteItem(slotProps.data)"
-              />
-            </div>
+            <pv-button 
+              label="Ver detalles"
+              severity="info"
+              text 
+              size="small"
+              class="p-button-link"
+              @click="$emit('view-item-requested-manager', slotProps.data)"
+            />
           </template>
         </pv-column>
 
@@ -284,6 +265,10 @@ export default {
   border-radius: 8px;
   padding: 1.5rem;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .card {
@@ -291,12 +276,26 @@ export default {
   border-radius: 6px;
   border: 1px solid #e5e7eb;
   overflow: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 :deep(.data-table-custom .p-datatable-header) {
   background-color: #f8fafc;
   border-bottom: 1px solid #e5e7eb;
   padding: 1rem;
+}
+
+:deep(.data-table-custom) {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+:deep(.data-table-custom .p-datatable-wrapper) {
+  flex: 1;
+  overflow: auto;
 }
 
 :deep(.data-table-custom .p-datatable-thead > tr > th) {
@@ -338,6 +337,9 @@ export default {
   background-color: #f8fafc;
   border-top: 1px solid #e5e7eb;
   padding: 1rem;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
 }
 
 :deep(.data-table-custom .p-paginator .p-paginator-pages .p-paginator-page.p-highlight) {

@@ -1,0 +1,112 @@
+{
+  "orders": [
+    {
+      "id": "ORD-2025-001",
+      "applicant": {
+        "ruc": "1234567890",
+        "businessName": "Tracker Mobility S.A.C",
+        "executiveName": "Gonzalo Saldaña",
+        "contactNumber": "999 888 777",
+        "corporateEmail": "juan.perez@trackermobility.com"
+      },
+      "client": {
+        "firstName": "Janover Gonzalo",
+        "lastName": "Saldaña Vela",
+        "documentType": "DNI",
+        "documentNumber": "75126098",
+        "contactNumber": "1234567890",
+        "addressContact": "999 888 777",
+        "mapsUrl": "https://maps.app.goo.gl/WQp2ZSPsPAinAovTA"
+      },
+      "attachments": {
+        "serviceReceipt": "recibo_servicios.png",
+        "identityDocument": "dni_documento.png"
+      },
+      "lessor": {
+        "fullName": "Gonzalo Saldaña Vela",
+        "contactNumber": "999 888 777"
+      }
+    },
+    {
+      "id": "ORD-2025-002",
+      "applicant": {
+        "ruc": "20123456789",
+        "businessName": "Logística Andina S.A.",
+        "executiveName": "María Fernández",
+        "contactNumber": "988 222 333",
+        "corporateEmail": "maria.fernandez@logisticaandina.com"
+      },
+      "client": {
+        "firstName": "Luis Alberto",
+        "lastName": "Ramírez Quispe",
+        "documentType": "DNI",
+        "documentNumber": "45879632",
+        "contactNumber": "976543210",
+        "addressContact": "Av. Grau 120, Arequipa",
+        "mapsUrl": "https://maps.app.goo.gl/Xyza123456"
+      },
+      "attachments": {
+        "serviceReceipt": "recibo_luz_002.png",
+        "identityDocument": "dni_cliente_002.png"
+      },
+      "lessor": {
+        "fullName": "Luis Ramírez Quispe",
+        "contactNumber": "976543210"
+      }
+    },
+    {
+      "id": "ORD-2025-003",
+      "applicant": {
+        "ruc": "20456789123",
+        "businessName": "Transportes del Sur E.I.R.L.",
+        "executiveName": "Carlos Paredes",
+        "contactNumber": "955 111 444",
+        "corporateEmail": "carlos.paredes@transportesdelsur.com"
+      },
+      "client": {
+        "firstName": "Andrea",
+        "lastName": "Flores Huamán",
+        "documentType": "CE",
+        "documentNumber": "X1234567",
+        "contactNumber": "945678321",
+        "addressContact": "Jr. Libertad 456, Cusco",
+        "mapsUrl": "https://maps.app.goo.gl/Zabc987654"
+      },
+      "attachments": {
+        "serviceReceipt": "recibo_agua_003.png",
+        "identityDocument": "ce_cliente_003.png"
+      },
+      "lessor": {
+        "fullName": "Andrea Flores Huamán",
+        "contactNumber": "945678321"
+      }
+    },
+    {
+      "id": "ORD-2025-004",
+      "applicant": {
+        "ruc": "20654321987",
+        "businessName": "Inversiones Pacífico S.A.C",
+        "executiveName": "Rosa Medina",
+        "contactNumber": "977 555 666",
+        "corporateEmail": "rosa.medina@inversionespacifico.com"
+      },
+      "client": {
+        "firstName": "José Manuel",
+        "lastName": "Cáceres Rojas",
+        "documentType": "DNI",
+        "documentNumber": "72634985",
+        "contactNumber": "987654123",
+        "addressContact": "Mz. B Lt. 5, Lima",
+        "mapsUrl": "https://maps.app.goo.gl/Klmno12345"
+      },
+      "attachments": {
+        "serviceReceipt": "recibo_gas_004.png",
+        "identityDocument": "dni_cliente_004.png"
+      },
+      "lessor": {
+        "fullName": "José Manuel Cáceres Rojas",
+        "contactNumber": "987654123"
+      }
+    }
+  ]
+}
