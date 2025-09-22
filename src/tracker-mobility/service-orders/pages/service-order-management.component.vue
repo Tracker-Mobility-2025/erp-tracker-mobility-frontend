@@ -187,14 +187,21 @@ export default {
 </script>
 
 <template>
+
+
+
   <div class="h-full overflow-hidden flex flex-column p-4">
+
+    <!-- Título de la página -->
+    <h2 class="text-2xl font-bold mb-4">Gestión de Órdenes de Verificación</h2>
+
     <data-manager
       :items="filteredOrders"
       :columns="columns"
       :title="title"
       :loading="loading"
       :dynamic="true"
-      :show-new="true"
+      :show-new="false"
       :show-delete="true"
       :show-export="true"
       :show-selection="true"

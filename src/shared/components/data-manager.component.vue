@@ -112,24 +112,20 @@ export default {
   <pv-toast />
   <pv-confirm-dialog />
 
-  <div class="bg-white border-round-lg p-4 md:p-6 shadow-2 h-full flex flex-column overflow-hidden">
-    <!-- Header Section (Solo título) -->
-    <div class="flex align-items-center mb-4">
-      <h2 class="text-2xl font-semibold text-900 m-0">{{ title.plural }}</h2>
-    </div>
+  <div class="bg-white border-round-lg p-4 md:p-4 shadow-2 h-full flex flex-column overflow-hidden">
 
     <!-- Search and Filter Section -->
-    <div class="flex flex-column md:flex-row align-items-stretch md:align-items-center gap-3 mb-4">
+    <div class="flex  flex-column md:flex-row align-items-stretch md:align-items-center gap-3 mb-4">
       <div class="flex-1">
-        <span class="p-input-icon-left w-full">
-          <i class="pi pi-search" />
+        <pv-icon-field class="w-full ">
+          <pv-input-icon class="pi pi-search" />
           <pv-input-text
-            v-model="globalFilterValue"
-            :placeholder="searchPlaceholder"
-            class="w-full"
-            @input="onGlobalFilterChange"
+              v-model="globalFilterValue"
+              :placeholder="searchPlaceholder"
+              class="w-full"
+              @input="onGlobalFilterChange"
           />
-        </span>
+        </pv-icon-field>
       </div>
       
       <!-- Custom filters slot -->
@@ -147,25 +143,29 @@ export default {
 
     <!-- Action Buttons Section -->
     <div v-if="showActionButtons && (showNew || showDelete || showExport)" class="flex flex-column md:flex-row align-items-stretch md:align-items-center gap-2 mb-4">
-      <pv-button 
-        v-if="showNew"
-        icon="pi pi-plus" 
-        :label="newButtonLabel" 
-        severity="success" 
-        size="small"
-        class="w-full md:w-auto"
-        @click="newItem" 
-      />
-      <pv-button 
-        v-if="showDelete && showSelection"
-        :disabled="!selectedItems || !selectedItems.length" 
-        icon="pi pi-trash" 
-        :label="deleteButtonLabel" 
-        severity="danger" 
-        size="small"
-        class="w-full md:w-auto"
-        @click="confirmDeleteSelected" 
-      />
+
+      <div class="flex gap-2 flex-1 flex-column md:flex-row align-items-stretch md:align-items-center">
+        <pv-button
+            v-if="showNew"
+            icon="pi pi-plus"
+            :label="newButtonLabel"
+            severity="success"
+            size="small"
+            class="w-full md:w-auto"
+            @click="newItem"
+        />
+        <pv-button
+            v-if="showDelete && showSelection"
+            :disabled="!selectedItems || !selectedItems.length"
+            icon="pi pi-trash"
+            :label="deleteButtonLabel"
+            severity="danger"
+            size="small"
+            class="w-full md:w-auto"
+            @click="confirmDeleteSelected"
+        />
+      </div>
+
       <pv-button 
         v-if="showExport"
         icon="pi pi-download" 
@@ -180,6 +180,7 @@ export default {
 
     <!-- Data Table Section -->
     <div class="card flex-1 flex flex-column">
+
       <pv-data-table
         ref="dt"
         v-model:selection="selectedItems"
@@ -274,9 +275,11 @@ export default {
 <style scoped>
 /* Estilos específicos del card que no pueden ser reemplazados por PrimeFlex */
 .card {
-  background: #ffffff;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
+  background: white;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  height: 100%;
   overflow: hidden;
 }
 
