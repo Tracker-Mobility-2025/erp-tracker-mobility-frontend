@@ -12,14 +12,21 @@ export default {
     columns: { type: Array, default: () => [] },
     loading: { type: Boolean, default: false },
     searchPlaceholder: { type: String, default: 'Busca por ID reporte, ID orden, verificador...' },
-    showActions: { type: Boolean, default: true },
-    showSelection: { type: Boolean, default: true },
-    showExport: { type: Boolean, default: true },
-    showNew: { type: Boolean, default: true },
-    showDelete: { type: Boolean, default: true },
+    // Configuración de botones de acción
+    showActions: { type: Boolean, default: true }, // Muestra columna de acciones en tabla
+    showSelection: { type: Boolean, default: true }, // Muestra checkboxes de selección
+    showExport: { type: Boolean, default: true }, // Muestra botón Exportar
+    showNew: { type: Boolean, default: true }, // Muestra botón Agregar
+    showDelete: { type: Boolean, default: true }, // Muestra botón Eliminar
+    showActionButtons: { type: Boolean, default: true }, // Muestra toda la sección de botones de acción
+    // Configuración de tabla
     tableHeight: { type: String, default: '400px' },
     rows: { type: Number, default: 10 },
-    rowsPerPageOptions: { type: Array, default: () => [5, 10, 15, 20] }
+    rowsPerPageOptions: { type: Array, default: () => [5, 10, 15, 20] },
+    // Labels personalizables
+    newButtonLabel: { type: String, default: 'Agregar' },
+    deleteButtonLabel: { type: String, default: 'Eliminar' },
+    exportButtonLabel: { type: String, default: 'Exportar' }
   },
 
   data() {
@@ -105,14 +112,14 @@ export default {
   <pv-toast />
   <pv-confirm-dialog />
 
-  <div class="data-manager-container">
+  <div class="bg-white border-round-lg p-4 md:p-6 shadow-2 h-full flex flex-column overflow-hidden">
     <!-- Header Section (Solo título) -->
     <div class="flex align-items-center mb-4">
       <h2 class="text-2xl font-semibold text-900 m-0">{{ title.plural }}</h2>
     </div>
 
     <!-- Search and Filter Section -->
-    <div class="flex align-items-center gap-3 mb-4">
+    <div class="flex flex-column md:flex-row align-items-stretch md:align-items-center gap-3 mb-4">
       <div class="flex-1">
         <span class="p-input-icon-left w-full">
           <i class="pi pi-search" />
@@ -133,42 +140,46 @@ export default {
         severity="secondary"
         outlined
         size="small"
+        class="w-full md:w-auto"
         @click="clearFilters"
       />
     </div>
 
     <!-- Action Buttons Section -->
-    <div class="flex align-items-center gap-2 mb-4">
+    <div v-if="showActionButtons && (showNew || showDelete || showExport)" class="flex flex-column md:flex-row align-items-stretch md:align-items-center gap-2 mb-4">
       <pv-button 
         v-if="showNew"
         icon="pi pi-plus" 
-        label="Agregar" 
+        :label="newButtonLabel" 
         severity="success" 
         size="small"
+        class="w-full md:w-auto"
         @click="newItem" 
       />
       <pv-button 
         v-if="showDelete && showSelection"
         :disabled="!selectedItems || !selectedItems.length" 
         icon="pi pi-trash" 
-        label="Eliminar" 
+        :label="deleteButtonLabel" 
         severity="danger" 
         size="small"
+        class="w-full md:w-auto"
         @click="confirmDeleteSelected" 
       />
       <pv-button 
         v-if="showExport"
         icon="pi pi-download" 
-        label="Exportar" 
+        :label="exportButtonLabel" 
         severity="help" 
         size="small"
         outlined
+        class="w-full md:w-auto"
         @click="exportToCsv" 
       />
     </div>
 
     <!-- Data Table Section -->
-    <div class="card">
+    <div class="card flex-1 flex flex-column">
       <pv-data-table
         ref="dt"
         v-model:selection="selectedItems"
@@ -178,7 +189,8 @@ export default {
         :paginator="true"
         :rows="rows"
         :rows-per-page-options="rowsPerPageOptions"
-        :scroll-height="tableHeight"
+        :scroll-height="'flex'"
+        scrollable
         :global-filter-fields="columns.map(col => col.field)"
         data-key="id"
         current-page-report-template="Mostrando {first} a {last} de {totalRecords} registros"
@@ -210,9 +222,9 @@ export default {
           :field="column.field" 
           :header="column.header"
           :sortable="column.sortable !== false"
-          :style="column.style || ''"
-          :header-style="column.headerStyle || ''"
-          :body-style="column.bodyStyle || ''"
+          :style="column.style || 'min-width: 150px;'"
+          :header-style="column.headerStyle || 'text-align: left;'"
+          :body-style="column.bodyStyle || 'text-align: left;'"
         >
           <template v-if="column.template" #body="slotProps">
             <slot :name="column.template" :data="slotProps.data" :value="slotProps.data[column.field]" />
@@ -260,34 +272,23 @@ export default {
 </template>
 
 <style scoped>
-.data-manager-container {
-  background-color: #ffffff;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
+/* Estilos específicos del card que no pueden ser reemplazados por PrimeFlex */
 .card {
   background: #ffffff;
   border-radius: 6px;
   border: 1px solid #e5e7eb;
   overflow: hidden;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
 }
 
+/* Estilos específicos de la tabla que requieren :deep() para penetrar en PrimeVue */
 :deep(.data-table-custom .p-datatable-header) {
   background-color: #f8fafc;
   border-bottom: 1px solid #e5e7eb;
   padding: 1rem;
 }
 
-:deep(.data-table-custom) {
+/* Asegurar alineación perfecta de headers y contenido */
+:deep(.data-table-custom .p-datatable) {
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -296,8 +297,10 @@ export default {
 :deep(.data-table-custom .p-datatable-wrapper) {
   flex: 1;
   overflow: auto;
+  min-height: 400px;
 }
 
+/* Estilos de celdas de encabezado */
 :deep(.data-table-custom .p-datatable-thead > tr > th) {
   background-color: #f1f5f9;
   color: #374151;
@@ -308,21 +311,24 @@ export default {
   padding: 1rem 0.75rem;
   border-bottom: 2px solid #e5e7eb;
   border-right: 1px solid #e5e7eb;
+  white-space: nowrap;
+  text-align: left;
 }
 
-:deep(.data-table-custom .p-datatable-thead > tr > th:last-child) {
-  border-right: none;
-}
-
+/* Estilos de celdas del cuerpo - alineación perfecta */
 :deep(.data-table-custom .p-datatable-tbody > tr > td) {
   padding: 0.875rem 0.75rem;
   border-bottom: 1px solid #f1f5f9;
   border-right: 1px solid #f1f5f9;
   font-size: 0.875rem;
+  vertical-align: middle;
+  text-align: left;
 }
 
+:deep(.data-table-custom .p-datatable-thead > tr > th:last-child),
 :deep(.data-table-custom .p-datatable-tbody > tr > td:last-child) {
   border-right: none;
+  text-align: center;
 }
 
 :deep(.data-table-custom .p-datatable-tbody > tr:hover) {
@@ -333,6 +339,7 @@ export default {
   background-color: #eff6ff;
 }
 
+/* Estilos del paginador */
 :deep(.data-table-custom .p-paginator) {
   background-color: #f8fafc;
   border-top: 1px solid #e5e7eb;
@@ -340,6 +347,7 @@ export default {
   position: sticky;
   bottom: 0;
   z-index: 10;
+  flex-shrink: 0;
 }
 
 :deep(.data-table-custom .p-paginator .p-paginator-pages .p-paginator-page.p-highlight) {
@@ -353,6 +361,7 @@ export default {
   border-color: #3b82f6;
 }
 
+/* Estilos de iconos de búsqueda */
 :deep(.p-input-icon-left > .p-inputtext) {
   padding-left: 2.5rem;
 }
@@ -361,20 +370,68 @@ export default {
   left: 0.75rem;
 }
 
-/* Responsive adjustments */
+/* Estados especiales */
+:deep(.data-table-custom .p-datatable-emptymessage) {
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: #f9fafb;
+}
+
+:deep(.data-table-custom .p-datatable-loading-overlay) {
+  min-height: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Espaciado consistente para altura mínima */
+:deep(.data-table-custom .p-datatable-tbody) {
+  min-height: 350px;
+}
+
+:deep(.data-table-custom .p-datatable-wrapper) {
+  min-height: 450px;
+}
+
+/* Ajustes responsive con PrimeFlex equivalents implementados directamente */
 @media (max-width: 768px) {
-  .data-manager-container {
-    padding: 1rem;
-  }
-  
   :deep(.data-table-custom .p-datatable-thead > tr > th),
   :deep(.data-table-custom .p-datatable-tbody > tr > td) {
     padding: 0.5rem;
     font-size: 0.8rem;
   }
+
+  :deep(.data-table-custom .p-datatable-wrapper) {
+    min-height: 350px;
+  }
+
+  :deep(.data-table-custom .p-datatable-tbody) {
+    min-height: 250px;
+  }
+
+  :deep(.data-table-custom .p-datatable-emptymessage) {
+    height: 250px;
+  }
 }
 
-/* Custom scrollbar for table content */
+@media (max-width: 480px) {
+  :deep(.data-table-custom .p-datatable-wrapper) {
+    min-height: 300px;
+  }
+
+  :deep(.data-table-custom .p-datatable-tbody) {
+    min-height: 200px;
+  }
+
+  :deep(.data-table-custom .p-datatable-emptymessage) {
+    height: 200px;
+  }
+}
+
+/* Scrollbar personalizado */
 :deep(.p-datatable-wrapper::-webkit-scrollbar) {
   width: 6px;
   height: 6px;
