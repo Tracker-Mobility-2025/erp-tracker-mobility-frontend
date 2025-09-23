@@ -59,7 +59,7 @@ export default {
 
     confirmDeleteSelected() {
       this.$confirm.require({
-        message: `¿Está seguro de que desea eliminar los ${this.title.plural} seleccionados?`,
+        message: `¿Está seguro de que desea eliminar las ${this.title.plural} seleccionadas?`,
         header: 'Confirmación',
         icon: 'pi pi-exclamation-triangle',
         rejectClass: 'p-button-secondary p-button-outlined',
@@ -75,23 +75,6 @@ export default {
       this.$refs.dt.exportCSV();
     },
 
-    editItem(item) {
-      this.$emit('edit-item-requested-manager', item);
-    },
-
-    confirmDeleteItem(item) {
-      this.$confirm.require({
-        message: `¿Está seguro de que desea eliminar el ${this.title.singular} seleccionado?`,
-        header: 'Confirmación',
-        icon: 'pi pi-exclamation-triangle',
-        rejectClass: 'p-button-secondary p-button-outlined',
-        rejectLabel: 'Cancelar',
-        acceptLabel: 'Eliminar',
-        acceptClass: 'p-button-danger',
-        accept: () => this.$emit('delete-item-requested-manager', item),
-        reject: () => {}
-      });
-    },
 
     onRowSelect(event) {
       this.$emit('row-select', event);
@@ -204,12 +187,13 @@ export default {
         class="data-table-custom"
       >
         <!-- Selection Column -->
-        <pv-column 
-          v-if="showSelection"
-          :exportable="false" 
-          selection-mode="multiple" 
-          header-style="width: 3rem"
-          body-style="text-align: center"
+        <pv-column
+            v-if="showSelection"
+            :exportable="false"
+            selection-mode="multiple"
+            header-style="width: 3rem; text-align: center"
+            body-style="text-align: center; justify-content: center;"
+
         />
 
         <!-- Custom Slot Columns -->
@@ -290,6 +274,13 @@ export default {
   padding: 1rem;
 }
 
+/* Estilos para el encabezado de la columna de selección */
+:deep(.p-datatable-column-header-content) {
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Asegurar alineación perfecta de headers y contenido */
 :deep(.data-table-custom .p-datatable) {
   height: 100%;
@@ -315,7 +306,7 @@ export default {
   border-bottom: 2px solid #e5e7eb;
   border-right: 1px solid #e5e7eb;
   white-space: nowrap;
-  text-align: left;
+  text-align: center;
 }
 
 /* Estilos de celdas del cuerpo - alineación perfecta */
@@ -325,7 +316,7 @@ export default {
   border-right: 1px solid #f1f5f9;
   font-size: 0.875rem;
   vertical-align: middle;
-  text-align: left;
+  text-align: center;
 }
 
 :deep(.data-table-custom .p-datatable-thead > tr > th:last-child),

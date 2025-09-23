@@ -6,7 +6,6 @@ export default {
   name: "service-order-management",
   components: {
     DataManager
-
   },
   data() {
     return {
@@ -96,6 +95,7 @@ export default {
           programacion: '16/09/2025'
         }
       ],
+
       columns: [
         { field: 'id', header: 'ID Orden', sortable: true, style: 'width: 160px;' },
         { field: 'estado', header: 'Estado', sortable: true, template: 'status', style: 'width: 120px;' },
@@ -103,7 +103,7 @@ export default {
         { field: 'verificador', header: 'Verificador', sortable: true, template: 'verificador', style: 'width: 150px;' },
         { field: 'programacion', header: 'Programación', sortable: true, template: 'programacion', style: 'width: 140px;' }
       ],
-      selectedStatus: null,
+      selectedStatus: null, // Filtro de estado seleccionado
       statusOptions: [
         { label: 'Todos', value: null },
         { label: 'Pendiente', value: 'Pendiente' },
@@ -112,8 +112,8 @@ export default {
         { label: 'Cancelado', value: 'Cancelado' }
       ],
       title: {
-        singular: 'Orden de verificación',
-        plural: 'Órdenes de verificación'
+        singular: 'orden de verificación',
+        plural: 'órdenes de verificación'
       },
       loading: false
     }
@@ -133,6 +133,7 @@ export default {
       console.log('Crear nueva orden de verificación');
       // Implementar navegación a formulario de creación
     },
+
     onDeleteSelectedItems(selectedItems) {
       console.log('Eliminar órdenes seleccionadas:', selectedItems);
       // Implementar lógica de eliminación múltiple
@@ -143,6 +144,7 @@ export default {
         }
       });
     },
+
     onDeleteItem(item) {
       console.log('Eliminar orden:', item);
       // Implementar lógica de eliminación individual
@@ -151,23 +153,29 @@ export default {
         this.orders.splice(index, 1);
       }
     },
+
     onEditItem(item) {
       console.log('Editar orden:', item);
       // Implementar navegación a formulario de edición
     },
+
     onViewItem(item) {
       console.log('Ver detalles de orden:', item);
       // Implementar navegación a vista de detalles
     },
+
     onRowSelect(event) {
       console.log('Fila seleccionada:', event);
     },
+
     onRowUnselect(event) {
       console.log('Fila deseleccionada:', event);
     },
+
     clearStatusFilter() {
       this.selectedStatus = null;
     },
+
     getStatusSeverity(status) {
       switch (status) {
         case 'Pendiente':
@@ -195,6 +203,7 @@ export default {
     <!-- Título de la página -->
     <h2 class="text-2xl font-bold mb-4">Gestión de Órdenes de Verificación</h2>
 
+    <!-- Componente DataManager para gestionar ordenes de servicio-->
     <data-manager
       :items="filteredOrders"
       :columns="columns"
@@ -210,8 +219,8 @@ export default {
       :rows="10"
       :rows-per-page-options="[5, 10, 15, 20, 50]"
       new-button-label="Nueva Orden"
-      delete-button-label="Eliminar Seleccionadas"
-      export-button-label="Exportar Órdenes"
+      delete-button-label="Eliminar"
+      export-button-label="Exportar"
       search-placeholder="Busca por verificador, cliente, correo, celular..."
       @new-item-requested-manager="onNewItemRequested"
       @delete-selected-items-requested-manager="onDeleteSelectedItems"
@@ -263,6 +272,8 @@ export default {
           {{ data.programacion }}
         </span>
       </template>
+
+
     </data-manager>
   </div>
 </template>
