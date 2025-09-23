@@ -179,7 +179,7 @@ export default {
     getStatusSeverity(status) {
       switch (status) {
         case 'Pendiente':
-          return 'warning';
+          return 'warn';
         case 'En Proceso':
           return 'info';
         case 'Completado':
@@ -201,7 +201,8 @@ export default {
   <div class="h-full overflow-hidden flex flex-column p-4">
 
     <!-- Título de la página -->
-    <h2 class="text-2xl font-bold mb-4">Gestión de Órdenes de Verificación</h2>
+    <h2 class="text-2xl font-bold mb-2">Gestión de Órdenes de Verificación</h2>
+    <p>Administra las órdenes de verificación, asigna verificadores y programa visitas.</p>
 
     <!-- Componente DataManager para gestionar ordenes de servicio-->
     <data-manager

@@ -30,8 +30,8 @@ export default {
       ],
 
       title: {
-        singular: 'Verificador',
-        plural: 'Verificadores',
+        singular: 'verificador',
+        plural: 'verificadores',
       },
 
       loading: false,
@@ -105,7 +105,7 @@ export default {
         case 'Inactivo':
           return 'danger';
         default:
-          return { label: 'Desconocido', class: 'p-tag-warning' };
+          return 'info';
       }
     },
 
