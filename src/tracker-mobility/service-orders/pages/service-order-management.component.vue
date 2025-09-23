@@ -162,6 +162,10 @@ export default {
     onViewItem(item) {
       console.log('Ver detalles de orden:', item);
       // Implementar navegación a vista de detalles
+
+      // Navegar con router a /admin/order-details
+      this.$router.push({ name: 'order-details'});
+
     },
 
     onRowSelect(event) {

@@ -5,6 +5,7 @@ import VerifiersManagementComponent
     from "../tracker-mobility/verifier-management/pages/verifiers.management.component.vue";
 import VerificationReportsManagementComponent
     from "../tracker-mobility/verification-reports/pages/verification-reports-management.component.vue";
+import OrderDetailComponent from "../tracker-mobility/service-orders/components/order-detail.component.vue";
 
 
 
@@ -36,6 +37,13 @@ const router = createRouter({
             name: 'verification-reports',
             component: VerificationReportsManagementComponent
             , meta: {title: 'Reportes de verificación'}
+        },
+
+        {
+            path: '/admin/order-details',
+            name: 'order-details',
+            component: OrderDetailComponent,
+            meta: {title: 'Detalles de la orden'}
         }
 
 
