@@ -5,7 +5,7 @@ import VerifiersManagementComponent
     from "../tracker-mobility/verifier-management/pages/verifiers.management.component.vue";
 import VerificationReportsManagementComponent
     from "../tracker-mobility/verification-reports/pages/verification-reports-management.component.vue";
-import OrderDetailComponent from "../tracker-mobility/service-orders/components/order-detail.component.vue";
+import OrderDetailManagementComponent from "../tracker-mobility/service-orders/pages/order-detail-management.component.vue";
 
 
 
@@ -42,7 +42,7 @@ const router = createRouter({
         {
             path: '/admin/order-details',
             name: 'order-details',
-            component: OrderDetailComponent,
+            component: OrderDetailManagementComponent,
             meta: {title: 'Detalles de la orden'}
         }
 
