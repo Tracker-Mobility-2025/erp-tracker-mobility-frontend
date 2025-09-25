@@ -25,36 +25,36 @@ export default {
 
 <template>
 
-  <div class="flex flex-column gap-4">
+  <div class="flex flex-column pb-4 gap-4">
 
     <!-- ====================== Card -> Datos del solicitante ====================== -->
     <pv-card class="w-full">
-      <template #content>
-        <h3 class="text-lg font-semibold mb-4 text-primary">Datos del solicitante</h3>
+      <template #content >
+        <h3 class="text-lg font-bold mb-4 text-primary">Datos del solicitante</h3>
         
-        <div class="formgrid grid mb-4">
+        <div class="formgrid grid">
           <!-- Fila 1: RUC y Razón Social -->
           <div class="field col-12 md:col-6">
-            <label class="font-medium text-color-secondary">Ruc</label>
-            <p class="text-color m-0">1234567890</p>
+            <label class="font-semibold text-color-secondary">Ruc</label>
+            <p class="font-semibold text-dark m-0">1234567890</p>
           </div>
           <div class="field col-12 md:col-6">
-            <label class="font-medium text-color-secondary">Razón social</label>
-            <p class="text-color m-0">Tracker Mobility S.A.C</p>
+            <label class="font-semibold text-color-secondary">Razón social</label>
+            <p class=" font-semibold text-dark m-0">Tracker Mobility S.A.C</p>
           </div>
           <!-- Fila 2: Nombre de ejecutivo y Número de contacto -->
           <div class="field col-12 md:col-6">
-            <label class="font-medium text-color-secondary">Nombre de ejecutivo</label>
-            <p class="text-color m-0">Gonzalo Saldaña</p>
+            <label class="font-semibold text-color-secondary">Nombre de ejecutivo</label>
+            <p class="font-semibold text-dark m-0">Gonzalo Saldaña</p>
           </div>
           <div class="field col-12 md:col-6">
-            <label class="font-medium text-color-secondary">Número de contacto</label>
-            <p class="text-color m-0">999 888 777</p>
+            <label class="font-semibold text-color-secondary">Número de contacto</label>
+            <p class="font-semibold text-dark m-0">999 888 777</p>
           </div>
           <!-- Fila 3: Correo corporativo (ocupa toda la fila) -->
           <div class="field col-12">
-            <label class="font-medium text-color-secondary">Correo corporativo</label>
-            <p class="text-color m-0">juan.perez@trackermobility.com</p>
+            <label class="font-semibold text-color-secondary">Correo corporativo</label>
+            <p class="font-semibold text-dark m-0">juan.perez@trackermobility.com</p>
           </div>
         </div>
       </template>
@@ -65,39 +65,39 @@ export default {
     <!-- ====================== Card -> Datos del cliente ====================== -->
     <pv-card class="w-full">
       <template #content>
-        <h3 class="text-lg font-semibold mb-4 text-primary">Datos del cliente</h3>
+        <h3 class="text-lg font-bold mb-4 text-primary">Datos del cliente</h3>
         
-        <div class="formgrid grid mb-4">
+        <div class="formgrid grid">
           <!-- Fila 1: Nombres completos y Apellidos completos -->
           <div class="field col-12 md:col-6">
-            <label class="font-medium text-color-secondary">Nombres completos</label>
-            <p class="text-color m-0">Janover Gonzalo</p>
+            <label class="font-semibold text-color-secondary">Nombres completos</label>
+            <p class="font-semibold text-dark m-0">Janover Gonzalo</p>
           </div>
           <div class="field col-12 md:col-6">
-            <label class="font-medium text-color-secondary">Apellidos completos</label>
-            <p class="text-color m-0">Saldaña Vela</p>
+            <label class="font-semibold text-color-secondary">Apellidos completos</label>
+            <p class="font-semibold text-dark m-0">Saldaña Vela</p>
           </div>
           <!-- Fila 2: Tipo de documento y N° de documento -->
           <div class="field col-12 md:col-6">
-            <label class="font-medium text-color-secondary">Tipo de documento</label>
-            <p class="text-color m-0">DNI</p>
+            <label class="font-semibold text-color-secondary">Tipo de documento</label>
+            <p class="font-semibold text-dark m-0">DNI</p>
           </div>
           <div class="field col-12 md:col-6">
-            <label class="font-medium text-color-secondary">N° de documento de identidad</label>
-            <p class="text-color m-0">75126098</p>
+            <label class="font-semibold text-color-secondary">N° de documento de identidad</label>
+            <p class="font-semibold text-dark m-0">75126098</p>
           </div>
           <!-- Fila 3: Número de contacto y Dirección de domicilio -->
           <div class="field col-12 md:col-6">
-            <label class="font-medium text-color-secondary">Número de contacto</label>
-            <p class="text-color m-0">1234567890</p>
+            <label class="font-semibold text-color-secondary">Número de contacto</label>
+            <p class="font-semibold text-dark m-0">1234567890</p>
           </div>
           <div class="field col-12 md:col-6">
-            <label class="font-medium text-color-secondary">Dirección de domicilio</label>
-            <p class="text-color m-0">999 888 777</p>
+            <label class="font-semibold text-color-secondary">Dirección de domicilio</label>
+            <p class="font-semibold text-dark m-0">999 888 777</p>
           </div>
           <!-- Ubicación en Google Maps -->
           <div class="field col-12">
-            <label class="font-medium text-color-secondary">Ubicación en google maps</label>
+            <label class="font-semibold text-color-secondary">Ubicación en google maps</label>
             <p class="text-color m-0">
               <a
                   href="https://maps.app.goo.gl/VVQpZ2SPsPAinAovTA"
@@ -115,12 +115,12 @@ export default {
     <!-- ====================== Card -> Documentos adjuntos ====================== -->
     <pv-card class="w-full">
       <template #content>
-        <h3 class="text-lg font-semibold mb-4 text-primary">Documentos adjuntos</h3>
+        <h3 class="text-lg font-bold mb-4 text-primary">Documentos adjuntos</h3>
         
         <div class="formgrid grid">
           <!-- Recibo de servicios -->
           <div class="field col-12 md:col-6">
-            <label class="font-medium text-color-secondary">Recibo de servicios (agua o luz)</label>
+            <label class="font-semibold text-color-secondary">Recibo de servicios (agua o luz)</label>
             <div class="mt-2 flex flex-column align-items-center">
               <img
                   src="https://via.placeholder.com/150x100"
@@ -137,7 +137,7 @@ export default {
           
           <!-- Documento de identidad -->
           <div class="field col-12 md:col-6">
-            <label class="font-medium text-color-secondary">Documento de identidad</label>
+            <label class="font-semibold text-color-secondary">Documento de identidad</label>
             <div class="mt-2 flex flex-column align-items-center">
               <img
                   src="https://via.placeholder.com/150x100"
@@ -158,16 +158,16 @@ export default {
     <!-- ====================== Card -> Datos del arrendador ====================== -->
     <pv-card class="w-full">
       <template #content>
-        <h3 class="text-lg font-semibold mb-4 text-primary">Datos del arrendador</h3>
+        <h3 class="text-lg font-bold mb-4 text-primary">Datos del arrendador</h3>
         
         <div class="formgrid grid">
           <div class="field col-12 md:col-6">
-            <label class="font-medium text-color-secondary">Nombre completo</label>
-            <p class="text-color m-0">Gonzalo Saldaña Vela</p>
+            <label class="font-semibold text-color-secondary">Nombre completo</label>
+            <p class="font-semibold text-dark m-0">Gonzalo Saldaña Vela</p>
           </div>
           <div class="field col-12 md:col-6">
-            <label class="font-medium text-color-secondary">Número de contacto</label>
-            <p class="text-color m-0">999 888 777</p>
+            <label class="font-semibold text-color-secondary">Número de contacto</label>
+            <p class="font-semibold text-dark m-0">999 888 777</p>
           </div>
         </div>
       </template>
@@ -178,5 +178,9 @@ export default {
 </template>
 
 <style scoped>
+
+:deep(.p-card-content) {
+  padding: 0.5rem;
+}
 
 </style>
