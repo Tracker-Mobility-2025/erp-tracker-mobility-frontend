@@ -63,6 +63,39 @@ import {createPinia} from "pinia";
 
 
 
+/**
+ * ========== TRACKER MOBILITY ERP FRONTEND ==========
+ * 
+ * Sistema de gestión ERP con las siguientes implementaciones:
+ * 
+ * 🎨 TEMA CORPORATIVO:
+ * - Paleta de colores corporativa definida en style.css
+ * - Modo oscuro automático basado en preferencias del sistema
+ * - Variables CSS personalizadas para consistencia visual
+ * 
+ * 🏗️ ARQUITECTURA:
+ * - Vue 3 + Composition API
+ * - PrimeVue para componentes UI
+ * - PrimeFlex para layout responsive
+ * - PrimeIcons para iconografía
+ * - Vue Router para navegación
+ * - Pinia para gestión de estado
+ * 
+ * 📱 FUNCIONALIDADES:
+ * - Gestión de órdenes de verificación
+ * - Asignación de verificadores
+ * - Programación de visitas
+ * - Gestión documental
+ * - Sistema de notificaciones
+ * 
+ * ✨ CARACTERÍSTICAS TÉCNICAS:
+ * - Diseño responsive para móviles y desktop
+ * - Componentes reutilizables y modulares
+ * - Estilos personalizados para PrimeVue
+ * - Transiciones suaves y animaciones
+ * - Compatibilidad con modo oscuro del sistema
+ */
+
 //create app instance
 const app=createApp(App)
 

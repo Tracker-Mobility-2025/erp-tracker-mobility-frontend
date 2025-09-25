@@ -339,6 +339,367 @@ input:disabled, textarea:disabled, select:disabled {
     opacity: 0.75;
 }
 
+/* ========== MODO CLARO FORZADO ========== */
+/* 
+   Comentario: Se ha deshabilitado la detección automática del modo oscuro
+   para mantener siempre los estilos del modo claro, independientemente
+   de la configuración del sistema operativo del usuario.
+   
+   Para habilitar el modo oscuro automático, descomenta la sección siguiente:
+*/
+
+/*
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-background: #1A1A1A;
+        --color-text-gray: #E5E7EB;
+        --color-card-background: #2D2D2D;
+        --color-white: #F9FAFB;
+        --color-black: #111827;
+        --color-light: #374151;
+        --color-dark: #F9FAFB;
+        --color-muted: #9CA3AF;
+        --color-disabled: #4B5563;
+        --color-hover: #1e2a8a;
+        --color-focus: #4338ca;
+        --color-active: #1d4ed8;
+        --bg-success-light: rgba(40, 167, 69, 0.1);
+        --bg-error-light: rgba(220, 53, 69, 0.1);
+        --bg-warning-light: rgba(255, 193, 7, 0.1);
+        --bg-info-light: rgba(23, 162, 184, 0.1);
+        --border-success: rgba(40, 167, 69, 0.3);
+        --border-error: rgba(220, 53, 69, 0.3);
+        --border-warning: rgba(255, 193, 7, 0.3);
+        --border-info: rgba(23, 162, 184, 0.3);
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+        --shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.6);
+        --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.7);
+    }
+
+    body {
+        background-color: var(--color-background);
+        color: var(--color-text-gray);
+    }
+
+    input, textarea, select {
+        background-color: var(--color-card-background);
+        color: var(--color-text-gray);
+        border-color: var(--color-muted);
+    }
+
+    input::placeholder, textarea::placeholder {
+        color: var(--color-muted);
+    }
+}
+*/
+
+/* ========== ESTILOS PERSONALIZADOS PARA PRIMEVUE ========== */
+
+/* Card de PrimeVue - usando colores corporativos exactos */
+.p-card {
+    background: var(--color-card-background);
+    border: var(--border-width) solid var(--color-border-cards);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    transition: all 0.2s ease;
+}
+
+.p-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.p-card .p-card-content {
+    padding: var(--spacing-lg);
+}
+
+/* Botones de PrimeVue - usando colores corporativos */
+.p-button {
+    font-family: var(--font-family);
+    font-weight: var(--font-weight-medium);
+    border-radius: var(--border-radius);
+    transition: all 0.2s ease;
+    gap: var(--spacing-xs);
+}
+
+.p-button-sm {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: 0.875rem;
+}
+
+.p-button-primary {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.p-button-primary:hover {
+    background: var(--color-hover);
+    border-color: var(--color-hover);
+}
+
+.p-button-warning {
+    background: var(--color-warning);
+    border-color: var(--color-warning);
+    color: var(--color-dark);
+}
+
+.p-button-warning:hover {
+    background: var(--color-pending);
+    border-color: var(--color-pending);
+}
+
+.p-button-success {
+    background: var(--color-success);
+    border-color: var(--color-success);
+}
+
+.p-button-success:hover {
+    background: var(--color-valid);
+    border-color: var(--color-valid);
+}
+
+.p-button-danger {
+    background: var(--color-coral);
+    border-color: var(--color-coral);
+}
+
+.p-button-danger:hover {
+    background: var(--color-error);
+    border-color: var(--color-error);
+}
+
+/* Dropdown de PrimeVue */
+.p-dropdown {
+    background: var(--color-card-background);
+    border: var(--border-width) solid var(--color-muted);
+    border-radius: var(--border-radius);
+    color: var(--color-text-gray);
+}
+
+.p-dropdown:not(.p-disabled):hover {
+    border-color: var(--color-border-cards);
+}
+
+.p-dropdown:not(.p-disabled).p-focus {
+    border-color: var(--color-focus);
+    box-shadow: 0 0 0 3px rgba(46, 61, 180, 0.1);
+}
+
+.p-dropdown-panel {
+    background: var(--color-card-background);
+    border: var(--border-width) solid var(--color-border-cards);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+}
+
+.p-dropdown-item {
+    color: var(--color-text-gray);
+    padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.p-dropdown-item:hover {
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+/* Calendar de PrimeVue */
+.p-calendar .p-inputtext {
+    background: var(--color-card-background);
+    border: var(--border-width) solid var(--color-muted);
+    color: var(--color-text-gray);
+    border-radius: var(--border-radius);
+}
+
+.p-calendar .p-inputtext:focus {
+    border-color: var(--color-focus);
+    box-shadow: 0 0 0 3px rgba(46, 61, 180, 0.1);
+}
+
+.p-datepicker {
+    background: var(--color-card-background);
+    border: var(--border-width) solid var(--color-border-cards);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+}
+
+.p-datepicker .p-datepicker-header {
+    background: var(--color-primary);
+    color: var(--color-white);
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.p-datepicker .p-datepicker-calendar td > span {
+    color: var(--color-text-gray);
+    border-radius: var(--border-radius-sm);
+}
+
+.p-datepicker .p-datepicker-calendar td > span:hover {
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+.p-datepicker .p-datepicker-calendar td > span.p-highlight {
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+/* Textarea de PrimeVue */
+.p-inputtextarea {
+    background: var(--color-card-background);
+    border: var(--border-width) solid var(--color-muted);
+    color: var(--color-text-gray);
+    border-radius: var(--border-radius);
+    font-family: var(--font-family);
+    resize: vertical;
+}
+
+.p-inputtextarea:focus {
+    border-color: var(--color-focus);
+    box-shadow: 0 0 0 3px rgba(46, 61, 180, 0.1);
+}
+
+.p-inputtextarea::placeholder {
+    color: var(--color-muted);
+}
+
+/* Toast de PrimeVue - usando colores corporativos exactos */
+.p-toast .p-toast-message {
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+}
+
+.p-toast .p-toast-message-success {
+    background: var(--bg-success-light);
+    border: var(--border-width) solid var(--border-success);
+    color: var(--color-success);
+}
+
+.p-toast .p-toast-message-error {
+    background: var(--bg-error-light);
+    border: var(--border-width) solid var(--border-error);
+    color: var(--color-error);
+}
+
+.p-toast .p-toast-message-warn {
+    background: var(--bg-warning-light);
+    border: var(--border-width) solid var(--border-warning);
+    color: var(--color-warning);
+}
+
+.p-toast .p-toast-message-info {
+    background: var(--bg-info-light);
+    border: var(--border-width) solid var(--border-info);
+    color: var(--color-info);
+}
+
+/* Dialog de PrimeVue */
+.p-dialog {
+    background: var(--color-card-background);
+    border: var(--border-width) solid var(--color-border-cards);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+}
+
+.p-dialog .p-dialog-header {
+    background: var(--color-primary);
+    color: var(--color-white);
+    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+    padding: var(--spacing-lg);
+}
+
+.p-dialog .p-dialog-content {
+    padding: var(--spacing-lg);
+    color: var(--color-text-gray);
+}
+
+/* DataTable de PrimeVue */
+.p-datatable {
+    background: var(--color-card-background);
+    border: var(--border-width) solid var(--color-border-cards);
+    border-radius: var(--border-radius);
+}
+
+.p-datatable .p-datatable-header {
+    background: var(--color-primary);
+    color: var(--color-white);
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    padding: var(--spacing-md);
+    font-weight: var(--font-weight-semibold);
+}
+
+.p-datatable .p-datatable-thead > tr > th {
+    background: var(--color-light);
+    color: var(--color-dark);
+    border-color: var(--color-border-cards);
+    font-weight: var(--font-weight-semibold);
+    padding: var(--spacing-md);
+}
+
+.p-datatable .p-datatable-tbody > tr {
+    background: var(--color-card-background);
+    color: var(--color-text-gray);
+}
+
+.p-datatable .p-datatable-tbody > tr:nth-child(even) {
+    background: rgba(59, 130, 246, 0.02);
+}
+
+.p-datatable .p-datatable-tbody > tr:hover {
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+    border-color: var(--color-border-cards);
+    padding: var(--spacing-md);
+}
+
+/* Skeleton de PrimeVue */
+.p-skeleton {
+    background: linear-gradient(90deg, var(--color-light) 25%, rgba(248, 251, 255, 0.5) 50%, var(--color-light) 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* ProgressBar de PrimeVue */
+.p-progressbar {
+    background: var(--color-light);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.p-progressbar .p-progressbar-value {
+    background: var(--color-primary);
+    transition: width 0.3s ease;
+}
+
+/* Sidebar de PrimeVue */
+.p-sidebar {
+    background: var(--color-card-background);
+    border: var(--border-width) solid var(--color-border-cards);
+    box-shadow: var(--shadow-lg);
+}
+
+.p-sidebar .p-sidebar-header {
+    background: var(--color-primary);
+    color: var(--color-white);
+    padding: var(--spacing-lg);
+    font-weight: var(--font-weight-semibold);
+}
+
+.p-sidebar .p-sidebar-content {
+    padding: var(--spacing-lg);
+    color: var(--color-text-gray);
+}
+
 /* Diseño responsivo */
 @media (max-width: 768px) {
     #app {
@@ -353,7 +714,26 @@ input:disabled, textarea:disabled, select:disabled {
         font-size: 1.5rem;
     }
 
-    .card {
+    .card, .p-card {
         padding: var(--spacing-md);
+    }
+
+    .p-button {
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: 0.875rem;
+    }
+
+    .p-dialog {
+        margin: var(--spacing-md);
+        width: calc(100vw - var(--spacing-xl));
+    }
+
+    .p-datatable {
+        font-size: 0.875rem;
+    }
+
+    .p-datatable .p-datatable-tbody > tr > td,
+    .p-datatable .p-datatable-thead > tr > th {
+        padding: var(--spacing-sm);
     }
 }

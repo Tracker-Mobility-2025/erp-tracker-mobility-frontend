@@ -53,9 +53,10 @@ export default {
 .content-area {
   flex: 1;
   overflow: hidden;
-  background-color: #f5f5f5;
+  background-color: var(--color-background);
   display: flex;
   flex-direction: column;
+  transition: background-color 0.2s ease;
 }
 
 /* Responsive design para pantallas pequeñas */

@@ -1,26 +1,42 @@
 <script>
 
+
+
 export default {
   name: 'order-actions',
+  components: {
+  },
 
   props : {
     item: {
       type: Object,
-      required: true
+      required: true,
+      default: () => ({
+        assignedVerifier: null,
+        scheduledDate: null,
+        scheduledTime: null,
+        status: 'En progreso',
+        documentType: 'Documento de identidad',
+        observations: ''
+      })
     },
 
     verifiersList: {
       type: Array,
-      required: true
+      required: true,
+      default: () => ([
+        { id: 1, name: 'Juan Pérez' },
+        { id: 2, name: 'María Gómez' },
+        { id: 3, name: 'Carlos Rodríguez' }
+      ])
     },
 
     statusOptions: {
       type: Array,
       required: false,
-      default : () => (['Pendiente', 'En Proceso', 'Completado', 'Cancelado'])
+      default : () => (['Pendiente', 'En progreso', 'Completado', 'Cancelado'])
     }
   },
-
 
   methods : {
     // Asignar verificador a una orden de servicio (programar fecha de visita y hora de visita)
@@ -40,148 +56,142 @@ export default {
       // Lógica para enviar observaciones
       this.$emit('submit-observations', this.item);
     },
-
   }
-
-
 };
 
 </script>
 
 <template>
-
-
   <div class="flex flex-column gap-4 w-full">
 
     <!-- ====================== Card -> Asignar a verificador ====================== -->
-    <div class="card p-4 border border-gray-300 rounded-lg shadow-sm bg-white">
-      <h3 class="text-lg font-semibold mb-4 text-gray-900">Asignar a verificador</h3>
-      
-      <div class="mb-3">
-        <label class="block text-gray-700 font-medium mb-1" for="verifier">Seleccionar verificador *</label>
-        <select
+    <pv-card class="w-full">
+      <template #content>
+        <h3 class="text-lg font-semibold mb-4 text-gray-900">Asignar a verificador</h3>
+        
+        <div class="field mb-3">
+          <label for="verifier" class="font-medium text-gray-700">Seleccionar verificador *</label>
+          <pv-dropdown
             id="verifier"
-            v-model="item.assignedVerifier"
-            class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="" disabled>Ingresar el nombre del verificador</option>
-          <option
-              v-for="verifier in verifiersList"
-              :key="verifier.id"
-              :value="verifier.id"
-          >
-            {{ verifier.name }}
-          </option>
-        </select>
-      </div>
+            v-model="item.assignedVerifier" 
+            :options="verifiersList" 
+            optionLabel="name" 
+            optionValue="id"
+            placeholder="Ingresar el nombre del verificador"
+            class="w-full mt-1"
+          />
+        </div>
 
-      <div class="grid grid-cols-2 gap-3 mb-4">
-        <div>
-          <label class="block text-gray-700 font-medium mb-1" for="visitDate">Fecha de visita *</label>
-          <input
-              type="date"
+        <div class="formgrid grid mb-4">
+          <div class="field col-6">
+            <label for="visitDate" class="font-medium text-gray-700">Fecha de visita *</label>
+            <pv-calendar
               id="visitDate"
-              v-model="item.scheduledDate"
+              v-model="item.scheduledDate" 
               placeholder="dd/mm/aaaa"
-              class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div>
-          <label class="block text-gray-700 font-medium mb-1" for="visitTime">Hora de visita *</label>
-          <input
-              type="time"
+              dateFormat="dd/mm/yy"
+              class="w-full mt-1"
+              showIcon
+            />
+          </div>
+          <div class="field col-6">
+            <label for="visitTime" class="font-medium text-gray-700">Hora de visita *</label>
+            <pv-calendar
               id="visitTime"
-              v-model="item.scheduledTime"
+              v-model="item.scheduledTime" 
+              timeOnly 
               placeholder="hh:mm"
-              class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full mt-1"
+              showIcon
+            />
+          </div>
+        </div>
+
+        <div class="flex justify-content-end gap-2">
+          <pv-button
+            label="Editar" 
+            icon="pi pi-pencil" 
+            class="p-button-warning p-button-sm"
+            @click="assignVerifierToOrder"
+          />
+          <pv-button
+            label="Asignar" 
+            icon="pi pi-user-plus" 
+            class="p-button-primary p-button-sm"
+            @click="assignVerifierToOrder"
           />
         </div>
-      </div>
-
-      <div class="flex gap-2">
-        <button
-            @click="assignVerifierToOrder"
-            class="bg-orange-500 text-white px-4 py-2 rounded text-sm hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 flex items-center gap-1"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-          </svg>
-          Editar
-        </button>
-        <button
-            @click="assignVerifierToOrder"
-            class="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center gap-1"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-          </svg>
-          Asignar
-        </button>
-      </div>
-    </div>
+      </template>
+    </pv-card>
 
     <!-- ====================== Card -> Acciones ====================== -->
-    <div class="card p-4 border border-gray-300 rounded-lg shadow-sm bg-white">
-      <h3 class="text-lg font-semibold mb-4 text-gray-900">Acciones</h3>
-      
-      <div class="mb-3">
-        <label class="block text-gray-700 font-medium mb-1" for="serviceStatus">Actualizar estado</label>
-        <select
+    <pv-card class="w-full">
+      <template #content>
+        <h3 class="text-lg font-semibold mb-4 text-gray-900">Acciones</h3>
+        
+        <div class="field mb-3">
+          <label for="serviceStatus" class="font-medium text-gray-700">Actualizar estado</label>
+          <pv-dropdown
             id="serviceStatus"
-            v-model="item.status"
-            class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="En progreso">En progreso</option>
-          <option value="Pendiente">Pendiente</option>
-          <option value="Completado">Completado</option>
-          <option value="Cancelado">Cancelado</option>
-        </select>
-      </div>
-      
-      <button
+            v-model="item.status" 
+            :options="statusOptions.map(status => ({ label: status, value: status }))" 
+            optionLabel="label" 
+            optionValue="value"
+            placeholder="En progreso"
+            class="w-full mt-1"
+          />
+        </div>
+        
+        <pv-button
+          label="Guardar cambios" 
+          icon="pi pi-save"
+          class="p-button-primary w-full"
           @click="updateServiceStatus"
-          class="w-full bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      >
-        Guardar cambios
-      </button>
-    </div>
+        />
+      </template>
+    </pv-card>
 
     <!-- ====================== Card -> Observaciones ====================== -->
-    <div class="card p-4 border border-gray-300 rounded-lg shadow-sm bg-white">
-      <h3 class="text-lg font-semibold mb-4 text-gray-900">Observaciones</h3>
-      
-      <div class="mb-3">
-        <label class="block text-gray-700 font-medium mb-1" for="documentType">Selecciona el documento</label>
-        <select
+    <pv-card class="w-full">
+      <template #content>
+        <h3 class="text-lg font-semibold mb-4 text-gray-900">Observaciones</h3>
+        
+        <div class="field mb-3">
+          <label for="documentType" class="font-medium text-gray-700">Selecciona el documento</label>
+          <pv-dropdown
             id="documentType"
-            class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="Documento de identidad">Documento de identidad</option>
-          <option value="Recibo de servicios">Recibo de servicios</option>
-        </select>
-      </div>
-      
-      <div class="mb-4">
-        <label class="block text-gray-700 font-medium mb-1" for="observations">Descripción</label>
-        <textarea
+            v-model="item.documentType"
+            :options="[
+              { label: 'Documento de identidad', value: 'Documento de identidad' },
+              { label: 'Recibo de servicios', value: 'Recibo de servicios' }
+            ]"
+            optionLabel="label" 
+            optionValue="value"
+            placeholder="Documento de identidad"
+            class="w-full mt-1"
+          />
+        </div>
+        
+        <div class="field mb-4">
+          <label for="observations" class="font-medium text-gray-700">Descripción</label>
+          <pv-textarea
             id="observations"
-            v-model="item.observations"
-            rows="3"
+            v-model="item.observations" 
+            :rows="3" 
             placeholder="Los datos del documento de identidad no coinciden con los datos del cliente"
-            class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        ></textarea>
-      </div>
-      
-      <button
+            class="w-full mt-1"
+          />
+        </div>
+        
+        <pv-button
+          label="Guardar cambios" 
+          icon="pi pi-save"
+          class="p-button-primary w-full"
           @click="submitOrderObservations"
-          class="w-full bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      >
-        Guardar cambios
-      </button>
-    </div>
+        />
+      </template>
+    </pv-card>
   </div>
-
-
 </template>
 
 <style scoped>

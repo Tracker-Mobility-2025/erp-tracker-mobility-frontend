@@ -205,8 +205,8 @@ export default {
   <div class="h-full overflow-hidden flex flex-column p-4">
 
     <!-- Título de la página -->
-    <h2 class="text-2xl font-bold mb-2">Gestión de Órdenes de Verificación</h2>
-    <p>Administra las órdenes de verificación, asigna verificadores y programa visitas.</p>
+    <h2 class="text-2xl font-bold mb-2 text-primary">Gestión de Órdenes de Verificación</h2>
+    <p class="text-color-secondary mb-4">Administra las órdenes de verificación, asigna verificadores y programa visitas.</p>
 
     <!-- Componente DataManager para gestionar ordenes de servicio-->
     <data-manager
@@ -284,123 +284,147 @@ export default {
 </template>
 
 <style scoped>
-/* Estilos específicos para highlighting de campos pendientes - usando PrimeFlex cuando es posible */
+/* Estilos usando variables CSS corporativas */
 .text-orange-500 {
-  color: #f97316 !important;
+  color: var(--color-warning) !important;
 }
 
-/* Estilos específicos de PrimeVue que requieren :deep() para penetrar en los componentes */
-/* Botones personalizados */
+/* Componentes PrimeVue personalizados con colores corporativos */
 :deep(.p-button.p-button-success) {
-  background-color: #059669;
-  border-color: #059669;
+  background-color: var(--color-success);
+  border-color: var(--color-success);
 }
 
 :deep(.p-button.p-button-success:hover) {
-  background-color: #047857;
-  border-color: #047857;
+  background-color: var(--color-valid);
+  border-color: var(--color-valid);
 }
 
 :deep(.p-button.p-button-danger) {
-  background-color: #dc2626;
-  border-color: #dc2626;
+  background-color: var(--color-coral);
+  border-color: var(--color-coral);
 }
 
 :deep(.p-button.p-button-danger:hover) {
-  background-color: #b91c1c;
-  border-color: #b91c1c;
+  background-color: var(--color-error);
+  border-color: var(--color-error);
 }
 
 :deep(.p-button.p-button-help.p-button-outlined) {
-  color: #6366f1;
-  border-color: #6366f1;
+  color: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
 :deep(.p-button.p-button-help.p-button-outlined:hover) {
-  background-color: #6366f1;
-  color: white;
+  background-color: var(--color-primary);
+  color: var(--color-white);
 }
 
-/* Input y Dropdown styling */
+/* Input y Dropdown usando variables corporativas */
 :deep(.p-inputtext) {
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
+  border: var(--border-width) solid var(--color-muted);
+  border-radius: var(--border-radius);
   transition: all 0.2s ease-in-out;
 }
 
 :deep(.p-inputtext:focus) {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--color-focus);
+  box-shadow: 0 0 0 3px rgba(46, 61, 180, 0.1);
 }
 
 :deep(.p-dropdown) {
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
+  border: var(--border-width) solid var(--color-muted);
+  border-radius: var(--border-radius);
   transition: all 0.2s ease-in-out;
 }
 
 :deep(.p-dropdown:not(.p-disabled).p-focus) {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--color-focus);
+  box-shadow: 0 0 0 3px rgba(46, 61, 180, 0.1);
 }
 
-/* Tags de estado mejorados */
+/* Tags de estado usando colores corporativos */
 :deep(.p-tag) {
-  border-radius: 6px;
+  border-radius: var(--border-radius-sm);
   text-transform: uppercase;
   letter-spacing: 0.025em;
+  font-weight: var(--font-weight-semibold);
 }
 
 :deep(.p-tag.p-tag-warning) {
-  background-color: #fef3c7;
-  color: #d97706;
+  background-color: var(--bg-warning-light);
+  color: var(--color-warning);
 }
 
 :deep(.p-tag.p-tag-success) {
-  background-color: #d1fae5;
-  color: #059669;
+  background-color: var(--bg-success-light);
+  color: var(--color-success);
 }
 
 :deep(.p-tag.p-tag-danger) {
-  background-color: #fecaca;
-  color: #dc2626;
+  background-color: var(--bg-error-light);
+  color: var(--color-coral);
 }
 
 :deep(.p-tag.p-tag-info) {
-  background-color: #dbeafe;
-  color: #2563eb;
+  background-color: var(--bg-info-light);
+  color: var(--color-info);
 }
 
-/* Checkbox personalizado */
+/* Checkbox usando colores corporativos */
 :deep(.p-checkbox .p-checkbox-box) {
-  border: 2px solid #d1d5db;
-  border-radius: 4px;
+  border: var(--border-width-thick) solid var(--color-muted);
+  border-radius: var(--border-radius-sm);
   width: 1.125rem;
   height: 1.125rem;
 }
 
 :deep(.p-checkbox .p-checkbox-box.p-highlight) {
-  background-color: #3b82f6;
-  border-color: #3b82f6;
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
 /* Botones de acción en tabla */
 :deep(.p-button-link) {
-  color: #3b82f6 !important;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+  color: var(--color-primary) !important;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
   transition: all 0.2s ease-in-out;
 }
 
 :deep(.p-button-link:hover) {
-  background-color: #eff6ff;
-  color: #2563eb !important;
+  background-color: var(--color-card-background);
+  color: var(--color-hover) !important;
 }
 
-/* Paginador */
+/* Paginador usando colores corporativos */
 :deep(.p-paginator .p-paginator-pages .p-paginator-page.p-highlight) {
-  background-color: #3b82f6;
-  border-color: #3b82f6;
-  color: #ffffff;
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+:deep(.p-paginator .p-paginator-pages .p-paginator-page:hover) {
+  background-color: var(--color-hover);
+  border-color: var(--color-hover);
+  color: var(--color-white);
+}
+
+/* DataTable headers usando colores corporativos */
+:deep(.p-datatable .p-datatable-thead > tr > th) {
+  background-color: var(--color-light);
+  color: var(--color-dark);
+  font-weight: var(--font-weight-semibold);
+}
+
+:deep(.p-datatable .p-datatable-tbody > tr:hover) {
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+/* Toolbar usando colores corporativos */
+:deep(.p-toolbar) {
+  background-color: var(--color-card-background);
+  border: var(--border-width) solid var(--color-border-cards);
+  border-radius: var(--border-radius);
 }
 </style>
