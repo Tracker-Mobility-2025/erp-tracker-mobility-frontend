@@ -196,4 +196,8 @@ export default {
 
 <style scoped>
 
+:deep(.p-card-content) {
+  padding: 0.5rem;
+}
+
 </style>
