@@ -42,6 +42,14 @@ export default {
   },
 
   methods : {
+
+    onDownloadDocument (payload) {
+      // Lógica para descargar documento
+      console.log(`Descargar documento: ${payload.type} para la orden ${payload.item.id}`);
+      // Aquí iría la lógica real de descarga
+    },
+
+
     // Asignar verificador a una orden de servicio (programar fecha de visita y hora de visita)
     onAssignVerifierToOrder() {
       // Lógica para asignar verificador
@@ -62,6 +70,8 @@ export default {
       // Lógica para enviar observaciones
       this.$emit('submit-observations', this.item);
     },
+
+
 
 
   }
@@ -108,7 +118,10 @@ export default {
 
       <!-- Columna izquierda (2/3 del ancho) -->
       <div class="flex flex-column gap-4" style="flex: 2;">
-        <order-description :order="item"></order-description>
+        <order-description
+            :order="item"
+            @download-document="onDownloadDocument"
+        />
       </div>
 
       <!-- Columna derecha (1/3 del ancho) -->
