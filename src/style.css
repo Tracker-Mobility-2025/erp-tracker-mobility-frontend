@@ -843,6 +843,6 @@ html:not(.force-dark-mode) .p-calendar {
 /* Asegurar que el body y html mantengan el esquema de colores claro */
 html, body {
     color-scheme: light !important;
-    background: var(--color-white) !important;
+    background: var(--color-background) !important;
     color: var(--color-text-gray) !important;
 }
