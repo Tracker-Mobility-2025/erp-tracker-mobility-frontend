@@ -28,6 +28,7 @@ import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
 import InputText from "primevue/inputtext";
 import InputNumber from "primevue/inputnumber";
+import Password from "primevue/password";
 import Menu from "primevue/menu";
 import Rating from "primevue/rating";
 import Row from "primevue/row";
@@ -96,6 +97,7 @@ app.component('pv-button', Button)
     .component('pv-input-icon', InputIcon)
     .component('pv-input-text', InputText)
     .component('pv-input-number', InputNumber)
+    .component('pv-password', Password)
     .component('pv-menu', Menu)
     .component('pv-rating', Rating)
     .component('pv-row', Row)

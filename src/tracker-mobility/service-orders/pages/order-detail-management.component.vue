@@ -33,7 +33,9 @@ export default {
         { id: 1, name: 'Verificador 1' },
         { id: 2, name: 'Verificador 2' },
         { id: 3, name: 'Verificador 3' }
-      ]
+      ],
+
+      statusOptions: ['Pendiente', 'En Proceso', 'Completado', 'Cancelado']
 
 
     };
@@ -41,21 +43,24 @@ export default {
 
   methods : {
     // Asignar verificador a una orden de servicio (programar fecha de visita y hora de visita)
-    assignVerifierToOrder() {
+    onAssignVerifierToOrder() {
       // Lógica para asignar verificador
+      this.$emit('assign-verifier', this.item);
     },
 
 
     // Actualizar estado del servicio
-    updateServiceStatus() {
+    onUpdateServiceStatus() {
       // Lógica para actualizar estado del servicio
+      this.$emit('update-status', this.item);
     },
 
 
 
     // Enviar observaciones de la orden de servicio
-    submitOrderObservations() {
+    onSubmitOrderObservations() {
       // Lógica para enviar observaciones
+      this.$emit('submit-observations', this.item);
     },
 
 
@@ -68,7 +73,7 @@ export default {
 <template>
 
   <!-- Detalles de la orden de servicio (se divide en cards tipo grid)-->
-  <div class="flex flex-column p-4 h-full overflow-auto " >
+  <div class="order-container flex flex-column p-4 h-full w-full overflow-auto " >
 
     <!-- Breadcrumb -->
     <div class="text-base">
@@ -98,17 +103,24 @@ export default {
     </div>
 
 
-    <!-- Grid de detalles de la orden (con dos columnas y cada columna tiene cards en forma vertical) -->
-    <div class=" flex gap-4 mt-4 h-full">
+    <!-- Grid de detalles de la orden (con dos columnas: izquierda más ancha, derecha más estrecha) -->
+    <div class="order-content flex gap-4 h-full w-full">
 
-      <!-- Columna izquierda -->
-      <div class="flex flex-column gap-4">
+      <!-- Columna izquierda (2/3 del ancho) -->
+      <div class="flex flex-column gap-4" style="flex: 2;">
         <order-description :order="item"></order-description>
       </div>
 
-      <!-- Columna derecha -->
-      <div class="flex flex-column gap-4">
-        <order-actions  :item="item"></order-actions>
+      <!-- Columna derecha (1/3 del ancho) -->
+      <div class="flex flex-column gap-4" style="flex: 1;">
+        <order-actions
+            :item="item"
+            :verifiers-list="verifiersList"
+            :status-options="statusOptions"
+            @assign-verifier="onAssignVerifierToOrder"
+            @update-status="onUpdateServiceStatus"
+            @submit-observations="onSubmitOrderObservations"
+        />
       </div>
 
     </div>

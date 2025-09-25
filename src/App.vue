@@ -20,7 +20,8 @@ export default {
 
 <template>
 
-  <layout-tracker-mobility></layout-tracker-mobility>
+
+  <router-view></router-view>
 
 
 </template>

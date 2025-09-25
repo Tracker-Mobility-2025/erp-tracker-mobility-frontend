@@ -6,6 +6,8 @@ import VerifiersManagementComponent
 import VerificationReportsManagementComponent
     from "../tracker-mobility/verification-reports/pages/verification-reports-management.component.vue";
 import OrderDetailManagementComponent from "../tracker-mobility/service-orders/pages/order-detail-management.component.vue";
+import SignInComponent from "../tracker-mobility/security/pages/sign-in.component.vue";
+import LayoutTrackerMobilityComponent from "../public/pages/layout-tracker-mobility.component.vue";
 
 
 
@@ -14,37 +16,46 @@ const router = createRouter({
     routes: [
 
         //ruta por defecto para redirigir a la página de inicio home-elixir line
-        //{path: '/:pathMatch(.*)*', redirect: '/tracker-mobility/sign-in'},
+        {path: '/:pathMatch(.*)*', redirect: '/tracker-mobility/sign-in'},
 
-        //{path: '/tracker-mobility/sign-in' , name: 'sign-in', component: SignInComponent, meta: { title:'Login'}},
+        {path: '/tracker-mobility/sign-in' , name: 'sign-in', component: SignInComponent, meta: { title:'Login'}},
 
         {
-            path: '/admin/service-orders',
-            name: 'service-orders',
-            component: ServiceOrderManagementComponent,
-            meta: {title: 'Ordenes de servicio'}
+            path: '/tracker-mobility', name: 'tracker-mobility', component: LayoutTrackerMobilityComponent, meta: {title: 'Tracker Mobility'},
+            children: [
+                {
+                    path: '/admin/service-orders',
+                    name: 'service-orders',
+                    component: ServiceOrderManagementComponent,
+                    meta: {title: 'Ordenes de servicio'}
+                },
+                {
+                    path: '/admin/verifiers',
+                    name: 'verifiers',
+                    component: VerifiersManagementComponent,
+                    meta: {title: 'Verificadores'}
+                },
+
+                {
+                    path: '/admin/verification-reports',
+                    name: 'verification-reports',
+                    component: VerificationReportsManagementComponent
+                    , meta: {title: 'Reportes de verificación'}
+                },
+
+                {
+                    path: '/admin/order-details',
+                    name: 'order-details',
+                    component: OrderDetailManagementComponent,
+                    meta: {title: 'Detalles de la orden'}
+                }
+
+
+            ]
+
         },
 
-        {
-            path: '/admin/verifiers',
-            name: 'verifiers',
-            component: VerifiersManagementComponent,
-            meta: {title: 'Verificadores'}
-        },
 
-        {
-            path: '/admin/verification-reports',
-            name: 'verification-reports',
-            component: VerificationReportsManagementComponent
-            , meta: {title: 'Reportes de verificación'}
-        },
-
-        {
-            path: '/admin/order-details',
-            name: 'order-details',
-            component: OrderDetailManagementComponent,
-            meta: {title: 'Detalles de la orden'}
-        }
 
 
 
