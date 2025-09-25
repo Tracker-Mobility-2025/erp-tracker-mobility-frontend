@@ -737,3 +737,112 @@ input:disabled, textarea:disabled, select:disabled {
         padding: var(--spacing-sm);
     }
 }
+
+/* ========== FORZAR MODO CLARO EN PRIMEVUE ========== */
+/* Sobrescribir cualquier modo oscuro automático de PrimeVue */
+
+/* Forzar componentes de PrimeVue al modo claro */
+.p-component {
+    --p-primary-color: var(--color-primary) !important;
+    --p-surface-0: var(--color-white) !important;
+    --p-surface-50: #fafafa !important;
+    --p-surface-100: #f5f5f5 !important;
+    --p-surface-200: #e5e5e5 !important;
+    --p-surface-300: #d4d4d4 !important;
+    --p-surface-400: #a3a3a3 !important;
+    --p-surface-500: #737373 !important;
+    --p-surface-600: #525252 !important;
+    --p-surface-700: #404040 !important;
+    --p-surface-800: #262626 !important;
+    --p-surface-900: #171717 !important;
+    --p-surface-950: #0a0a0a !important;
+    --p-content-color: var(--color-text-gray) !important;
+    --p-text-color: var(--color-text-gray) !important;
+    --p-text-muted-color: var(--color-muted) !important;
+    --p-border-color: var(--color-light) !important;
+}
+
+/* Cards siempre en modo claro */
+.p-card {
+    background: var(--color-white) !important;
+    color: var(--color-text-gray) !important;
+    border-color: var(--color-border-cards) !important;
+}
+
+/* Inputs siempre en modo claro */
+.p-inputtext, .p-textarea, .p-dropdown, .p-calendar input {
+    background: var(--color-white) !important;
+    color: var(--color-text-gray) !important;
+    border-color: var(--color-light) !important;
+}
+
+.p-inputtext:focus, .p-textarea:focus, .p-dropdown:focus {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 0.2rem rgba(46, 61, 180, 0.2) !important;
+}
+
+/* Dropdowns siempre en modo claro */
+.p-dropdown-panel {
+    background: var(--color-white) !important;
+    border-color: var(--color-light) !important;
+}
+
+.p-dropdown-item {
+    color: var(--color-text-gray) !important;
+}
+
+.p-dropdown-item:hover {
+    background: var(--color-light) !important;
+}
+
+/* Botones mantener colores corporativos */
+.p-button.p-button-success {
+    background: var(--color-success) !important;
+    border-color: var(--color-success) !important;
+}
+
+.p-button.p-button-success:hover {
+    background: #218838 !important;
+    border-color: #1e7e34 !important;
+}
+
+/* Calendar en modo claro */
+.p-datepicker {
+    background: var(--color-white) !important;
+    color: var(--color-text-gray) !important;
+    border-color: var(--color-light) !important;
+}
+
+.p-datepicker .p-datepicker-header {
+    background: var(--color-white) !important;
+    color: var(--color-text-gray) !important;
+}
+
+.p-datepicker table td > span {
+    color: var(--color-text-gray) !important;
+}
+
+.p-datepicker table td > span:hover {
+    background: var(--color-light) !important;
+}
+
+.p-datepicker table td.p-datepicker-today > span {
+    background: var(--color-primary) !important;
+    color: white !important;
+}
+
+/* Prevenir aplicación automática de modo oscuro */
+html:not(.force-dark-mode) .p-component,
+html:not(.force-dark-mode) .p-card,
+html:not(.force-dark-mode) .p-inputtext,
+html:not(.force-dark-mode) .p-dropdown,
+html:not(.force-dark-mode) .p-calendar {
+    color-scheme: light !important;
+}
+
+/* Asegurar que el body y html mantengan el esquema de colores claro */
+html, body {
+    color-scheme: light !important;
+    background: var(--color-white) !important;
+    color: var(--color-text-gray) !important;
+}

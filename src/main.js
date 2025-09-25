@@ -107,8 +107,17 @@ const pinia = createPinia();
 app.use(pinia);
 
 
-// Use PrimeVue
-app.use(PrimeVue, { theme: { preset: Aura }, ripple: true })
+// Use PrimeVue - Configurado para modo claro forzado
+app.use(PrimeVue, { 
+    theme: { 
+        preset: Aura,
+        options: {
+            darkModeSelector: '.force-dark-mode', // Selector personalizado que nunca se aplicará
+            cssLayer: false
+        }
+    }, 
+    ripple: true 
+})
     .use(ConfirmationService)
     .use(DialogService)
     .use(ToastService);
