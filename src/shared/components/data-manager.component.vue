@@ -119,7 +119,7 @@ export default {
         severity="secondary"
         outlined
         size="small"
-        class="w-full md:w-auto"
+        class="w-full md:w-auto h-full"
         @click="clearFilters"
       />
     </div>

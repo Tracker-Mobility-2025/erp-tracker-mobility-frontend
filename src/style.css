@@ -13,7 +13,7 @@
     --color-primary: #2E3DB4;           /* Azul corporativo */
     --color-background: #E0E0E0;        /* Gris medio */
     --color-success: #28A745;           /* Verde confirmaciones */
-    --color-text-gray: #858585;         /* Gris letras */
+    --color-text-gray: #363636;         /* Gris letras */
     --color-coral: #EF4444;             /* Rojo coral */
     --color-border-cards: #3B82F6;      /* Celeste Tecnológico */
     --color-card-background: #F8FBFF;   /* Celeste Claro */
@@ -25,7 +25,7 @@
     --color-warning: #FFC107;           /* Amarillo advertencia */
     --color-info: #17A2B8;              /* Azul información */
     --color-danger: var(--color-coral); /* Rojo peligro */
-    --color-light: #F8F9FA;             /* Gris muy claro */
+    --color-light: #000000;             /* Gris muy claro */
     --color-dark: #343A40;              /* Gris oscuro */
     --color-muted: #6C757D;             /* Gris apagado */
 
@@ -262,7 +262,7 @@ input:disabled, textarea:disabled, select:disabled {
 
 /* Clases utilitarias de texto para estados */
 .text-primary {
-    color: var(--color-primary);
+    color: var(--color-primary) !important;
 }
 
 .text-success {
@@ -394,6 +394,274 @@ input:disabled, textarea:disabled, select:disabled {
 }
 */
 
+/* ========== ESTILOS GLOBALES PARA DATA TABLES ========== */
+
+/* Variables adicionales para tablas con mejor contraste */
+:root {
+    /* Colores específicos para tablas */
+    --table-header-bg: #f1f5f9;
+    --table-header-text: #374151;
+    --table-header-border: #e5e7eb;
+    --table-row-even: #fafbfc;
+    --table-row-odd: var(--color-white);
+    --table-row-hover: #f0f9ff;
+    --table-row-selected: #eff6ff;
+    --table-border: #f1f5f9;
+    --table-border-strong: #e5e7eb;
+    --table-cell-padding: 0.75rem;
+    --table-cell-padding-sm: 0.5rem;
+    --table-header-font-weight: 600;
+    
+    /* Colores de contraste mejorado */
+    --contrast-bg-primary: #f8fafc;
+    --contrast-bg-secondary: #f1f5f9;
+    --contrast-text-primary: #1f2937;
+    --contrast-text-secondary: #4b5563;
+    --contrast-border-light: #f3f4f6;
+    --contrast-border-medium: #d1d5db;
+    
+    /* Estados de accesibilidad y focus */
+    --focus-ring-color: rgba(46, 61, 180, 0.2);
+    --focus-ring-width: 3px;
+    --row-highlight-intensity: 0.08;
+    --selection-intensity: 0.12;
+}
+
+/* Estilos globales para cualquier DataTable */
+.data-table-global,
+.data-table-custom {
+    background: var(--color-white);
+    border: 1px solid var(--table-border-strong);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+/* Headers globales con mejor contraste */
+.data-table-global .p-datatable-thead > tr > th,
+.data-table-custom .p-datatable-thead > tr > th,
+.p-datatable-thead > tr > th {
+    background-color: var(--table-header-bg) !important;
+    color: var(--table-header-text) !important;
+    font-weight: var(--table-header-font-weight) !important;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: var(--table-cell-padding) !important;
+    border-bottom: 2px solid var(--table-header-border) !important;
+    border-right: 1px solid var(--table-header-border) !important;
+    white-space: nowrap;
+    text-align: center;
+}
+
+/* Celdas del cuerpo con contraste mejorado */
+.data-table-global .p-datatable-tbody > tr > td,
+.data-table-custom .p-datatable-tbody > tr > td,
+.p-datatable-tbody > tr > td {
+    padding: var(--table-cell-padding) !important;
+    border-bottom: 1px solid var(--table-border) !important;
+    border-right: 1px solid var(--table-border) !important;
+    font-size: 0.875rem;
+    vertical-align: middle;
+    text-align: center;
+    background-color: var(--table-row-odd);
+    color: var(--contrast-text-primary);
+}
+
+/* Filas alternas con mejor contraste */
+.data-table-global .p-datatable-tbody > tr:nth-child(even) > td,
+.data-table-custom .p-datatable-tbody > tr:nth-child(even) > td,
+.p-datatable-tbody > tr:nth-child(even) > td {
+    background-color: var(--table-row-even) !important;
+}
+
+/* Estados hover con contraste mejorado */
+.data-table-global .p-datatable-tbody > tr:hover > td,
+.data-table-custom .p-datatable-tbody > tr:hover > td,
+.p-datatable-tbody > tr:hover > td {
+    background-color: var(--table-row-hover) !important;
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+}
+
+/* Filas seleccionadas */
+.data-table-global .p-datatable-tbody > tr.p-selection > td,
+.data-table-custom .p-datatable-tbody > tr.p-selection > td,
+.p-datatable-tbody > tr.p-selection > td {
+    background-color: var(--table-row-selected) !important;
+    border-color: var(--color-border-cards) !important;
+}
+
+/* Última columna sin borde derecho */
+.data-table-global .p-datatable-thead > tr > th:last-child,
+.data-table-global .p-datatable-tbody > tr > td:last-child,
+.data-table-custom .p-datatable-thead > tr > th:last-child,
+.data-table-custom .p-datatable-tbody > tr > td:last-child,
+.p-datatable-thead > tr > th:last-child,
+.p-datatable-tbody > tr > td:last-child {
+    border-right: none !important;
+}
+
+/* Paginador con estilos corporativos */
+.data-table-global .p-paginator,
+.data-table-custom .p-paginator,
+.p-datatable .p-paginator {
+    background-color: var(--contrast-bg-primary) !important;
+    border-top: 1px solid var(--table-header-border) !important;
+    padding: 1rem !important;
+    border-bottom-left-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+}
+
+.p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+    background-color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
+    color: var(--color-white) !important;
+}
+
+.p-paginator .p-paginator-pages .p-paginator-page:hover {
+    background-color: var(--table-row-hover) !important;
+    border-color: var(--color-border-cards) !important;
+}
+
+/* Checkboxes mejorados */
+.p-checkbox .p-checkbox-box.p-highlight {
+    background-color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
+}
+
+.p-checkbox .p-checkbox-box:hover {
+    border-color: var(--color-border-cards) !important;
+}
+
+/* Estados especiales de tabla */
+.data-table-global .p-datatable-emptymessage,
+.data-table-custom .p-datatable-emptymessage,
+.p-datatable-emptymessage {
+    background-color: var(--contrast-bg-primary) !important;
+    color: var(--contrast-text-secondary) !important;
+    text-align: center;
+    padding: 3rem 1rem !important;
+}
+
+.data-table-global .p-datatable-loading-overlay,
+.data-table-custom .p-datatable-loading-overlay,
+.p-datatable-loading-overlay {
+    background-color: rgba(248, 250, 252, 0.9) !important;
+}
+
+/* Scrollbar personalizado para tablas */
+.data-table-global .p-datatable-wrapper::-webkit-scrollbar,
+.data-table-custom .p-datatable-wrapper::-webkit-scrollbar,
+.p-datatable-wrapper::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.data-table-global .p-datatable-wrapper::-webkit-scrollbar-track,
+.data-table-custom .p-datatable-wrapper::-webkit-scrollbar-track,
+.p-datatable-wrapper::-webkit-scrollbar-track {
+    background: var(--contrast-bg-secondary);
+    border-radius: 4px;
+}
+
+.data-table-global .p-datatable-wrapper::-webkit-scrollbar-thumb,
+.data-table-custom .p-datatable-wrapper::-webkit-scrollbar-thumb,
+.p-datatable-wrapper::-webkit-scrollbar-thumb {
+    background: var(--contrast-border-medium);
+    border-radius: 4px;
+}
+
+.data-table-global .p-datatable-wrapper::-webkit-scrollbar-thumb:hover,
+.data-table-custom .p-datatable-wrapper::-webkit-scrollbar-thumb:hover,
+.p-datatable-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--color-muted);
+}
+
+/* ========== MEJORAS DE ACCESIBILIDAD Y FOCUS ========== */
+
+/* Focus en filas de tabla */
+.data-table-global .p-datatable-tbody > tr:focus,
+.data-table-custom .p-datatable-tbody > tr:focus,
+.p-datatable-tbody > tr:focus {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: -2px;
+    background: var(--table-row-hover) !important;
+}
+
+/* Focus en celdas específicas */
+.data-table-global .p-datatable-tbody > tr > td:focus,
+.data-table-custom .p-datatable-tbody > tr > td:focus,
+.p-datatable-tbody > tr > td:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+    background: rgba(46, 61, 180, var(--selection-intensity)) !important;
+}
+
+/* Mejoras en contraste para texto de acciones */
+.data-table-global .p-button-text,
+.data-table-custom .p-button-text,
+.p-button-text {
+    color: var(--color-primary) !important;
+    font-weight: var(--font-weight-medium);
+}
+
+.data-table-global .p-button-text:hover,
+.data-table-custom .p-button-text:hover,
+.p-button-text:hover {
+    background: rgba(46, 61, 180, var(--row-highlight-intensity)) !important;
+    color: var(--color-hover) !important;
+}
+
+/* Estados activos con mejor contraste */
+.data-table-global .p-datatable-tbody > tr.p-datatable-row-selected,
+.data-table-custom .p-datatable-tbody > tr.p-datatable-row-selected,
+.p-datatable-tbody > tr.p-datatable-row-selected {
+    background: var(--table-row-selected) !important;
+    border-left: 4px solid var(--color-primary) !important;
+}
+
+/* Indicadores visuales mejorados para sorteo */
+.p-datatable-thead > tr > th.p-sortable-column:hover {
+    background: var(--contrast-bg-secondary) !important;
+    color: var(--contrast-text-primary) !important;
+}
+
+.p-datatable-thead > tr > th .p-sortable-column-icon {
+    transition: color 0.2s ease;
+}
+
+.p-datatable-thead > tr > th.p-sort-column .p-sortable-column-icon {
+    color: var(--color-primary) !important;
+}
+
+/* Mejoras en el paginador */
+.p-paginator .p-paginator-element:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+.p-paginator .p-dropdown:focus {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color) !important;
+}
+
+/* Estados de carga mejorados */
+.p-datatable-loading .p-datatable-tbody > tr > td {
+    color: var(--contrast-text-secondary) !important;
+    font-style: italic;
+}
+
+/* Tooltips y ayudas contextuales */
+.data-table-tooltip {
+    background: var(--contrast-text-primary) !important;
+    color: var(--color-white) !important;
+    border-radius: var(--border-radius-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.75rem;
+    box-shadow: var(--shadow-md);
+}
+
 /* ========== ESTILOS PERSONALIZADOS PARA PRIMEVUE ========== */
 
 /* Card de PrimeVue - usando colores corporativos exactos */
@@ -428,24 +696,24 @@ input:disabled, textarea:disabled, select:disabled {
 }
 
 .p-button-primary {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
+    background: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
 }
 
 .p-button-primary:hover {
-    background: var(--color-hover);
-    border-color: var(--color-hover);
+    background: var(--color-hover) !important;
+    border-color: var(--color-hover) !important;
 }
 
 .p-button-warning {
-    background: var(--color-warning);
-    border-color: var(--color-warning);
-    color: var(--color-dark);
+    background: var(--color-warning) !important ;
+    border-color: var(--color-warning) !important;
+    color: var(--color-dark) !important;
 }
 
 .p-button-warning:hover {
-    background: var(--color-pending);
-    border-color: var(--color-pending);
+    background: var(--color-pending) !important;
+    border-color: var(--color-pending) !important;
 }
 
 .p-button-success {
@@ -612,11 +880,12 @@ input:disabled, textarea:disabled, select:disabled {
     color: var(--color-text-gray);
 }
 
-/* DataTable de PrimeVue */
+/* DataTable de PrimeVue - Compatible con estilos globales */
 .p-datatable {
-    background: var(--color-card-background);
-    border: var(--border-width) solid var(--color-border-cards);
+    background: var(--color-white);
+    border: var(--border-width) solid var(--table-border-strong);
     border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
 }
 
 .p-datatable .p-datatable-header {
@@ -627,30 +896,65 @@ input:disabled, textarea:disabled, select:disabled {
     font-weight: var(--font-weight-semibold);
 }
 
+/* Los estilos de thead y tbody ya están definidos globalmente arriba */
+/* Pero mantenemos compatibilidad específica si es necesario */
 .p-datatable .p-datatable-thead > tr > th {
-    background: var(--color-light);
-    color: var(--color-dark);
-    border-color: var(--color-border-cards);
-    font-weight: var(--font-weight-semibold);
-    padding: var(--spacing-md);
+    background: var(--table-header-bg) !important;
+    color: var(--table-header-text) !important;
+    border-color: var(--table-header-border) !important;
+    font-weight: var(--table-header-font-weight) !important;
 }
 
 .p-datatable .p-datatable-tbody > tr {
-    background: var(--color-card-background);
-    color: var(--color-text-gray);
+    background: var(--table-row-odd);
+    color: var(--contrast-text-primary);
+    transition: all 0.2s ease;
 }
 
 .p-datatable .p-datatable-tbody > tr:nth-child(even) {
-    background: rgba(59, 130, 246, 0.02);
+    background: var(--table-row-even) !important;
 }
 
 .p-datatable .p-datatable-tbody > tr:hover {
-    background: rgba(59, 130, 246, 0.05);
+    background: var(--table-row-hover) !important;
+    transform: translateY(-1px);
+}
+
+.p-datatable .p-datatable-tbody > tr.p-selection {
+    background: var(--table-row-selected) !important;
+    border-color: var(--color-border-cards) !important;
 }
 
 .p-datatable .p-datatable-tbody > tr > td {
-    border-color: var(--color-border-cards);
-    padding: var(--spacing-md);
+    border-color: var(--table-border) !important;
+    color: var(--contrast-text-primary);
+}
+
+/* Asegurar que los filtros y ordenación funcionen correctamente */
+.p-datatable .p-datatable-thead > tr > th .p-column-header-content {
+    color: var(--table-header-text);
+    font-weight: var(--table-header-font-weight);
+}
+
+.p-datatable .p-datatable-thead > tr > th .p-sortable-column-icon {
+    color: var(--table-header-text);
+}
+
+.p-datatable .p-datatable-thead > tr > th:hover {
+    background: var(--contrast-bg-secondary) !important;
+}
+
+/* Filtros en headers */
+.p-datatable .p-datatable-thead > tr > th .p-column-filter {
+    background: var(--color-white);
+    border: 1px solid var(--table-border);
+    border-radius: var(--border-radius-sm);
+}
+
+/* Loading overlay específico */
+.p-datatable .p-datatable-loading-overlay {
+    background: rgba(248, 250, 252, 0.95) !important;
+    backdrop-filter: blur(2px);
 }
 
 /* Skeleton de PrimeVue */
@@ -700,7 +1004,26 @@ input:disabled, textarea:disabled, select:disabled {
     color: var(--color-text-gray);
 }
 
-/* Diseño responsivo */
+/* ========== RESPONSIVE DESIGN PARA TABLAS ========== */
+
+/* Tablets y pantallas medianas */
+@media (max-width: 1024px) {
+    .data-table-global .p-datatable-thead > tr > th,
+    .data-table-custom .p-datatable-thead > tr > th,
+    .p-datatable-thead > tr > th {
+        padding: 0.625rem !important;
+        font-size: 0.7rem;
+    }
+
+    .data-table-global .p-datatable-tbody > tr > td,
+    .data-table-custom .p-datatable-tbody > tr > td,
+    .p-datatable-tbody > tr > td {
+        padding: 0.625rem !important;
+        font-size: 0.8rem;
+    }
+}
+
+/* Dispositivos móviles */
 @media (max-width: 768px) {
     #app {
         padding: var(--spacing-md);
@@ -728,13 +1051,99 @@ input:disabled, textarea:disabled, select:disabled {
         width: calc(100vw - var(--spacing-xl));
     }
 
+    /* Estilos responsivos específicos para tablas */
+    .data-table-global,
+    .data-table-custom,
     .p-datatable {
-        font-size: 0.875rem;
+        font-size: 0.8rem;
+        border-radius: var(--border-radius-sm);
     }
 
-    .p-datatable .p-datatable-tbody > tr > td,
-    .p-datatable .p-datatable-thead > tr > th {
-        padding: var(--spacing-sm);
+    .data-table-global .p-datatable-thead > tr > th,
+    .data-table-custom .p-datatable-thead > tr > th,
+    .p-datatable-thead > tr > th {
+        padding: var(--table-cell-padding-sm) !important;
+        font-size: 0.65rem;
+        letter-spacing: 0.025em;
+    }
+
+    .data-table-global .p-datatable-tbody > tr > td,
+    .data-table-custom .p-datatable-tbody > tr > td,
+    .p-datatable-tbody > tr > td {
+        padding: var(--table-cell-padding-sm) !important;
+        font-size: 0.75rem;
+    }
+
+    .data-table-global .p-paginator,
+    .data-table-custom .p-paginator,
+    .p-datatable .p-paginator {
+        padding: 0.75rem !important;
+        font-size: 0.75rem;
+    }
+
+    /* Ajustar alturas mínimas para móvil */
+    .data-table-global .p-datatable-wrapper,
+    .data-table-custom .p-datatable-wrapper {
+        min-height: 300px;
+    }
+
+    .data-table-global .p-datatable-emptymessage,
+    .data-table-custom .p-datatable-emptymessage {
+        padding: 2rem 1rem !important;
+    }
+}
+
+/* Dispositivos móviles pequeños */
+@media (max-width: 480px) {
+    .data-table-global .p-datatable-wrapper,
+    .data-table-custom .p-datatable-wrapper {
+        min-height: 250px;
+    }
+
+    .data-table-global .p-datatable-thead > tr > th,
+    .data-table-custom .p-datatable-thead > tr > th,
+    .p-datatable-thead > tr > th {
+        padding: 0.375rem !important;
+        font-size: 0.6rem;
+    }
+
+    .data-table-global .p-datatable-tbody > tr > td,
+    .data-table-custom .p-datatable-tbody > tr > td,
+    .p-datatable-tbody > tr > td {
+        padding: 0.375rem !important;
+        font-size: 0.7rem;
+    }
+
+    .data-table-global .p-datatable-emptymessage,
+    .data-table-custom .p-datatable-emptymessage {
+        padding: 1.5rem 0.5rem !important;
+        font-size: 0.8rem;
+    }
+
+    /* Simplificar paginador en móviles muy pequeños */
+    .data-table-global .p-paginator,
+    .data-table-custom .p-paginator,
+    .p-datatable .p-paginator {
+        padding: 0.5rem !important;
+    }
+
+    .p-paginator .p-paginator-pages {
+        display: none;
+    }
+}
+
+/* Pantallas grandes - optimización */
+@media (min-width: 1200px) {
+    .data-table-global .p-datatable-thead > tr > th,
+    .data-table-custom .p-datatable-thead > tr > th,
+    .p-datatable-thead > tr > th {
+        padding: 1rem 0.75rem !important;
+    }
+
+    .data-table-global .p-datatable-tbody > tr > td,
+    .data-table-custom .p-datatable-tbody > tr > td,
+    .p-datatable-tbody > tr > td {
+        padding: 0.875rem 0.75rem !important;
     }
 }
 

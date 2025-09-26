@@ -72,9 +72,9 @@ export default {
 
 <template>
 
-  <div class="flex h-screen w-screen flex-1 flex-column align-items-center justify-content-center">
+  <div class="flex h-screen w-screen flex-1 flex-column align-items-center justify-content-center ">
 
-    <div class="flex flex-column w-30rem shadow-3 p-5 border-round-lg bg-white ">
+    <div class="flex flex-column w-30rem shadow-6 p-6 border-round-lg bg-white">
 
       <!--  Formulario de inicio de sesión -->
       <div class="form-sign-in">
@@ -82,7 +82,7 @@ export default {
         <h1 class="font-bold text-center">Tracker Mobility</h1>
 
         <h3 class="flex justify-content-center font-bold ">Acceso al sistema</h3>
-        <p class="text-center mb-3">Optimice la verificación domiciliaria con nuestra solución
+        <p class="text-center  mb-3">Optimice la verificación domiciliaria con nuestra solución
           integrada</p>
 
 
@@ -97,8 +97,7 @@ export default {
                 <pv-input-text
                     id="username"
                     v-model="username"
-                    :class="{'p-invalid': !username}"
-                    class="w-full"
+                    :class="['w-full', 'input-color-custom', {'p-invalid': !username}]"
                     autocomplete="email"
                     placeholder="Ingrese su correo electrónico"
                 />
@@ -150,7 +149,7 @@ export default {
               <div class="justify-center">
 
                 <pv-button type="submit"
-                           class="w-full text-black font-bold border border-red-900" >
+                           class="w-full text-black font-bold border border-red-900 p-button-primary" >
                   Iniciar sesión</pv-button>
               </div>
             </div>
@@ -175,5 +174,6 @@ export default {
 </template>
 
 <style scoped>
+
 
 </style>

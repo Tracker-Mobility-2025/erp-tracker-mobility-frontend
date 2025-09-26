@@ -65,9 +65,9 @@ export default {
   <div class="flex flex-column gap-4 w-full">
 
     <!-- ====================== Card -> Asignar a verificador ====================== -->
-    <pv-card class="w-full">
+    <pv-card class="w-full ">
       <template #content>
-        <h3 class="text-lg font-semibold mb-4 text-gray-900">Asignar a verificador</h3>
+        <h3 class="text-lg font-bold mb-4 text-primary">Asignar a verificador</h3>
         
         <div class="field mb-3">
           <label for="verifier" class="font-medium text-gray-700">Seleccionar verificador *</label>
@@ -107,17 +107,11 @@ export default {
           </div>
         </div>
 
-        <div class="flex justify-content-end gap-2">
-          <pv-button
-            label="Editar" 
-            icon="pi pi-pencil" 
-            class="p-button-warning p-button-sm"
-            @click="assignVerifierToOrder"
-          />
+        <div class="flex justify-content-end gap-2 w-full">
           <pv-button
             label="Asignar" 
             icon="pi pi-user-plus" 
-            class="p-button-primary p-button-sm"
+            class="p-button-primary p-button-sm w-full"
             @click="assignVerifierToOrder"
           />
         </div>
@@ -127,7 +121,7 @@ export default {
     <!-- ====================== Card -> Acciones ====================== -->
     <pv-card class="w-full">
       <template #content>
-        <h3 class="text-lg font-semibold mb-4 text-gray-900">Acciones</h3>
+        <h3 class="text-lg font-bold mb-4 text-primary">Acciones</h3>
         
         <div class="field mb-3">
           <label for="serviceStatus" class="font-medium text-gray-700">Actualizar estado</label>
@@ -154,7 +148,7 @@ export default {
     <!-- ====================== Card -> Observaciones ====================== -->
     <pv-card class="w-full">
       <template #content>
-        <h3 class="text-lg font-semibold mb-4 text-gray-900">Observaciones</h3>
+        <h3 class="text-lg font-bold mb-4 text-primary">Observaciones</h3>
         
         <div class="field mb-3">
           <label for="documentType" class="font-medium text-gray-700">Selecciona el documento</label>
@@ -173,7 +167,7 @@ export default {
         </div>
         
         <div class="field mb-4">
-          <label for="observations" class="font-medium text-gray-700">Descripción</label>
+          <label for="observations" class="font-bold text-primary">Descripción</label>
           <pv-textarea
             id="observations"
             v-model="item.observations" 
