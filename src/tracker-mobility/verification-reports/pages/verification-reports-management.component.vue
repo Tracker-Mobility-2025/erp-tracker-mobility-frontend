@@ -71,27 +71,24 @@ export default {
   },
 
   methods: {
-
     onNewItemRequested() {
-      console.log('Crear un nuevo verificador');
+      console.log('Crear nueva orden de verificación');
       // Implementar navegación a formulario de creación
     },
-
 
     onDeleteSelectedItems(selectedItems) {
       console.log('Eliminar órdenes seleccionadas:', selectedItems);
       // Implementar lógica de eliminación múltiple
       selectedItems.forEach(item => {
-        const index = this.itemsArray.findIndex(report => report.id === report.id);
+        const index = this.itemsArray.findIndex(result => result.id === item.id);
         if (index > -1) {
           this.itemsArray.splice(index, 1);
         }
       });
     },
 
-
     onDeleteItem(item) {
-      console.log('Eliminar verificador:', item);
+      console.log('Eliminar orden:', item);
       // Implementar lógica de eliminación individual
       const index = this.itemsArray.findIndex(order => order.id === item.id);
       if (index > -1) {
@@ -107,6 +104,10 @@ export default {
     onViewItem(item) {
       console.log('Ver detalles de orden:', item);
       // Implementar navegación a vista de detalles
+
+      // Navegar con router a /admin/order-details
+      this.$router.push({ name: 'order-details'});
+
     },
 
     onRowSelect(event) {
@@ -117,45 +118,47 @@ export default {
       console.log('Fila deseleccionada:', event);
     },
 
-
-    onGlobalFilterChange(value) {
-      this.globalFilterValue = value;
-    },
-
     onClearFilters() {
       this.globalFilterValue = '';
       this.selectedStatus = null;
       this.selectedDate = null;
     },
 
-    getStatusVerificationReport(status) {
+    onGlobalFilterChange(value) {
+      this.globalFilterValue = value;
+    },
+
+    getStatusSeverity(status) {
       switch (status) {
-        case 'Conforme':
-          return 'success';
-        case 'Observado':
+        case 'Pendiente':
           return 'warn';
-        case 'Rechazado':
+        case 'En Proceso':
+          return 'info';
+        case 'Completado':
+          return 'success';
+        case 'Cancelado':
           return 'danger';
         default:
           return 'info';
       }
     }
-
   },
+
+
 
   created() {
 
     this.itemsArray = [
-      { reportId: 'VR001', serviceOrderId: 'SO123', petitioner: 'Carlos López', verifierName: 'Ana Martínez', resultDate: '2024-01-15', result: 'Conforme' },
-      { reportId: 'VR002', serviceOrderId: 'SO124', petitioner: 'Lucía Fernández', verifierName: 'Miguel Torres', resultDate: '2024-01-16', result: 'Observado' },
-      { reportId: 'VR003', serviceOrderId: 'SO125', petitioner: 'Jorge Ramírez', verifierName: 'Sofía Gómez', resultDate: '2024-01-17', result: 'Rechazado' },
-      { reportId: 'VR004', serviceOrderId: 'SO126', petitioner: 'Mariana Díaz', verifierName: 'Luis Hernández', resultDate: '2024-01-18', result: 'Conforme' },
-      { reportId: 'VR005', serviceOrderId: 'SO127', petitioner: 'Andrés Silva', verifierName: 'Carmen Rodríguez', resultDate: '2024-01-19', result: 'Observado' },
-      { reportId: 'VR006', serviceOrderId: 'SO128', petitioner: 'Sofía Morales', verifierName: 'Diego Pérez', resultDate: '2024-01-20', result: 'Conforme' },
-      { reportId: 'VR007', serviceOrderId: 'SO129', petitioner: 'Fernando Castro', verifierName: 'Laura Sánchez', resultDate: '2024-01-21', result: 'Rechazado' },
-      { reportId: 'VR008', serviceOrderId: 'SO130', petitioner: 'Valentina Ruiz', verifierName: 'Javier Flores', resultDate: '2024-01-22', result: 'Conforme' },
-      { reportId: 'VR009', serviceOrderId: 'SO131', petitioner: 'Diego Vargas', verifierName: 'Marta Jiménez', resultDate: '2024-01-23', result: 'Observado' },
-      { reportId: 'VR010', serviceOrderId: 'SO132', petitioner: 'Camila Ortiz', verifierName: 'Ricardo Gómez', resultDate: '2024-01-24', result: 'Conforme' },
+      { id: 1, reportId: 'VR001', serviceOrderId: 'SO123', petitioner: 'Carlos López', verifierName: 'Ana Martínez', resultDate: '2024-01-15', result: 'Conforme' },
+      { id: 2, reportId: 'VR002', serviceOrderId: 'SO124', petitioner: 'Lucía Fernández', verifierName: 'Miguel Torres', resultDate: '2024-01-16', result: 'Observado' },
+      { id: 3, reportId: 'VR003', serviceOrderId: 'SO125', petitioner: 'Jorge Ramírez', verifierName: 'Sofía Gómez', resultDate: '2024-01-17', result: 'Rechazado' },
+      { id: 4, reportId: 'VR004', serviceOrderId: 'SO126', petitioner: 'Mariana Díaz', verifierName: 'Luis Hernández', resultDate: '2024-01-18', result: 'Conforme' },
+      { id: 5, reportId: 'VR005', serviceOrderId: 'SO127', petitioner: 'Andrés Silva', verifierName: 'Carmen Rodríguez', resultDate: '2024-01-19', result: 'Observado' },
+      { id: 6, reportId: 'VR006', serviceOrderId: 'SO128', petitioner: 'Sofía Morales', verifierName: 'Diego Pérez', resultDate: '2024-01-20', result: 'Conforme' },
+      { id: 7, reportId: 'VR007', serviceOrderId: 'SO129', petitioner: 'Fernando Castro', verifierName: 'Laura Sánchez', resultDate: '2024-01-21', result: 'Rechazado' },
+      { id: 8 , reportId: 'VR008', serviceOrderId: 'SO130', petitioner: 'Valentina Ruiz', verifierName: 'Javier Flores', resultDate: '2024-01-22', result: 'Conforme' },
+      { id: 9 , reportId: 'VR009', serviceOrderId: 'SO131', petitioner: 'Diego Vargas', verifierName: 'Marta Jiménez', resultDate: '2024-01-23', result: 'Observado' },
+      { id: 10, reportId: 'VR010', serviceOrderId: 'SO132', petitioner: 'Camila Ortiz', verifierName: 'Ricardo Gómez', resultDate: '2024-01-24', result: 'Conforme' },
     ];
 
   }
@@ -189,10 +192,10 @@ export default {
         :show-action-buttons="true"
         :rows="10"
         :rows-per-page-options="[5, 10, 15, 20, 50]"
-        new-button-label="Nuevo reporte"
+        new-button-label="Nueva Orden"
         delete-button-label="Eliminar"
         export-button-label="Exportar"
-        search-placeholder="Busca por nombre, apellido, email, teléfono..."
+        search-placeholder="Busca por ID orden, solicitante, verificador..."
         @new-item-requested-manager="onNewItemRequested"
         @delete-selected-items-requested-manager="onDeleteSelectedItems"
         @delete-item-requested-manager="onDeleteItem"
@@ -203,8 +206,6 @@ export default {
         @global-filter-change="onGlobalFilterChange"
         @clear-filters="onClearFilters"
     >
-
-
       <!-- Filtro personalizado para el estado -->
       <template #filters="{ clearFilters }" >
         <div class="flex align-items-center gap-2">
@@ -227,8 +228,6 @@ export default {
               class="w-12rem p-calendar"
           />
 
-
-
           <!-- Botón para limpiar filtros específicos -->
           <pv-button
               class="p-button p-component p-button-text"
@@ -245,7 +244,7 @@ export default {
       <template #result="{ data }">
         <pv-tag
             :value="data.result"
-            :severity="getStatusVerificationReport(data.result)"
+            :severity="getStatusSeverity(data.result)"
             class="text-sm"
         />
       </template>

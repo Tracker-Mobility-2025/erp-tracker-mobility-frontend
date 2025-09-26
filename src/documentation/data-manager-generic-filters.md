@@ -203,7 +203,7 @@ computed: {
 
 ### 1. Módulo de Verificadores
 ```javascript
-// verifiers.management.component.vue
+// verifiers-management.component.vue
 computed: {
   filteredVerifiers() {
     let filtered = [...this.verifiers];

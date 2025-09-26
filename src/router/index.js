@@ -2,7 +2,7 @@ import {createRouter, createWebHistory} from "vue-router";
 import ServiceOrderManagementComponent
     from "../tracker-mobility/service-orders/pages/service-order-management.component.vue";
 import VerifiersManagementComponent
-    from "../tracker-mobility/verifier-management/pages/verifiers.management.component.vue";
+    from "../tracker-mobility/verifier-management/pages/verifiers-management.component.vue";
 import VerificationReportsManagementComponent
     from "../tracker-mobility/verification-reports/pages/verification-reports-management.component.vue";
 import OrderDetailManagementComponent from "../tracker-mobility/service-orders/pages/order-detail-management.component.vue";

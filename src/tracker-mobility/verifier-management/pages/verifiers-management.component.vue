@@ -98,6 +98,7 @@ export default {
     onViewItem(item) {
       console.log('Ver detalles de orden:', item);
       // Implementar navegación a vista de detalles
+
     },
 
     onRowSelect(event) {
