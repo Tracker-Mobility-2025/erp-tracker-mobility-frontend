@@ -1,125 +1,178 @@
 <script>
+import { Verifier } from "../models/verifiers.entity.js";
+
 export default {
-  name: 'verifier-data-and-edit',
+  name: "verifier-data-and-edit",
+
+  props: {
+    item: {
+      type: Object,
+      required: true,
+    },
+  },
 
   data() {
     return {
-      verifier: {},
-    }
+      isEdit: false,
+      submitted: false,
+      editableItem: new Verifier({}),
+    };
   },
 
   methods: {
-
-    // Guardar cambios en el verificador
     saveVerifier() {
-      // Lógica para guardar cambios
-      this.$emit('save-verifier', this.item);
+      this.isEdit = false;
+      this.submitted = true;
+      this.$emit("save-verifier", new Verifier({ ...this.editableItem })); // emitimos el objeto editado
     },
 
-    // Eliminar verificador
-    deleteVerifier() {
-      // Lógica para eliminar verificador
-      this.$emit('delete-verifier', this.item);
-    },
-
-    // Editar verificador
     editVerifier() {
-      // Lógica para editar verificador
-      this.$emit('edit-verifier', this.item);
+      this.isEdit = true;
+      this.editableItem = new Verifier({ ...this.item }); // clonar para edición
     },
 
-    // Cancelar edición
     cancelEdit() {
-      // Lógica para cancelar edición
-      this.$emit('cancel-edit', this.item);
+      this.isEdit = false;
+      this.editableItem = new Verifier({ ...this.item }); // clonar para edición
+      this.$emit("cancel-edit", this.item);
     },
+  },
+
+  created() {
 
 
   },
-
-
-
-
-}
-
+};
 </script>
 
 <template>
 
-  <div class="flex flex-column pb-4 gap-4">
+  <div class="flex flex-column gap-4">
 
-    <!-- ====================== Card -> Datos del verificador ====================== -->
     <pv-card class="w-full">
       <template #content>
-        <h3 class="text-lg font-bold mb-4 text-primary">Datos del verificador:</h3>
+        <h3 class="text-lg font-bold mb-4 text-primary"> Datos del verificador:</h3>
 
         <div class="formgrid grid">
           <!-- Fila 1 -->
           <div class="field col-12 md:col-2">
             <label class="font-semibold text-color-secondary">Nombres</label>
-            <p class="font-semibold text-dark m-0">Janover Gonzalo</p>
+            <div v-if="!isEdit">
+              <p class="font-semibold text-dark m-0">{{ item.name }}</p>
+            </div>
+            <div v-else>
+              <pv-input-text v-model="editableItem.name" class="w-full" />
+            </div>
           </div>
+
           <div class="field col-12 md:col-2">
             <label class="font-semibold text-color-secondary">Apellidos</label>
-            <p class="font-semibold text-dark m-0">Saldaña Vela</p>
+            <div v-if="!isEdit">
+              <p class="font-semibold text-dark m-0">{{ item.lastname }}</p>
+            </div>
+            <div v-else>
+              <pv-input-text v-model="editableItem.lastname" class="w-full" />
+            </div>
           </div>
+
           <div class="field col-12 md:col-3">
-            <label class="font-semibold text-color-secondary">Número de contacto</label>
-            <p class="font-semibold text-dark m-0">999 888 777</p>
+            <label class="font-semibold text-color-secondary">Contacto</label>
+            <div v-if="!isEdit">
+              <p class="font-semibold text-dark m-0">{{ item.phone }}</p>
+            </div>
+            <div v-else>
+              <pv-input-text v-model="editableItem.phone" class="w-full" />
+            </div>
           </div>
+
           <div class="field col-12 md:col-2">
-            <label class="font-semibold text-color-secondary">Cuenta</label>
-            <p class="font-semibold text-dark m-0">Activo</p>
+            <label class="font-semibold text-color-secondary">Estado</label>
+            <div v-if="!isEdit">
+              <p class="font-semibold text-dark m-0">{{ item.status }}</p>
+            </div>
+            <div v-else>
+              <pv-dropdown
+                  v-model="editableItem.status"
+                  :options="['Activo', 'Inactivo']"
+                  class="w-full"
+              />
+            </div>
           </div>
+
           <div class="field col-12 md:col-3">
             <label class="font-semibold text-color-secondary">Cant. órdenes</label>
-            <p class="font-semibold text-dark m-0">2</p>
+            <div v-if="!isEdit">
+              <p class="font-semibold text-dark m-0">{{ item.ordenes }}</p>
+            </div>
+            <div v-else>
+              <pv-input-number v-model="editableItem.ordenes" class="w-full" />
+            </div>
           </div>
 
           <!-- Fila 2 -->
           <div class="field col-12 md:col-4">
             <label class="font-semibold text-color-secondary">Correo</label>
-            <p class="font-semibold text-dark m-0">janover.saldana@trackermobility.com</p>
+            <div v-if="!isEdit">
+              <p class="font-semibold text-dark m-0">{{ item.email }}</p>
+            </div>
+            <div v-else>
+              <pv-input-text v-model="editableItem.email" class="w-full" />
+            </div>
           </div>
+
           <div class="field col-12 md:col-4">
             <label class="font-semibold text-color-secondary">Contraseña</label>
-            <p class="font-semibold text-dark m-0">ContraseñaSegura123</p>
+            <div v-if="!isEdit">
+              <p class="font-semibold text-dark m-0">********</p>
+            </div>
+            <div v-else>
+              <pv-password v-model="editableItem.password" toggleMask class="w-full" />
+            </div>
           </div>
+
           <div class="field col-12 md:col-4">
             <label class="font-semibold text-color-secondary">Agenda</label>
-            <p class="font-semibold text-dark m-0">Lunes a Viernes</p>
+            <div v-if="!isEdit">
+              <p class="font-semibold text-dark m-0">{{ item.agenda }}</p>
+            </div>
+            <div v-else>
+              <pv-input-text v-model="editableItem.agenda" class="w-full" />
+            </div>
           </div>
         </div>
       </template>
 
       <template #footer>
-        <div class="flex justify-content-center gap-3 mt-3">
+        <div class="flex justify-content-center gap-3 ">
           <pv-button
+              v-if="!isEdit"
               label="Editar"
               icon="pi pi-pencil"
-              class="p-button-warning p-button-rounded px-4"
+              class="p-button-warning w-10rem"
+              @click="editVerifier"
           />
           <pv-button
+              v-if="isEdit"
               label="Guardar"
               icon="pi pi-save"
-              class="p-button-success p-button-rounded px-4"
+              class="p-button-success w-10rem"
+              @click="saveVerifier"
+          />
+          <pv-button
+              v-if="isEdit"
+              label="Cancelar"
+              icon="pi pi-times"
+              class="p-button-secondary w-10rem"
+              @click="cancelEdit"
           />
         </div>
       </template>
     </pv-card>
-
-
-
-
-
-
-
-
   </div>
-
-
 </template>
 
 <style scoped>
-
+:deep(.p-card-content) {
+  padding: 0.5rem;
+}
 </style>

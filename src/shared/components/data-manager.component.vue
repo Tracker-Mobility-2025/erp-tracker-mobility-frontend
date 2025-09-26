@@ -133,22 +133,24 @@ export default {
   <div class="bg-white border-round-lg p-4 md:p-4 shadow-2 h-full flex flex-column overflow-hidden">
 
     <!-- Search and Filter Section -->
-    <div class="flex  flex-column md:flex-row align-items-stretch md:align-items-center gap-3 mb-4">
-      <div class="flex-1">
-        <pv-icon-field class="w-full ">
+    <div class="w-full flex flex-column gap-3">
+
+      <!-- Custom filters slot -->
+      <div class="flex w-full gap-2 mb-4 flex-wrap">
+
+        <pv-icon-field class="flex-grow-1">
           <pv-input-icon class="pi pi-search" />
           <pv-input-text
               v-model="currentGlobalFilterValue"
               :placeholder="searchPlaceholder"
-              class="w-full"
+              class="w-full h-full"
               @input="onGlobalFilterChange"
           />
         </pv-icon-field>
+
+        <slot name="filters" :clear-filters="clearFilters" />
+
       </div>
-      
-      <!-- Custom filters slot -->
-      <slot name="filters" :clear-filters="clearFilters" />
-      
 
     </div>
 

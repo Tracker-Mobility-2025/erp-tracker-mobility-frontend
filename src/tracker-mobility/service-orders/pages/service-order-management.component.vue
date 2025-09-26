@@ -327,7 +327,7 @@ export default {
 
     <!-- Título de la página -->
     <h2 class="text-2xl font-bold mb-2">Gestión de Órdenes de Verificación</h2>
-    <p class="text-color-secondary mb-4">Administra las órdenes de verificación, asigna verificadores y programa visitas.</p>
+    <p>Administra las órdenes de verificación, asigna verificadores y programa visitas.</p>
 
     <!-- Componente DataManager para gestionar ordenes de servicio-->
     <data-manager
@@ -363,13 +363,14 @@ export default {
       <!-- Custom Filters -->
       <template #filters="{ clearFilters }">
         <div class="flex align-items-center gap-2">
+
           <pv-dropdown
             v-model="selectedStatus"
             :options="statusOptions"
             option-label="label"
             option-value="value"
             placeholder="Estado: Todos"
-            class="w-10rem"
+            class="flex-1 h-full"
           />
           <!-- Filtro por fecha -->
           <pv-calendar
@@ -378,16 +379,15 @@ export default {
               placeholder="dd/mm/aaaa"
               dateFormat="dd/mm/yy"
               show-icon
-              class="w-12rem p-calendar"
+              class="flex-1 h-full"
           />
-
           <!-- Botón para limpiar filtros específicos -->
           <pv-button
-              class="p-button p-component p-button-text"
+              label="Limpiar filtros"
+              icon="pi pi-filter-slash"
               @click="onClearFilters()"
-          >
-            <span class="p-button-label"> Limpiar filtros </span>
-          </pv-button>
+              class="p-button-secondary flex-shrink-0 h-full"
+          />
         </div>
       </template>
 
@@ -413,7 +413,6 @@ export default {
           {{ data.programacion }}
         </span>
       </template>
-
 
     </data-manager>
   </div>

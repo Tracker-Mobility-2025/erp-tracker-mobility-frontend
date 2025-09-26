@@ -1,39 +1,27 @@
 <script>
 
+import VerifierDataAndEdit from "../components/verifier-data-and-edit.component.vue";
+import {Verifier} from "../models/verifiers.entity.js";
+import ListAssignedOrders from "../components/list-assigned-orders.component.vue";
+
 export default {
   name: 'verifiers-details-management',
-
-  props: {
-    item: {
-      type: Object,
-      required: false,
-      default : () => ({
-        id: null,
-        name: '',
-        lastname: '',
-        phone: '',
-        status: 'Activo',
-        email: '',
-        password: '',
-        agenda:'',
-        assignedOrders: [],
-      })
-    },
-  },
-
+  components: {ListAssignedOrders, VerifierDataAndEdit},
 
   data() {
     return {
-      verifier: {},
+      isEdit:false,
+      submitted: false,
+      item: new Verifier({}),
     }
   },
 
   methods: {
 
     // Guardar cambios en el verificador
-    onSaveVerifier() {
-      // Lógica de implementación para guardar cambios
-
+    onSaveVerifier(item) {
+      console.log('Guardando verificador en el padre:', item)
+      this.item = new Verifier(item)
     },
 
     // Eliminar verificador
@@ -44,9 +32,10 @@ export default {
     },
 
     // Editar verificador
-    onEditVerifier() {
-      // Lógica de implementación para editar verificador
-
+    onEditVerifier(item) {
+      this.item = new Verifier({})
+      this.isEdit = true
+      this.submitted = false
     },
 
     // Cancelar edición
@@ -56,74 +45,93 @@ export default {
     },
   },
 
+  created() {
+    this.item = new Verifier(
+        {
+          id: 1,
+          name: "Janover Gonzalo",
+          lastname: "Saldaña Vela",
+          phone: "999 888 777",
+          status: "Activo",
+          ordenes: 2,
+          email: "janover.saldana@trackermobility.com",
+          password: "ContraseñaSegura123",
+          agenda: "Lunes a Viernes",
+          assignedOrders: [
+            {
+              id: "ORD12345",
+              address: "Av. Siempre Viva 123, Springfield",
+              date: "2024-10-01T10:00:00",
+              googleMaps: "https://maps.google.com/?q=Av.+Siempre+Viva+123,+Springfield",
+              status: "Asignado",
+            },
+            {
+              id: "ORD67890",
+              address: "Calle Falsa 456, Shelbyville",
+              date: "2024-10-02T14:30:00",
+              googleMaps: "https://maps.google.com/?q=Calle+Falsa+456,+Shelbyville",
+              status: "Pendiente",
+            },
+            {
+              id: "ORD11223",
+              address: "Boulevard de los Sueños Rotos 789, Capital City",
+              date: "2024-10-03T09:15:00",
+              googleMaps: "https://maps.google.com/?q=Boulevard+de+los+Sueños+Rotos+789,+Capital+City",
+              status: "Completado",
+            },
+          ],
+        }
+    )
+  }
 }
 
 </script>
 
 <template>
 
+  <!-- Detalles de la orden de servicio (se divide en cards tipo grid)-->
+  <div class="order-container flex flex-column p-4 h-full w-full overflow-auto " >
 
-  <div class="flex flex-column pb-4 gap-4">
+    <!-- Breadcrumb -->
+    <div class="text-base">
+      <router-link
+          to="/admin/verifiers"
+          class="font-bold text-gray-900 no-underline hover:underline cursor-pointer"
+      >
+        Verificadores
+      </router-link>
+      <span class="text-gray-500 font-bold"> / </span>
+      <span class="text-blue-700 font-bold hover:underline cursor-pointer">
+        {{item.name}}
+      </span>
+    </div>
 
-  <!-- ====================== Card -> Datos del verificador ====================== -->
-    <pv-card class="w-full">
-      <template #content>
-        <h3 class="text-lg font-bold mb-4 text-primary">Datos del verificador:</h3>
+    <!-- Contenido en una solo columna -->
+    <div class="flex-1 flex flex-column gap-4 mt-4">
 
-        <div class="formgrid grid">
-          <!-- Fila 1 -->
-          <div class="field col-12 md:col-2">
-            <label class="font-semibold text-color-secondary">Nombres</label>
-            <p class="font-semibold text-dark m-0">Janover Gonzalo</p>
-          </div>
-          <div class="field col-12 md:col-2">
-            <label class="font-semibold text-color-secondary">Apellidos</label>
-            <p class="font-semibold text-dark m-0">Saldaña Vela</p>
-          </div>
-          <div class="field col-12 md:col-3">
-            <label class="font-semibold text-color-secondary">Número de contacto</label>
-            <p class="font-semibold text-dark m-0">999 888 777</p>
-          </div>
-          <div class="field col-12 md:col-2">
-            <label class="font-semibold text-color-secondary">Cuenta</label>
-            <p class="font-semibold text-dark m-0">Activo</p>
-          </div>
-          <div class="field col-12 md:col-3">
-            <label class="font-semibold text-color-secondary">Cant. órdenes</label>
-            <p class="font-semibold text-dark m-0">2</p>
-          </div>
+      <verifier-data-and-edit
+          :item="item"
+          :edit="isEdit"
+          :submitted="submitted"
+          @save-verifier="onSaveVerifier($event)"
+          @delete-verifier="onDeleteVerifier"
+          @edit-verifier="onEditVerifier"
+          @cancel-edit="OnCancelEdit"
+      />
 
-          <!-- Fila 2 -->
-          <div class="field col-12 md:col-4">
-            <label class="font-semibold text-color-secondary">Correo</label>
-            <p class="font-semibold text-dark m-0">janover.saldana@trackermobility.com</p>
-          </div>
-          <div class="field col-12 md:col-4">
-            <label class="font-semibold text-color-secondary">Contraseña</label>
-            <p class="font-semibold text-dark m-0">ContraseñaSegura123</p>
-          </div>
-          <div class="field col-12 md:col-4">
-            <label class="font-semibold text-color-secondary">Agenda</label>
-            <p class="font-semibold text-dark m-0">Lunes a Viernes</p>
-          </div>
-        </div>
-      </template>
+      <!-- Lista de ordenes asignadas al verificador -->
 
-      <template #footer>
-        <div class="flex justify-content-center gap-3 mt-3">
-          <pv-button
-              label="Editar"
-              icon="pi pi-pencil"
-              class="p-button-warning p-button-rounded px-4"
-          />
-          <pv-button
-              label="Guardar"
-              icon="pi pi-save"
-              class="p-button-success p-button-rounded px-4"
-          />
-        </div>
-      </template>
-    </pv-card>
+      <list-assigned-orders
+          :items="item.assignedOrders"
+      />
+
+
+
+
+    </div>
+
+
+
 
 
 

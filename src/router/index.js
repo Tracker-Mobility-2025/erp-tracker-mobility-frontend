@@ -8,6 +8,8 @@ import VerificationReportsManagementComponent
 import OrderDetailManagementComponent from "../tracker-mobility/service-orders/pages/order-detail-management.component.vue";
 import SignInComponent from "../tracker-mobility/security/pages/sign-in.component.vue";
 import LayoutTrackerMobilityComponent from "../public/pages/layout-tracker-mobility.component.vue";
+import VerifiersDetailsManagementComponent
+    from "../tracker-mobility/verifier-management/pages/verifiers-details.management.component.vue";
 
 
 
@@ -29,12 +31,22 @@ const router = createRouter({
                     component: ServiceOrderManagementComponent,
                     meta: {title: 'Ordenes de servicio'}
                 },
+
+                //========================================================
                 {
                     path: '/admin/verifiers',
                     name: 'verifiers',
                     component: VerifiersManagementComponent,
                     meta: {title: 'Verificadores'}
                 },
+                {
+                    path: '/admin/verifier-details',
+                    name: 'verifier-details',
+                    component: VerifiersDetailsManagementComponent,
+                    meta: {title: 'Detalles del verificador'}
+                },
+                //========================================================
+
 
                 {
                     path: '/admin/verification-reports',
@@ -48,7 +60,9 @@ const router = createRouter({
                     name: 'order-details',
                     component: OrderDetailManagementComponent,
                     meta: {title: 'Detalles de la orden'}
-                }
+                },
+
+
 
 
             ]

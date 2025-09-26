@@ -97,8 +97,8 @@ export default {
 
     onViewItem(item) {
       console.log('Ver detalles de orden:', item);
-      // Implementar navegación a vista de detalles
-
+      // Navegar con router a /admin/verifiers-details
+      this.$router.push({ name: 'verifier-details'});
     },
 
     onRowSelect(event) {
@@ -193,15 +193,16 @@ export default {
               option-label="label"
               option-value="value"
               placeholder="Estado: Todos"
-              class="w-10rem"
+              class="flex-1 h-full"
           />
+
           <!-- Botón para limpiar filtros específicos -->
           <pv-button
-              class="p-button p-component p-button-text"
+              label="Limpiar filtros"
+              icon="pi pi-filter-slash"
               @click="onClearFilters()"
-          >
-            <span class="p-button-label"> Limpiar filtros </span>
-          </pv-button>
+              class="p-button-secondary flex-shrink-0 h-full"
+          />
         </div>
       </template>
 
