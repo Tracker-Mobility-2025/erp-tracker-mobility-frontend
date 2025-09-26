@@ -49,11 +49,15 @@ export default {
     // Valor del filtro global: usa el del padre si está disponible, si no el interno
     currentGlobalFilterValue: {
       get() {
-        return this.globalFilterValue !== '' ? this.globalFilterValue : this.internalGlobalFilterValue;
+        // Priorizar el valor del padre si está definido y no es null
+        if (this.globalFilterValue !== null && this.globalFilterValue !== undefined) {
+          return this.globalFilterValue;
+        }
+        return this.internalGlobalFilterValue;
       },
       set(value) {
-        this.internalGlobalFilterValue = value;
-        this.$emit('global-filter-change', value);
+        this.internalGlobalFilterValue = value || '';
+        this.$emit('global-filter-change', value || '');
       }
     }
   },
@@ -66,13 +70,22 @@ export default {
     },
 
     onGlobalFilterChange() {
-      this.filters['global'].value = this.currentGlobalFilterValue;
+      this.filters['global'].value = this.currentGlobalFilterValue || null;
     },
 
     clearFilters() {
+      // Limpiar el filtro global interno y externo
+      this.internalGlobalFilterValue = '';
       this.currentGlobalFilterValue = '';
+      
+      // Reinicializar los filtros de PrimeVue
       this.initFilters();
+      
+      // Emitir evento para que el componente padre limpie sus filtros
       this.$emit('clear-filters');
+      
+      // Emitir cambio del filtro global para sincronizar con el padre
+      this.$emit('global-filter-change', '');
     },
 
     newItem() {
@@ -136,14 +149,7 @@ export default {
       <!-- Custom filters slot -->
       <slot name="filters" :clear-filters="clearFilters" />
       
-      <pv-button
-        label="Limpiar filtros"
-        severity="secondary"
-        outlined
-        size="small"
-        class="w-full md:w-auto h-full"
-        @click="clearFilters"
-      />
+
     </div>
 
     <!-- Action Buttons Section -->

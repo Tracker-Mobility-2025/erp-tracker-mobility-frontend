@@ -25,7 +25,7 @@
     --color-warning: #FFC107;           /* Amarillo advertencia */
     --color-info: #17A2B8;              /* Azul información */
     --color-danger: var(--color-coral); /* Rojo peligro */
-    --color-light: #000000;             /* Gris muy claro */
+    --color-light: #525252;             /* Gris muy claro */
     --color-dark: #343A40;              /* Gris oscuro */
     --color-muted: #6C757D;             /* Gris apagado */
 
@@ -1183,6 +1183,13 @@ input:disabled, textarea:disabled, select:disabled {
     background: var(--color-white) !important;
     color: var(--color-text-gray) !important;
     border-color: var(--color-light) !important;
+}
+
+.p-select {
+    background: var(--color-white) !important;
+    color: var(--color-text-gray) !important;
+    border-color: var(--color-light) !important;
+    border-radius: var(--border-radius) !important;
 }
 
 .p-inputtext:focus, .p-textarea:focus, .p-dropdown:focus {

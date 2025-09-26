@@ -9,7 +9,7 @@ export default {
   },
   data() {
     return {
-      orders: [
+      itemsArray: [
         {
           id: 'ORD-07-2025-001',
           estado: 'Pendiente',
@@ -105,6 +105,7 @@ export default {
       ],
 
       globalFilterValue: '', // Valor del filtro global de búsqueda
+      selectedDate: null, // Fecha seleccionada en el filtro
       selectedStatus: null, // Filtro de estado seleccionado
       statusOptions: [
         { label: 'Todos', value: null },
@@ -123,12 +124,12 @@ export default {
 
   computed: {
     // Filtro combinado que aplica todos los filtros activos
-    filteredOrders() {
-      let filtered = [...this.orders];
+    filteredItemsArray() {
+      let filtered = [...this.itemsArray];
 
       // Filtro por búsqueda global (ID, solicitante, verificador)
       if (this.globalFilterValue) {
-        const searchTerm = this.globalFilterValue.toLowerCase();
+        const searchTerm = this.globalFilterValue.toLowerCase().trim();
         filtered = filtered.filter(order =>
           order.id.toLowerCase().includes(searchTerm) ||
           order.solicitante.toLowerCase().includes(searchTerm) ||
@@ -139,6 +140,13 @@ export default {
       // Filtro por estado seleccionado
       if (this.selectedStatus) {
         filtered = filtered.filter(order => order.estado === this.selectedStatus);
+      }
+
+      // Filtro por fecha seleccionada
+      // Filtro por fecha seleccionada
+      if (this.selectedDate) {
+        const selectedDateStr = this.selectedDate.toISOString().split('T')[0];
+        filtered = filtered.filter(order => order.resultDate === selectedDateStr);
       }
 
       return filtered;
@@ -155,9 +163,9 @@ export default {
       console.log('Eliminar órdenes seleccionadas:', selectedItems);
       // Implementar lógica de eliminación múltiple
       selectedItems.forEach(item => {
-        const index = this.orders.findIndex(order => order.id === item.id);
+        const index = this.itemsArray.findIndex(order => order.id === item.id);
         if (index > -1) {
-          this.orders.splice(index, 1);
+          this.itemsArray.splice(index, 1);
         }
       });
     },
@@ -165,9 +173,9 @@ export default {
     onDeleteItem(item) {
       console.log('Eliminar orden:', item);
       // Implementar lógica de eliminación individual
-      const index = this.orders.findIndex(order => order.id === item.id);
+      const index = this.itemsArray.findIndex(order => order.id === item.id);
       if (index > -1) {
-        this.orders.splice(index, 1);
+        this.itemsArray.splice(index, 1);
       }
     },
 
@@ -193,13 +201,10 @@ export default {
       console.log('Fila deseleccionada:', event);
     },
 
-    clearStatusFilter() {
-      this.selectedStatus = null;
-    },
-
-    clearAllFilters() {
+    onClearFilters() {
       this.globalFilterValue = '';
       this.selectedStatus = null;
+      this.selectedDate = null;
     },
 
     onGlobalFilterChange(value) {
@@ -220,6 +225,96 @@ export default {
           return 'info';
       }
     }
+  },
+
+  created() {
+    this.itemsArray = [
+      {
+        id: 'ORD-07-2025-001',
+        estado: 'Pendiente',
+        solicitante: 'Solicitante A',
+        verificador: 'Verificador 1',
+        programacion: '10/09/2025'
+      },
+      {
+        id: 'ORD-07-2025-002',
+        estado: 'Pendiente',
+        solicitante: 'Solicitante B',
+        verificador: 'Pendiente',
+        programacion: 'Pendiente'
+      },
+      {
+        id: 'ORD-07-2025-003',
+        estado: 'Pendiente',
+        solicitante: 'Solicitante C',
+        verificador: 'Verificador 1',
+        programacion: '10/09/2025'
+      },
+      {
+        id: 'ORD-07-2025-004',
+        estado: 'En Proceso',
+        solicitante: 'Solicitante D',
+        verificador: 'Verificador 2',
+        programacion: '11/09/2025'
+      },
+      {
+        id: 'ORD-07-2025-005',
+        estado: 'Completado',
+        solicitante: 'Solicitante E',
+        verificador: 'Verificador 1',
+        programacion: '09/09/2025'
+      },
+      {
+        id: 'ORD-07-2025-006',
+        estado: 'Pendiente',
+        solicitante: 'Solicitante F',
+        verificador: 'Verificador 3',
+        programacion: '12/09/2025'
+      },
+      {
+        id: 'ORD-07-2025-007',
+        estado: 'En Proceso',
+        solicitante: 'Solicitante G',
+        verificador: 'Verificador 2',
+        programacion: '13/09/2025'
+      },
+      {
+        id: 'ORD-07-2025-008',
+        estado: 'Pendiente',
+        solicitante: 'Solicitante H',
+        verificador: 'Pendiente',
+        programacion: 'Pendiente'
+      },
+      {
+        id: 'ORD-07-2025-009',
+        estado: 'Completado',
+        solicitante: 'Solicitante I',
+        verificador: 'Verificador 1',
+        programacion: '08/09/2025'
+      },
+      {
+        id: 'ORD-07-2025-010',
+        estado: 'Cancelado',
+        solicitante: 'Solicitante J',
+        verificador: 'Verificador 3',
+        programacion: '14/09/2025'
+      },
+      {
+        id: 'ORD-07-2025-011',
+        estado: 'Pendiente',
+        solicitante: 'Solicitante K',
+        verificador: 'Verificador 2',
+        programacion: '15/09/2025'
+      },
+      {
+        id: 'ORD-07-2025-012',
+        estado: 'En Proceso',
+        solicitante: 'Solicitante L',
+        verificador: 'Verificador 1',
+        programacion: '16/09/2025'
+      }
+    ];
+
   }
 }
 </script>
@@ -236,8 +331,8 @@ export default {
 
     <!-- Componente DataManager para gestionar ordenes de servicio-->
     <data-manager
-      :items="orders"
-      :filtered-items="filteredOrders"
+      :items="itemsArray"
+      :filtered-items="filteredItemsArray"
       :global-filter-value="globalFilterValue"
       :columns="columns"
       :title="title"
@@ -263,7 +358,7 @@ export default {
       @row-select="onRowSelect"
       @row-unselect="onRowUnselect"
       @global-filter-change="onGlobalFilterChange"
-      @clear-filters="clearAllFilters"
+      @clear-filters="onClearFilters"
     >
       <!-- Custom Filters -->
       <template #filters="{ clearFilters }">
@@ -276,10 +371,20 @@ export default {
             placeholder="Estado: Todos"
             class="w-10rem"
           />
+          <!-- Filtro por fecha -->
+          <pv-calendar
+              id="visitDate"
+              v-model="selectedDate"
+              placeholder="dd/mm/aaaa"
+              dateFormat="dd/mm/yy"
+              show-icon
+              class="w-12rem p-calendar"
+          />
+
           <!-- Botón para limpiar filtros específicos -->
           <pv-button
               class="p-button p-component p-button-text"
-              @click="clearStatusFilter()"
+              @click="onClearFilters()"
           >
             <span class="p-button-label"> Limpiar filtros </span>
           </pv-button>
@@ -320,142 +425,11 @@ export default {
   color: var(--color-warning) !important;
 }
 
-/* Componentes PrimeVue personalizados con colores corporativos */
-:deep(.p-button.p-button-success) {
-  background-color: var(--color-success);
-  border-color: var(--color-success);
-}
+/* Los estilos de botones ahora son globales en style.css */
 
-:deep(.p-button.p-button-success:hover) {
-  background-color: var(--color-valid);
-  border-color: var(--color-valid);
-}
+/* Los estilos de input y dropdown ahora son globales en style.css */
 
-:deep(.p-button.p-button-danger) {
-  background-color: var(--color-coral);
-  border-color: var(--color-coral);
-}
+/* Los estilos de tags y checkboxes ahora son globales en style.css */
 
-:deep(.p-button.p-button-danger:hover) {
-  background-color: var(--color-error);
-  border-color: var(--color-error);
-}
-
-:deep(.p-button.p-button-help.p-button-outlined) {
-  color: var(--color-primary);
-  border-color: var(--color-primary);
-}
-
-:deep(.p-button.p-button-help.p-button-outlined:hover) {
-  background-color: var(--color-primary);
-  color: var(--color-white);
-}
-
-/* Input y Dropdown usando variables corporativas */
-:deep(.p-inputtext) {
-  border: var(--border-width) solid var(--color-muted);
-  border-radius: var(--border-radius);
-  transition: all 0.2s ease-in-out;
-}
-
-:deep(.p-inputtext:focus) {
-  border-color: var(--color-focus);
-  box-shadow: 0 0 0 3px rgba(46, 61, 180, 0.1);
-}
-
-:deep(.p-dropdown) {
-  border: var(--border-width) solid var(--color-muted);
-  border-radius: var(--border-radius);
-  transition: all 0.2s ease-in-out;
-}
-
-:deep(.p-dropdown:not(.p-disabled).p-focus) {
-  border-color: var(--color-focus);
-  box-shadow: 0 0 0 3px rgba(46, 61, 180, 0.1);
-}
-
-/* Tags de estado usando colores corporativos */
-:deep(.p-tag) {
-  border-radius: var(--border-radius-sm);
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-  font-weight: var(--font-weight-semibold);
-}
-
-:deep(.p-tag.p-tag-warning) {
-  background-color: var(--bg-warning-light);
-  color: var(--color-warning);
-}
-
-:deep(.p-tag.p-tag-success) {
-  background-color: var(--bg-success-light);
-  color: var(--color-success);
-}
-
-:deep(.p-tag.p-tag-danger) {
-  background-color: var(--bg-error-light);
-  color: var(--color-coral);
-}
-
-:deep(.p-tag.p-tag-info) {
-  background-color: var(--bg-info-light);
-  color: var(--color-info);
-}
-
-/* Checkbox usando colores corporativos */
-:deep(.p-checkbox .p-checkbox-box) {
-  border: var(--border-width-thick) solid var(--color-muted);
-  border-radius: var(--border-radius-sm);
-  width: 1.125rem;
-  height: 1.125rem;
-}
-
-:deep(.p-checkbox .p-checkbox-box.p-highlight) {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
-}
-
-/* Botones de acción en tabla */
-:deep(.p-button-link) {
-  color: var(--color-primary) !important;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--border-radius-sm);
-  transition: all 0.2s ease-in-out;
-}
-
-:deep(.p-button-link:hover) {
-  background-color: var(--color-card-background);
-  color: var(--color-hover) !important;
-}
-
-/* Paginador usando colores corporativos */
-:deep(.p-paginator .p-paginator-pages .p-paginator-page.p-highlight) {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
-  color: var(--color-white);
-}
-
-:deep(.p-paginator .p-paginator-pages .p-paginator-page:hover) {
-  background-color: var(--color-hover);
-  border-color: var(--color-hover);
-  color: var(--color-white);
-}
-
-/* DataTable headers usando colores corporativos */
-:deep(.p-datatable .p-datatable-thead > tr > th) {
-  background-color: var(--color-light);
-  color: var(--color-dark);
-  font-weight: var(--font-weight-semibold);
-}
-
-:deep(.p-datatable .p-datatable-tbody > tr:hover) {
-  background-color: rgba(59, 130, 246, 0.05);
-}
-
-/* Toolbar usando colores corporativos */
-:deep(.p-toolbar) {
-  background-color: var(--color-card-background);
-  border: var(--border-width) solid var(--color-border-cards);
-  border-radius: var(--border-radius);
-}
+/* Los estilos de botones de acción, paginador, tabla y toolbar ahora son globales en style.css */
 </style>
