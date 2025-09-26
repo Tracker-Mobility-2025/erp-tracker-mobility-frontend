@@ -22,6 +22,7 @@ export default {
         { field: 'status', header: 'Estado', sortable: true, template: 'status', style: 'width: 120px;' },
       ],
 
+      globalFilterValue: '', // Valor del filtro global de búsqueda
       selectedStatus: null, // Estado seleccionado en el filtro
       statusOptions: [      // Opciones de estado para el filtro
         { label: 'Todos', value: null },
@@ -39,11 +40,27 @@ export default {
   },
 
   computed: {
+    // Filtro combinado que aplica todos los filtros activos
     filteredVerifiers() {
-      if (this.selectedStatus) {
-        return this.verifiers.filter(verifier => verifier.status === this.selectedStatus);
+      let filtered = [...this.verifiers];
+
+      // Filtro por búsqueda global (nombre, apellido, email, teléfono)
+      if (this.globalFilterValue) {
+        const searchTerm = this.globalFilterValue.toLowerCase();
+        filtered = filtered.filter(verifier =>
+          verifier.name.toLowerCase().includes(searchTerm) ||
+          verifier.lastname.toLowerCase().includes(searchTerm) ||
+          verifier.email.toLowerCase().includes(searchTerm) ||
+          verifier.phone.toLowerCase().includes(searchTerm)
+        );
       }
-      return this.verifiers;
+
+      // Filtro por estado seleccionado
+      if (this.selectedStatus) {
+        filtered = filtered.filter(verifier => verifier.status === this.selectedStatus);
+      }
+
+      return filtered;
     }
   },
 
@@ -98,6 +115,15 @@ export default {
       this.selectedStatus = null;
     },
 
+    clearAllFilters() {
+      this.globalFilterValue = '';
+      this.selectedStatus = null;
+    },
+
+    onGlobalFilterChange(value) {
+      this.globalFilterValue = value;
+    },
+
     getStatusVerifiers(status) {
       switch (status) {
         case 'Activo':
@@ -127,7 +153,9 @@ export default {
     <!-- Componente DataManager para gestionar verificadores -->
 
     <data-manager
-        :items="filteredVerifiers"
+        :items="verifiers"
+        :filtered-items="filteredVerifiers"
+        :global-filter-value="globalFilterValue"
         :columns="columns"
         :title="title"
         :loading="loading"
@@ -143,7 +171,7 @@ export default {
         new-button-label="Nuevo verificador"
         delete-button-label="Eliminar"
         export-button-label="Exportar"
-        search-placeholder="Busca por nombre, correo, celular......"
+        search-placeholder="Busca por nombre, apellido, email, teléfono..."
         @new-item-requested-manager="onNewItemRequested"
         @delete-selected-items-requested-manager="onDeleteSelectedItems"
         @delete-item-requested-manager="onDeleteItem"
@@ -151,6 +179,8 @@ export default {
         @view-item-requested-manager="onViewItem"
         @row-select="onRowSelect"
         @row-unselect="onRowUnselect"
+        @global-filter-change="onGlobalFilterChange"
+        @clear-filters="clearAllFilters"
     >
 
       <!-- Filtro personalizado para el estado -->
@@ -163,13 +193,14 @@ export default {
               option-value="value"
               placeholder="Estado: Todos"
               class="w-10rem"
-              @change="() => {}"
           />
-          <pv-input-text
-              placeholder="mm/dd/aaaa"
-              class="w-8rem"
-              readonly
-          />
+          <!-- Botón para limpiar filtros específicos -->
+          <pv-button
+              class="p-button p-component p-button-text"
+              @click="clearStatusFilter()"
+          >
+            <span class="p-button-label"> Limpiar filtros </span>
+          </pv-button>
         </div>
       </template>
 

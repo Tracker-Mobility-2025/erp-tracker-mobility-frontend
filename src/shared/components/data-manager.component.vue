@@ -12,6 +12,9 @@ export default {
     columns: { type: Array, default: () => [] },
     loading: { type: Boolean, default: false },
     searchPlaceholder: { type: String, default: 'Busca por ID reporte, ID orden, verificador...' },
+    // Props para filtros personalizados
+    filteredItems: { type: Array, default: null }, // Items ya filtrados desde el componente padre
+    globalFilterValue: { type: String, default: '' }, // Valor del filtro global controlado desde el padre
     // Configuración de botones de acción
     showActions: { type: Boolean, default: true }, // Muestra columna de acciones en tabla
     showSelection: { type: Boolean, default: true }, // Muestra checkboxes de selección
@@ -33,7 +36,25 @@ export default {
     return {
       selectedItems: [],
       filters: null,
-      globalFilterValue: ''
+      internalGlobalFilterValue: ''
+    }
+  },
+
+  computed: {
+    // Usa los items filtrados del padre si están disponibles, si no usa los items originales
+    displayItems() {
+      return this.filteredItems || this.items;
+    },
+
+    // Valor del filtro global: usa el del padre si está disponible, si no el interno
+    currentGlobalFilterValue: {
+      get() {
+        return this.globalFilterValue !== '' ? this.globalFilterValue : this.internalGlobalFilterValue;
+      },
+      set(value) {
+        this.internalGlobalFilterValue = value;
+        this.$emit('global-filter-change', value);
+      }
     }
   },
 
@@ -45,12 +66,13 @@ export default {
     },
 
     onGlobalFilterChange() {
-      this.filters['global'].value = this.globalFilterValue;
+      this.filters['global'].value = this.currentGlobalFilterValue;
     },
 
     clearFilters() {
-      this.globalFilterValue = '';
+      this.currentGlobalFilterValue = '';
       this.initFilters();
+      this.$emit('clear-filters');
     },
 
     newItem() {
@@ -103,7 +125,7 @@ export default {
         <pv-icon-field class="w-full ">
           <pv-input-icon class="pi pi-search" />
           <pv-input-text
-              v-model="globalFilterValue"
+              v-model="currentGlobalFilterValue"
               :placeholder="searchPlaceholder"
               class="w-full"
               @input="onGlobalFilterChange"
@@ -167,7 +189,7 @@ export default {
       <pv-data-table
         ref="dt"
         v-model:selection="selectedItems"
-        :value="items"
+        :value="displayItems"
         :filters="filters"
         :loading="loading"
         :paginator="true"
@@ -257,31 +279,35 @@ export default {
 </template>
 
 <style scoped>
-/* Estilos específicos del card que no pueden ser reemplazados por PrimeFlex */
-.card {
-  background: white;
-  border: none;
-  box-shadow: none;
-  padding: 0;
+/* ========== ESTILOS ESPECÍFICOS DEL DATA-MANAGER ========== */
+/* Solo estilos que no pueden ser globales o requieren especificidad */
+
+/* Contenedor principal del componente */
+.bg-white {
+  background: var(--color-white);
+  border: 1px solid var(--table-border-strong);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 1rem;
   height: 100%;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
 
-/* Estilos específicos de la tabla que requieren :deep() para penetrar en PrimeVue */
-:deep(.data-table-custom .p-datatable-header) {
-  background-color: #f8fafc;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 1rem;
+/* Estructura flex específica del data-manager */
+.card.flex-1 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
-/* Estilos para el encabezado de la columna de selección */
-:deep(.p-datatable-column-header-content) {
-  text-align: center;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Asegurar alineación perfecta de headers y contenido */
+/* Asegurar que la tabla ocupe todo el espacio disponible */
 :deep(.data-table-custom .p-datatable) {
   height: 100%;
   display: flex;
@@ -294,154 +320,46 @@ export default {
   min-height: 400px;
 }
 
-/* Estilos de celdas de encabezado */
-:deep(.data-table-custom .p-datatable-thead > tr > th) {
-  background-color: #f1f5f9;
-  color: #374151;
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
-  padding: 1rem 0.75rem;
-  border-bottom: 2px solid #e5e7eb;
-  border-right: 1px solid #e5e7eb;
-  white-space: nowrap;
-  text-align: center;
+/* Ajustes específicos para el scroll height flex */
+:deep(.data-table-custom .p-datatable-scrollable-wrapper) {
+  flex: 1;
 }
 
-/* Estilos de celdas del cuerpo - alineación perfecta */
-:deep(.data-table-custom .p-datatable-tbody > tr > td) {
-  padding: 0.875rem 0.75rem;
-  border-bottom: 1px solid #f1f5f9;
-  border-right: 1px solid #f1f5f9;
-  font-size: 0.875rem;
-  vertical-align: middle;
-  text-align: center;
+:deep(.data-table-custom .p-datatable-scrollable-body) {
+  flex: 1;
 }
 
-:deep(.data-table-custom .p-datatable-thead > tr > th:last-child),
-:deep(.data-table-custom .p-datatable-tbody > tr > td:last-child) {
-  border-right: none;
-  text-align: center;
-}
-
-:deep(.data-table-custom .p-datatable-tbody > tr:hover) {
-  background-color: #f8fafc;
-}
-
-:deep(.data-table-custom .p-datatable-tbody > tr.p-selection) {
-  background-color: #eff6ff;
-}
-
-/* Estilos del paginador */
-:deep(.data-table-custom .p-paginator) {
-  background-color: #f8fafc;
-  border-top: 1px solid #e5e7eb;
-  padding: 1rem;
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
-  flex-shrink: 0;
-}
-
-:deep(.data-table-custom .p-paginator .p-paginator-pages .p-paginator-page.p-highlight) {
-  background-color: #3b82f6;
-  border-color: #3b82f6;
-  color: #ffffff;
-}
-
-:deep(.data-table-custom .p-checkbox .p-checkbox-box.p-highlight) {
-  background-color: #3b82f6;
-  border-color: #3b82f6;
-}
-
-/* Estilos de iconos de búsqueda */
-:deep(.p-input-icon-left > .p-inputtext) {
-  padding-left: 2.5rem;
-}
-
-:deep(.p-input-icon-left > i) {
-  left: 0.75rem;
-}
-
-/* Estados especiales */
-:deep(.data-table-custom .p-datatable-emptymessage) {
-  height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  background-color: #f9fafb;
-}
-
-:deep(.data-table-custom .p-datatable-loading-overlay) {
-  min-height: 350px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Espaciado consistente para altura mínima */
-:deep(.data-table-custom .p-datatable-tbody) {
-  min-height: 350px;
-}
-
-:deep(.data-table-custom .p-datatable-wrapper) {
-  min-height: 450px;
-}
-
-/* Ajustes responsive con PrimeFlex equivalents implementados directamente */
+/* Espaciado específico para mobile en este componente */
 @media (max-width: 768px) {
-  :deep(.data-table-custom .p-datatable-thead > tr > th),
-  :deep(.data-table-custom .p-datatable-tbody > tr > td) {
-    padding: 0.5rem;
-    font-size: 0.8rem;
+  .bg-white {
+    padding: 0.75rem;
   }
 
   :deep(.data-table-custom .p-datatable-wrapper) {
     min-height: 350px;
   }
-
-  :deep(.data-table-custom .p-datatable-tbody) {
-    min-height: 250px;
-  }
-
-  :deep(.data-table-custom .p-datatable-emptymessage) {
-    height: 250px;
-  }
 }
 
 @media (max-width: 480px) {
+  .bg-white {
+    padding: 0.5rem;
+  }
+
   :deep(.data-table-custom .p-datatable-wrapper) {
     min-height: 300px;
   }
-
-  :deep(.data-table-custom .p-datatable-tbody) {
-    min-height: 200px;
-  }
-
-  :deep(.data-table-custom .p-datatable-emptymessage) {
-    height: 200px;
-  }
 }
 
-/* Scrollbar personalizado */
-:deep(.p-datatable-wrapper::-webkit-scrollbar) {
-  width: 6px;
-  height: 6px;
+/* Override específico para este componente si necesita comportamiento diferente */
+:deep(.data-table-custom .p-datatable-tbody) {
+  min-height: 350px;
 }
 
-:deep(.p-datatable-wrapper::-webkit-scrollbar-track) {
-  background: #f1f5f9;
-  border-radius: 3px;
-}
-
-:deep(.p-datatable-wrapper::-webkit-scrollbar-thumb) {
-  background: #cbd5e1;
-  border-radius: 3px;
-}
-
-:deep(.p-datatable-wrapper::-webkit-scrollbar-thumb:hover) {
-  background: #94a3b8;
+/* Ajustes específicos del paginador para este componente */
+:deep(.data-table-custom .p-paginator) {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  flex-shrink: 0;
 }
 </style>

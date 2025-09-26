@@ -31,8 +31,9 @@ export default {
         { field: 'result', header: 'Resultado', sortable: true, template: 'result', style: 'width: 120px;' },
       ],
 
+      globalFilterValue: null, // Valor del filtro global de búsqueda
+      selectedDate: null, // Fecha seleccionada en el filtro
       selectedStatus: null, // Estado seleccionado en el filtro
-
       statusOptions: [      // Opciones de estado para el filtro
         { label: 'Todos', value: null },
         { label: 'Conforme', value: 'Conforme' },
@@ -51,11 +52,32 @@ export default {
   },
 
   computed: {
+    // Filtro combinado que aplica todos los filtros activos
     filteredVerificationReports() {
-      if (this.selectedStatus) {
-        return this.verificationReports.filter(report => report.result === this.selectedStatus);
+      let filtered = [...this.verificationReports];
+
+      // Filtro por búsqueda global (nombre de solicitante, ID reporte, ID orden)
+      if (this.globalFilterValue) {
+        const searchTerm = this.globalFilterValue.toLowerCase();
+        filtered = filtered.filter(report =>
+          report.petitioner.toLowerCase().includes(searchTerm) ||
+          report.reportId.toLowerCase().includes(searchTerm) ||
+          report.serviceOrderId.toLowerCase().includes(searchTerm)
+        );
       }
-      return this.verificationReports;
+
+      // Filtro por estado seleccionado
+      if (this.selectedStatus) {
+        filtered = filtered.filter(report => report.result === this.selectedStatus);
+      }
+
+      // Filtro por fecha seleccionada
+      if (this.selectedDate) {
+        const selectedDateStr = this.selectedDate.toISOString().split('T')[0];
+        filtered = filtered.filter(report => report.resultDate === selectedDateStr);
+      }
+
+      return filtered;
     }
   },
 
@@ -68,12 +90,12 @@ export default {
 
 
     onDeleteSelectedItems(selectedItems) {
-      console.log('Eliminar verificadores seleccionadas:', selectedItems);
+      console.log('Eliminar órdenes seleccionadas:', selectedItems);
       // Implementar lógica de eliminación múltiple
       selectedItems.forEach(item => {
-        const index = this.verifiers.findIndex(order => order.id === item.id);
+        const index = this.verificationReports.findIndex(order => order.id === item.id);
         if (index > -1) {
-          this.verifiers.splice(index, 1);
+          this.verificationReports.splice(index, 1);
         }
       });
     },
@@ -82,9 +104,9 @@ export default {
     onDeleteItem(item) {
       console.log('Eliminar verificador:', item);
       // Implementar lógica de eliminación individual
-      const index = this.verifiers.findIndex(order => order.id === item.id);
+      const index = this.verificationReports.findIndex(order => order.id === item.id);
       if (index > -1) {
-        this.verifiers.splice(index, 1);
+        this.verificationReports.splice(index, 1);
       }
     },
 
@@ -108,6 +130,16 @@ export default {
 
     clearStatusFilter() {
       this.selectedStatus = null;
+    },
+
+    clearAllFilters() {
+      this.globalFilterValue = '';
+      this.selectedStatus = null;
+      this.selectedDate = null;
+    },
+
+    onGlobalFilterChange(value) {
+      this.globalFilterValue = value;
     },
 
     getStatusVerificationReport(status) {
@@ -143,7 +175,9 @@ export default {
     <p> Informes detallados de las visitas domiciliarias para las órdenes de servicio </p>
 
     <data-manager
-        :items="filteredVerificationReports"
+        :items="verificationReports"
+        :filtered-items="filteredVerificationReports"
+        :global-filter-value="globalFilterValue"
         :columns="columns"
         :title="title"
         :loading="loading"
@@ -159,7 +193,7 @@ export default {
         new-button-label="Nuevo"
         delete-button-label="Eliminar"
         export-button-label="Exportar"
-        search-placeholder="Busca por nombre, correo, celular......"
+        search-placeholder="Busca por ID informe, ID orden, solicitante..."
         @new-item-requested-manager="onNewItemRequested"
         @delete-selected-items-requested-manager="onDeleteSelectedItems"
         @delete-item-requested-manager="onDeleteItem"
@@ -167,6 +201,8 @@ export default {
         @view-item-requested-manager="onViewItem"
         @row-select="onRowSelect"
         @row-unselect="onRowUnselect"
+        @global-filter-change="onGlobalFilterChange"
+        @clear-filters="clearAllFilters"
     >
 
 
@@ -182,11 +218,25 @@ export default {
               class="w-10rem"
               @change="() => {}"
           />
-          <pv-input-text
-              placeholder="mm/dd/aaaa"
-              class="w-8rem"
-              readonly
+          <!-- Filtro por fecha -->
+          <pv-calendar
+              id="visitDate"
+              v-model="selectedDate"
+              placeholder="dd/mm/aaaa"
+              dateFormat="dd/mm/yy"
+              showIcon
           />
+
+          <!-- Botón para limpiar filtros específicos -->
+          <pv-button
+              class="p-button p-component p-button-text"
+              @click="clearStatusFilter(); selectedDate = null"
+          >
+            <span class="p-button-label"> Limpiar filtros </span>
+          </pv-button>
+
+
+
         </div>
       </template>
 

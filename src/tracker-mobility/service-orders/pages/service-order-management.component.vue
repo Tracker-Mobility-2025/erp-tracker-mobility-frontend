@@ -103,6 +103,8 @@ export default {
         { field: 'verificador', header: 'Verificador', sortable: true, template: 'verificador', style: 'width: 150px;' },
         { field: 'programacion', header: 'Programación', sortable: true, template: 'programacion', style: 'width: 140px;' }
       ],
+
+      globalFilterValue: '', // Valor del filtro global de búsqueda
       selectedStatus: null, // Filtro de estado seleccionado
       statusOptions: [
         { label: 'Todos', value: null },
@@ -120,11 +122,26 @@ export default {
   },
 
   computed: {
+    // Filtro combinado que aplica todos los filtros activos
     filteredOrders() {
-      if (!this.selectedStatus) {
-        return this.orders;
+      let filtered = [...this.orders];
+
+      // Filtro por búsqueda global (ID, solicitante, verificador)
+      if (this.globalFilterValue) {
+        const searchTerm = this.globalFilterValue.toLowerCase();
+        filtered = filtered.filter(order =>
+          order.id.toLowerCase().includes(searchTerm) ||
+          order.solicitante.toLowerCase().includes(searchTerm) ||
+          order.verificador.toLowerCase().includes(searchTerm)
+        );
       }
-      return this.orders.filter(order => order.estado === this.selectedStatus);
+
+      // Filtro por estado seleccionado
+      if (this.selectedStatus) {
+        filtered = filtered.filter(order => order.estado === this.selectedStatus);
+      }
+
+      return filtered;
     }
   },
 
@@ -180,6 +197,15 @@ export default {
       this.selectedStatus = null;
     },
 
+    clearAllFilters() {
+      this.globalFilterValue = '';
+      this.selectedStatus = null;
+    },
+
+    onGlobalFilterChange(value) {
+      this.globalFilterValue = value;
+    },
+
     getStatusSeverity(status) {
       switch (status) {
         case 'Pendiente':
@@ -210,7 +236,9 @@ export default {
 
     <!-- Componente DataManager para gestionar ordenes de servicio-->
     <data-manager
-      :items="filteredOrders"
+      :items="orders"
+      :filtered-items="filteredOrders"
+      :global-filter-value="globalFilterValue"
       :columns="columns"
       :title="title"
       :loading="loading"
@@ -226,7 +254,7 @@ export default {
       new-button-label="Nueva Orden"
       delete-button-label="Eliminar"
       export-button-label="Exportar"
-      search-placeholder="Busca por verificador, cliente, correo, celular..."
+      search-placeholder="Busca por ID orden, solicitante, verificador..."
       @new-item-requested-manager="onNewItemRequested"
       @delete-selected-items-requested-manager="onDeleteSelectedItems"
       @delete-item-requested-manager="onDeleteItem"
@@ -234,6 +262,8 @@ export default {
       @view-item-requested-manager="onViewItem"
       @row-select="onRowSelect"
       @row-unselect="onRowUnselect"
+      @global-filter-change="onGlobalFilterChange"
+      @clear-filters="clearAllFilters"
     >
       <!-- Custom Filters -->
       <template #filters="{ clearFilters }">
@@ -245,13 +275,14 @@ export default {
             option-value="value"
             placeholder="Estado: Todos"
             class="w-10rem"
-            @change="() => {}"
           />
-          <pv-input-text
-            placeholder="mm/dd/aaaa"
-            class="w-8rem"
-            readonly
-          />
+          <!-- Botón para limpiar filtros específicos -->
+          <pv-button
+              class="p-button p-component p-button-text"
+              @click="clearStatusFilter()"
+          >
+            <span class="p-button-label"> Limpiar filtros </span>
+          </pv-button>
         </div>
       </template>
 
