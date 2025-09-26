@@ -25,12 +25,22 @@ const router = createRouter({
         {
             path: '/tracker-mobility', name: 'tracker-mobility', component: LayoutTrackerMobilityComponent, meta: {title: 'Tracker Mobility'},
             children: [
+
+                //========================================================
                 {
                     path: '/admin/service-orders',
                     name: 'service-orders',
                     component: ServiceOrderManagementComponent,
                     meta: {title: 'Ordenes de servicio'}
                 },
+                {
+                    path: '/admin/order-details',
+                    name: 'order-details',
+                    component: OrderDetailManagementComponent,
+                    meta: {title: 'Detalles de la orden'}
+                },
+                //========================================================
+
 
                 //========================================================
                 {
@@ -47,20 +57,22 @@ const router = createRouter({
                 },
                 //========================================================
 
-
+                //========================================================
                 {
                     path: '/admin/verification-reports',
                     name: 'verification-reports',
                     component: VerificationReportsManagementComponent
                     , meta: {title: 'Reportes de verificación'}
                 },
-
                 {
-                    path: '/admin/order-details',
-                    name: 'order-details',
+                    path: '/admin/verification-reports-details',
+                    name: 'verification-reports-details',
                     component: OrderDetailManagementComponent,
-                    meta: {title: 'Detalles de la orden'}
+                    meta: {title: 'Detalles del reporte de verificación'}
                 },
+                //========================================================
+
+
 
 
 

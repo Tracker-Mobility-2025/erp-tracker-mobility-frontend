@@ -225,10 +225,11 @@ export default {
 
 
 <style scoped>
-/* Estilos específicos para highlighting de campos pendientes - usando PrimeFlex cuando es posible */
+/* Estilos usando variables CSS corporativas */
 .text-orange-500 {
-  color: #f97316 !important;
+  color: var(--color-warning) !important;
 }
+
 
 /* Estilos específicos de PrimeVue que requieren :deep() para penetrar en los componentes */
 /* Los estilos de botones ahora son globales en style.css */

@@ -11,18 +11,6 @@ export default {
     item: {
       type: Object,
       required: false,
-      default : () => ({
-        id: null,
-        clientName: '',
-        clientContact: '',
-        clientAddress: '',
-        serviceType: '',
-        scheduledDate: '',
-        status: 'Pendiente',
-        assignedVerifier: null,
-        observations: ''
-
-      })
     },
   },
 

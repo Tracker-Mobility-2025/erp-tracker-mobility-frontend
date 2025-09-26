@@ -440,6 +440,7 @@ input:disabled, textarea:disabled, select:disabled {
 /* Headers globales con mejor contraste */
 .data-table-global .p-datatable-thead > tr > th,
 .data-table-custom .p-datatable-thead > tr > th,
+
 .p-datatable-thead > tr > th {
     background-color: var(--table-header-bg) !important;
     color: var(--table-header-text) !important;
@@ -452,6 +453,7 @@ input:disabled, textarea:disabled, select:disabled {
     border-right: 1px solid var(--table-header-border) !important;
     white-space: nowrap;
     text-align: center;
+
 }
 
 /* Celdas del cuerpo con contraste mejorado */
@@ -888,12 +890,17 @@ input:disabled, textarea:disabled, select:disabled {
     box-shadow: var(--shadow);
 }
 
-.p-datatable .p-datatable-header {
+.p-datatable .p-datatable-header  {
     background: var(--color-primary);
     color: var(--color-white);
     border-radius: var(--border-radius) var(--border-radius) 0 0;
     padding: var(--spacing-md);
     font-weight: var(--font-weight-semibold);
+}
+
+.p-datatable-column-header-content {
+    justify-content: center;
+    align-items: center;
 }
 
 /* Los estilos de thead y tbody ya están definidos globalmente arriba */
@@ -903,6 +910,7 @@ input:disabled, textarea:disabled, select:disabled {
     color: var(--table-header-text) !important;
     border-color: var(--table-header-border) !important;
     font-weight: var(--table-header-font-weight) !important;
+
 }
 
 .p-datatable .p-datatable-tbody > tr {

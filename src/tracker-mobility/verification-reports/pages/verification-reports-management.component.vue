@@ -265,5 +265,18 @@ export default {
 </template>
 
 <style scoped>
+/* Estilos usando variables CSS corporativas */
+.text-orange-500 {
+  color: var(--color-warning) !important;
+}
+
+
+/* Los estilos de botones ahora son globales en style.css */
+
+/* Los estilos de input y dropdown ahora son globales en style.css */
+
+/* Los estilos de tags y checkboxes ahora son globales en style.css */
+
+/* Los estilos de botones de acción, paginador, tabla y toolbar ahora son globales en style.css */
 
 </style>
