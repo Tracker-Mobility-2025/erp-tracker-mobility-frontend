@@ -66,6 +66,11 @@ export default {
       this.selectedStatus = "Todos";
       this.selectedDate = null;
     },
+
+    removeOrder(){
+      // Lógica para quitar orden de servicio asignada
+      this.$emit('remove-order');
+    }
   },
 
   created() {
@@ -125,15 +130,16 @@ export default {
     >
       <template #content>
         <div class="flex align-items-center gap-3">
-          <!-- Ícono de estado -->
+          <!-- Botón circular para quitar ordenes de servicio asignadas-->
+          <!-- Botón circular para quitar órdenes de servicio asignadas -->
           <i
-              class="pi pi-minus-circle text-3xl"
-              :class="{
-              'text-red-500': order.status === 'Asignado',
-              'text-gray-500': order.status === 'Completado',
-              'text-yellow-500': order.status === 'Pendiente'
-            }"
+              class="pi pi-minus-circle text-5xl font-bold pr-4 cursor-pointer transition-colors duration-200"
+              :class="{'text-red-500 hover:text-red-700': order.status === 'Asignado',
+              'text-gray-500 hover:text-gray-700': order.status === 'Completado',
+              'text-yellow-500 hover:text-yellow-600': order.status === 'Pendiente'}"
+              @click="removeOrder"
           ></i>
+
 
           <!-- Información principal -->
           <div class="flex flex-column flex-1">

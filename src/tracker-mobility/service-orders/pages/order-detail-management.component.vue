@@ -95,7 +95,7 @@ export default {
       </h2>
 
       <!-- Derecha -->
-      <span class="text-sm font-medium text-gray-900">
+      <span class="font-medium text-gray-900">
         Fecha de solicitud: 10/09/2025
       </span>
     </div>

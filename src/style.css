@@ -685,11 +685,11 @@ input:disabled, textarea:disabled, select:disabled {
 
 /* Botones de PrimeVue - usando colores corporativos */
 .p-button {
-    font-family: var(--font-family);
-    font-weight: var(--font-weight-medium);
-    border-radius: var(--border-radius);
-    transition: all 0.2s ease;
-    gap: var(--spacing-xs);
+    font-family: var(--font-family) !important;
+    font-weight: var(--font-weight-medium) !important;
+    border-radius: var(--border-radius) !important;
+    transition: all 0.2s ease !important;
+    gap: var(--spacing-xs) !important;
 }
 
 .p-button-sm {

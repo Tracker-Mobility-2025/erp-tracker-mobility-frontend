@@ -106,7 +106,7 @@ export default {
       // Implementar navegación a vista de detalles
 
       // Navegar con router a /admin/order-details
-      this.$router.push({ name: 'order-details'});
+      this.$router.push({ name: 'verification-reports-details'});
 
     },
 

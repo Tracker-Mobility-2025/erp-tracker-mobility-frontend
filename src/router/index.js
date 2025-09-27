@@ -20,6 +20,8 @@ import SupportDocsAndLandlordFormComponent
     from "../home-visit-request-form/order-service/components/support-docs-and-landlord-form.component.vue";
 import ResumenServiceOrderComponent
     from "../home-visit-request-form/order-service/components/resumen-service-order.component.vue";
+import DetailsHomeVerificationReportComponent
+    from "../tracker-mobility/verification-reports/pages/details-home-verification-report.component.vue";
 
 
 
@@ -82,7 +84,7 @@ const router = createRouter({
                 {
                     path: 'admin/verification-reports-details',
                     name: 'verification-reports-details',
-                    component: OrderDetailManagementComponent,
+                    component: DetailsHomeVerificationReportComponent,
                     meta: {title: 'Detalles del reporte de verificación'}
                 },
                 //========================================================
