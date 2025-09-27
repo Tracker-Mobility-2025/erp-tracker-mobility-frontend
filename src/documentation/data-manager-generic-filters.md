@@ -231,7 +231,7 @@ computed: {
 
 ### 2. Módulo de Órdenes de Servicio
 ```javascript
-// service-order-management.component.vue
+// management-requests-home-visit-orders.component.vue
 computed: {
   filteredOrders() {
     let filtered = [...this.orders];

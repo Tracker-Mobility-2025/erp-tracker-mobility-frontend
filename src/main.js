@@ -55,7 +55,7 @@ import {
     AccordionHeader,
     AccordionPanel,
     AutoComplete,
-    Badge, Calendar, Chips, Dropdown, InputSwitch, ProgressBar, ProgressSpinner,
+    Badge, Calendar, Chips, Dropdown, InputMask, InputSwitch, ProgressBar, ProgressSpinner,
     SplitButton,
     TabPanels
 } from "primevue";
@@ -68,12 +68,12 @@ import {createPinia} from "pinia";
  * 
  * Sistema de gestión ERP con las siguientes implementaciones:
  * 
- * 🎨 TEMA CORPORATIVO:
+ * TEMA CORPORATIVO:
  * - Paleta de colores corporativa definida en style.css
  * - Modo oscuro automático basado en preferencias del sistema
  * - Variables CSS personalizadas para consistencia visual
  * 
- * 🏗️ ARQUITECTURA:
+ * ARQUITECTURA:
  * - Vue 3 + Composition API
  * - PrimeVue para componentes UI
  * - PrimeFlex para layout responsive
@@ -81,19 +81,17 @@ import {createPinia} from "pinia";
  * - Vue Router para navegación
  * - Pinia para gestión de estado
  * 
- * 📱 FUNCIONALIDADES:
+ * FUNCIONALIDADES:
  * - Gestión de órdenes de verificación
  * - Asignación de verificadores
  * - Programación de visitas
  * - Gestión documental
  * - Sistema de notificaciones
  * 
- * ✨ CARACTERÍSTICAS TÉCNICAS:
- * - Diseño responsive para móviles y desktop
+ * CARACTERÍSTICAS TÉCNICAS:
  * - Componentes reutilizables y modulares
  * - Estilos personalizados para PrimeVue
  * - Transiciones suaves y animaciones
- * - Compatibilidad con modo oscuro del sistema
  */
 
 //create app instance
@@ -169,6 +167,7 @@ app.component('pv-button', Button)
     .component('pv-confirm-dialog', ConfirmDialog)
     .component('pv-chips', Chips)
     .component('pv-file-upload', FileUpload)
-    .component('pv-progress-spinner', ProgressSpinner);
+    .component('pv-progress-spinner', ProgressSpinner)
+    .component('pv-input-mask', InputMask );
 
 app.mount('#app')

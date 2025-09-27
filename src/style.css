@@ -1269,4 +1269,5 @@ html, body {
     color-scheme: light !important;
     background: var(--color-background) !important;
     color: var(--color-text-gray) !important;
+    overflow: hidden;
 }

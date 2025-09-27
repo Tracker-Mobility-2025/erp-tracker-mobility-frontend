@@ -17,11 +17,11 @@ export default {
 
     items() {
       return [
-        { label: 'Dashboard', icon: 'pi pi-fw pi-chart-line', to: `/dashboard` },
-        { label: 'Ordenes', icon: 'pi pi-fw pi-file-edit', to: `/admin/service-orders` },
-        { label: 'Verificadores', icon: 'pi pi-fw pi-users', to: `/admin/verifiers` },
-        { label: 'Reportes', icon: 'pi pi-fw pi-chart-bar', to: `/admin/verification-reports` },
-        { label: 'Clientes', icon: 'pi pi-fw pi-user', to: `/admin/clients` },
+        { label: 'Dashboard', icon: 'pi pi-fw pi-chart-line', to: `/tracker-mobility/dashboard` },
+        { label: 'Ordenes', icon: 'pi pi-fw pi-file-edit', to: `/tracker-mobility/admin/service-orders` },
+        { label: 'Verificadores', icon: 'pi pi-fw pi-users', to: `/tracker-mobility/admin/verifiers` },
+        { label: 'Reportes', icon: 'pi pi-fw pi-chart-bar', to: `/tracker-mobility/admin/verification-reports` },
+        { label: 'Clientes', icon: 'pi pi-fw pi-user', to: `/tracker-mobility/admin/clients` },
       ];
     }
   },

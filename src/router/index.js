@@ -10,17 +10,32 @@ import SignInComponent from "../tracker-mobility/security/pages/sign-in.componen
 import LayoutTrackerMobilityComponent from "../public/pages/layout-tracker-mobility.component.vue";
 import VerifiersDetailsManagementComponent
     from "../tracker-mobility/verifier-management/pages/verifiers-details.management.component.vue";
+import ManagementRequestsHomeVisitOrdersComponent
+    from "../home-visit-request-form/order-service/pages/management-requests-home-visit-orders.component.vue";
+import RequestServiceBusinessFormComponent
+    from "../home-visit-request-form/order-service/components/request-service-business-form.component.vue";
+import CustomerDataFormComponent
+    from "../home-visit-request-form/order-service/components/customer-data-form.component.vue";
+import SupportDocsAndLandlordFormComponent
+    from "../home-visit-request-form/order-service/components/support-docs-and-landlord-form.component.vue";
+import ResumenServiceOrderComponent
+    from "../home-visit-request-form/order-service/components/resumen-service-order.component.vue";
+
+
 
 
 
 const router = createRouter({
     history: createWebHistory(),
     routes: [
-
         //ruta por defecto para redirigir a la página de inicio home-elixir line
         {path: '/:pathMatch(.*)*', redirect: '/tracker-mobility/sign-in'},
 
         {path: '/tracker-mobility/sign-in' , name: 'sign-in', component: SignInComponent, meta: { title:'Login'}},
+
+
+
+        // =====================================================================================
 
         {
             path: '/tracker-mobility', name: 'tracker-mobility', component: LayoutTrackerMobilityComponent, meta: {title: 'Tracker Mobility'},
@@ -28,13 +43,13 @@ const router = createRouter({
 
                 //========================================================
                 {
-                    path: '/admin/service-orders',
+                    path: 'admin/service-orders',
                     name: 'service-orders',
                     component: ServiceOrderManagementComponent,
                     meta: {title: 'Ordenes de servicio'}
                 },
                 {
-                    path: '/admin/order-details',
+                    path: 'admin/order-details',
                     name: 'order-details',
                     component: OrderDetailManagementComponent,
                     meta: {title: 'Detalles de la orden'}
@@ -44,13 +59,13 @@ const router = createRouter({
 
                 //========================================================
                 {
-                    path: '/admin/verifiers',
+                    path: 'admin/verifiers',
                     name: 'verifiers',
                     component: VerifiersManagementComponent,
                     meta: {title: 'Verificadores'}
                 },
                 {
-                    path: '/admin/verifier-details',
+                    path: 'admin/verifier-details',
                     name: 'verifier-details',
                     component: VerifiersDetailsManagementComponent,
                     meta: {title: 'Detalles del verificador'}
@@ -59,13 +74,13 @@ const router = createRouter({
 
                 //========================================================
                 {
-                    path: '/admin/verification-reports',
+                    path: 'admin/verification-reports',
                     name: 'verification-reports',
                     component: VerificationReportsManagementComponent
                     , meta: {title: 'Reportes de verificación'}
                 },
                 {
-                    path: '/admin/verification-reports-details',
+                    path: 'admin/verification-reports-details',
                     name: 'verification-reports-details',
                     component: OrderDetailManagementComponent,
                     meta: {title: 'Detalles del reporte de verificación'}
@@ -73,13 +88,36 @@ const router = createRouter({
                 //========================================================
 
 
-
-
-
-
             ]
 
         },
+
+
+
+
+        // ============== Rutas del formulario de solicitud de visita domiciliaria ==============
+
+        {path: '/service-order-request-management', name: 'service-order-request-management', component: ManagementRequestsHomeVisitOrdersComponent, meta: {title: 'Gestión de solicitudes'},
+
+            children: [
+                {path: 'petitioner-data', name: 'petitioner-data', component: RequestServiceBusinessFormComponent, meta: {title: 'Solicitante'}},
+                {path: 'customer-data', name: 'customer-data', component: CustomerDataFormComponent, meta: {title: 'Cliente'}},
+                {path: 'documentation-upload', name: 'documentation-upload', component: SupportDocsAndLandlordFormComponent, meta: {title: 'Documentación'}},
+                {path: 'visit-request/confirmation', name: 'confirmation', component: ResumenServiceOrderComponent, meta: {title: 'Confirmación'}},
+            ]
+        },
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
