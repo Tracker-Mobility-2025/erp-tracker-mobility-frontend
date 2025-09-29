@@ -17,7 +17,7 @@ export default {
 
     items() {
       return [
-        { label: 'Dashboard', icon: 'pi pi-fw pi-chart-line', to: `/tracker-mobility/dashboard` },
+        { label: 'Dashboard', icon: 'pi pi-fw pi-chart-line', to: `/tracker-mobility/admin/dashboard` },
         { label: 'Ordenes', icon: 'pi pi-fw pi-file-edit', to: `/tracker-mobility/admin/service-orders` },
         { label: 'Verificadores', icon: 'pi pi-fw pi-users', to: `/tracker-mobility/admin/verifiers` },
         { label: 'Reportes', icon: 'pi pi-fw pi-chart-bar', to: `/tracker-mobility/admin/verification-reports` },

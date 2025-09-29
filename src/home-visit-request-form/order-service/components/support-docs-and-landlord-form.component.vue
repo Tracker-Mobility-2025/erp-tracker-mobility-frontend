@@ -1,6 +1,6 @@
 <script>
 
-import FileUploader from "../../../shared/file-uploader.component.vue";
+import FileUploader from "../../../shared/components/file-uploader.component.vue";
 
 export default {
   name: 'support-docs-and-landlord-form',

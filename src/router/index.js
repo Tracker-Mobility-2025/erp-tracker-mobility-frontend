@@ -22,6 +22,8 @@ import ResumenServiceOrderComponent
     from "../home-visit-request-form/order-service/components/resumen-service-order.component.vue";
 import DetailsHomeVerificationReportComponent
     from "../tracker-mobility/verification-reports/pages/details-home-verification-report.component.vue";
+import DashboardManagementComponent from "../tracker-mobility/dashboard/pages/dashboard-management.component.vue";
+import ClientManagementComponent from "../tracker-mobility/client-management/pages/client-management.component.vue";
 
 
 
@@ -43,6 +45,7 @@ const router = createRouter({
             path: '/tracker-mobility', name: 'tracker-mobility', component: LayoutTrackerMobilityComponent, meta: {title: 'Tracker Mobility'},
             children: [
 
+                // Rutas de administración de órdenes de servicio
                 //========================================================
                 {
                     path: 'admin/service-orders',
@@ -59,6 +62,7 @@ const router = createRouter({
                 //========================================================
 
 
+                // Rutas de administración de verificadores
                 //========================================================
                 {
                     path: 'admin/verifiers',
@@ -74,6 +78,8 @@ const router = createRouter({
                 },
                 //========================================================
 
+
+                // Rutas de administración de reportes de verificación
                 //========================================================
                 {
                     path: 'admin/verification-reports',
@@ -86,6 +92,31 @@ const router = createRouter({
                     name: 'verification-reports-details',
                     component: DetailsHomeVerificationReportComponent,
                     meta: {title: 'Detalles del reporte de verificación'}
+                },
+                //========================================================
+
+
+                // Rutas de dashboard (por implementar)
+                //========================================================
+                {
+                    path: 'admin/dashboard',
+                    name: 'dashboard',
+                    component: DashboardManagementComponent,
+                    meta: {title: 'Dashboard'}
+                },
+
+
+                //========================================================
+
+
+
+                // Rutas de administración de clientes (por implementar)
+                //========================================================
+                {
+                    path: 'admin/clients',
+                    name: 'clients',
+                    component: ClientManagementComponent,
+                    meta: {title: 'Clientes'}
                 },
                 //========================================================
 
