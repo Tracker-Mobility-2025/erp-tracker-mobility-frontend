@@ -11,7 +11,7 @@
 
     /* Paleta de colores corporativa */
     --color-primary: #2E3DB4;           /* Azul corporativo */
-    --color-background: #E0E0E0;        /* Gris medio */
+    --color-background: #ececec;        /* Gris medio */
     --color-success: #28A745;           /* Verde confirmaciones */
     --color-text-gray: #363636;         /* Gris letras */
     --color-coral: #EF4444;             /* Rojo coral */
@@ -93,13 +93,17 @@
     box-sizing: border-box;
 }
 
-body {
+/* Asegurar que el body y html mantengan el esquema de colores claro */
+html, body {
     margin: 0;
     font-family: var(--font-family), serif;
+    color-scheme: light !important;
     background-color: var(--color-background);
     color: var(--color-text-gray);
     min-height: 100vh;
+    overflow: hidden;
 }
+
 
 /* Tipografía */
 h1, h2, h3, h4, h5, h6 {
@@ -1264,10 +1268,3 @@ html:not(.force-dark-mode) .p-calendar {
     color-scheme: light !important;
 }
 
-/* Asegurar que el body y html mantengan el esquema de colores claro */
-html, body {
-    color-scheme: light !important;
-    background: var(--color-background) !important;
-    color: var(--color-text-gray) !important;
-    overflow: hidden;
-}

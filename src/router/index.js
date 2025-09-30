@@ -34,7 +34,6 @@ const router = createRouter({
     routes: [
         //ruta por defecto para redirigir a la página de inicio home-elixir line
         {path: '/:pathMatch(.*)*', redirect: '/tracker-mobility/sign-in'},
-
         {path: '/tracker-mobility/sign-in' , name: 'sign-in', component: SignInComponent, meta: { title:'Login'}},
 
 
@@ -129,7 +128,6 @@ const router = createRouter({
 
 
         // ============== Rutas del formulario de solicitud de visita domiciliaria ==============
-
         {path: '/service-order-request-management', name: 'service-order-request-management', component: ManagementRequestsHomeVisitOrdersComponent, meta: {title: 'Gestión de solicitudes'},
 
             children: [

@@ -59,6 +59,9 @@ import {
     SplitButton,
     TabPanels
 } from "primevue";
+import Chip from 'primevue/chip';
+
+
 import {createPinia} from "pinia";
 
 
@@ -168,6 +171,7 @@ app.component('pv-button', Button)
     .component('pv-chips', Chips)
     .component('pv-file-upload', FileUpload)
     .component('pv-progress-spinner', ProgressSpinner)
-    .component('pv-input-mask', InputMask );
+    .component('pv-input-mask', InputMask )
+    .component('pv-chip', Chip);
 
 app.mount('#app')
