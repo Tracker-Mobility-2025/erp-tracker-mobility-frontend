@@ -11,6 +11,18 @@ export default {
 
 <template>
 
+  <!--
+  <div class="h-full overflow-hidden flex flex-column p-4">
+
+
+    <h2 class="text-2xl font-bold mb-2">Gestión de Clientes</h2>
+    <p class="text-gray-600 mb-4"> Gestiona tus clientes y genera accesos personalizados para solicitar verificaciones.</p>
+
+  </div>
+  -->
+
+
+
   <div class="h-full overflow-hidden flex flex-column">
     <!-- Uso personalizado -->
     <module-under-development
