@@ -16,6 +16,10 @@ export default {
       isEdit: false,
       submitted: false,
       editableItem: new Verifier({}),
+
+      //
+      optionsStatus: ["Activo", "Inactivo"],
+
     };
   },
 
@@ -93,7 +97,7 @@ export default {
             <div v-else>
               <pv-dropdown
                   v-model="editableItem.status"
-                  :options="['Activo', 'Inactivo']"
+                  :options="optionsStatus"
                   class="w-full"
               />
             </div>
@@ -102,10 +106,10 @@ export default {
           <div class="field col-12 md:col-3">
             <label class="font-semibold text-color-secondary">Cant. órdenes</label>
             <div v-if="!isEdit">
-              <p class="font-semibold text-dark m-0">{{ item.ordenes }}</p>
+              <p class="font-semibold text-dark m-0">{{ item.assignedOrders.length }}</p>
             </div>
             <div v-else>
-              <pv-input-number v-model="editableItem.ordenes" class="w-full" />
+              <pv-input-number v-model="editableItem.assignedOrders.length" class="w-full" />
             </div>
           </div>
 
@@ -126,7 +130,7 @@ export default {
               <p class="font-semibold text-dark m-0">********</p>
             </div>
             <div v-else>
-              <pv-password v-model="editableItem.password" toggleMask class="w-full" />
+              <pv-password v-model="editableItem.password" toggleMask class="w-full"  />
             </div>
           </div>
 
@@ -175,4 +179,9 @@ export default {
 :deep(.p-card-content) {
   padding: 0.5rem;
 }
+
+:deep(.p-inputtext) {
+  width: 100%;
+}
+
 </style>

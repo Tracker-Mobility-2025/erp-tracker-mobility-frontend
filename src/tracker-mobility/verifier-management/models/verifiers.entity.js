@@ -6,7 +6,7 @@ export class Verifier {
             name = '',
             lastname = '',
             phone = '',
-            status = 'Activo',
+            status = '',
             email = '',
             password = '',
             agenda = '',
