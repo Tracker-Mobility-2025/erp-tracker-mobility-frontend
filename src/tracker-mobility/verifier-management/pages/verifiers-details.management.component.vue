@@ -43,6 +43,40 @@ export default {
       // Lógica de implementación para cancelar edición
 
     },
+
+    // Remover orden de la lista de órdenes asignadas
+    async handleRemoveOrder(order) {
+      try {
+        console.log('Removiendo orden:', order);
+        
+        // Simular llamada a API (reemplazar con llamada real)
+        // await this.orderService.removeAssignedOrder(this.item.id, order.id);
+        
+        // Actualizar la lista local removiendo la orden
+        this.item.assignedOrders = this.item.assignedOrders.filter(o => o.id !== order.id);
+        
+        // Mostrar mensaje de éxito
+        this.$toast.add({
+          severity: 'success',
+          summary: 'Orden removida',
+          detail: `La orden ${order.id} ha sido removida exitosamente de ${this.item.name}`,
+          life: 3000
+        });
+        
+        console.log('Orden removida exitosamente. Órdenes restantes:', this.item.assignedOrders);
+        
+      } catch (error) {
+        console.error('Error al remover la orden:', error);
+        
+        // Mostrar mensaje de error
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Error al remover',
+          detail: 'No se pudo remover la orden. Inténtalo nuevamente.',
+          life: 3000
+        });
+      }
+    },
   },
 
   created() {
@@ -70,7 +104,7 @@ export default {
               address: "Calle Falsa 456, Shelbyville",
               date: "2024-10-02T14:30:00",
               googleMaps: "https://maps.google.com/?q=Calle+Falsa+456,+Shelbyville",
-              status: "Pendiente",
+              status: "Asignado",
             },
             {
               id: "ORD11223",
@@ -123,6 +157,7 @@ export default {
 
       <list-assigned-orders
           :items="item.assignedOrders"
+          @remove-order="handleRemoveOrder"
       />
 
 

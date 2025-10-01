@@ -9,6 +9,8 @@ export default {
     },
   },
 
+
+
   data() {
     return {
       search: "",
@@ -18,7 +20,6 @@ export default {
       statusOptions: [
         {label: "Todos", value: "Todos"},
         {label: "Asignado", value: "Asignado"},
-        {label: "Pendiente", value: "Pendiente"},
         {label: "Completado", value: "Completado"},
       ]
     };
@@ -67,10 +68,47 @@ export default {
       this.selectedDate = null;
     },
 
-    removeOrder(){
-      // Lógica para quitar orden de servicio asignada
-      this.$emit('remove-order');
-    }
+    removeOrder(order){
+      // Solo emitir evento al componente padre
+      this.$emit('remove-order', order);
+    },
+
+    confirmRemoveOrder(order) {
+      // Validar si la orden puede ser removida
+      if (order.status !== 'Asignado') {
+        this.$toast.add({
+          severity: 'warn',
+          summary: 'Acción no permitida',
+          detail: 'Solo se pueden remover órdenes con estado "Asignado"',
+          life: 3000
+        });
+        return;
+      }
+
+      // Mostrar confirmación antes de remover
+      this.$confirm.require({
+        message: `¿Estás seguro de que deseas remover la orden ${order.id} de la lista de órdenes asignadas?`,
+        header: 'Confirmar eliminación',
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Sí, remover',
+        rejectLabel: 'Cancelar',
+        acceptClass: 'p-button-danger',
+        accept: () => {
+          // Solo emitir evento al componente padre
+          this.$emit('remove-order', order);
+        },
+        reject: () => {
+          // No hacer nada si se cancela
+        }
+      });
+    },
+
+    canRemoveOrder(order) {
+      // Verificar si una orden puede ser removida (solo las Asignado)
+      return order.status === 'Asignado';
+    },
+
+
   },
 
   created() {
@@ -130,14 +168,15 @@ export default {
     >
       <template #content>
         <div class="flex align-items-center gap-3">
-          <!-- Botón circular para quitar ordenes de servicio asignadas-->
           <!-- Botón circular para quitar órdenes de servicio asignadas -->
           <i
-              class="pi pi-minus-circle text-5xl font-bold pr-4 cursor-pointer transition-colors duration-200"
-              :class="{'text-red-500 hover:text-red-700': order.status === 'Asignado',
-              'text-gray-500 hover:text-gray-700': order.status === 'Completado',
-              'text-yellow-500 hover:text-yellow-600': order.status === 'Pendiente'}"
-              @click="removeOrder"
+              class="pi pi-minus-circle text-5xl font-bold pr-4 transition-colors duration-200"
+              :class="{
+                'text-red-500 hover:text-red-700 cursor-pointer': order.status === 'Asignado',
+                'text-gray-300 cursor-not-allowed': order.status === 'Completado'
+              }"
+              v-tooltip.top="canRemoveOrder(order) ? 'Remover orden de la lista' : 'Solo se pueden remover órdenes asignadas'"
+              @click="canRemoveOrder(order) ? confirmRemoveOrder(order) : null"
           ></i>
 
 

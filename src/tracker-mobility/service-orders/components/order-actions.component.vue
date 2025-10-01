@@ -38,24 +38,94 @@ export default {
     }
   },
 
+  data() {
+    return {
+      editingStates: {
+        verifier: false,
+        status: false,
+        observations: false
+      },
+      originalData: {
+        verifier: {},
+        status: {},
+        observations: {}
+      }
+    };
+  },
+
   methods : {
+    // Habilitar modo edición para una sección específica
+    enableEditing(section) {
+      // Guardar datos originales de la sección específica
+      if (section === 'verifier') {
+        this.originalData.verifier = {
+          assignedVerifier: this.item.assignedVerifier,
+          scheduledDate: this.item.scheduledDate,
+          scheduledTime: this.item.scheduledTime
+        };
+      } else if (section === 'status') {
+        this.originalData.status = {
+          status: this.item.status
+        };
+      } else if (section === 'observations') {
+        this.originalData.observations = {
+          documentType: this.item.documentType,
+          observations: this.item.observations
+        };
+      }
+      
+      this.editingStates[section] = true;
+    },
+
+    // Cancelar edición y restaurar datos originales para una sección específica
+    cancelEditing(section) {
+      // Restaurar datos originales de la sección específica
+      if (section === 'verifier') {
+        Object.assign(this.item, this.originalData.verifier);
+      } else if (section === 'status') {
+        Object.assign(this.item, this.originalData.status);
+      } else if (section === 'observations') {
+        Object.assign(this.item, this.originalData.observations);
+      }
+      
+      this.editingStates[section] = false;
+      this.originalData[section] = {};
+    },
+
     // Asignar verificador a una orden de servicio (programar fecha de visita y hora de visita)
     assignVerifierToOrder() {
       // Lógica para asignar verificador
       this.$emit('assign-verifier', this.item);
+      this.editingStates.verifier = false;
+    },
+
+    // Confirmar cambios realizados
+    confirmChanges() {
+      // Lógica para confirmar cambios
+      this.$emit('confirm-changes', this.item);
+      this.editingStates.status = false;
     },
 
     // Actualizar estado del servicio
     updateServiceStatus() {
       // Lógica para actualizar estado del servicio
       this.$emit('update-status', this.item);
+      this.editingStates.status = false;
     },
 
     // Enviar observaciones de la orden de servicio
     submitOrderObservations() {
       // Lógica para enviar observaciones
       this.$emit('submit-observations', this.item);
+      this.editingStates.observations = false;
     },
+
+    // Cancelar orden de servicio
+    cancelOrder() {
+      // Lógica para cancelar orden
+      this.$emit('cancel-order', this.item);
+      this.editingStates.status = false;
+    }
   }
 };
 
@@ -79,6 +149,7 @@ export default {
             optionValue="id"
             placeholder="Ingresar el nombre del verificador"
             class="w-full mt-1"
+            :disabled="!editingStates.verifier"
           />
         </div>
 
@@ -92,6 +163,7 @@ export default {
               dateFormat="dd/mm/yy"
               class="w-full mt-1"
               showIcon
+              :disabled="!editingStates.verifier"
             />
           </div>
           <div class="field col-6">
@@ -103,17 +175,36 @@ export default {
               placeholder="hh:mm"
               class="w-full mt-1"
               showIcon
+              :disabled="!editingStates.verifier"
             />
           </div>
         </div>
 
-        <div class="flex justify-content-end gap-2 w-full">
+        <div class="flex gap-2 w-full">
+          <!-- Botón de Editar (cuando no está editando) -->
           <pv-button
-            label="Asignar" 
-            icon="pi pi-user-plus" 
-            class="p-button-primary p-button-sm w-full"
-            @click="assignVerifierToOrder"
+            v-if="!editingStates.verifier"
+            label="Editar" 
+            icon="pi pi-pencil" 
+            class="p-button-warning w-full"
+            @click="enableEditing('verifier')"
           />
+          
+          <!-- Botones de acción (cuando está editando) -->
+          <template v-if="editingStates.verifier">
+            <pv-button
+              label="Asignar" 
+              icon="pi pi-user-plus" 
+              class="p-button-primary flex-1"
+              @click="assignVerifierToOrder"
+            />
+            <pv-button
+              label="Cancelar" 
+              icon="pi pi-times" 
+              class="p-button-secondary flex-1"
+              @click="cancelEditing('verifier')"
+            />
+          </template>
         </div>
       </template>
     </pv-card>
@@ -133,15 +224,36 @@ export default {
             optionValue="value"
             placeholder="En progreso"
             class="w-full mt-1"
+            :disabled="!editingStates.status"
           />
         </div>
         
-        <pv-button
-          label="Guardar cambios" 
-          icon="pi pi-save"
-          class="p-button-primary w-full"
-          @click="updateServiceStatus"
-        />
+        <div class="flex gap-2 w-full">
+          <!-- Botón de Editar (cuando no está editando) -->
+          <pv-button
+            v-if="!editingStates.status"
+            label="Editar" 
+            icon="pi pi-pencil"
+            class="p-button-warning w-full"
+            @click="enableEditing('status')"
+          />
+          
+          <!-- Botones de acción (cuando está editando) -->
+          <template v-if="editingStates.status">
+            <pv-button
+              label="Confirmar" 
+              icon="pi pi-check"
+              class="p-button-primary flex-1"
+              @click="confirmChanges"
+            />
+            <pv-button
+              label="Cancelar" 
+              icon="pi pi-times"
+              class="p-button-secondary flex-1"
+              @click="cancelEditing('status')"
+            />
+          </template>
+        </div>
       </template>
     </pv-card>
 
@@ -163,6 +275,7 @@ export default {
             optionValue="value"
             placeholder="Documento de identidad"
             class="w-full mt-1"
+            :disabled="!editingStates.observations"
           />
         </div>
         
@@ -174,15 +287,36 @@ export default {
             :rows="3" 
             placeholder="Los datos del documento de identidad no coinciden con los datos del cliente"
             class="w-full mt-1"
+            :disabled="!editingStates.observations"
           />
         </div>
         
-        <pv-button
-          label="Guardar cambios" 
-          icon="pi pi-save"
-          class="p-button-primary w-full"
-          @click="submitOrderObservations"
-        />
+        <div class="flex gap-2 w-full">
+          <!-- Botón de Editar (cuando no está editando) -->
+          <pv-button
+            v-if="!editingStates.observations"
+            label="Editar" 
+            icon="pi pi-pencil"
+            class="p-button-warning w-full"
+            @click="enableEditing('observations')"
+          />
+          
+          <!-- Botones de acción (cuando está editando) -->
+          <template v-if="editingStates.observations">
+            <pv-button
+              label="Guardar" 
+              icon="pi pi-save"
+              class="p-button-primary flex-1"
+              @click="submitOrderObservations"
+            />
+            <pv-button
+              label="Cancelar" 
+              icon="pi pi-times"
+              class="p-button-secondary flex-1"
+              @click="cancelEditing('observations')"
+            />
+          </template>
+        </div>
       </template>
     </pv-card>
   </div>

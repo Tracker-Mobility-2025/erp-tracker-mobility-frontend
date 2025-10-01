@@ -159,7 +159,7 @@ export default {
               v-if="isEdit"
               label="Guardar"
               icon="pi pi-save"
-              class="p-button-success w-10rem"
+              class="p-button-primary w-10rem"
               @click="saveVerifier"
           />
           <pv-button
