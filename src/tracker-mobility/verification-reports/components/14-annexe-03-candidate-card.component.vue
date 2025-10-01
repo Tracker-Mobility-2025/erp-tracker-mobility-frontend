@@ -1,19 +1,29 @@
 <script>
 
 export default {
-  name: 'annexe-01-domicile-card',
+  name: 'annexe-03-candidate-card',
 
   props: {
     item: {
       type: Object,
       required: false,
       default: () => ({
-        title: 'ANEXO 01: Registro fotográfico del domicilio',
+        title: 'ANEXO 03: Registro fotográfico del candidato',
         images: [
           {
-            src: 'https://via.placeholder.com/300x200/4f46e5/ffffff?text=Domicilio+Principal',
-            alt: 'Registro fotográfico del domicilio',
-            description: 'Vista frontal del domicilio'
+            src: 'https://via.placeholder.com/300x200/dc2626/ffffff?text=Foto+Candidato',
+            alt: 'Fotografía del candidato',
+            description: 'Foto del candidato en el domicilio'
+          },
+          {
+            src: 'https://via.placeholder.com/300x200/dc2626/ffffff?text=Documento+1',
+            alt: 'Documento de identidad del candidato - Parte 1',
+            description: 'Documento de identidad - Anverso'
+          },
+          {
+            src: 'https://via.placeholder.com/300x200/dc2626/ffffff?text=Documento+2',
+            alt: 'Documento de identidad del candidato - Parte 2', 
+            description: 'Documento de identidad - Reverso'
           }
         ]
       })
@@ -39,7 +49,7 @@ export default {
 <template>
   <pv-card class="w-full">
     <template #content>
-      <h3 class="text-lg font-bold mb-4 text-primary">{{ item?.title || 'ANEXO 01: Registro fotográfico del domicilio' }}</h3>
+      <h3 class="text-lg font-bold mb-4 text-primary">{{ item?.title || 'ANEXO 03: Registro fotográfico del candidato' }}</h3>
       
       <div class="formgrid grid">
         <div class="field col-12">

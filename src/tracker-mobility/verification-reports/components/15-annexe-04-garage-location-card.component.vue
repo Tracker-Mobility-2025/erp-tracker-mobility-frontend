@@ -1,19 +1,19 @@
 <script>
 
 export default {
-  name: 'annexe-01-domicile-card',
+  name: 'annexe-04-garage-location-card',
 
   props: {
     item: {
       type: Object,
       required: false,
       default: () => ({
-        title: 'ANEXO 01: Registro fotográfico del domicilio',
+        title: 'ANEXO 04: Ubicación de la cochera',
         images: [
           {
-            src: 'https://via.placeholder.com/300x200/4f46e5/ffffff?text=Domicilio+Principal',
-            alt: 'Registro fotográfico del domicilio',
-            description: 'Vista frontal del domicilio'
+            src: 'https://via.placeholder.com/400x300/f59e0b/ffffff?text=Ubicaci%C3%B3n+Cochera',
+            alt: 'Ubicación de la cochera',
+            description: 'Vista de la cochera y motocicletas'
           }
         ]
       })
@@ -39,7 +39,7 @@ export default {
 <template>
   <pv-card class="w-full">
     <template #content>
-      <h3 class="text-lg font-bold mb-4 text-primary">{{ item?.title || 'ANEXO 01: Registro fotográfico del domicilio' }}</h3>
+      <h3 class="text-lg font-bold mb-4 text-primary">{{ item?.title || 'ANEXO 04: Ubicación de la cochera' }}</h3>
       
       <div class="formgrid grid">
         <div class="field col-12">

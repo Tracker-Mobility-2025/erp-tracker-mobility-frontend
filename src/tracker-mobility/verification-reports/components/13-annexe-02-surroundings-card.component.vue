@@ -1,19 +1,29 @@
 <script>
 
 export default {
-  name: 'annexe-01-domicile-card',
+  name: 'annexe-02-surroundings-card',
 
   props: {
     item: {
       type: Object,
       required: false,
       default: () => ({
-        title: 'ANEXO 01: Registro fotográfico del domicilio',
+        title: 'ANEXO 02: Registro fotográfico de alrededores del domicilio',
         images: [
           {
-            src: 'https://via.placeholder.com/300x200/4f46e5/ffffff?text=Domicilio+Principal',
-            alt: 'Registro fotográfico del domicilio',
-            description: 'Vista frontal del domicilio'
+            src: 'https://via.placeholder.com/300x200/059669/ffffff?text=Alrededores+1',
+            alt: 'Registro fotográfico de alrededores - Vista 1',
+            description: 'Vista lateral izquierda del domicilio'
+          },
+          {
+            src: 'https://via.placeholder.com/300x200/059669/ffffff?text=Alrededores+2',
+            alt: 'Registro fotográfico de alrededores - Vista 2',
+            description: 'Vista frontal de los alrededores'
+          },
+          {
+            src: 'https://via.placeholder.com/300x200/059669/ffffff?text=Alrededores+3',
+            alt: 'Registro fotográfico de alrededores - Vista 3',
+            description: 'Vista lateral derecha del domicilio'
           }
         ]
       })
@@ -39,7 +49,7 @@ export default {
 <template>
   <pv-card class="w-full">
     <template #content>
-      <h3 class="text-lg font-bold mb-4 text-primary">{{ item?.title || 'ANEXO 01: Registro fotográfico del domicilio' }}</h3>
+      <h3 class="text-lg font-bold mb-4 text-primary">{{ item?.title || 'ANEXO 02: Registro fotográfico de alrededores del domicilio' }}</h3>
       
       <div class="formgrid grid">
         <div class="field col-12">

@@ -1,19 +1,19 @@
 <script>
 
 export default {
-  name: 'annexe-01-domicile-card',
+  name: 'annexe-06-domicile-location-card',
 
   props: {
     item: {
       type: Object,
       required: false,
       default: () => ({
-        title: 'ANEXO 01: Registro fotográfico del domicilio',
+        title: 'ANEXO 06: Ubicación del domicilio',
         images: [
           {
-            src: 'https://via.placeholder.com/300x200/4f46e5/ffffff?text=Domicilio+Principal',
-            alt: 'Registro fotográfico del domicilio',
-            description: 'Vista frontal del domicilio'
+            src: 'https://via.placeholder.com/400x300/10b981/ffffff?text=Mapa+Ubicaci%C3%B3n',
+            alt: 'Ubicación del domicilio en mapa',
+            description: 'Mapa con la ubicación exacta del domicilio'
           }
         ]
       })
@@ -29,6 +29,12 @@ export default {
     downloadImage(image) {
       // Lógica para descargar imagen
       console.log('Descargar imagen:', image.src);
+    },
+
+    openInGoogleMaps() {
+      // Lógica para abrir ubicación en Google Maps
+      console.log('Abrir en Google Maps');
+      // Ejemplo: window.open('https://maps.google.com/?q=ubicacion', '_blank');
     }
   }
 
@@ -39,7 +45,7 @@ export default {
 <template>
   <pv-card class="w-full">
     <template #content>
-      <h3 class="text-lg font-bold mb-4 text-primary">{{ item?.title || 'ANEXO 01: Registro fotográfico del domicilio' }}</h3>
+      <h3 class="text-lg font-bold mb-4 text-primary">{{ item?.title || 'ANEXO 06: Ubicación del domicilio' }}</h3>
       
       <div class="formgrid grid">
         <div class="field col-12">
@@ -71,6 +77,12 @@ export default {
                     v-tooltip="'Descargar imagen'"
                     @click="downloadImage(image)"
                   />
+                  <pv-button 
+                    icon="pi pi-map-marker" 
+                    class="p-button-sm p-button-text p-button-secondary"
+                    v-tooltip="'Abrir en Google Maps'"
+                    @click="openInGoogleMaps()"
+                  />
                 </div>
                 <p v-if="image.description" class="text-sm text-center text-color mt-1 m-0">
                   {{ image.description }}
@@ -79,8 +91,8 @@ export default {
             </div>
           </div>
           <div v-else class="text-center p-4">
-            <i class="pi pi-image text-4xl text-color-secondary mb-3"></i>
-            <p class="text-color-secondary m-0">No hay imágenes disponibles</p>
+            <i class="pi pi-map text-4xl text-color-secondary mb-3"></i>
+            <p class="text-color-secondary m-0">No hay ubicación disponible</p>
           </div>
         </div>
       </div>
