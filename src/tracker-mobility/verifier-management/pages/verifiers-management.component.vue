@@ -99,11 +99,33 @@ export default {
 
     onDeleteItem(item) {
       console.log('Eliminar verificador:', item);
-      // Implementar lógica de eliminación individual
-      const index = this.itemsArray.findIndex(order => order.id === item.id);
-      if (index > -1) {
-        this.itemsArray.splice(index, 1);
-      }
+      
+      this.verifierApiServices.delete(item.id).then(response => {
+        // Eliminar del array local
+        const index = this.itemsArray.findIndex(verifier => verifier.id === item.id);
+        if (index > -1) {
+          this.itemsArray.splice(index, 1);
+        }
+        
+        // Mostrar mensaje de éxito
+        this.$toast.add({
+          severity: 'success',
+          summary: 'Verificador eliminado',
+          detail: `El verificador ${item.name} ${item.lastName} ha sido eliminado exitosamente`,
+          life: 4000
+        });
+        
+      }).catch(error => {
+        console.error('Error al eliminar verificador:', error);
+        
+        // Mostrar mensaje de error
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Error al eliminar',
+          detail: `No se pudo eliminar el verificador ${item.name} ${item.lastName}`,
+          life: 4000
+        });
+      });
     },
 
     onViewItem(item) {
@@ -134,19 +156,16 @@ export default {
 
     getStatusItemsArray(status) {
       switch (status) {
-        case 'ACTIVO':
+        case 'ACTIVO' || 'ACTIVE':
           return 'success';
-        case 'INACTIVO':
+        case 'INACTIVO' || 'INACTIVE':
           return 'danger';
         default:
           return 'info';
       }
     },
 
-    onEditItem(item) {
-      console.log('Editar orden:', item);
-      // Implementar navegación a formulario de edición
-    },
+ 
 
     onCancelRequested() {
       console.log('Cancelado creación/edición de verificador');
@@ -187,27 +206,82 @@ export default {
 
         console.log('Verificador creado:', response.data);
 
-        // this.notifySuccessfulAction('Campaign created successfully'); TODO
+        // Mostrar mensaje de éxito
+        this.$toast.add({
+          severity: 'success',
+          summary: 'Verificador creado',
+          detail: `El verificador ${newItem.name} ${newItem.lastName} ha sido creado exitosamente`,
+          life: 4000
+        });
 
       }).catch(error => {
         console.error('Error al crear verificador:', error);
+        
+        // Mostrar mensaje de error
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Error al crear verificador',
+          detail: 'No se pudo crear el verificador. Por favor, intente nuevamente.',
+          life: 4000
+        });
       });
 
     },
 
     deleteSelectedItems(){
+      const totalItems = this.selectedItems.length;
+      let deletedCount = 0;
+      let errorCount = 0;
 
       this.selectedItems.forEach((variable) => {
         this.verifierApiServices.delete(variable.id).then(response => {
 
           this.itemsArray = this.itemsArray.filter(item => item.id !== variable.id);
+          deletedCount++;
+          
+          // Mostrar mensaje cuando se complete la eliminación de todos los elementos
+          if (deletedCount + errorCount === totalItems) {
+            if (errorCount === 0) {
+              this.$toast.add({
+                severity: 'success',
+                summary: 'Verificadores eliminados',
+                detail: `${deletedCount} verificador${deletedCount > 1 ? 'es' : ''} eliminado${deletedCount > 1 ? 's' : ''} exitosamente`,
+                life: 4000
+              });
+            } else {
+              this.$toast.add({
+                severity: 'warn',
+                summary: 'Eliminación parcial',
+                detail: `${deletedCount} eliminados, ${errorCount} con errores`,
+                life: 4000
+              });
+            }
+          }
 
         }).catch(error => {
           console.error('Error al eliminar verificador:', error);
+          errorCount++;
+          
+          // Mostrar mensaje cuando se complete el procesamiento de todos los elementos
+          if (deletedCount + errorCount === totalItems) {
+            if (deletedCount === 0) {
+              this.$toast.add({
+                severity: 'error',
+                summary: 'Error al eliminar',
+                detail: 'No se pudieron eliminar los verificadores seleccionados',
+                life: 4000
+              });
+            } else {
+              this.$toast.add({
+                severity: 'warn',
+                summary: 'Eliminación parcial',
+                detail: `${deletedCount} eliminados, ${errorCount} con errores`,
+                life: 4000
+              });
+            }
+          }
         });
       });
-
-      // this.notifySuccessfulAction('Verificador eliminado con éxito'); TODO
 
     },
 
@@ -286,7 +360,6 @@ export default {
         @new-item-requested-manager="onNewItem"
         @delete-selected-items-requested-manager="onDeleteSelectedItems"
         @delete-item-requested-manager="onDeleteItem"
-        @edit-item-requested-manager="onEditItem"
         @view-item-requested-manager="onViewItem"
         @row-select="onRowSelect"
         @row-unselect="onRowUnselect"
