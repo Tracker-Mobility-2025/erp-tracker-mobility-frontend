@@ -21,11 +21,113 @@ export default {
   },
 
   methods: {
-    downloadDocument(type, document = null) {
-      // Lógica para descargar documento
-      console.log(`Descargar documento: ${type}`, document);
-      // Aquí iría la lógica real de descarga
-      this.$emit('download-document', { type, item: this.item, document });
+    async downloadDocument(type, document = null) {
+      try {
+        if (!document || !document.url) {
+          this.$toast.add({
+            severity: 'warn',
+            summary: 'Advertencia',
+            detail: 'No se puede descargar el documento: URL no válida',
+            life: 3000
+          });
+          return;
+        }
+
+        // Mostrar indicador de carga
+        this.$toast.add({
+          severity: 'info',
+          summary: 'Descargando...',
+          detail: 'Preparando la descarga del documento',
+          life: 2000
+        });
+
+        // Emitir evento para manejo externo si es necesario
+        this.$emit('download-document', { type, item: this.item, document });
+
+        // Realizar la descarga
+        await this.performDownload(document.url, this.generateFileName(type, document));
+
+        // Notificar éxito
+        this.$toast.add({
+          severity: 'success',
+          summary: 'Éxito',
+          detail: 'Documento descargado correctamente',
+          life: 3000
+        });
+
+      } catch (error) {
+        console.error('Error al descargar documento:', error);
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo descargar el documento. Intente nuevamente.',
+          life: 4000
+        });
+      }
+    },
+
+    async performDownload(url, filename) {
+      try {
+        // Método 1: Intentar descarga directa con fetch
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Accept': '*/*',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        this.downloadBlob(blob, filename);
+
+      } catch (error) {
+        // Método 2: Fallback - usar enlace directo
+        console.warn('Descarga con fetch falló, intentando método alternativo:', error);
+        this.downloadWithLink(url, filename);
+      }
+    },
+
+    downloadBlob(blob, filename) {
+      // Crear URL temporal para el blob
+      const url = window.URL.createObjectURL(blob);
+      
+      // Crear elemento de enlace temporal
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      
+      // Agregar al DOM temporalmente y hacer click
+      document.body.appendChild(link);
+      link.click();
+      
+      // Limpiar
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    },
+
+    downloadWithLink(url, filename) {
+      // Método alternativo para archivos externos o CORS
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.target = '_blank'; // Abrir en nueva pestaña si la descarga directa falla
+      
+      // Agregar al DOM temporalmente y hacer click
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    },
+
+    generateFileName(type, document) {
+      // Generar nombre de archivo descriptivo
+      const timestamp = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+      const docLabel = this.getDocumentLabel(type).replace(/[^a-zA-Z0-9]/g, '_');
+      const extension = this.getFileExtension(document.url) || 'file';
+      
+      return `${docLabel}_${timestamp}.${extension}`;
     },
 
     viewDocument(document) {
@@ -486,28 +588,34 @@ export default {
     </div>
 
     <template #footer>
-      <div class="flex justify-content-between align-items-center w-full">
-        <div class="flex gap-2">
+      <div class="modal-footer-container">
+        <!-- Sección izquierda: Acciones del documento -->
+        <div class="footer-actions-left">
           <pv-button 
             icon="pi pi-download" 
             label="Descargar"
             class="p-button-outlined"
             @click="downloadDocument(selectedDocument?.type, selectedDocument)"
+            :disabled="!selectedDocument?.url"
           />
           <pv-button 
             v-if="!isImageFile(selectedDocument?.url) && canShowContent(selectedDocument?.url)"
             :icon="showDocumentContent ? 'pi pi-eye-slash' : 'pi pi-eye'"
             :label="showDocumentContent ? 'Ocultar contenido' : 'Ver contenido'"
-            class="p-button-outlined"
+            class="p-button-primary"
             @click="toggleDocumentContent"
           />
         </div>
-        <pv-button 
-          icon="pi pi-times" 
-          label="Cerrar"
-          class="p-button-text"
-          @click="closeModal"
-        />
+        
+        <!-- Sección derecha: Acción de cerrar -->
+        <div class="footer-actions-right">
+          <pv-button 
+            icon="pi pi-times" 
+            label="Cerrar"
+            class="p-button-text"
+            @click="closeModal"
+          />
+        </div>
       </div>
     </template>
   </pv-dialog>
@@ -595,6 +703,71 @@ export default {
 :deep(.document-viewer-modal .p-dialog-content) {
   max-height: calc(90vh - 120px);
   overflow-y: auto;
+}
+
+/* Estilos para el footer mejorado */
+.modal-footer-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0.5rem 0;
+  gap: 1rem;
+}
+
+.footer-actions-left {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.footer-actions-right {
+  display: flex;
+  align-items: center;
+}
+
+/* Responsividad del footer */
+@media (max-width: 768px) {
+  .modal-footer-container {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+  
+  .footer-actions-left {
+    justify-content: center;
+    order: 2;
+  }
+  
+  .footer-actions-right {
+    justify-content: center;
+    order: 1;
+  }
+  
+  .footer-actions-left .p-button,
+  .footer-actions-right .p-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Mejoras visuales para los botones del footer */
+.footer-actions-left .p-button {
+  min-width: 120px;
+}
+
+.footer-actions-right .p-button {
+  min-width: 100px;
+}
+
+/* Hover effects específicos para botones del modal */
+:deep(.modal-footer-container .p-button:hover) {
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+:deep(.modal-footer-container .p-button:active) {
+  transform: translateY(0);
 }
 
 </style>
