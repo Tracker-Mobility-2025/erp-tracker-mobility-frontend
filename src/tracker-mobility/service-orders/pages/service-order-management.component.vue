@@ -41,9 +41,8 @@ export default {
         { label: 'Todos', value: null },
         { label: 'Pendiente', value: 'PENDIENTE' },
         { label: 'Asignado', value: 'ASIGNADO' },
-        { label: 'En Proceso', value: 'EN PROCESO' },
-        { label: 'Completado', value: 'COMPLETADO' },
-        { label: 'Cancelado', value: 'CANCELADO' }
+        { label: 'En Proceso', value: 'EN_PROCESO' },
+        { label: 'Finalizado', value: 'FINALIZADO' }
       ],
       title: {
         singular: 'orden de verificación',
@@ -215,17 +214,14 @@ export default {
           return 'warn';
         case 'ASIGNADO':
           return 'info';
-        case 'EN PROCESO':
+        case 'EN_PROCESO':
           return 'info';
-        case 'COMPLETADO':
+        case 'FINALIZADO':
           return 'success';
-        case 'CANCELADO':
-          return 'danger';
         default:
           return 'info';
       }
     },
-
 
     // Retornar todas las órdenes desde la API (si se implementa)
     getAllOrders() {

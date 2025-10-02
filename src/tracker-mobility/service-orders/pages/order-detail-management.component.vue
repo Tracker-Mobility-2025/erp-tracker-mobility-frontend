@@ -22,7 +22,13 @@ export default {
 
       verifiersArray: [],
 
-      statusOptions: ['Pendiente', 'En Proceso', 'Completado', 'Cancelado'],
+      statusOptions: [
+        { label: 'Todos', value: null },
+        { label: 'Pendiente', value: 'PENDIENTE' },
+        { label: 'Asignado', value: 'ASIGNADO' },
+        { label: 'En Proceso', value: 'EN_PROCESO' },
+        { label: 'Finalizado', value: 'FINALIZADO' }
+      ],
 
       // Item de la orden obtenido de la API
       item: null,
@@ -143,8 +149,6 @@ export default {
     this.getAllVerifiers();
     // Llamar a la función para obtener detalles de la orden
     this.getOrderDetailsByOrderId(orderId);
-
-
 
   }
 

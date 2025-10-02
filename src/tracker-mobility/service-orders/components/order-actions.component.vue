@@ -1,6 +1,6 @@
 <script>
 
-
+import {OrderService} from "../models/order-service.entity.js";
 
 export default {
   name: 'order-actions',
@@ -9,32 +9,18 @@ export default {
 
   props : {
     item: {
-      type: Object,
+      type: OrderService,
       required: true,
-      default: () => ({
-        assignedVerifier: null,
-        scheduledDate: null,
-        scheduledTime: null,
-        status: 'En progreso',
-        documentType: 'Documento de identidad',
-        observations: ''
-      })
     },
 
     verifiersList: {
       type: Array,
       required: true,
-      default: () => ([
-        { id: 1, name: 'Juan Pérez' },
-        { id: 2, name: 'María Gómez' },
-        { id: 3, name: 'Carlos Rodríguez' }
-      ])
     },
 
     statusOptions: {
       type: Array,
       required: false,
-      default : () => (['Pendiente', 'En progreso', 'Completado', 'Cancelado'])
     }
   },
 
@@ -49,8 +35,30 @@ export default {
         verifier: {},
         status: {},
         observations: {}
+      },
+      currentObservation: {
+        documentType: 'Documento de identidad',
+        description: ''
       }
     };
+  },
+
+  computed: {
+    verifiersListFormatted() {
+      return this.verifiersList.map(verifier => ({
+        ...verifier,
+        fullName: `${verifier.name || ''} ${verifier.lastName || ''}`.trim()
+      }));
+    },
+
+    statusOptionsFormatted() {
+      return this.statusOptions
+        .filter(option => option.value !== null)
+        .map(option => ({
+          label: option.label,
+          value: option.value
+        }));
+    }
   },
 
   methods : {
@@ -59,9 +67,9 @@ export default {
       // Guardar datos originales de la sección específica
       if (section === 'verifier') {
         this.originalData.verifier = {
-          assignedVerifier: this.item.assignedVerifier,
-          scheduledDate: this.item.scheduledDate,
-          scheduledTime: this.item.scheduledTime
+          verifierId: this.item.homeVisitDetails?.verifierId || null,
+          visitDate: this.item.homeVisitDetails?.visitDate || null,
+          visitTime: this.item.homeVisitDetails?.visitTime || null
         };
       } else if (section === 'status') {
         this.originalData.status = {
@@ -69,8 +77,7 @@ export default {
         };
       } else if (section === 'observations') {
         this.originalData.observations = {
-          documentType: this.item.documentType,
-          observations: this.item.observations
+          observations: [...(this.item.observations || [])]
         };
       }
 
@@ -81,11 +88,15 @@ export default {
     cancelEditing(section) {
       // Restaurar datos originales de la sección específica
       if (section === 'verifier') {
-        Object.assign(this.item, this.originalData.verifier);
+        if (this.item.homeVisitDetails) {
+          this.item.homeVisitDetails.verifierId = this.originalData.verifier.verifierId;
+          this.item.homeVisitDetails.visitDate = this.originalData.verifier.visitDate;
+          this.item.homeVisitDetails.visitTime = this.originalData.verifier.visitTime;
+        }
       } else if (section === 'status') {
-        Object.assign(this.item, this.originalData.status);
+        this.item.status = this.originalData.status.status;
       } else if (section === 'observations') {
-        Object.assign(this.item, this.originalData.observations);
+        this.item.observations = [...this.originalData.observations.observations];
       }
 
       this.editingStates[section] = false;
@@ -115,7 +126,26 @@ export default {
 
     // Enviar observaciones de la orden de servicio
     submitOrderObservations() {
-      // Lógica para enviar observaciones
+      // Crear nueva observación con ID único
+      const newObservation = {
+        id: Date.now(), // ID temporal
+        documentType: this.currentObservation.documentType,
+        description: this.currentObservation.description
+      };
+
+      // Añadir la nueva observación al array de observaciones
+      if (!this.item.observations) {
+        this.item.observations = [];
+      }
+      this.item.observations.push(newObservation);
+
+      // Limpiar el formulario de observación actual
+      this.currentObservation = {
+        documentType: 'Documento de identidad',
+        description: ''
+      };
+
+      // Emitir evento con el item actualizado
       this.$emit('submit-observations', this.item);
       this.editingStates.observations = false;
     },
@@ -125,6 +155,48 @@ export default {
       // Lógica para cancelar orden
       this.$emit('cancel-order', this.item);
       this.editingStates.status = false;
+    }
+  },
+
+  created() {
+    // Inicializar estados de edición y datos originales
+    // Asegurar que homeVisitDetails existe
+    if (!this.item.homeVisitDetails) {
+      this.item.homeVisitDetails = {
+        verifierId: null,
+        visitDate: null,
+        visitTime: null
+      };
+    }
+
+    // Asegurar que observations existe
+    if (!this.item.observations) {
+      this.item.observations = [];
+    }
+  },
+
+  watch: {
+    // Observar cambios en el item prop para reinicializar datos locales
+    item: {
+      handler(newItem) {
+        if (newItem) {
+          // Reinicializar homeVisitDetails si no existe
+          if (!newItem.homeVisitDetails) {
+            newItem.homeVisitDetails = {
+              verifierId: null,
+              visitDate: null,
+              visitTime: null
+            };
+          }
+          
+          // Reinicializar observations si no existe
+          if (!newItem.observations) {
+            newItem.observations = [];
+          }
+        }
+      },
+      immediate: true,
+      deep: true
     }
   }
 };
@@ -149,9 +221,9 @@ export default {
           </label>
           <pv-dropdown
               id="verifier"
-              v-model="item.assignedVerifier"
-              :options="verifiersList"
-              optionLabel="name"
+              v-model="item.homeVisitDetails.verifierId"
+              :options="verifiersListFormatted"
+              optionLabel="fullName"
               optionValue="id"
               placeholder="Ingresar el nombre del verificador"
               class="w-full mt-1"
@@ -167,7 +239,7 @@ export default {
             </label>
             <pv-calendar
                 id="visitDate"
-                v-model="item.scheduledDate"
+                v-model="item.homeVisitDetails.visitDate"
                 placeholder="dd/mm/aaaa"
                 dateFormat="dd/mm/yy"
                 class="w-full mt-1"
@@ -182,7 +254,7 @@ export default {
             </label>
             <pv-calendar
                 id="visitTime"
-                v-model="item.scheduledTime"
+                v-model="item.homeVisitDetails.visitTime"
                 timeOnly
                 placeholder="hh:mm"
                 class="w-full mt-1"
@@ -237,7 +309,7 @@ export default {
           <pv-dropdown
               id="serviceStatus"
               v-model="item.status"
-              :options="statusOptions.map(status => ({ label: status, value: status }))"
+              :options="statusOptionsFormatted"
               optionLabel="label"
               optionValue="value"
               placeholder="En progreso"
@@ -290,7 +362,7 @@ export default {
           </label>
           <pv-dropdown
               id="documentType"
-              v-model="item.documentType"
+              v-model="currentObservation.documentType"
               :options="[
               { label: 'Documento de identidad', value: 'Documento de identidad' },
               { label: 'Recibo de servicios', value: 'Recibo de servicios' }
@@ -310,7 +382,7 @@ export default {
           </label>
           <pv-textarea
               id="observations"
-              v-model="item.observations"
+              v-model="currentObservation.description"
               :rows="3"
               placeholder="Los datos del documento de identidad no coinciden con los datos del cliente"
               class="w-full mt-1"
