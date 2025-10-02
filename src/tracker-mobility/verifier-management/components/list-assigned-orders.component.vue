@@ -113,7 +113,7 @@ export default {
 
       // Mostrar confirmación antes de remover
       this.$confirm.require({
-        message: `¿Estás seguro de que deseas remover la orden ${order.id} de la lista de órdenes asignadas?`,
+        message: `¿Estás seguro de que deseas remover la orden ${order.orderCode} de la lista de órdenes asignadas?`,
         header: 'Confirmar eliminación',
         icon: 'pi pi-exclamation-triangle',
         acceptLabel: 'Sí, remover',
@@ -149,14 +149,14 @@ export default {
 <template>
   <div class="w-full flex-1 flex-column gap-3">
     <h3 class="text-xlg font-bold mb-3 flex align-items-center gap-2">
-      <i class="pi pi-clipboard-list"></i>
+      <i class="pi pi-clipboard-list text-blue-500"></i>
       Órdenes asignadas
     </h3>
 
     <!-- Filtros -->
     <div class="flex w-full gap-2 mb-4 flex-wrap">
       <pv-icon-field class="flex-grow-1">
-        <pv-input-icon class="pi pi-search" />
+        <pv-input-icon class="pi pi-search text-blue-500" />
         <pv-input-text
             v-model="search"
             placeholder="Busca por código de orden o dirección..."
@@ -183,7 +183,7 @@ export default {
 
       <pv-button
           label="Limpiar filtros"
-          icon="pi pi-filter-slash"
+          icon="pi pi-filter-slash text-blue-500"
           @click="clearFilters"
           class="p-button-secondary flex-shrink-0 h-full"
       />
@@ -213,19 +213,19 @@ export default {
           <div class="flex flex-column flex-1">
             <div class="grid text-sm text-600 font-semibold">
               <div class="col-3 flex align-items-center gap-1">
-                <i class="pi pi-hashtag"></i>
+                <i class="pi pi-hashtag text-blue-500"></i>
                 Código de Orden
               </div>
               <div class="col-3 flex align-items-center gap-1">
-                <i class="pi pi-map-marker"></i>
+                <i class="pi pi-map-marker text-blue-500"></i>
                 Dirección
               </div>
               <div class="col-3 flex align-items-center gap-1">
-                <i class="pi pi-calendar"></i>
+                <i class="pi pi-calendar text-blue-500"></i>
                 Fecha de visita programada
               </div>
               <div class="col-3 flex align-items-center gap-1">
-                <i class="pi pi-info-circle"></i>
+                <i class="pi pi-info-circle text-blue-500"></i>
                 Estado
               </div>
             </div>
@@ -244,7 +244,7 @@ export default {
               <!-- Enlace Google Maps -->
               <div class="col-12">
                 <span class="text-600 flex align-items-center gap-1">
-                  <i class="pi pi-map"></i>
+                  <i class="pi pi-map text-blue-500"></i>
                   Enlace google maps:
                 </span>
                 <a

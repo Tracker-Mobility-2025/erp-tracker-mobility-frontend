@@ -73,7 +73,7 @@ export default {
     <pv-card class="w-full">
       <template #content>
         <h3 class="text-lg font-bold mb-4 text-primary flex align-items-center gap-2">
-          <i class="pi pi-user-edit"></i>
+          <i class="pi pi-user-edit text-blue-500"></i>
           Datos del verificador:
         </h3>
 
@@ -81,7 +81,7 @@ export default {
           <!-- Fila 1 -->
           <div class="field col-12 md:col-2">
             <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-              <i class="pi pi-user"></i>
+              <i class="pi pi-user text-blue-500"></i>
               Nombres
             </label>
             <div v-if="!isEdit">
@@ -94,7 +94,7 @@ export default {
 
           <div class="field col-12 md:col-2">
             <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-              <i class="pi pi-users"></i>
+              <i class="pi pi-users text-blue-500"></i>
               Apellidos
             </label>
             <div v-if="!isEdit">
@@ -107,7 +107,7 @@ export default {
 
           <div class="field col-12 md:col-3">
             <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-              <i class="pi pi-phone"></i>
+              <i class="pi pi-phone text-blue-500"></i>
               Contacto
             </label>
             <div v-if="!isEdit">
@@ -120,7 +120,7 @@ export default {
 
           <div class="field col-12 md:col-2">
             <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-              <i class="pi pi-check-circle"></i>
+              <i class="pi pi-check-circle text-blue-500"></i>
               Estado
             </label>
             <div v-if="!isEdit">
@@ -137,7 +137,7 @@ export default {
 
           <div class="field col-12 md:col-3">
             <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-              <i class="pi pi-list"></i>
+              <i class="pi pi-list text-blue-500"></i>
               Cant. órdenes
             </label>
             <div v-if="!isEdit">
@@ -151,7 +151,7 @@ export default {
           <!-- Fila 2 -->
           <div class="field col-12 md:col-4">
             <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-              <i class="pi pi-envelope"></i>
+              <i class="pi pi-envelope text-blue-500"></i>
               Correo
             </label>
             <div v-if="!isEdit">
@@ -164,7 +164,7 @@ export default {
 
           <div class="field col-12 md:col-4">
             <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-              <i class="pi pi-lock"></i>
+              <i class="pi pi-lock text-blue-500"></i>
               Contraseña
             </label>
             <div v-if="!isEdit">
@@ -177,7 +177,7 @@ export default {
 
           <div class="field col-12 md:col-4">
             <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-              <i class="pi pi-calendar"></i>
+              <i class="pi pi-calendar text-blue-500"></i>
               Agenda
             </label>
             <div v-if="!isEdit">
