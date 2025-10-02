@@ -9,7 +9,6 @@ export default {
 
   data() {
     return {
-      orderNumber: 'ORD-2025-001', // Este podría generarse dinámicamente
       
       content: {
         title: '¡Solicitud enviada de manera exitosa!',
@@ -36,6 +35,15 @@ export default {
   },
 
   computed: {
+    // Verificar si la solicitud fue creada exitosamente
+    isRequestCreated() {
+      return this.serviceRequest?.isRequestCreated || false;
+    },
+
+    orderNumber() {
+      return this.serviceRequest?.orderNumber || 'ORD-XXXX-XXX';
+    },
+
     petitionerData() {
       return this.serviceRequest?.petitionerData || {};
     },
@@ -101,7 +109,7 @@ export default {
     },
 
     onFinish() {
-      // Redirigir al inicio o a donde corresponda
+      // Redirigir al inicio
       this.$router.push('/');
     }
   },
@@ -114,7 +122,17 @@ export default {
   },
 
   created() {
-    // Lógica de inicialización si es necesario
+    // Verificar que la solicitud haya sido creada exitosamente
+    if (!this.isRequestCreated) {
+      // Si no hay solicitud creada, redirigir al inicio del flujo
+      this.$toast?.add({
+        severity: 'warn',
+        summary: 'Acceso no autorizado',
+        detail: 'Debe completar el proceso de solicitud antes de ver el resumen',
+        life: 3000
+      });
+      this.$router.push({ name: 'petitioner-data' });
+    }
   }
 };
 
@@ -135,11 +153,9 @@ export default {
         <div class="order-pill flex align-items-center gap-2">
           <div>
             <span class="block">Orden de servicio:</span>
-            <span class="order-pill-code block"> ORD-2025-001 </span>
+            <span class="order-pill-code block">{{ orderNumber }}</span>
           </div>
         </div>
-
-
       </div>
 
       <!-- Grid de contenido principal -->
@@ -300,6 +316,25 @@ export default {
   height: 64px;
   background: #10b981;
   border-radius: 50%;
+}
+
+.loading-icon {
+  width: 64px;
+  height: 64px;
+  background: #3b82f6;
+  border-radius: 50%;
+}
+
+.error-icon {
+  width: 64px;
+  height: 64px;
+  background: #ef4444;
+  border-radius: 50%;
+}
+
+.validation-errors {
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .order-number {

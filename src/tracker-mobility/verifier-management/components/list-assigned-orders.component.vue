@@ -9,8 +9,6 @@ export default {
     },
   },
 
-
-
   data() {
     return {
       search: "",

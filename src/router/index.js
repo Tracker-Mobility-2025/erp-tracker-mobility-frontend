@@ -11,15 +11,15 @@ import LayoutTrackerMobilityComponent from "../public/pages/layout-tracker-mobil
 import VerifiersDetailsManagementComponent
     from "../tracker-mobility/verifier-management/pages/verifiers-details.management.component.vue";
 import ManagementRequestsHomeVisitOrdersComponent
-    from "../home-visit-request-form/order-service/pages/management-requests-home-visit-orders.component.vue";
+    from "../client-tracker-mobility/order-request/pages/management-requests-home-visit-orders.component.vue";
 import RequestServiceBusinessFormComponent
-    from "../home-visit-request-form/order-service/components/request-service-business-form.component.vue";
+    from "../client-tracker-mobility/order-request/components/1-request-service-business-form.component.vue";
 import CustomerDataFormComponent
-    from "../home-visit-request-form/order-service/components/customer-data-form.component.vue";
+    from "../client-tracker-mobility/order-request/components/2-customer-data-form.component.vue";
 import SupportDocsAndLandlordFormComponent
-    from "../home-visit-request-form/order-service/components/support-docs-and-landlord-form.component.vue";
+    from "../client-tracker-mobility/order-request/components/3-support-docs-and-landlord-form.component.vue";
 import ResumenServiceOrderComponent
-    from "../home-visit-request-form/order-service/components/resumen-service-order.component.vue";
+    from "../client-tracker-mobility/order-request/components/4-resumen-service-order.component.vue";
 import DetailsHomeVerificationReportComponent
     from "../tracker-mobility/verification-reports/pages/details-home-verification-report.component.vue";
 import DashboardManagementComponent from "../tracker-mobility/dashboard/pages/dashboard-management.component.vue";
@@ -128,7 +128,7 @@ const router = createRouter({
 
 
         // ============== Rutas del formulario de solicitud de visita domiciliaria ==============
-        {path: '/service-order-request-management', name: 'service-order-request-management', component: ManagementRequestsHomeVisitOrdersComponent, meta: {title: 'Gestión de solicitudes'},
+        {path: '/tracker-mobility/service-request', name: 'service-request', component: ManagementRequestsHomeVisitOrdersComponent, meta: {title: 'Solicitar visita domiciliaria'},
 
             children: [
                 {path: 'petitioner-data', name: 'petitioner-data', component: RequestServiceBusinessFormComponent, meta: {title: 'Solicitante'}},

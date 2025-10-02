@@ -1,6 +1,7 @@
 <script>
 
 import FileUploader from "../../../shared/components/file-uploader.component.vue";
+import {OrderService} from "../services/service-request-api.service.js";
 
 export default {
   name: 'support-docs-and-landlord-form',
@@ -16,6 +17,15 @@ export default {
     return {
       touched: {},
       showValidation: false,
+      
+      // Estado para la creación de solicitud
+      isCreatingRequest: false,
+      hasValidationErrors: false,
+      validationErrors: [],
+
+      // Servicio para crear la solicitud
+      orderService: null,
+
 
       supportDocsContent: {
         title: 'Documentación de respaldo',
@@ -169,11 +179,129 @@ export default {
     onCancel(){ this.$router.push('/'); },
     onBack(){ this.$router.back(); },
 
-    onSubmit(){
+    async onSubmit(){
       this.showValidation = true;
-      if (!this.isFormValid) { this.focusFirstError(); return; }
-      this.$router.push({ name: 'confirmation' } );
-    }
+      
+      // Primero validar el formulario actual (documentación)
+      if (!this.isFormValid) { 
+        this.focusFirstError(); 
+        return; 
+      }
+      
+      // Crear la solicitud y navegar al resumen solo si es exitoso
+      const success = await this.createRequest();
+
+      if (success) {
+        this.$router.push({ name: 'confirmation' });
+      }
+    },
+
+    validateAllFields() {
+      const errors = [];
+      
+      // Validar datos del solicitante
+      if (!this.serviceRequest.petitionerData) {
+        errors.push('Faltan datos del solicitante');
+      } else {
+        const petitioner = this.serviceRequest.petitionerData;
+        if (!petitioner.ruc) errors.push('RUC del solicitante es requerido');
+        if (!petitioner.razonSocial) errors.push('Razón social es requerida');
+        if (!petitioner.nombreEjecutivo) errors.push('Nombre del ejecutivo es requerido');
+        if (!petitioner.correoCorporativo) errors.push('Correo corporativo es requerido');
+        if (!petitioner.numeroContacto) errors.push('Número de contacto del solicitante es requerido');
+      }
+      
+      // Validar datos del cliente
+      if (!this.serviceRequest.clientData) {
+        errors.push('Faltan datos del cliente');
+      } else {
+        const client = this.serviceRequest.clientData;
+        if (!client.nombresCompletos) errors.push('Nombres del cliente son requeridos');
+        if (!client.apellidosCompletos) errors.push('Apellidos del cliente son requeridos');
+        if (!client.numeroContacto) errors.push('Número de contacto del cliente es requerido');
+        if (!client.tipoDocumento) errors.push('Tipo de documento es requerido');
+        if (!client.numeroDocumento) errors.push('Número de documento es requerido');
+      }
+      
+      // Validar datos de dirección
+      if (!this.serviceRequest.addressData) {
+        errors.push('Faltan datos de dirección');
+      } else {
+        const address = this.serviceRequest.addressData;
+        if (!address.direccionCompleta) errors.push('Dirección completa es requerida');
+        if (!address.distrito) errors.push('Distrito es requerido');
+        if (!address.provincia) errors.push('Provincia es requerida');
+        if (!address.departamento) errors.push('Departamento es requerido');
+      }
+      
+      // Validar documentación de respaldo
+      if (!this.serviceRequest.supportDocs) {
+        errors.push('Faltan documentos de respaldo');
+      } else {
+        const docs = this.serviceRequest.supportDocs;
+        if (!docs.reciboServicio) errors.push('Recibo de servicio es requerido');
+        if (!docs.documentoIdentidad) errors.push('Documento de identidad es requerido');
+        
+        // Si es inquilino, validar datos del arrendador
+        if (docs.esInquilino) {
+          if (!this.serviceRequest.landlordData?.nombres) {
+            errors.push('Nombre del arrendador es requerido');
+          }
+          if (!this.serviceRequest.landlordData?.numeroContacto) {
+            errors.push('Teléfono del arrendador es requerido');
+          }
+        }
+      }
+      
+      this.validationErrors = errors;
+      this.hasValidationErrors = errors.length > 0;
+      
+      return errors.length === 0;
+    },
+
+    async createRequest() {
+      this.orderService = new OrderService('/orders');
+
+      // Validar todos los campos antes de enviar
+      if (!this.validateAllFields()) {
+        this.$toast?.add({
+          severity: 'error',
+          summary: 'Error de validación',
+          detail: 'Por favor corrige los errores antes de enviar la solicitud.'
+        });
+        this.focusFirstError();
+        return false;
+      }
+
+      this.isCreatingRequest = true;
+
+      try {
+        const response = await this.orderService.create(this.serviceRequest);
+        console.log('Solicitud creada con éxito:', response);
+        this.$toast?.add({
+          severity: 'success',
+          summary: 'Éxito',
+          detail: 'La solicitud ha sido creada exitosamente.'
+        });
+        return true;
+      } catch (error) {
+        console.error('Error al crear la solicitud:', error);
+        this.$toast?.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Hubo un problema al crear la solicitud. Por favor intenta nuevamente.'
+        });
+        return false;
+      } finally {
+        this.isCreatingRequest = false;
+      }
+
+
+
+    },
+
+
+
   },
 
   created(){
@@ -338,8 +466,21 @@ export default {
 
           <!-- Botones lado derecho -->
           <div class="flex gap-2">
-            <pv-button class="pl-4 pr-4 button-back" :label="actionsContent.regresar" severity="secondary" @click="onBack"/>
-            <pv-button class="pl-4 pr-4 button-submit" :label="actionsContent.enviarSolicitud" type="submit" :disabled="!isFormValid"/>
+            <pv-button 
+              class="pl-4 pr-4 button-back" 
+              :label="actionsContent.regresar" 
+              severity="secondary" 
+              :disabled="isCreatingRequest"
+              @click="onBack"
+            />
+            <pv-button 
+              class="pl-4 pr-4 button-submit" 
+              :label="isCreatingRequest ? 'Enviando...' : actionsContent.enviarSolicitud" 
+              :icon="isCreatingRequest ? 'pi pi-spin pi-spinner' : 'pi pi-send'"
+              type="submit" 
+              :disabled="!isFormValid || isCreatingRequest"
+              :loading="isCreatingRequest"
+            />
           </div>
         </div>
       </form>
