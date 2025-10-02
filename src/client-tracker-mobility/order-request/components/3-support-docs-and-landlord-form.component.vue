@@ -276,28 +276,48 @@ export default {
       this.isCreatingRequest = true;
 
       try {
+        // El servicio ahora transforma automáticamente los datos al formato del backend
         const response = await this.orderService.create(this.serviceRequest);
-        console.log('Solicitud creada con éxito:', response);
+        
+        console.log('✅ Solicitud creada con éxito:', response.data);
+        
+        // Marcar como exitosa y almacenar información de respuesta
+        this.serviceRequest.isRequestCreated = true;
+        this.serviceRequest.orderNumber = response.data?.orderCode || response.data?.id || `ORD-${Date.now()}`;
+        
         this.$toast?.add({
           severity: 'success',
-          summary: 'Éxito',
-          detail: 'La solicitud ha sido creada exitosamente.'
+          summary: '¡Éxito!',
+          detail: `Orden de visita creada exitosamente. Código: ${this.serviceRequest.orderNumber}`,
+          life: 5000
         });
+        
         return true;
+        
       } catch (error) {
-        console.error('Error al crear la solicitud:', error);
+        console.error('❌ Error al crear la solicitud:', error);
+        
+        // Mostrar mensaje de error más específico
+        let errorDetail = 'Hubo un problema al crear la solicitud. Por favor intenta nuevamente.';
+        
+        if (error.message.includes('servidor')) {
+          errorDetail = 'Error del servidor. Por favor intenta más tarde.';
+        } else if (error.message.includes('conexión')) {
+          errorDetail = 'Problema de conexión. Verifica tu internet e intenta nuevamente.';
+        }
+        
         this.$toast?.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Hubo un problema al crear la solicitud. Por favor intenta nuevamente.'
+          summary: 'Error al crear solicitud',
+          detail: errorDetail,
+          life: 8000
         });
+        
         return false;
+        
       } finally {
         this.isCreatingRequest = false;
       }
-
-
-
     },
 
 

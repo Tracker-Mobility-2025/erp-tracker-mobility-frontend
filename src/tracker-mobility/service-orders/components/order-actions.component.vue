@@ -137,10 +137,16 @@ export default {
     <!-- ====================== Card -> Asignar a verificador ====================== -->
     <pv-card class="w-full ">
       <template #content>
-        <h3 class="text-lg font-bold mb-4 text-primary">Asignar a verificador</h3>
+        <h3 class="text-lg font-bold mb-4 text-primary flex align-items-center gap-2">
+          <i class="pi pi-user-plus"></i>
+          Asignar a verificador
+        </h3>
         
         <div class="field mb-3">
-          <label for="verifier" class="font-medium text-gray-700">Seleccionar verificador *</label>
+          <label for="verifier" class="font-medium text-gray-700 flex align-items-center gap-2">
+            <i class="pi pi-user text-primary"></i>
+            Seleccionar verificador *
+          </label>
           <pv-dropdown
             id="verifier"
             v-model="item.assignedVerifier" 
@@ -155,7 +161,10 @@ export default {
 
         <div class="formgrid grid mb-4">
           <div class="field col-6">
-            <label for="visitDate" class="font-medium text-gray-700">Fecha de visita *</label>
+            <label for="visitDate" class="font-medium text-gray-700 flex align-items-center gap-2">
+              <i class="pi pi-calendar text-primary"></i>
+              Fecha de visita *
+            </label>
             <pv-calendar
               id="visitDate"
               v-model="item.scheduledDate" 
@@ -167,7 +176,10 @@ export default {
             />
           </div>
           <div class="field col-6">
-            <label for="visitTime" class="font-medium text-gray-700">Hora de visita *</label>
+            <label for="visitTime" class="font-medium text-gray-700 flex align-items-center gap-2">
+              <i class="pi pi-clock text-primary"></i>
+              Hora de visita *
+            </label>
             <pv-calendar
               id="visitTime"
               v-model="item.scheduledTime" 
@@ -212,10 +224,16 @@ export default {
     <!-- ====================== Card -> Acciones ====================== -->
     <pv-card class="w-full">
       <template #content>
-        <h3 class="text-lg font-bold mb-4 text-primary">Acciones</h3>
+        <h3 class="text-lg font-bold mb-4 text-primary flex align-items-center gap-2">
+          <i class="pi pi-cog"></i>
+          Acciones
+        </h3>
         
         <div class="field mb-3">
-          <label for="serviceStatus" class="font-medium text-gray-700">Actualizar estado</label>
+          <label for="serviceStatus" class="font-medium text-gray-700 flex align-items-center gap-2">
+            <i class="pi pi-flag text-primary"></i>
+            Actualizar estado
+          </label>
           <pv-dropdown
             id="serviceStatus"
             v-model="item.status" 
@@ -260,10 +278,16 @@ export default {
     <!-- ====================== Card -> Observaciones ====================== -->
     <pv-card class="w-full">
       <template #content>
-        <h3 class="text-lg font-bold mb-4 text-primary">Observaciones</h3>
+        <h3 class="text-lg font-bold mb-4 text-primary flex align-items-center gap-2">
+          <i class="pi pi-comment"></i>
+          Observaciones
+        </h3>
         
         <div class="field mb-3">
-          <label for="documentType" class="font-medium text-gray-700">Selecciona el documento</label>
+          <label for="documentType" class="font-medium text-gray-700 flex align-items-center gap-2">
+            <i class="pi pi-file text-primary"></i>
+            Selecciona el documento
+          </label>
           <pv-dropdown
             id="documentType"
             v-model="item.documentType"
@@ -280,7 +304,10 @@ export default {
         </div>
         
         <div class="field mb-4">
-          <label for="observations" class="font-bold text-primary">Descripción</label>
+          <label for="observations" class="font-bold text-primary flex align-items-center gap-2">
+            <i class="pi pi-align-left text-primary"></i>
+            Descripción
+          </label>
           <pv-textarea
             id="observations"
             v-model="item.observations" 
