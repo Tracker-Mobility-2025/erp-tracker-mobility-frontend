@@ -9,6 +9,12 @@ export default {
       type: Object,
       required: true,
     },
+
+    cantOrders: {
+      type: Number,
+      required: false,
+      default: 0,
+    },
   },
 
   data() {
@@ -16,23 +22,34 @@ export default {
       isEdit: false,
       submitted: false,
       editableItem: new Verifier({}),
+      localCantOrders: 0, // Variable local para editar cantOrders
 
       //
-      optionsStatus: ["Activo", "Inactivo"],
+      optionsStatus: ["ACTIVO", "INACTIVO"],
 
     };
   },
 
   methods: {
+
     saveVerifier() {
       this.isEdit = false;
       this.submitted = true;
-      this.$emit("save-verifier", new Verifier({ ...this.editableItem })); // emitimos el objeto editado
+
+      // Parsear status de Español a inglés
+      if (this.editableItem.status === "ACTIVO") {
+        this.editableItem.status = "ACTIVE";
+      } else if (this.editableItem.status === "INACTIVO") {
+        this.editableItem.status = "INACTIVE";
+      }
+
+      this.$emit("save-verifier", this.editableItem); // emitimos el objeto editado
     },
 
     editVerifier() {
       this.isEdit = true;
       this.editableItem = new Verifier({ ...this.item }); // clonar para edición
+      this.localCantOrders = this.cantOrders; // Sincronizar cantOrders
     },
 
     cancelEdit() {
@@ -62,7 +79,7 @@ export default {
           <div class="field col-12 md:col-2">
             <label class="font-semibold text-color-secondary">Nombres</label>
             <div v-if="!isEdit">
-              <p class="font-semibold text-dark m-0">{{ item.name }}</p>
+              <p class="font-semibold text-dark m-0">{{ item?.name }}</p>
             </div>
             <div v-else>
               <pv-input-text v-model="editableItem.name" class="w-full" />
@@ -72,27 +89,27 @@ export default {
           <div class="field col-12 md:col-2">
             <label class="font-semibold text-color-secondary">Apellidos</label>
             <div v-if="!isEdit">
-              <p class="font-semibold text-dark m-0">{{ item.lastname }}</p>
+              <p class="font-semibold text-dark m-0">{{ item?.lastName }}</p>
             </div>
             <div v-else>
-              <pv-input-text v-model="editableItem.lastname" class="w-full" />
+              <pv-input-text v-model="editableItem.lastName" class="w-full" />
             </div>
           </div>
 
           <div class="field col-12 md:col-3">
             <label class="font-semibold text-color-secondary">Contacto</label>
             <div v-if="!isEdit">
-              <p class="font-semibold text-dark m-0">{{ item.phone }}</p>
+              <p class="font-semibold text-dark m-0">{{ item?.phoneNumber }}</p>
             </div>
             <div v-else>
-              <pv-input-text v-model="editableItem.phone" class="w-full" />
+              <pv-input-text v-model="editableItem.phoneNumber" class="w-full" />
             </div>
           </div>
 
           <div class="field col-12 md:col-2">
             <label class="font-semibold text-color-secondary">Estado</label>
             <div v-if="!isEdit">
-              <p class="font-semibold text-dark m-0">{{ item.status }}</p>
+              <p class="font-semibold text-dark m-0">{{ item?.status }}</p>
             </div>
             <div v-else>
               <pv-dropdown
@@ -106,10 +123,10 @@ export default {
           <div class="field col-12 md:col-3">
             <label class="font-semibold text-color-secondary">Cant. órdenes</label>
             <div v-if="!isEdit">
-              <p class="font-semibold text-dark m-0">{{ item.assignedOrders.length }}</p>
+              <p class="font-semibold text-dark m-0">{{ cantOrders }}</p>
             </div>
             <div v-else>
-              <pv-input-number v-model="editableItem.assignedOrders.length" class="w-full" />
+              <pv-input-number v-model="localCantOrders" class="w-full" />
             </div>
           </div>
 
@@ -127,7 +144,7 @@ export default {
           <div class="field col-12 md:col-4">
             <label class="font-semibold text-color-secondary">Contraseña</label>
             <div v-if="!isEdit">
-              <p class="font-semibold text-dark m-0">********</p>
+              <p class="font-semibold text-dark m-0">*************</p>
             </div>
             <div v-else>
               <pv-password v-model="editableItem.password" toggleMask class="w-full"  />

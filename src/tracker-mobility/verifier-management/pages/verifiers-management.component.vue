@@ -1,21 +1,32 @@
 <script>
 
 import DataManager from "../../../shared/components/data-manager.component.vue";
+import VerifierCreateAndEdit from "../components/verifier-create-and-edit.component.vue";
+import {Verifier} from "../models/verifiers.entity.js";
+import {VerifierApiService} from "../services/verifier-api.service.js";
+import {CreateVerifier} from "../models/create-verifier.entity.js";
 
 export default {
   name: 'verifiers-management',
-  components: {DataManager},
+  components: {VerifierCreateAndEdit, DataManager},
 
   data() {
     return {
+
+      adminId: null, // ID del administrador actual (simulado)
+      createItem: new CreateVerifier({}), // Nuevo verificador a crear
+      item: null, // Verificador actual para edición o creación
+
+      // Servicio de verificador
+      verifierApiServices: null,
 
       itemsArray: [],
 
       columns: [
         { field: 'name', header: 'Nombres', sortable: true, style: 'width: 160px;' },
-        { field: 'lastname', header: 'Apellidos', sortable: true, style: 'width: 160px;' },
+        { field: 'lastName', header: 'Apellidos', sortable: true, style: 'width: 160px;' },
         { field: 'email', header: 'Email', sortable: true, style: 'width: 200px;' },
-        { field: 'phone', header: 'Teléfono', sortable: true, style: 'width: 140px;' },
+        { field: 'phoneNumber', header: 'Teléfono', sortable: true, style: 'width: 140px;' },
         { field: 'status', header: 'Estado', sortable: true, template: 'status', style: 'width: 120px;' },
       ],
 
@@ -33,6 +44,15 @@ export default {
       },
 
       loading: false,
+
+
+
+      // Control para el diálogo de creación/edición
+      createAndEditDialogIsVisible: false,
+      isEdit: false,
+      submitted: false,
+
+
     }
   },
 
@@ -63,23 +83,19 @@ export default {
 
   methods: {
 
-    onNewItemRequested() {
+    onNewItem() {
       console.log('Crear un nuevo verificador');
-      // Implementar navegación a formulario de creación
-    },
+      this.createItem = new CreateVerifier({});
 
+      this.isEdit = false;
+      this.submitted = false;
+      this.createAndEditDialogIsVisible = true;
+    },
 
     onDeleteSelectedItems(selectedItems) {
-      console.log('Eliminar verificadores seleccionadas:', selectedItems);
-      // Implementar lógica de eliminación múltiple
-      selectedItems.forEach(item => {
-        const index = this.itemsArray.findIndex(order => order.id === item.id);
-        if (index > -1) {
-          this.itemsArray.splice(index, 1);
-        }
-      });
+      this.selectedItems = selectedItems;
+      this.deleteSelectedItems();
     },
-
 
     onDeleteItem(item) {
       console.log('Eliminar verificador:', item);
@@ -90,15 +106,13 @@ export default {
       }
     },
 
-    onEditItem(item) {
-      console.log('Editar orden:', item);
-      // Implementar navegación a formulario de edición
-    },
-
     onViewItem(item) {
       console.log('Ver detalles de orden:', item);
-      // Navegar con router a /admin/verifiers-details
-      this.$router.push({ name: 'verifier-details'});
+
+      this.$router.push({
+        name: 'verifier-details',
+        query: { id: item.id }
+      });
     },
 
     onRowSelect(event) {
@@ -129,13 +143,109 @@ export default {
       }
     },
 
+    onEditItem(item) {
+      console.log('Editar orden:', item);
+      // Implementar navegación a formulario de edición
+    },
+
+    onCancelRequested() {
+      console.log('Cancelado creación/edición de verificador');
+      this.createAndEditDialogIsVisible = false;
+      this.submitted = false;
+      this.isEdit = false;
+    },
+
+    onSaveRequested(item) {
+      this.createItem = new CreateVerifier(item);
+
+      console.log('Guardar verificador creado:', this.createItem);
+
+      this.submitted = true;
+
+      this.create();
+
+      this.createAndEditDialogIsVisible = false;
+      this.isEdit = false;
+
+    },
+
+    update(){
+
+    },
+
+    create() {
+
+      this.createItem.adminId = this.adminId; // Asignar adminId simulado
+
+      console.log('Creando verificador:', this.createItem);
+
+      this.verifierApiServices.create(this.createItem).then(response => {
+
+        let newItem = new Verifier(response.data);
+
+        this.itemsArray.push(newItem);
+
+        console.log('Verificador creado:', response.data);
+
+        // this.notifySuccessfulAction('Campaign created successfully'); TODO
+
+      }).catch(error => {
+        console.error('Error al crear verificador:', error);
+      });
+
+    },
+
+    deleteSelectedItems(){
+
+      this.selectedItems.forEach((variable) => {
+        this.verifierApiServices.delete(variable.id).then(response => {
+
+          this.itemsArray = this.itemsArray.filter(item => item.id !== variable.id);
+
+        }).catch(error => {
+          console.error('Error al eliminar verificador:', error);
+        });
+      });
+
+      // this.notifySuccessfulAction('Verificador eliminado con éxito'); TODO
+
+    },
+
+
+    getAllVerifiersByAdminId(adminId) {
+      this.loading = true;
+      console.log('Obteniendo verificadores para adminId:', adminId);
+
+      this.verifierApiServices.getAllByAdminId(adminId).then(response => {
+        this.itemsArray = response.data.map(resource  => new Verifier(resource));
+
+        // Parsear status de inglés a español
+        this.itemsArray = this.itemsArray.map(verifier => {
+          if (verifier.status === 'ACTIVE') {
+            verifier.status = 'ACTIVO';
+          } else if (verifier.status === 'INACTIVE') {
+            verifier.status = 'INACTIVO';
+          }
+          return verifier;
+        });
+
+
+
+        this.loading = false;
+      }).catch(error => {
+        console.error('Error al obtener verificadores:', error);
+        this.loading = false;
+      });
+
+    },
+
+
   },
 
   created() {
-    this.itemsArray = [
-      { id: 1, name: 'Juan', lastname: 'Pérez', email: 'juan@gmail.com', phone: '555-1234', status: 'Activo' },
-      { id: 2, name: 'María', lastname: 'Gómez', email: 'maria@gmail.com', phone: '555-5678', status: 'Inactivo' },
-    ];
+    this.adminId = 1; // Simular ID de admin
+    this.verifierApiServices = new VerifierApiService('/verifiers');
+    this.getAllVerifiersByAdminId(this.adminId); // Usar ID de admin simulado 1
   }
 
 };
@@ -173,7 +283,7 @@ export default {
         delete-button-label="Eliminar"
         export-button-label="Exportar"
         search-placeholder="Busca por nombre, apellido, email, teléfono..."
-        @new-item-requested-manager="onNewItemRequested"
+        @new-item-requested-manager="onNewItem"
         @delete-selected-items-requested-manager="onDeleteSelectedItems"
         @delete-item-requested-manager="onDeleteItem"
         @edit-item-requested-manager="onEditItem"
@@ -217,6 +327,15 @@ export default {
 
 
     </data-manager>
+
+    <!-- Agregar nuevo verificador -->
+    <verifier-create-and-edit
+        :edit="isEdit"
+        :item="currentItem"
+        :visible="createAndEditDialogIsVisible"
+        @cancel-requested="onCancelRequested"
+        @save-requested="onSaveRequested"
+    />
 
 
   </div>

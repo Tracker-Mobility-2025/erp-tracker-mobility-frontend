@@ -61,18 +61,18 @@ export default {
     <slot name="content"></slot>
 
     <template #footer>
-      <div class="flex justify-content-end gap-2">
+      <div class="flex justify-content-end gap-2 w-full">
         <pv-button 
           type="button" 
           :label="getSubmitLabel()" 
-          class="p-button-primary" 
+          class="p-button-primary w-full"
           icon="pi pi-check" 
           @click="onSaveRequested"
         />
         <pv-button 
           type="button" 
           label="Cancelar" 
-          class="p-button-secondary" 
+          class="p-button-secondary w-full"
           icon="pi pi-times"
           @click="onCancelRequested"
         />

@@ -1,27 +1,29 @@
 
+
 export class Verifier {
     constructor(
         {
             id = null,
-            name = '',
-            lastname = '',
-            phone = '',
-            status = '',
-            email = '',
-            password = '',
-            agenda = '',
-            assignedOrders = [] // Array of order IDs
+            email = null,
+            role = null,
+            status = null,
+            name = null,
+            lastName = null,
+            phoneNumber = null,
+            agenda = null,
+            adminId = null
         }
     )
     {
         this.id = id;
-        this.name = name;
-        this.lastname = lastname;
-        this.phone = phone;
-        this.status = status;
         this.email = email;
-        this.password = password;
+        this.role = role;
+        this.status = status;
+        this.name = name;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
         this.agenda = agenda;
-        this.assignedOrders = assignedOrders; // Array of order IDs
+        this.adminId = adminId;
     }
 }
+

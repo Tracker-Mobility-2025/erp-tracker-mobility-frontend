@@ -3,16 +3,29 @@
 import VerifierDataAndEdit from "../components/verifier-data-and-edit.component.vue";
 import {Verifier} from "../models/verifiers.entity.js";
 import ListAssignedOrders from "../components/list-assigned-orders.component.vue";
+import {VerifierApiService} from "../services/verifier-api.service.js";
+import {Order} from "../models/order.entity.js";
 
 export default {
   name: 'verifiers-details-management',
   components: {ListAssignedOrders, VerifierDataAndEdit},
 
+
   data() {
     return {
       isEdit:false,
       submitted: false,
+
       item: new Verifier({}),
+      itemUpdate: new Verifier({}),
+
+
+      // Arreglo de órdenes asignadas al verificador
+      assignedOrders: [],
+      orderEntity: new Order({}),
+
+      // Servicio de verificador
+      verifierApiServices: null,
     }
   },
 
@@ -21,7 +34,10 @@ export default {
     // Guardar cambios en el verificador
     onSaveVerifier(item) {
       console.log('Guardando verificador en el padre:', item)
-      this.item = new Verifier(item)
+      this.itemUpdate = new Verifier(item)
+      this.isEdit = false
+      this.submitted = true
+      this.update();
     },
 
     // Eliminar verificador
@@ -38,10 +54,24 @@ export default {
       this.submitted = false
     },
 
+    // Guardar verificador
+    update(){
+
+      this.verifierApiServices.update(this.itemUpdate.id, this.itemUpdate).then(response => {
+        this.item = new Verifier(response.data);
+        console.log('Verificador actualizado:', this.item);
+        this.$toast.add({severity:'success', summary: 'Éxito', detail: 'Verificador actualizado correctamente', life: 3000});
+      }).catch(error => {
+        console.error('Error al actualizar verificador:', error);
+        this.$toast.add({severity:'error', summary: 'Error', detail: 'No se pudo actualizar el verificador', life: 3000});
+      });
+
+    },
+
     // Cancelar edición
     OnCancelEdit() {
-      // Lógica de implementación para cancelar edición
-
+      this.isEdit = false
+      this.submitted = false
     },
 
     // Remover orden de la lista de órdenes asignadas
@@ -77,45 +107,59 @@ export default {
         });
       }
     },
+
+
+    // Recuperamos los datos del verificador por su ID (simulado)
+    getVerifierById(verifierId) {
+
+      this.verifierApiServices.getById(verifierId).then(response => {
+        this.item = new Verifier(response.data);
+
+        // Parseamos el estado de Inglés a Español
+        if (this.item.status === "ACTIVE") {
+          this.item.status = "ACTIVO";
+        } else if (this.item.status === "INACTIVE") {
+          this.item.status = "INACTIVO";
+        }
+
+        console.log('Verificador recuperado:', this.item);
+      }).catch(error => {
+        console.error('Error al recuperar verificador:', error);
+      })
+    },
+
+
+    // Recuperar órdenes asignadas (simulado)
+    getAssignedOrdersByVerifierId(verifierId) {
+
+      let verifierApiServicesTmp = new VerifierApiService('/orders/verifier');
+
+      verifierApiServicesTmp.getAssignedOrders(verifierId).then(response => {
+
+        this.assignedOrders = response.data.map(orderData => new Order(orderData));
+
+        console.log('Órdenes asignadas recuperadas:', this.assignedOrders);
+      }).catch(error => {
+        console.error('Error al recuperar órdenes asignadas:', error);
+      });
+
+
+    }
+
+
   },
 
   created() {
-    this.item = new Verifier(
-        {
-          id: 1,
-          name: "Janover Gonzalo",
-          lastname: "Saldaña Vela",
-          phone: "999 888 777",
-          status: "Activo",
-          ordenes: 2,
-          email: "janover.saldana@trackermobility.com",
-          password: "ContraseñaSegura123",
-          agenda: "Lunes a Viernes",
-          assignedOrders: [
-            {
-              id: "ORD12345",
-              address: "Av. Siempre Viva 123, Springfield",
-              date: "2024-10-01T10:00:00",
-              googleMaps: "https://maps.google.com/?q=Av.+Siempre+Viva+123,+Springfield",
-              status: "Asignado",
-            },
-            {
-              id: "ORD67890",
-              address: "Calle Falsa 456, Shelbyville",
-              date: "2024-10-02T14:30:00",
-              googleMaps: "https://maps.google.com/?q=Calle+Falsa+456,+Shelbyville",
-              status: "Asignado",
-            },
-            {
-              id: "ORD11223",
-              address: "Boulevard de los Sueños Rotos 789, Capital City",
-              date: "2024-10-03T09:15:00",
-              googleMaps: "https://maps.google.com/?q=Boulevard+de+los+Sueños+Rotos+789,+Capital+City",
-              status: "Completado",
-            },
-          ],
-        }
-    )
+
+    this.verifierApiServices = new VerifierApiService('/verifiers');
+
+    const verifierId = this.$route.query.id;
+
+    this.getVerifierById(verifierId);
+
+    this.getAssignedOrdersByVerifierId(verifierId);
+
+
   }
 }
 
@@ -145,6 +189,7 @@ export default {
 
       <verifier-data-and-edit
           :item="item"
+          :cant-orders="assignedOrders.length"
           :edit="isEdit"
           :submitted="submitted"
           @save-verifier="onSaveVerifier($event)"
@@ -156,26 +201,10 @@ export default {
       <!-- Lista de ordenes asignadas al verificador -->
 
       <list-assigned-orders
-          :items="item.assignedOrders"
+          :items="assignedOrders"
           @remove-order="handleRemoveOrder"
       />
-
-
-
-
-
-
     </div>
-
-
-
-
-
-
-
-
-
-
 
   </div>
 

@@ -51,14 +51,13 @@ export default {
   },
 
   methods: {
+
     formatDate(date) {
       if (!date) return "";
       return new Date(date).toLocaleString("es-PE", {
         day: "2-digit",
         month: "long",
         year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
       });
     },
 
@@ -163,7 +162,7 @@ export default {
     <!-- Lista de órdenes como tarjetas -->
     <pv-card
         v-for="order in filteredOrders"
-        :key="order.id"
+        :key="order.orderCode"
         class="mb-3 shadow-none border-1 border-round-lg surface-ground"
     >
       <template #content>
@@ -183,32 +182,35 @@ export default {
           <!-- Información principal -->
           <div class="flex flex-column flex-1">
             <div class="grid text-sm text-600 font-semibold">
-              <div class="col-4">ID de Orden</div>
-              <div class="col-4">Dirección</div>
-              <div class="col-4">Fecha de visita programada</div>
+              <div class="col-3">Código de Orden</div>
+              <div class="col-3">Dirección</div>
+              <div class="col-3">Fecha de visita programada</div>
+              <div class="col-3">Estado</div>
             </div>
 
+            <!-- Datos de la orden -->
             <div class="grid text-sm">
-              <div class="col-4 font-bold text-dark">{{ order.id }}</div>
-              <div class="col-4 font-bold text-dark">{{ order.address }}</div>
-              <div class="col-4 font-bold text-dark">
-                {{ formatDate(order.date) }}
+              <div class="col-3 font-bold text-dark">{{ order.orderCode }}</div>
+              <div class="col-3 font-bold text-dark">{{ order.client.dwelling.homeAddress }}</div>
+              <div class="col-3 font-bold text-dark">
+                {{ formatDate(order.homeVisitDetails.visitDate) }}
               </div>
+              <div class="col-3 font-bold text-dark">{{ order.status }}</div>
             </div>
 
             <div class="grid text-sm mt-2">
               <!-- Enlace Google Maps -->
-              <div class="col-8">
+              <div class="col-12">
                 <span class="text-600">Enlace google maps: </span>
-                <a :href="order.googleMaps" target="_blank" class="text-blue-600">
-                  {{ order.googleMaps }}
+                <a
+                    v-if="order.client && order.client.location && order.client.location.mapLocation"
+                    :href="order.client.location.mapLocation"
+                    target="_blank"
+                    class="text-blue-600"
+                >
+                  {{ order.client.location.mapLocation }}
                 </a>
-              </div>
-
-              <!-- Estado -->
-              <div class="col-4">
-                <span class="text-600">Estado: </span>
-                <span class="font-bold">{{ order.status }}</span>
+                <span v-else class="text-gray-400">Sin ubicación</span>
               </div>
             </div>
           </div>
