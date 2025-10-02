@@ -17,8 +17,10 @@ export default {
 
       statusOptions: [
         {label: "Todos", value: "Todos"},
-        {label: "Asignado", value: "Asignado"},
-        {label: "Completado", value: "Completado"},
+        {label: "Pendiente", value: "PENDIENTE"},
+        {label: "Asignado", value: "ASIGNADO"},
+        {label: "En Proceso", value: "EN_PROCESO"},
+        {label: "Finalizado", value: "FINALIZADO"},
       ]
     };
   },
@@ -99,11 +101,11 @@ export default {
 
     confirmRemoveOrder(order) {
       // Validar si la orden puede ser removida
-      if (order.status !== 'Asignado') {
+      if (order.status !== 'ASIGNADO') {
         this.$toast.add({
           severity: 'warn',
           summary: 'Acción no permitida',
-          detail: 'Solo se pueden remover órdenes con estado "Asignado"',
+          detail: 'Solo se pueden remover órdenes con estado "ASIGNADO"',
           life: 3000
         });
         return;
@@ -128,8 +130,8 @@ export default {
     },
 
     canRemoveOrder(order) {
-      // Verificar si una orden puede ser removida (solo las Asignado)
-      return order.status === 'Asignado';
+      // Verificar si una orden puede ser removida (solo las ASIGNADO)
+      return order.status === 'ASIGNADO';
     },
 
 
@@ -199,10 +201,10 @@ export default {
           <i
               class="pi pi-minus-circle text-5xl font-bold pr-4 transition-colors duration-200"
               :class="{
-                'text-red-500 hover:text-red-700 cursor-pointer': order.status === 'Asignado',
-                'text-gray-300 cursor-not-allowed': order.status === 'Completado'
+                'text-red-500 hover:text-red-700 cursor-pointer': order.status === 'ASIGNADO',
+                'text-gray-300 cursor-not-allowed': order.status === 'FINALIZADO' || order.status === 'EN_PROCESO'
               }"
-              v-tooltip.top="canRemoveOrder(order) ? 'Remover orden de la lista' : 'Solo se pueden remover órdenes asignadas'"
+              v-tooltip.top="canRemoveOrder(order) ? 'Remover orden de la lista' : 'Solo se pueden remover órdenes con estado ASIGNADO'"
               @click="canRemoveOrder(order) ? confirmRemoveOrder(order) : null"
           ></i>
 
