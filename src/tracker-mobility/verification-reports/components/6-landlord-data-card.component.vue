@@ -22,12 +22,18 @@ export default {
 <template>
   <pv-card class="w-full">
     <template #content>
-      <h3 class="text-lg font-bold mb-4 text-primary">Datos del arrendador</h3>
+      <h3 class="text-lg font-bold mb-4 text-primary flex align-items-center gap-2">
+        <i class="pi pi-user-edit"></i>
+        Datos del arrendador
+      </h3>
       
       <div class="formgrid grid">
         <!-- Nombre completo -->
         <div class="field col-12 md:col-3">
-          <label class="font-semibold text-color-secondary">Nombre completo:</label>
+          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <i class="pi pi-user text-primary"></i>
+            Nombre completo:
+          </label>
           <p class="font-semibold text-dark m-0">
             {{ item?.fullName || 'No especificado' }}
           </p>
@@ -35,7 +41,10 @@ export default {
         
         <!-- Número de contacto -->
         <div class="field col-12 md:col-3">
-          <label class="font-semibold text-color-secondary">Número de contacto:</label>
+          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <i class="pi pi-phone text-primary"></i>
+            Número de contacto:
+          </label>
           <p class="font-semibold text-dark m-0">
             {{ item?.contactNumber || 'No especificado' }}
           </p>
@@ -43,7 +52,10 @@ export default {
         
         <!-- Número de documento -->
         <div class="field col-12 md:col-3">
-          <label class="font-semibold text-color-secondary">Número de documento:</label>
+          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <i class="pi pi-hashtag text-primary"></i>
+            Número de documento:
+          </label>
           <p class="font-semibold text-dark m-0">
             {{ item?.documentNumber || 'No especificado' }}
           </p>
@@ -51,7 +63,10 @@ export default {
         
         <!-- Tipo -->
         <div class="field col-12 md:col-3">
-          <label class="font-semibold text-color-secondary">Tipo:</label>
+          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <i class="pi pi-credit-card text-primary"></i>
+            Tipo:
+          </label>
           <p class="font-semibold text-dark m-0">
             {{ item?.documentType || 'No especificado' }}
           </p>

@@ -35,12 +35,18 @@ export default {
 <template>
   <pv-card class="w-full">
     <template #content>
-      <h3 class="text-lg font-bold mb-4 text-primary">Datos del cliente</h3>
+      <h3 class="text-lg font-bold mb-4 text-primary flex align-items-center gap-2">
+        <i class="pi pi-user-plus"></i>
+        Datos del cliente
+      </h3>
       
       <div class="formgrid grid">
         <!-- Nombre completo -->
         <div class="field col-12 md:col-6">
-          <label class="font-semibold text-color-secondary">Nombre completo</label>
+          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <i class="pi pi-user text-primary"></i>
+            Nombre completo
+          </label>
           <p class="font-semibold text-dark m-0">
             {{ item?.fullName || 'No especificado' }}
           </p>
@@ -48,7 +54,10 @@ export default {
         
         <!-- Entrevistado -->
         <div class="field col-12 md:col-6">
-          <label class="font-semibold text-color-secondary">Entrevistado</label>
+          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <i class="pi pi-comments text-primary"></i>
+            Entrevistado
+          </label>
           <p class="font-semibold text-dark m-0">
             {{ item?.interviewee || 'No especificado' }}
           </p>
@@ -56,7 +65,10 @@ export default {
         
         <!-- Parentesco -->
         <div class="field col-12 md:col-4">
-          <label class="font-semibold text-color-secondary">Parentesco</label>
+          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <i class="pi pi-users text-primary"></i>
+            Parentesco
+          </label>
           <p class="font-semibold text-dark m-0">
             <span 
               :class="[relationshipClass, 'px-2 py-1 border-round text-sm font-semibold']"
@@ -68,7 +80,10 @@ export default {
         
         <!-- Tipo de documento -->
         <div class="field col-12 md:col-4">
-          <label class="font-semibold text-color-secondary">Tipo de documento</label>
+          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <i class="pi pi-credit-card text-primary"></i>
+            Tipo de documento
+          </label>
           <p class="font-semibold text-dark m-0">
             {{ item?.documentType || 'No especificado' }}
           </p>
@@ -76,7 +91,10 @@ export default {
         
         <!-- Número -->
         <div class="field col-12 md:col-4">
-          <label class="font-semibold text-color-secondary">Número</label>
+          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <i class="pi pi-hashtag text-primary"></i>
+            Número
+          </label>
           <p class="font-semibold text-dark m-0">
             {{ item?.documentNumber || 'No especificado' }}
           </p>

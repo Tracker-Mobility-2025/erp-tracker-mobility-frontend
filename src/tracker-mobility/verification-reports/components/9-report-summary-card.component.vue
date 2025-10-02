@@ -20,7 +20,10 @@ export default {
 <template>
   <pv-card class="w-full">
     <template #content>
-      <h3 class="text-lg font-bold mb-4 text-primary">Resumen</h3>
+      <h3 class="text-lg font-bold mb-4 text-primary flex align-items-center gap-2">
+        <i class="pi pi-file-edit"></i>
+        Resumen
+      </h3>
       
       <div class="formgrid grid">
         <div class="field col-12">
