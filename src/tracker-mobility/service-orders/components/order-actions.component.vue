@@ -73,7 +73,7 @@ export default {
           observations: this.item.observations
         };
       }
-      
+
       this.editingStates[section] = true;
     },
 
@@ -87,7 +87,7 @@ export default {
       } else if (section === 'observations') {
         Object.assign(this.item, this.originalData.observations);
       }
-      
+
       this.editingStates[section] = false;
       this.originalData[section] = {};
     },
@@ -141,21 +141,21 @@ export default {
           <i class="pi pi-user-plus"></i>
           Asignar a verificador
         </h3>
-        
+
         <div class="field mb-3">
           <label for="verifier" class="font-medium text-gray-700 flex align-items-center gap-2">
             <i class="pi pi-user text-primary"></i>
             Seleccionar verificador *
           </label>
           <pv-dropdown
-            id="verifier"
-            v-model="item.assignedVerifier" 
-            :options="verifiersList" 
-            optionLabel="name" 
-            optionValue="id"
-            placeholder="Ingresar el nombre del verificador"
-            class="w-full mt-1"
-            :disabled="!editingStates.verifier"
+              id="verifier"
+              v-model="item.assignedVerifier"
+              :options="verifiersList"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Ingresar el nombre del verificador"
+              class="w-full mt-1"
+              :disabled="!editingStates.verifier"
           />
         </div>
 
@@ -166,13 +166,13 @@ export default {
               Fecha de visita *
             </label>
             <pv-calendar
-              id="visitDate"
-              v-model="item.scheduledDate" 
-              placeholder="dd/mm/aaaa"
-              dateFormat="dd/mm/yy"
-              class="w-full mt-1"
-              showIcon
-              :disabled="!editingStates.verifier"
+                id="visitDate"
+                v-model="item.scheduledDate"
+                placeholder="dd/mm/aaaa"
+                dateFormat="dd/mm/yy"
+                class="w-full mt-1"
+                showIcon
+                :disabled="!editingStates.verifier"
             />
           </div>
           <div class="field col-6">
@@ -181,13 +181,13 @@ export default {
               Hora de visita *
             </label>
             <pv-calendar
-              id="visitTime"
-              v-model="item.scheduledTime" 
-              timeOnly 
-              placeholder="hh:mm"
-              class="w-full mt-1"
-              showIcon
-              :disabled="!editingStates.verifier"
+                id="visitTime"
+                v-model="item.scheduledTime"
+                timeOnly
+                placeholder="hh:mm"
+                class="w-full mt-1"
+                showIcon
+                :disabled="!editingStates.verifier"
             />
           </div>
         </div>
@@ -195,26 +195,26 @@ export default {
         <div class="flex gap-2 w-full">
           <!-- Botón de Editar (cuando no está editando) -->
           <pv-button
-            v-if="!editingStates.verifier"
-            label="Editar" 
-            icon="pi pi-pencil" 
-            class="p-button-warning w-full"
-            @click="enableEditing('verifier')"
+              v-if="!editingStates.verifier"
+              label="Editar"
+              icon="pi pi-pencil"
+              class="p-button-warning w-full"
+              @click="enableEditing('verifier')"
           />
-          
+
           <!-- Botones de acción (cuando está editando) -->
           <template v-if="editingStates.verifier">
             <pv-button
-              label="Asignar" 
-              icon="pi pi-user-plus" 
-              class="p-button-primary flex-1"
-              @click="assignVerifierToOrder"
+                label="Asignar"
+                icon="pi pi-user-plus"
+                class="p-button-primary flex-1"
+                @click="assignVerifierToOrder"
             />
             <pv-button
-              label="Cancelar" 
-              icon="pi pi-times" 
-              class="p-button-secondary flex-1"
-              @click="cancelEditing('verifier')"
+                label="Cancelar"
+                icon="pi pi-times"
+                class="p-button-secondary flex-1"
+                @click="cancelEditing('verifier')"
             />
           </template>
         </div>
@@ -228,47 +228,47 @@ export default {
           <i class="pi pi-cog"></i>
           Acciones
         </h3>
-        
+
         <div class="field mb-3">
           <label for="serviceStatus" class="font-medium text-gray-700 flex align-items-center gap-2">
             <i class="pi pi-flag text-primary"></i>
             Actualizar estado
           </label>
           <pv-dropdown
-            id="serviceStatus"
-            v-model="item.status" 
-            :options="statusOptions.map(status => ({ label: status, value: status }))" 
-            optionLabel="label" 
-            optionValue="value"
-            placeholder="En progreso"
-            class="w-full mt-1"
-            :disabled="!editingStates.status"
+              id="serviceStatus"
+              v-model="item.status"
+              :options="statusOptions.map(status => ({ label: status, value: status }))"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="En progreso"
+              class="w-full mt-1"
+              :disabled="!editingStates.status"
           />
         </div>
-        
+
         <div class="flex gap-2 w-full">
           <!-- Botón de Editar (cuando no está editando) -->
           <pv-button
-            v-if="!editingStates.status"
-            label="Editar" 
-            icon="pi pi-pencil"
-            class="p-button-warning w-full"
-            @click="enableEditing('status')"
+              v-if="!editingStates.status"
+              label="Editar"
+              icon="pi pi-pencil"
+              class="p-button-warning w-full"
+              @click="enableEditing('status')"
           />
-          
+
           <!-- Botones de acción (cuando está editando) -->
           <template v-if="editingStates.status">
             <pv-button
-              label="Confirmar" 
-              icon="pi pi-check"
-              class="p-button-primary flex-1"
-              @click="confirmChanges"
+                label="Confirmar"
+                icon="pi pi-check"
+                class="p-button-primary flex-1"
+                @click="confirmChanges"
             />
             <pv-button
-              label="Cancelar" 
-              icon="pi pi-times"
-              class="p-button-secondary flex-1"
-              @click="cancelEditing('status')"
+                label="Cancelar"
+                icon="pi pi-times"
+                class="p-button-secondary flex-1"
+                @click="cancelEditing('status')"
             />
           </template>
         </div>
@@ -282,65 +282,65 @@ export default {
           <i class="pi pi-comment"></i>
           Observaciones
         </h3>
-        
+
         <div class="field mb-3">
           <label for="documentType" class="font-medium text-gray-700 flex align-items-center gap-2">
             <i class="pi pi-file text-primary"></i>
             Selecciona el documento
           </label>
           <pv-dropdown
-            id="documentType"
-            v-model="item.documentType"
-            :options="[
+              id="documentType"
+              v-model="item.documentType"
+              :options="[
               { label: 'Documento de identidad', value: 'Documento de identidad' },
               { label: 'Recibo de servicios', value: 'Recibo de servicios' }
             ]"
-            optionLabel="label" 
-            optionValue="value"
-            placeholder="Documento de identidad"
-            class="w-full mt-1"
-            :disabled="!editingStates.observations"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Documento de identidad"
+              class="w-full mt-1"
+              :disabled="!editingStates.observations"
           />
         </div>
-        
+
         <div class="field mb-4">
           <label for="observations" class="font-bold text-primary flex align-items-center gap-2">
             <i class="pi pi-align-left text-primary"></i>
             Descripción
           </label>
           <pv-textarea
-            id="observations"
-            v-model="item.observations" 
-            :rows="3" 
-            placeholder="Los datos del documento de identidad no coinciden con los datos del cliente"
-            class="w-full mt-1"
-            :disabled="!editingStates.observations"
+              id="observations"
+              v-model="item.observations"
+              :rows="3"
+              placeholder="Los datos del documento de identidad no coinciden con los datos del cliente"
+              class="w-full mt-1"
+              :disabled="!editingStates.observations"
           />
         </div>
-        
+
         <div class="flex gap-2 w-full">
           <!-- Botón de Editar (cuando no está editando) -->
           <pv-button
-            v-if="!editingStates.observations"
-            label="Editar" 
-            icon="pi pi-pencil"
-            class="p-button-warning w-full"
-            @click="enableEditing('observations')"
+              v-if="!editingStates.observations"
+              label="Editar"
+              icon="pi pi-pencil"
+              class="p-button-warning w-full"
+              @click="enableEditing('observations')"
           />
-          
+
           <!-- Botones de acción (cuando está editando) -->
           <template v-if="editingStates.observations">
             <pv-button
-              label="Guardar" 
-              icon="pi pi-save"
-              class="p-button-primary flex-1"
-              @click="submitOrderObservations"
+                label="Guardar"
+                icon="pi pi-save"
+                class="p-button-primary flex-1"
+                @click="submitOrderObservations"
             />
             <pv-button
-              label="Cancelar" 
-              icon="pi pi-times"
-              class="p-button-secondary flex-1"
-              @click="cancelEditing('observations')"
+                label="Cancelar"
+                icon="pi pi-times"
+                class="p-button-secondary flex-1"
+                @click="cancelEditing('observations')"
             />
           </template>
         </div>

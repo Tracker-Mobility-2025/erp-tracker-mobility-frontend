@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-const http = axios.create({baseURL: "http://localhost:3000/api"});
+const http = axios.create({baseURL: "https://web-service-tracker-mobility-production.up.railway.app/api/v1"});
 
-export class orderRequestApi {
+export class OrderRequestApi {
 
     constructor(_resourceEndpoint) {
         this.resourceEndpoint = _resourceEndpoint;
@@ -26,6 +26,11 @@ export class orderRequestApi {
 
     delete(id) {
         return http.delete(`${this.resourceEndpoint}/${id}`);
+    }
+
+    // Asignar un verificador a una orden de servicio
+    assignVerifier(orderId, data) {
+        return http.post(`${this.resourceEndpoint}/${orderId}/assign-verifier`, data);
     }
 
 

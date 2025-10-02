@@ -1,105 +1,35 @@
 <script>
 
 import DataManager from "../../../shared/components/data-manager.component.vue";
+import {OrderRequestApi} from "../services/order-request-api.service.js";
+import {VerifierApi} from "../services/verifier-api.service.js";
 
 export default {
   name: "service-order-management",
   components: {
     DataManager
   },
+
   data() {
     return {
-      itemsArray: [
-        {
-          id: 'ORD-07-2025-001',
-          estado: 'Pendiente',
-          solicitante: 'Solicitante A',
-          verificador: 'Verificador 1',
-          programacion: '10/09/2025'
-        },
-        {
-          id: 'ORD-07-2025-002',
-          estado: 'Pendiente',
-          solicitante: 'Solicitante B',
-          verificador: 'Pendiente',
-          programacion: 'Pendiente'
-        },
-        {
-          id: 'ORD-07-2025-003',
-          estado: 'Pendiente',
-          solicitante: 'Solicitante C',
-          verificador: 'Verificador 1',
-          programacion: '10/09/2025'
-        },
-        {
-          id: 'ORD-07-2025-004',
-          estado: 'En Proceso',
-          solicitante: 'Solicitante D',
-          verificador: 'Verificador 2',
-          programacion: '11/09/2025'
-        },
-        {
-          id: 'ORD-07-2025-005',
-          estado: 'Completado',
-          solicitante: 'Solicitante E',
-          verificador: 'Verificador 1',
-          programacion: '09/09/2025'
-        },
-        {
-          id: 'ORD-07-2025-006',
-          estado: 'Pendiente',
-          solicitante: 'Solicitante F',
-          verificador: 'Verificador 3',
-          programacion: '12/09/2025'
-        },
-        {
-          id: 'ORD-07-2025-007',
-          estado: 'En Proceso',
-          solicitante: 'Solicitante G',
-          verificador: 'Verificador 2',
-          programacion: '13/09/2025'
-        },
-        {
-          id: 'ORD-07-2025-008',
-          estado: 'Pendiente',
-          solicitante: 'Solicitante H',
-          verificador: 'Pendiente',
-          programacion: 'Pendiente'
-        },
-        {
-          id: 'ORD-07-2025-009',
-          estado: 'Completado',
-          solicitante: 'Solicitante I',
-          verificador: 'Verificador 1',
-          programacion: '08/09/2025'
-        },
-        {
-          id: 'ORD-07-2025-010',
-          estado: 'Cancelado',
-          solicitante: 'Solicitante J',
-          verificador: 'Verificador 3',
-          programacion: '14/09/2025'
-        },
-        {
-          id: 'ORD-07-2025-011',
-          estado: 'Pendiente',
-          solicitante: 'Solicitante K',
-          verificador: 'Verificador 2',
-          programacion: '15/09/2025'
-        },
-        {
-          id: 'ORD-07-2025-012',
-          estado: 'En Proceso',
-          solicitante: 'Solicitante L',
-          verificador: 'Verificador 1',
-          programacion: '16/09/2025'
-        }
-      ],
 
+      // Servicio de para obtener órdenes de verificación
+      orderRequestApi: null,
+      // Servicio para obtener verificadores
+      verifierApi: null,
+
+
+      // Array de órdenes de verificación
+      itemsArray: [],
+
+      // Array para verificadores
+      verifiersArray: [],
+
+      // Definición de columnas para la tabla
       columns: [
-        { field: 'id', header: 'ID Orden', sortable: true, style: 'width: 160px;' },
-        { field: 'estado', header: 'Estado', sortable: true, template: 'status', style: 'width: 120px;' },
-        { field: 'solicitante', header: 'Solicitante', sortable: true, style: 'width: 150px;' },
+        { field: 'orderCode', header: 'Código de orden', sortable: true, style: 'width: 160px;' },
+        { field: 'status', header: 'Estado', sortable: true, template: 'status', style: 'width: 120px;' },
+        { field: 'applicantCompany.companyName', header: 'Solicitante', sortable: true, style: 'width: 150px;' },
         { field: 'verificador', header: 'Verificador', sortable: true, template: 'verificador', style: 'width: 150px;' },
         { field: 'programacion', header: 'Programación', sortable: true, template: 'programacion', style: 'width: 140px;' }
       ],
@@ -109,10 +39,11 @@ export default {
       selectedStatus: null, // Filtro de estado seleccionado
       statusOptions: [
         { label: 'Todos', value: null },
-        { label: 'Pendiente', value: 'Pendiente' },
-        { label: 'En Proceso', value: 'En Proceso' },
-        { label: 'Completado', value: 'Completado' },
-        { label: 'Cancelado', value: 'Cancelado' }
+        { label: 'Pendiente', value: 'PENDIENTE' },
+        { label: 'Asignado', value: 'ASIGNADO' },
+        { label: 'En Proceso', value: 'EN PROCESO' },
+        { label: 'Completado', value: 'COMPLETADO' },
+        { label: 'Cancelado', value: 'CANCELADO' }
       ],
       title: {
         singular: 'orden de verificación',
@@ -122,38 +53,100 @@ export default {
     }
   },
 
+
   computed: {
     // Filtro combinado que aplica todos los filtros activos
     filteredItemsArray() {
       let filtered = [...this.itemsArray];
 
-      // Filtro por búsqueda global (ID, solicitante, verificador)
+      // Filtro por búsqueda global (código de orden, solicitante, verificador)
       if (this.globalFilterValue) {
         const searchTerm = this.globalFilterValue.toLowerCase().trim();
-        filtered = filtered.filter(order =>
-          order.id.toLowerCase().includes(searchTerm) ||
-          order.solicitante.toLowerCase().includes(searchTerm) ||
-          order.verificador.toLowerCase().includes(searchTerm)
-        );
+        filtered = filtered.filter(order => {
+          // Buscar en código de orden
+          const orderCodeMatch = order.orderCode?.toLowerCase().includes(searchTerm);
+          
+          // Buscar en nombre de la empresa solicitante
+          const companyMatch = order.applicantCompany?.companyName?.toLowerCase().includes(searchTerm);
+          
+          // Buscar en nombre del verificador (si está asignado)
+          let verifierMatch = false;
+          if (order.homeVisitDetails?.verifierId) {
+            const verifierName = this.getVerifierById(order.homeVisitDetails.verifierId);
+            verifierMatch = verifierName.toLowerCase().includes(searchTerm);
+          }
+          
+          return orderCodeMatch || companyMatch || verifierMatch;
+        });
       }
 
       // Filtro por estado seleccionado
       if (this.selectedStatus) {
-        filtered = filtered.filter(order => order.estado === this.selectedStatus);
+        filtered = filtered.filter(order => {
+          // Verificar si el estado coincide exactamente
+          return order.status === this.selectedStatus;
+        });
       }
 
-      // Filtro por fecha seleccionada
-      // Filtro por fecha seleccionada
+      // Filtro por fecha seleccionada (fecha de visita programada)
       if (this.selectedDate) {
-        const selectedDateStr = this.selectedDate.toISOString().split('T')[0];
-        filtered = filtered.filter(order => order.resultDate === selectedDateStr);
+        // Usar formato local para evitar problemas de zona horaria
+        const selectedDateStr = this.formatDateToLocal(this.selectedDate);
+        
+        filtered = filtered.filter(order => {
+          if (order.homeVisitDetails?.visitDate) {
+            try {
+              // Parsear la fecha usando formato local para evitar diferencias de zona horaria
+              const visitDateStr = this.formatDateToLocal(new Date(order.homeVisitDetails.visitDate + 'T00:00:00'));
+              return visitDateStr === selectedDateStr;
+            } catch (error) {
+              console.warn('Error parsing visitDate:', order.homeVisitDetails.visitDate, error);
+              return false;
+            }
+          }
+          return false;
+        });
       }
 
       return filtered;
-    }
+    },
+
   },
 
+
   methods: {
+
+    getVerifierById(verifierId) {
+      if (!verifierId || !this.verifiersArray.length) {
+        return 'PENDIENTE';
+      }
+
+      const verifier = this.verifiersArray.find(v => v.id === verifierId);
+      return verifier ? verifier.name : 'PENDIENTE';
+    },
+
+    getVisitDate(homeVisitDetails) {
+      if (!homeVisitDetails || !homeVisitDetails.visitDate) {
+        return 'PENDIENTE';
+      }
+      
+      // Formatear la fecha para mostrar en formato legible, evitando problemas de zona horaria
+      const date = new Date(homeVisitDetails.visitDate + 'T00:00:00');
+      return date.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    },
+
+    // Método auxiliar para formatear fechas de manera consistente
+    formatDateToLocal(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    },
+
     onNewItemRequested() {
       console.log('Crear nueva orden de verificación');
       // Implementar navegación a formulario de creación
@@ -189,7 +182,12 @@ export default {
       // Implementar navegación a vista de detalles
 
       // Navegar con router a /admin/order-details
-      this.$router.push({ name: 'order-details'});
+      this.$router.push({
+        name: 'order-details',
+        query: { id: item.id }
+      });
+
+
 
     },
 
@@ -213,107 +211,59 @@ export default {
 
     getStatusSeverity(status) {
       switch (status) {
-        case 'Pendiente':
+        case 'PENDIENTE':
           return 'warn';
-        case 'En Proceso':
+        case 'ASIGNADO':
           return 'info';
-        case 'Completado':
+        case 'EN PROCESO':
+          return 'info';
+        case 'COMPLETADO':
           return 'success';
-        case 'Cancelado':
+        case 'CANCELADO':
           return 'danger';
         default:
           return 'info';
       }
+    },
+
+
+    // Retornar todas las órdenes desde la API (si se implementa)
+    getAllOrders() {
+      this.loading = true;
+      this.orderRequestApi.getAll().then(response => {
+          this.itemsArray = response.data;
+        })
+        .catch(error => {
+          console.error('Error al cargar las órdenes:', error);
+        })
+        .finally(() => {
+          this.loading = false;
+        });
+    },
+
+    // Retorna todos los verificadores
+    getAllVerifiers() {
+      this.loading = true;
+      this.verifierApi.getAll().then(response => {
+          this.verifiersArray = response.data;
+        })
+        .catch(error => {
+          console.error('Error al cargar los verificadores:', error);
+        })
+        .finally(() => {
+          this.loading = false;
+        });
     }
+
   },
 
   created() {
-    this.itemsArray = [
-      {
-        id: 'ORD-07-2025-001',
-        estado: 'Pendiente',
-        solicitante: 'Solicitante A',
-        verificador: 'Verificador 1',
-        programacion: '10/09/2025'
-      },
-      {
-        id: 'ORD-07-2025-002',
-        estado: 'Pendiente',
-        solicitante: 'Solicitante B',
-        verificador: 'Pendiente',
-        programacion: 'Pendiente'
-      },
-      {
-        id: 'ORD-07-2025-003',
-        estado: 'Pendiente',
-        solicitante: 'Solicitante C',
-        verificador: 'Verificador 1',
-        programacion: '10/09/2025'
-      },
-      {
-        id: 'ORD-07-2025-004',
-        estado: 'En Proceso',
-        solicitante: 'Solicitante D',
-        verificador: 'Verificador 2',
-        programacion: '11/09/2025'
-      },
-      {
-        id: 'ORD-07-2025-005',
-        estado: 'Completado',
-        solicitante: 'Solicitante E',
-        verificador: 'Verificador 1',
-        programacion: '09/09/2025'
-      },
-      {
-        id: 'ORD-07-2025-006',
-        estado: 'Pendiente',
-        solicitante: 'Solicitante F',
-        verificador: 'Verificador 3',
-        programacion: '12/09/2025'
-      },
-      {
-        id: 'ORD-07-2025-007',
-        estado: 'En Proceso',
-        solicitante: 'Solicitante G',
-        verificador: 'Verificador 2',
-        programacion: '13/09/2025'
-      },
-      {
-        id: 'ORD-07-2025-008',
-        estado: 'Pendiente',
-        solicitante: 'Solicitante H',
-        verificador: 'Pendiente',
-        programacion: 'Pendiente'
-      },
-      {
-        id: 'ORD-07-2025-009',
-        estado: 'Completado',
-        solicitante: 'Solicitante I',
-        verificador: 'Verificador 1',
-        programacion: '08/09/2025'
-      },
-      {
-        id: 'ORD-07-2025-010',
-        estado: 'Cancelado',
-        solicitante: 'Solicitante J',
-        verificador: 'Verificador 3',
-        programacion: '14/09/2025'
-      },
-      {
-        id: 'ORD-07-2025-011',
-        estado: 'Pendiente',
-        solicitante: 'Solicitante K',
-        verificador: 'Verificador 2',
-        programacion: '15/09/2025'
-      },
-      {
-        id: 'ORD-07-2025-012',
-        estado: 'En Proceso',
-        solicitante: 'Solicitante L',
-        verificador: 'Verificador 1',
-        programacion: '16/09/2025'
-      }
-    ];
+
+    this.orderRequestApi = new OrderRequestApi('/orders');
+    this.verifierApi = new VerifierApi('/verifiers');
+    // Aquí podrías cargar las órdenes desde una API si es necesario
+    this.getAllOrders();
+    this.getAllVerifiers();
 
   }
 }
@@ -349,7 +299,7 @@ export default {
       new-button-label="Nueva Orden"
       delete-button-label="Eliminar"
       export-button-label="Exportar"
-      search-placeholder="Busca por ID orden, solicitante, verificador..."
+      search-placeholder="Busca por código de orden, solicitante, verificador..."
       @new-item-requested-manager="onNewItemRequested"
       @delete-selected-items-requested-manager="onDeleteSelectedItems"
       @delete-item-requested-manager="onDeleteItem"
@@ -394,23 +344,27 @@ export default {
       <!-- Custom Status Column -->
       <template #status="{ data }">
         <pv-tag 
-          :value="data.estado"
-          :severity="getStatusSeverity(data.estado)"
+          :value="data.status"
+          :severity="getStatusSeverity(data.status)"
           class="text-sm"
         />
       </template>
 
       <!-- Custom Verificador Column -->
       <template #verificador="{ data }">
-        <span :class="{ 'text-orange-500 font-medium': data.verificador === 'Pendiente' }">
-          {{ data.verificador }}
+        <span :class="{ 'text-orange-500 font-medium': !data.homeVisitDetails || !data.homeVisitDetails.verifierId }">
+          {{ data.homeVisitDetails && data.homeVisitDetails.verifierId
+              ? getVerifierById(data.homeVisitDetails.verifierId)
+              : 'PENDIENTE' }}
         </span>
       </template>
 
       <!-- Custom Programacion Column -->
       <template #programacion="{ data }">
-        <span :class="{ 'text-orange-500 font-medium': data.programacion === 'Pendiente' }">
-          {{ data.programacion }}
+        <span :class="{ 'text-orange-500 font-medium': !data.homeVisitDetails || !data.homeVisitDetails.visitDate }">
+          {{ data.homeVisitDetails && data.homeVisitDetails.visitDate
+              ? getVisitDate(data.homeVisitDetails)
+              : 'PENDIENTE' }}
         </span>
       </template>
 
