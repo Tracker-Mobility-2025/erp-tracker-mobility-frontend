@@ -119,7 +119,10 @@ export default {
 
 <template>
   <div class="w-full flex-1 flex-column gap-3">
-    <h3 class="text-xlg font-bold mb-3">Órdenes asignadas</h3>
+    <h3 class="text-xlg font-bold mb-3 flex align-items-center gap-2">
+      <i class="pi pi-clipboard-list"></i>
+      Órdenes asignadas
+    </h3>
 
     <!-- Filtros -->
     <div class="flex w-full gap-2 mb-4 flex-wrap">
@@ -180,10 +183,22 @@ export default {
           <!-- Información principal -->
           <div class="flex flex-column flex-1">
             <div class="grid text-sm text-600 font-semibold">
-              <div class="col-3">Código de Orden</div>
-              <div class="col-3">Dirección</div>
-              <div class="col-3">Fecha de visita programada</div>
-              <div class="col-3">Estado</div>
+              <div class="col-3 flex align-items-center gap-1">
+                <i class="pi pi-hashtag"></i>
+                Código de Orden
+              </div>
+              <div class="col-3 flex align-items-center gap-1">
+                <i class="pi pi-map-marker"></i>
+                Dirección
+              </div>
+              <div class="col-3 flex align-items-center gap-1">
+                <i class="pi pi-calendar"></i>
+                Fecha de visita programada
+              </div>
+              <div class="col-3 flex align-items-center gap-1">
+                <i class="pi pi-info-circle"></i>
+                Estado
+              </div>
             </div>
 
             <!-- Datos de la orden -->
@@ -199,7 +214,10 @@ export default {
             <div class="grid text-sm mt-2">
               <!-- Enlace Google Maps -->
               <div class="col-12">
-                <span class="text-600">Enlace google maps: </span>
+                <span class="text-600 flex align-items-center gap-1">
+                  <i class="pi pi-map"></i>
+                  Enlace google maps:
+                </span>
                 <a
                     v-if="order.client && order.client.location && order.client.location.mapLocation"
                     :href="order.client.location.mapLocation"

@@ -72,12 +72,18 @@ export default {
 
     <pv-card class="w-full">
       <template #content>
-        <h3 class="text-lg font-bold mb-4 text-primary"> Datos del verificador:</h3>
+        <h3 class="text-lg font-bold mb-4 text-primary flex align-items-center gap-2">
+          <i class="pi pi-user-edit"></i>
+          Datos del verificador:
+        </h3>
 
         <div class="formgrid grid">
           <!-- Fila 1 -->
           <div class="field col-12 md:col-2">
-            <label class="font-semibold text-color-secondary">Nombres</label>
+            <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+              <i class="pi pi-user"></i>
+              Nombres
+            </label>
             <div v-if="!isEdit">
               <p class="font-semibold text-dark m-0">{{ item?.name }}</p>
             </div>
@@ -87,7 +93,10 @@ export default {
           </div>
 
           <div class="field col-12 md:col-2">
-            <label class="font-semibold text-color-secondary">Apellidos</label>
+            <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+              <i class="pi pi-users"></i>
+              Apellidos
+            </label>
             <div v-if="!isEdit">
               <p class="font-semibold text-dark m-0">{{ item?.lastName }}</p>
             </div>
@@ -97,7 +106,10 @@ export default {
           </div>
 
           <div class="field col-12 md:col-3">
-            <label class="font-semibold text-color-secondary">Contacto</label>
+            <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+              <i class="pi pi-phone"></i>
+              Contacto
+            </label>
             <div v-if="!isEdit">
               <p class="font-semibold text-dark m-0">{{ item?.phoneNumber }}</p>
             </div>
@@ -107,7 +119,10 @@ export default {
           </div>
 
           <div class="field col-12 md:col-2">
-            <label class="font-semibold text-color-secondary">Estado</label>
+            <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+              <i class="pi pi-check-circle"></i>
+              Estado
+            </label>
             <div v-if="!isEdit">
               <p class="font-semibold text-dark m-0">{{ item?.status }}</p>
             </div>
@@ -121,7 +136,10 @@ export default {
           </div>
 
           <div class="field col-12 md:col-3">
-            <label class="font-semibold text-color-secondary">Cant. órdenes</label>
+            <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+              <i class="pi pi-list"></i>
+              Cant. órdenes
+            </label>
             <div v-if="!isEdit">
               <p class="font-semibold text-dark m-0">{{ cantOrders }}</p>
             </div>
@@ -132,7 +150,10 @@ export default {
 
           <!-- Fila 2 -->
           <div class="field col-12 md:col-4">
-            <label class="font-semibold text-color-secondary">Correo</label>
+            <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+              <i class="pi pi-envelope"></i>
+              Correo
+            </label>
             <div v-if="!isEdit">
               <p class="font-semibold text-dark m-0">{{ item.email }}</p>
             </div>
@@ -142,7 +163,10 @@ export default {
           </div>
 
           <div class="field col-12 md:col-4">
-            <label class="font-semibold text-color-secondary">Contraseña</label>
+            <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+              <i class="pi pi-lock"></i>
+              Contraseña
+            </label>
             <div v-if="!isEdit">
               <p class="font-semibold text-dark m-0">*************</p>
             </div>
@@ -152,7 +176,10 @@ export default {
           </div>
 
           <div class="field col-12 md:col-4">
-            <label class="font-semibold text-color-secondary">Agenda</label>
+            <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+              <i class="pi pi-calendar"></i>
+              Agenda
+            </label>
             <div v-if="!isEdit">
               <p class="font-semibold text-dark m-0">{{ item.agenda }}</p>
             </div>
