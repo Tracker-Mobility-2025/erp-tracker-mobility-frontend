@@ -17,4 +17,5 @@ export class VerifierApi {
         return http.get(`${this.resourceEndpoint}/${id}`);
     }
 
+
 }

@@ -26,22 +26,17 @@ export default {
   computed: {
     filteredOrders() {
       return this.items.filter((order) => {
-        // Filtro por texto
-        const matchesSearch =
-            !this.search ||
-            order.id.toLowerCase().includes(this.search.toLowerCase()) ||
-            order.address.toLowerCase().includes(this.search.toLowerCase());
+        // Filtro por texto - buscar en código de orden y dirección
+        const matchesSearch = !this.search || 
+            (order.orderCode && order.orderCode.toLowerCase().includes(this.search.toLowerCase())) ||
+            (order.client && order.client.dwelling && order.client.dwelling.homeAddress && 
+             order.client.dwelling.homeAddress.toLowerCase().includes(this.search.toLowerCase()));
 
         // Filtro por estado
-        const matchesStatus =
-            this.selectedStatus === "Todos" ||
-            order.status === this.selectedStatus;
+        const matchesStatus = this.selectedStatus === "Todos" || order.status === this.selectedStatus;
 
-        // Filtro por fecha
-        const matchesDate =
-            !this.selectedDate ||
-            new Date(order.date).toDateString() ===
-            new Date(this.selectedDate).toDateString();
+        // Filtro por fecha - comparar solo fechas sin hora para evitar problemas de zona horaria
+        const matchesDate = !this.selectedDate || this.isSameDate(order.homeVisitDetails?.visitDate, this.selectedDate);
 
         return matchesSearch && matchesStatus && matchesDate;
       });
@@ -49,14 +44,46 @@ export default {
   },
 
   methods: {
-
     formatDate(date) {
-      if (!date) return "";
-      return new Date(date).toLocaleString("es-PE", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      });
+      if (!date) return "Sin fecha";
+      
+      try {
+        // Crear fecha sin problemas de zona horaria
+        const dateObj = new Date(date);
+        
+        // Verificar si la fecha es válida
+        if (isNaN(dateObj.getTime())) {
+          return "Fecha inválida";
+        }
+        
+        // Formatear fecha en español peruano
+        return dateObj.toLocaleDateString("es-PE", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+          timeZone: "America/Lima"
+        });
+      } catch (error) {
+        console.error('Error formateando fecha:', error);
+        return "Error en fecha";
+      }
+    },
+
+    isSameDate(date1, date2) {
+      if (!date1 || !date2) return false;
+      
+      try {
+        const d1 = new Date(date1);
+        const d2 = new Date(date2);
+        
+        // Comparar solo año, mes y día (ignorar hora)
+        return d1.getFullYear() === d2.getFullYear() &&
+               d1.getMonth() === d2.getMonth() &&
+               d1.getDate() === d2.getDate();
+      } catch (error) {
+        console.error('Error comparando fechas:', error);
+        return false;
+      }
     },
 
     clearFilters() {
@@ -130,7 +157,7 @@ export default {
         <pv-input-icon class="pi pi-search" />
         <pv-input-text
             v-model="search"
-            placeholder="Busca por ID de orden..."
+            placeholder="Busca por código de orden o dirección..."
             class="w-full h-full"
         />
       </pv-icon-field>

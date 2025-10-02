@@ -15,7 +15,8 @@ export default {
     return {
 
       // Servicio para obtener detalles de la orden por ID
-      orderRequestApi: null,
+      orderRequestApi: new OrderRequestApi('/orders'),
+
 
       // Servicio para obtener lista de verificadores
       verifierApi: null,
@@ -48,26 +49,6 @@ export default {
       // Lógica para descargar documento
       console.log(`Descargar documento: ${payload.type} para la orden ${payload.item.id}`);
       // Aquí iría la lógica real de descarga
-    },
-
-
-    // Asignar verificador a una orden de servicio (programar fecha de visita y hora de visita)
-    onAssignVerifierToOrder() {
-      // Lógica para asignar verificador
-      this.$emit('assign-verifier', this.item);
-    },
-
-    // Actualizar estado del servicio
-    onUpdateServiceStatus() {
-      // Lógica para actualizar estado del servicio
-      this.$emit('update-status', this.item);
-    },
-
-
-    // Enviar observaciones de la orden de servicio
-    onSubmitOrderObservations() {
-      // Lógica para enviar observaciones
-      this.$emit('submit-observations', this.item);
     },
 
     // Formatear fecha para mostrar
@@ -109,7 +90,6 @@ export default {
 
     },
 
-
     // Obtener lista de verificadores disponibles
     getAllVerifiers() {
       // Lógica para obtener lista de verificadores activos
@@ -128,7 +108,6 @@ export default {
           console.error('Error al obtener lista de verificadores:', error);
         });
     }
-
 
   },
 
@@ -230,9 +209,6 @@ export default {
             :item="item"
             :verifiers-list="verifiersArray"
             :status-options="statusOptions"
-            @assign-verifier="onAssignVerifierToOrder"
-            @update-status="onUpdateServiceStatus"
-            @submit-observations="onSubmitOrderObservations"
         />
       </div>
 

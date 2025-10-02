@@ -1,6 +1,8 @@
 <script>
 
 import {OrderService} from "../models/order-service.entity.js";
+import {VerifierApi} from "../services/verifier-api.service.js";
+import {OrderRequestApi} from "../services/order-request-api.service.js";
 
 export default {
   name: 'order-actions',
@@ -26,14 +28,30 @@ export default {
 
   data() {
     return {
+
+      // Servicio de API para órdenes de servicio
+      orderRequestApi: new OrderRequestApi('/orders'),
+
+      // Datos locales para evitar mutación directa del prop
+      localHomeVisitDetails: {
+        verifierId: null,
+        visitDate: null,
+        visitTime: null
+      },
+
+      // Estados de edición para secciones específicas
       editingStates: {
         verifier: false,
         observations: false
       },
+
+      // Datos originales para restaurar en caso de cancelar edición
       originalData: {
         verifier: {},
         observations: {}
       },
+
+      // Datos para la nueva observación
       currentObservation: {
         documentType: 'Documento de identidad',
         description: ''
@@ -42,6 +60,8 @@ export default {
   },
 
   computed: {
+
+    // Formatear lista de verificadores para el dropdown
     verifiersListFormatted() {
       return this.verifiersList.map(verifier => ({
         ...verifier,
@@ -49,33 +69,52 @@ export default {
       }));
     },
 
-    statusOptionsFormatted() {
-      return this.statusOptions
-        .filter(option => option.value !== null)
-        .map(option => ({
-          label: option.label,
-          value: option.value
-        }));
-    },
-
     // Validación en tiempo real para los campos de asignación
     isVerifierAssignmentValid() {
       if (!this.editingStates.verifier) return true;
       
-      const { verifierId, visitDate, visitTime } = this.item.homeVisitDetails;
+      const { verifierId, visitDate, visitTime } = this.localHomeVisitDetails;
       return verifierId && visitDate && visitTime;
     },
 
-    // Obtener el verificador seleccionado
-    selectedVerifier() {
-      if (!this.item.homeVisitDetails.verifierId) return null;
-      return this.verifiersListFormatted.find(
-        verifier => verifier.id === this.item.homeVisitDetails.verifierId
-      );
-    }
   },
 
   methods : {
+    // Inicializar datos locales desde el prop
+    initializeLocalData() {
+      if (this.item.homeVisitDetails) {
+        this.localHomeVisitDetails = {
+          verifierId: this.item.homeVisitDetails.verifierId || null,
+          visitDate: this.item.homeVisitDetails.visitDate || null,
+          visitTime: this.item.homeVisitDetails.visitTime || null
+        };
+      } else {
+        this.localHomeVisitDetails = {
+          verifierId: null,
+          visitDate: null,
+          visitTime: null
+        };
+      }
+    },
+
+    // Formatear fecha para envío al API
+    formatDate(date) {
+      if (!date) return null;
+      if (date instanceof Date) {
+        return date.toISOString().split('T')[0]; // YYYY-MM-DD
+      }
+      return date;
+    },
+
+    // Formatear hora para envío al API
+    formatTime(time) {
+      if (!time) return null;
+      if (time instanceof Date) {
+        return time.toTimeString().split(' ')[0].substring(0, 5); // HH:mm
+      }
+      return time;
+    },
+
     // Obtener etiqueta del estado para mostrar en solo lectura
     getStatusLabel(statusValue) {
       if (!this.statusOptions || !statusValue) return 'Sin estado';
@@ -83,14 +122,15 @@ export default {
       const statusOption = this.statusOptions.find(option => option.value === statusValue);
       return statusOption ? statusOption.label : statusValue;
     },
+
     // Habilitar modo edición para una sección específica
     enableEditing(section) {
       // Guardar datos originales de la sección específica
       if (section === 'verifier') {
         this.originalData.verifier = {
-          verifierId: this.item.homeVisitDetails?.verifierId || null,
-          visitDate: this.item.homeVisitDetails?.visitDate || null,
-          visitTime: this.item.homeVisitDetails?.visitTime || null
+          verifierId: this.localHomeVisitDetails.verifierId,
+          visitDate: this.localHomeVisitDetails.visitDate,
+          visitTime: this.localHomeVisitDetails.visitTime
         };
       } else if (section === 'observations') {
         this.originalData.observations = {
@@ -105,11 +145,9 @@ export default {
     cancelEditing(section) {
       // Restaurar datos originales de la sección específica
       if (section === 'verifier') {
-        if (this.item.homeVisitDetails) {
-          this.item.homeVisitDetails.verifierId = this.originalData.verifier.verifierId;
-          this.item.homeVisitDetails.visitDate = this.originalData.verifier.visitDate;
-          this.item.homeVisitDetails.visitTime = this.originalData.verifier.visitTime;
-        }
+        this.localHomeVisitDetails.verifierId = this.originalData.verifier.verifierId;
+        this.localHomeVisitDetails.visitDate = this.originalData.verifier.visitDate;
+        this.localHomeVisitDetails.visitTime = this.originalData.verifier.visitTime;
       } else if (section === 'observations') {
         this.item.observations = [...this.originalData.observations.observations];
       }
@@ -122,23 +160,65 @@ export default {
     assignVerifierToOrder() {
       // Validar que se hayan seleccionado todos los campos requeridos
       const validation = this.validateVerifierAssignment();
-      
+
+      // Si la validación falla, mostrar mensaje de error y salir
       if (!validation.isValid) {
-        this.showToast('error', 'Campos requeridos', validation.message);
+        this.showToast('error', 'Error de validación', validation.message);
         return;
       }
 
-      // Lógica para asignar verificador
-      this.$emit('assign-verifier', this.item);
-      this.editingStates.verifier = false;
-      
-      // Mostrar toast de confirmación
-      this.showToast('success', 'Verificador asignado', 'El verificador ha sido asignado correctamente a la orden de servicio.');
+      // Preparar datos para la actualización con formato correcto
+      const updateData = {
+        verifierId: this.localHomeVisitDetails.verifierId,
+        visitDate: this.formatDate(this.localHomeVisitDetails.visitDate),
+        visitTime: this.formatTime(this.localHomeVisitDetails.visitTime)
+      };
+
+      // Llamar al servicio API para actualizar la orden de servicio
+      this.orderRequestApi.assignVerifier(this.item.id, updateData).then(response => {
+
+          // Deshabilitar modo edición
+          this.editingStates.verifier = false;
+          this.originalData.verifier = {};
+
+          this.showToast('success', 'Verificador asignado', 'El verificador ha sido asignado correctamente a la orden de servicio.');
+        })
+        .catch(error => {
+          console.error('Error al asignar verificador:', error);
+          
+          let errorMessage = 'Hubo un error al asignar el verificador.';
+          
+          if (error.response) {
+            // Error del servidor
+            switch(error.response.status) {
+              case 404:
+                errorMessage = 'Orden de servicio no encontrada.';
+                break;
+              case 400:
+                errorMessage = 'Datos inválidos. Verifique la información ingresada.';
+                break;
+              case 409:
+                errorMessage = 'El verificador ya está asignado a otra orden en esa fecha y hora.';
+                break;
+              case 500:
+                errorMessage = 'Error interno del servidor. Intente más tarde.';
+                break;
+              default:
+                errorMessage = `Error del servidor (${error.response.status}). Contacte al administrador.`;
+            }
+          } else if (error.request) {
+            errorMessage = 'Error de conexión. Verifique su conexión a internet.';
+          } else {
+            errorMessage = 'Error inesperado. Por favor, intente nuevamente.';
+          }
+          
+          this.showToast('error', 'Error al asignar verificador', errorMessage);
+        });
     },
 
     // Validar los campos requeridos para la asignación del verificador
     validateVerifierAssignment() {
-      const { verifierId, visitDate, visitTime } = this.item.homeVisitDetails;
+      const { verifierId, visitDate, visitTime } = this.localHomeVisitDetails;
       
       if (!verifierId) {
         return {
@@ -159,6 +239,18 @@ export default {
           isValid: false,
           message: 'Debe ingresar la hora de visita.'
         };
+      }
+
+      // Validar que la fecha de visita no sea en el pasado
+      if (visitDate instanceof Date) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (visitDate < today) {
+          return {
+            isValid: false,
+            message: 'La fecha de visita no puede ser en el pasado.'
+          };
+        }
       }
       
       return {
@@ -184,7 +276,6 @@ export default {
     },
 
 
-
     // Enviar observaciones de la orden de servicio
     submitOrderObservations() {
       // Crear nueva observación con ID único
@@ -206,8 +297,6 @@ export default {
         description: ''
       };
 
-      // Emitir evento con el item actualizado
-      this.$emit('submit-observations', this.item);
       this.editingStates.observations = false;
     },
 
@@ -215,15 +304,8 @@ export default {
   },
 
   created() {
-    // Inicializar estados de edición y datos originales
-    // Asegurar que homeVisitDetails existe
-    if (!this.item.homeVisitDetails) {
-      this.item.homeVisitDetails = {
-        verifierId: null,
-        visitDate: null,
-        visitTime: null
-      };
-    }
+    // Inicializar datos locales desde el prop item
+    this.initializeLocalData();
 
     // Asegurar que observations existe
     if (!this.item.observations) {
@@ -232,18 +314,12 @@ export default {
   },
 
   watch: {
-    // Observar cambios en el item prop para reinicializar datos locales
+    // Observar cambios en el item prop para sincronizar datos locales
     item: {
       handler(newItem) {
         if (newItem) {
-          // Reinicializar homeVisitDetails si no existe
-          if (!newItem.homeVisitDetails) {
-            newItem.homeVisitDetails = {
-              verifierId: null,
-              visitDate: null,
-              visitTime: null
-            };
-          }
+          // Sincronizar datos locales con el nuevo item
+          this.initializeLocalData();
           
           // Reinicializar observations si no existe
           if (!newItem.observations) {
@@ -278,13 +354,13 @@ export default {
           </label>
           <pv-dropdown
               id="verifier"
-              v-model="item.homeVisitDetails.verifierId"
+              v-model="localHomeVisitDetails.verifierId"
               :options="verifiersListFormatted"
               optionLabel="fullName"
               optionValue="id"
               placeholder="Ingresar el nombre del verificador"
               class="w-full mt-1"
-              :class="{ 'p-invalid': editingStates.verifier && !item.homeVisitDetails.verifierId }"
+              :class="{ 'p-invalid': editingStates.verifier && !localHomeVisitDetails.verifierId }"
               :disabled="!editingStates.verifier"
           />
         </div>
@@ -298,11 +374,11 @@ export default {
             </label>
             <pv-calendar
                 id="visitDate"
-                v-model="item.homeVisitDetails.visitDate"
+                v-model="localHomeVisitDetails.visitDate"
                 placeholder="dd/mm/aaaa"
                 dateFormat="dd/mm/yy"
                 class="w-full mt-1"
-                :class="{ 'p-invalid': editingStates.verifier && !item.homeVisitDetails.visitDate }"
+                :class="{ 'p-invalid': editingStates.verifier && !localHomeVisitDetails.visitDate }"
                 showIcon
                 :disabled="!editingStates.verifier"
             />
@@ -315,11 +391,11 @@ export default {
             </label>
             <pv-calendar
                 id="visitTime"
-                v-model="item.homeVisitDetails.visitTime"
+                v-model="localHomeVisitDetails.visitTime"
                 timeOnly
                 placeholder="hh:mm"
                 class="w-full mt-1"
-                :class="{ 'p-invalid': editingStates.verifier && !item.homeVisitDetails.visitTime }"
+                :class="{ 'p-invalid': editingStates.verifier && !localHomeVisitDetails.visitTime }"
                 showIcon
                 :disabled="!editingStates.verifier"
             />
