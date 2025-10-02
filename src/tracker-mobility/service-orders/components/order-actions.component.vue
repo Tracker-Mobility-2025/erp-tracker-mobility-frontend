@@ -28,12 +28,10 @@ export default {
     return {
       editingStates: {
         verifier: false,
-        status: false,
         observations: false
       },
       originalData: {
         verifier: {},
-        status: {},
         observations: {}
       },
       currentObservation: {
@@ -58,10 +56,33 @@ export default {
           label: option.label,
           value: option.value
         }));
+    },
+
+    // Validación en tiempo real para los campos de asignación
+    isVerifierAssignmentValid() {
+      if (!this.editingStates.verifier) return true;
+      
+      const { verifierId, visitDate, visitTime } = this.item.homeVisitDetails;
+      return verifierId && visitDate && visitTime;
+    },
+
+    // Obtener el verificador seleccionado
+    selectedVerifier() {
+      if (!this.item.homeVisitDetails.verifierId) return null;
+      return this.verifiersListFormatted.find(
+        verifier => verifier.id === this.item.homeVisitDetails.verifierId
+      );
     }
   },
 
   methods : {
+    // Obtener etiqueta del estado para mostrar en solo lectura
+    getStatusLabel(statusValue) {
+      if (!this.statusOptions || !statusValue) return 'Sin estado';
+      
+      const statusOption = this.statusOptions.find(option => option.value === statusValue);
+      return statusOption ? statusOption.label : statusValue;
+    },
     // Habilitar modo edición para una sección específica
     enableEditing(section) {
       // Guardar datos originales de la sección específica
@@ -70,10 +91,6 @@ export default {
           verifierId: this.item.homeVisitDetails?.verifierId || null,
           visitDate: this.item.homeVisitDetails?.visitDate || null,
           visitTime: this.item.homeVisitDetails?.visitTime || null
-        };
-      } else if (section === 'status') {
-        this.originalData.status = {
-          status: this.item.status
         };
       } else if (section === 'observations') {
         this.originalData.observations = {
@@ -93,8 +110,6 @@ export default {
           this.item.homeVisitDetails.visitDate = this.originalData.verifier.visitDate;
           this.item.homeVisitDetails.visitTime = this.originalData.verifier.visitTime;
         }
-      } else if (section === 'status') {
-        this.item.status = this.originalData.status.status;
       } else if (section === 'observations') {
         this.item.observations = [...this.originalData.observations.observations];
       }
@@ -105,24 +120,70 @@ export default {
 
     // Asignar verificador a una orden de servicio (programar fecha de visita y hora de visita)
     assignVerifierToOrder() {
+      // Validar que se hayan seleccionado todos los campos requeridos
+      const validation = this.validateVerifierAssignment();
+      
+      if (!validation.isValid) {
+        this.showToast('error', 'Campos requeridos', validation.message);
+        return;
+      }
+
       // Lógica para asignar verificador
       this.$emit('assign-verifier', this.item);
       this.editingStates.verifier = false;
+      
+      // Mostrar toast de confirmación
+      this.showToast('success', 'Verificador asignado', 'El verificador ha sido asignado correctamente a la orden de servicio.');
     },
 
-    // Confirmar cambios realizados
-    confirmChanges() {
-      // Lógica para confirmar cambios
-      this.$emit('confirm-changes', this.item);
-      this.editingStates.status = false;
+    // Validar los campos requeridos para la asignación del verificador
+    validateVerifierAssignment() {
+      const { verifierId, visitDate, visitTime } = this.item.homeVisitDetails;
+      
+      if (!verifierId) {
+        return {
+          isValid: false,
+          message: 'Debe seleccionar un verificador.'
+        };
+      }
+      
+      if (!visitDate) {
+        return {
+          isValid: false,
+          message: 'Debe ingresar la fecha de visita.'
+        };
+      }
+      
+      if (!visitTime) {
+        return {
+          isValid: false,
+          message: 'Debe ingresar la hora de visita.'
+        };
+      }
+      
+      return {
+        isValid: true,
+        message: ''
+      };
     },
 
-    // Actualizar estado del servicio
-    updateServiceStatus() {
-      // Lógica para actualizar estado del servicio
-      this.$emit('update-status', this.item);
-      this.editingStates.status = false;
+    // Método para mostrar toast messages
+    showToast(severity, summary, detail, life = 3000) {
+      // Verificar si PrimeVue Toast está disponible
+      if (this.$toast && typeof this.$toast.add === 'function') {
+        this.$toast.add({
+          severity: severity,
+          summary: summary,
+          detail: detail,
+          life: life
+        });
+      } else {
+        // Fallback para consola si Toast no está disponible
+        console.log(`${severity.toUpperCase()}: ${summary} - ${detail}`);
+      }
     },
+
+
 
     // Enviar observaciones de la orden de servicio
     submitOrderObservations() {
@@ -150,12 +211,7 @@ export default {
       this.editingStates.observations = false;
     },
 
-    // Cancelar orden de servicio
-    cancelOrder() {
-      // Lógica para cancelar orden
-      this.$emit('cancel-order', this.item);
-      this.editingStates.status = false;
-    }
+
   },
 
   created() {
@@ -218,6 +274,7 @@ export default {
           <label for="verifier" class="font-medium text-gray-700 flex align-items-center gap-2">
             <i class="pi pi-user text-primary"></i>
             Seleccionar verificador *
+            <span class="text-red-500">*</span>
           </label>
           <pv-dropdown
               id="verifier"
@@ -227,6 +284,7 @@ export default {
               optionValue="id"
               placeholder="Ingresar el nombre del verificador"
               class="w-full mt-1"
+              :class="{ 'p-invalid': editingStates.verifier && !item.homeVisitDetails.verifierId }"
               :disabled="!editingStates.verifier"
           />
         </div>
@@ -236,6 +294,7 @@ export default {
             <label for="visitDate" class="font-medium text-gray-700 flex align-items-center gap-2">
               <i class="pi pi-calendar text-primary"></i>
               Fecha de visita *
+              <span class="text-red-500">*</span>
             </label>
             <pv-calendar
                 id="visitDate"
@@ -243,6 +302,7 @@ export default {
                 placeholder="dd/mm/aaaa"
                 dateFormat="dd/mm/yy"
                 class="w-full mt-1"
+                :class="{ 'p-invalid': editingStates.verifier && !item.homeVisitDetails.visitDate }"
                 showIcon
                 :disabled="!editingStates.verifier"
             />
@@ -251,6 +311,7 @@ export default {
             <label for="visitTime" class="font-medium text-gray-700 flex align-items-center gap-2">
               <i class="pi pi-clock text-primary"></i>
               Hora de visita *
+              <span class="text-red-500">*</span>
             </label>
             <pv-calendar
                 id="visitTime"
@@ -258,6 +319,7 @@ export default {
                 timeOnly
                 placeholder="hh:mm"
                 class="w-full mt-1"
+                :class="{ 'p-invalid': editingStates.verifier && !item.homeVisitDetails.visitTime }"
                 showIcon
                 :disabled="!editingStates.verifier"
             />
@@ -280,6 +342,7 @@ export default {
                 label="Asignar"
                 icon="pi pi-user-plus"
                 class="p-button-primary flex-1"
+                :disabled="!isVerifierAssignmentValid"
                 @click="assignVerifierToOrder"
             />
             <pv-button
@@ -293,56 +356,25 @@ export default {
       </template>
     </pv-card>
 
-    <!-- ====================== Card -> Acciones ====================== -->
+    <!-- ====================== Card -> Estado del Servicio ====================== -->
     <pv-card class="w-full">
       <template #content>
         <h3 class="text-lg font-bold mb-4 text-primary flex align-items-center gap-2">
-          <i class="pi pi-cog"></i>
-          Acciones
+          <i class="pi pi-flag"></i>
+          Estado del Servicio
         </h3>
 
         <div class="field mb-3">
-          <label for="serviceStatus" class="font-medium text-gray-700 flex align-items-center gap-2">
-            <i class="pi pi-flag text-primary"></i>
-            Actualizar estado
+          <label class="font-medium text-gray-700 flex align-items-center gap-2 mb-2">
+            <i class="pi pi-info-circle text-primary"></i>
+            Estado actual
           </label>
-          <pv-dropdown
-              id="serviceStatus"
-              v-model="item.status"
-              :options="statusOptionsFormatted"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="En progreso"
-              class="w-full mt-1"
-              :disabled="!editingStates.status"
-          />
-        </div>
-
-        <div class="flex gap-2 w-full">
-          <!-- Botón de Editar (cuando no está editando) -->
-          <pv-button
-              v-if="!editingStates.status"
-              label="Editar"
-              icon="pi pi-pencil"
-              class="p-button-warning w-full"
-              @click="enableEditing('status')"
-          />
-
-          <!-- Botones de acción (cuando está editando) -->
-          <template v-if="editingStates.status">
-            <pv-button
-                label="Confirmar"
-                icon="pi pi-check"
-                class="p-button-primary flex-1"
-                @click="confirmChanges"
-            />
-            <pv-button
-                label="Cancelar"
-                icon="pi pi-times"
-                class="p-button-secondary flex-1"
-                @click="cancelEditing('status')"
-            />
-          </template>
+          <div class="p-3 border-1 border-300 border-round bg-gray-50 flex align-items-center gap-2">
+            <i class="pi pi-circle-fill text-primary"></i>
+            <span class="font-semibold text-gray-800">
+              {{ getStatusLabel(item.status) }}
+            </span>
+          </div>
         </div>
       </template>
     </pv-card>
@@ -425,6 +457,45 @@ export default {
 
 :deep(.p-card-content) {
   padding: 0.5rem;
+}
+
+/* Estilos para campos requeridos */
+.text-red-500 {
+  color: #ef4444;
+}
+
+/* Estilos para campos inválidos */
+:deep(.p-invalid) {
+  border-color: #ef4444 !important;
+}
+
+:deep(.p-invalid:focus) {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.2) !important;
+}
+
+/* Estilos para dropdown inválido */
+:deep(.p-dropdown.p-invalid) {
+  border-color: #ef4444 !important;
+}
+
+:deep(.p-dropdown.p-invalid:not(.p-disabled):hover) {
+  border-color: #ef4444 !important;
+}
+
+:deep(.p-dropdown.p-invalid:not(.p-disabled).p-focus) {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.2) !important;
+}
+
+/* Estilos para calendar inválido */
+:deep(.p-inputwrapper-invalid .p-inputtext) {
+  border-color: #ef4444 !important;
+}
+
+:deep(.p-inputwrapper-invalid .p-inputtext:focus) {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.2) !important;
 }
 
 </style>
