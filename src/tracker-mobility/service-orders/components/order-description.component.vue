@@ -24,22 +24,14 @@ export default {
     async downloadDocument(type, document = null) {
       try {
         if (!document || !document.url) {
-          this.$toast.add({
-            severity: 'warn',
-            summary: 'Advertencia',
-            detail: 'No se puede descargar el documento: URL no válida',
-            life: 3000
-          });
+          console.warn('No se puede descargar el documento: URL no válida');
           return;
         }
 
-        // Mostrar indicador de carga
-        this.$toast.add({
-          severity: 'info',
-          summary: 'Descargando...',
-          detail: 'Preparando la descarga del documento',
-          life: 2000
-        });
+        console.log('Iniciando descarga de:', document.url);
+
+        // Mostrar toast de inicio de descarga
+        this.showToast('info', 'Descargando...', 'Preparando la descarga del documento');
 
         // Emitir evento para manejo externo si es necesario
         this.$emit('download-document', { type, item: this.item, document });
@@ -47,33 +39,99 @@ export default {
         // Realizar la descarga
         await this.performDownload(document.url, this.generateFileName(type, document));
 
-        // Notificar éxito
-        this.$toast.add({
-          severity: 'success',
-          summary: 'Éxito',
-          detail: 'Documento descargado correctamente',
-          life: 3000
-        });
+        console.log('Documento descargado correctamente');
 
       } catch (error) {
         console.error('Error al descargar documento:', error);
-        this.$toast.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudo descargar el documento. Intente nuevamente.',
-          life: 4000
-        });
+        this.showToast('error', 'Error de descarga', 'No se pudo descargar el documento. Intente nuevamente.');
       }
     },
 
-    async performDownload(url, filename) {
+    showToast(severity, summary, detail, life = 3000) {
       try {
+        // Intentar usar PrimeVue Toast si está disponible
+        if (this.$toast && typeof this.$toast.add === 'function') {
+          this.$toast.add({
+            severity: severity,
+            summary: summary,
+            detail: detail,
+            life: life
+          });
+        } else {
+          // Fallback: usar notificación del navegador o alert
+          this.showBrowserNotification(severity, summary, detail);
+        }
+      } catch (error) {
+        console.warn('Toast no disponible, usando método alternativo:', error);
+        this.showBrowserNotification(severity, summary, detail);
+      }
+    },
+
+    showBrowserNotification(severity, summary, detail) {
+      const message = `${summary}: ${detail}`;
+      
+      // Intentar usar Notification API del navegador
+      if ('Notification' in window) {
+        if (Notification.permission === 'granted') {
+          new Notification(summary, {
+            body: detail,
+            icon: this.getNotificationIcon(severity),
+            tag: 'download-notification'
+          });
+          return;
+        } else if (Notification.permission !== 'denied') {
+          Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+              new Notification(summary, {
+                body: detail,
+                icon: this.getNotificationIcon(severity),
+                tag: 'download-notification'
+              });
+            } else {
+              // Si no hay permisos, usar alert como último recurso
+              alert(message);
+            }
+          });
+          return;
+        }
+      }
+      
+      // Fallback final: alert
+      alert(message);
+    },
+
+    getNotificationIcon(severity) {
+      const icons = {
+        'success': '✅',
+        'info': 'ℹ️',
+        'warn': '⚠️',
+        'error': '❌'
+      };
+      return icons[severity] || 'ℹ️';
+    },
+
+    async performDownload(url, filename) {
+      // Para imágenes, intentar método canvas primero
+      if (this.isImageFile(url)) {
+        console.log('Detectada imagen, usando método canvas para:', url);
+        try {
+          await this.downloadImageWithCanvas(url, filename);
+          return;
+        } catch (error) {
+          console.warn('Método canvas falló, intentando fetch:', error);
+        }
+      }
+
+      try {
+        console.log('Intentando descarga con fetch para:', url);
+        
         // Método 1: Intentar descarga directa con fetch
         const response = await fetch(url, {
           method: 'GET',
           headers: {
             'Accept': '*/*',
           },
+          mode: 'cors'
         });
 
         if (!response.ok) {
@@ -81,44 +139,210 @@ export default {
         }
 
         const blob = await response.blob();
+        console.log('Archivo descargado como blob, tamaño:', blob.size);
         this.downloadBlob(blob, filename);
 
       } catch (error) {
         // Método 2: Fallback - usar enlace directo
-        console.warn('Descarga con fetch falló, intentando método alternativo:', error);
+        console.warn('Descarga con fetch falló, usando método alternativo:', error);
         this.downloadWithLink(url, filename);
       }
     },
 
+    async downloadImageWithCanvas(url, filename) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        
+        img.onload = () => {
+          try {
+            // Crear canvas del tamaño de la imagen
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = img.width;
+            canvas.height = img.height;
+            
+            // Dibujar la imagen en el canvas
+            ctx.drawImage(img, 0, 0);
+            
+            // Convertir canvas a blob y descargar
+            canvas.toBlob((blob) => {
+              if (blob) {
+                console.log('Imagen convertida a blob con canvas, tamaño:', blob.size);
+                this.downloadBlob(blob, filename);
+                resolve();
+              } else {
+                reject(new Error('No se pudo convertir imagen a blob'));
+              }
+            }, 'image/png', 1.0);
+            
+          } catch (error) {
+            reject(error);
+          }
+        };
+        
+        img.onerror = () => {
+          reject(new Error('Error al cargar imagen para canvas'));
+        };
+        
+        // Intentar cargar la imagen
+        img.src = url;
+      });
+    },
+
     downloadBlob(blob, filename) {
-      // Crear URL temporal para el blob
-      const url = window.URL.createObjectURL(blob);
-      
-      // Crear elemento de enlace temporal
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      
-      // Agregar al DOM temporalmente y hacer click
-      document.body.appendChild(link);
-      link.click();
-      
-      // Limpiar
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      try {
+        // Crear URL temporal para el blob
+        const url = window.URL.createObjectURL(blob);
+        console.log('URL del blob creada:', url);
+        
+        // Crear elemento de enlace temporal
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.style.display = 'none';
+        
+        // Agregar al DOM temporalmente y hacer click
+        document.body.appendChild(link);
+        
+        // Simular click para iniciar descarga
+        link.click();
+        
+        console.log('Descarga iniciada para:', filename);
+        
+        // Limpiar después de un breve delay
+        setTimeout(() => {
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+          console.log('Recursos de descarga limpiados');
+        }, 100);
+        
+      } catch (error) {
+        console.error('Error en downloadBlob:', error);
+        throw error;
+      }
     },
 
     downloadWithLink(url, filename) {
-      // Método alternativo para archivos externos o CORS
+      try {
+        console.log('Usando método de descarga directa para:', url);
+        
+        // Para imágenes, intentar método específico
+        if (this.isImageFile(url)) {
+          this.forceImageDownload(url, filename);
+          return;
+        }
+        
+        // Método alternativo para archivos externos o CORS
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename || 'documento';
+        link.target = '_blank';
+        link.style.display = 'none';
+        
+        // Agregar al DOM temporalmente y hacer click
+        document.body.appendChild(link);
+        link.click();
+        
+        console.log('Descarga directa iniciada para:', filename);
+        
+        // Limpiar después de un breve delay
+        setTimeout(() => {
+          if (document.body.contains(link)) {
+            document.body.removeChild(link);
+          }
+        }, 100);
+        
+      } catch (error) {
+        console.error('Error en downloadWithLink:', error);
+        // Último recurso: abrir en nueva ventana
+        window.open(url, '_blank');
+      }
+    },
+
+    forceImageDownload(url, filename) {
+      try {
+        console.log('Forzando descarga de imagen:', url);
+        
+        // Crear un elemento img temporal para verificar que la imagen carga
+        const img = new Image();
+        
+        img.onload = () => {
+          // Una vez que la imagen carga, crear enlace de descarga
+          const link = document.createElement('a');
+          
+          // Intentar diferentes métodos según el navegador
+          if (navigator.userAgent.includes('Chrome') || navigator.userAgent.includes('Edge')) {
+            // Para Chrome/Edge, usar blob URL
+            fetch(url)
+              .then(response => response.blob())
+              .then(blob => {
+                const blobUrl = URL.createObjectURL(blob);
+                link.href = blobUrl;
+                link.download = filename;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                setTimeout(() => {
+                  document.body.removeChild(link);
+                  URL.revokeObjectURL(blobUrl);
+                }, 100);
+              })
+              .catch(() => {
+                // Si falla, usar método directo
+                this.directImageDownload(url, filename);
+              });
+          } else {
+            // Para otros navegadores, método directo
+            this.directImageDownload(url, filename);
+          }
+        };
+        
+        img.onerror = () => {
+          console.warn('Error al cargar imagen, usando método directo');
+          this.directImageDownload(url, filename);
+        };
+        
+        img.src = url;
+        
+      } catch (error) {
+        console.error('Error en forceImageDownload:', error);
+        this.directImageDownload(url, filename);
+      }
+    },
+
+    directImageDownload(url, filename) {
+      console.log('Usando descarga directa para imagen:', filename);
+      
+      // Método directo - funciona en la mayoría de casos
       const link = document.createElement('a');
       link.href = url;
       link.download = filename;
-      link.target = '_blank'; // Abrir en nueva pestaña si la descarga directa falla
+      link.target = '_blank';
       
-      // Agregar al DOM temporalmente y hacer click
+      // Agregar atributos adicionales para forzar descarga
+      link.setAttribute('download', filename);
+      link.style.display = 'none';
+      
       document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      
+      // Simular click del usuario
+      const event = new MouseEvent('click', {
+        view: window,
+        bubbles: true,
+        cancelable: true
+      });
+      
+      link.dispatchEvent(event);
+      
+      setTimeout(() => {
+        if (document.body.contains(link)) {
+          document.body.removeChild(link);
+        }
+      }, 100);
+      
+      console.log('Descarga directa de imagen iniciada');
     },
 
     generateFileName(type, document) {
