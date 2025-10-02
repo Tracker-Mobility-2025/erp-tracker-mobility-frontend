@@ -34,8 +34,8 @@ export default {
       selectedStatus: null, // Estado seleccionado en el filtro
       statusOptions: [      // Opciones de estado para el filtro
         { label: 'Todos', value: null },
-        { label: 'Activo', value: 'Activo' },
-        { label: 'Inactivo', value: 'Inactivo' },
+        { label: 'Activo', value: 'ACTIVO' },
+        { label: 'Inactivo', value: 'INACTIVO' },
       ],
 
       title: {
@@ -134,9 +134,9 @@ export default {
 
     getStatusItemsArray(status) {
       switch (status) {
-        case 'Activo':
+        case 'ACTIVO':
           return 'success';
-        case 'Inactivo':
+        case 'INACTIVO':
           return 'danger';
         default:
           return 'info';
