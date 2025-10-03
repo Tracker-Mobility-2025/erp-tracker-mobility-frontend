@@ -137,10 +137,15 @@ export default {
     },
 
     // Nuevos métodos para acciones de cliente
-    onViewItem(client) {
-      this.itemClient = client;
-      console.log('Ver detalles del cliente:', client);
-      // Aquí puedes implementar la lógica para mostrar detalles
+    onViewItem(item) {
+      this.itemClient = item;
+      console.log('Ver detalles del cliente:', item);
+      // router para navegar a una página de detalles.
+      this.$router.push({
+        name: 'client-detail',
+        query: { id: item.id }
+      });
+
     },
 
     onEditItem(client) {
