@@ -1,29 +1,36 @@
 import axios from "axios";
 
-const http = axios.create({baseURL: "http://localhost:3000/api"});
+const http = axios.create({baseURL: "https://web-service-tracker-mobility-production.up.railway.app/api/v1"});
 
 
 export class ReportsApiService {
+
     constructor(_resourceEndpoint) {
         this.resourceEndpoint = _resourceEndpoint;
     }
 
+
+    // Retornar todos los reportes -> /api/v1/verification-reports
     getAll() {
         return http.get(this.resourceEndpoint);
     }
 
+    // Retornar todos los reportes por ID de verificador -> /api/v1/verification-reports/verifier/{verifierId}
     getById(id) {
         return http.get(`${this.resourceEndpoint}/${id}`);
     }
 
+    // Retornar todos los reportes por ID de verificador -> /api/v1/verification-reports/verifier/{verifierId}
     create(data) {
         return http.post(this.resourceEndpoint, data);
     }
 
+    // Eliminar un reporte por ID -> /api/v1/verification-reports/{reportId}
     delete(id) {
         return http.delete(`${this.resourceEndpoint}/${id}`);
     }
 
+    // Actualizar un reporte por ID -> /api/v1/verification-reports/{reportId}
     update(id, data) {
         return http.put(`${this.resourceEndpoint}/${id}`, data);
     }

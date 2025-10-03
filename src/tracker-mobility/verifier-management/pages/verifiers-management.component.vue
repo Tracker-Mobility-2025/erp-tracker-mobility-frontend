@@ -165,8 +165,6 @@ export default {
       }
     },
 
- 
-
     onCancelRequested() {
       console.log('Cancelado creación/edición de verificador');
       this.createAndEditDialogIsVisible = false;
@@ -284,7 +282,6 @@ export default {
       });
 
     },
-
 
     getAllVerifiersByAdminId(adminId) {
       this.loading = true;

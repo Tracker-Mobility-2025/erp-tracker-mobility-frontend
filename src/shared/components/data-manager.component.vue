@@ -110,7 +110,6 @@ export default {
       this.$refs.dt.exportCSV();
     },
 
-
     onRowSelect(event) {
       this.$emit('row-select', event);
     },

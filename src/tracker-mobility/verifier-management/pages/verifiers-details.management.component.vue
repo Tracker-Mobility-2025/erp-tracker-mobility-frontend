@@ -5,6 +5,7 @@ import {Verifier} from "../models/verifiers.entity.js";
 import ListAssignedOrders from "../components/list-assigned-orders.component.vue";
 import {VerifierApiService} from "../services/verifier-api.service.js";
 import {Order} from "../models/order.entity.js";
+import {OrderRequestApi} from "../../service-orders/services/order-request-api.service.js";
 
 export default {
   name: 'verifiers-details-management',
@@ -13,6 +14,13 @@ export default {
 
   data() {
     return {
+
+      // Servicio de Order
+      orderRequestApi: new OrderRequestApi('/orders'),
+
+      // Objeto para actualizar orden
+      updateOrder: null,
+
       isEdit:false,
       submitted: false,
 
@@ -40,20 +48,6 @@ export default {
       this.update();
     },
 
-    // Eliminar verificador
-    onDeleteVerifier() {
-      // Lógica de implementación para eliminar verificador
-
-
-    },
-
-    // Editar verificador
-    onEditVerifier(item) {
-      this.item = new Verifier({})
-      this.isEdit = true
-      this.submitted = false
-    },
-
     // Guardar verificador
     update(){
 
@@ -75,39 +69,52 @@ export default {
     },
 
     // Remover orden de la lista de órdenes asignadas
-    async handleRemoveOrder(order) {
-      try {
-        console.log('Removiendo orden:', order);
-        
-        // Simular llamada a API (reemplazar con llamada real)
-        // await this.orderService.removeAssignedOrder(this.item.id, order.id);
-        
-        // Actualizar la lista local removiendo la orden
-        this.item.assignedOrders = this.item.assignedOrders.filter(o => o.id !== order.id);
-        
-        // Mostrar mensaje de éxito
-        this.$toast.add({
-          severity: 'success',
-          summary: 'Orden removida',
-          detail: `La orden ${order.id} ha sido removida exitosamente de ${this.item.name}`,
-          life: 3000
-        });
-        
-        console.log('Orden removida exitosamente. Órdenes restantes:', this.item.assignedOrders);
-        
-      } catch (error) {
-        console.error('Error al remover la orden:', error);
-        
-        // Mostrar mensaje de error
-        this.$toast.add({
-          severity: 'error',
-          summary: 'Error al remover',
-          detail: 'No se pudo remover la orden. Inténtalo nuevamente.',
-          life: 3000
-        });
+    onRemoveOrder(order) {
+
+      console.log('Removiendo orden del verificador:', order);
+      this.updateOrder = {
+        "homeVisitDetails": {
+          "verifierId": null,
+          "visitDate": "",
+          "visitTime": ""
+        }
       }
+
+      console.log('Datos para actualizar la orden:', this.updateOrder + ' para la orden ID: ' + order.id);
+
+      this.orderRequestApi.updateOrderById(order.id, this.updateOrder).then(response => {
+        console.log('Orden actualizada:', response.data);
+        this.$toast.add({severity:'success', summary: 'Éxito', detail: 'Orden removida del verificador correctamente', life: 3000});
+
+        // Actualizar la lista de órdenes asignadas en la interfaz
+        this.assignedOrders = this.assignedOrders.filter(o => o.id !== order.id);
+
+      }).catch(error => {
+        console.error('Error al actualizar orden:', error);
+        console.error('Detalles del error:', error.response?.data);
+        this.$toast.add({severity:'error', summary: 'Error', detail: 'No se pudo remover la orden del verificador', life: 3000});
+      });
+
     },
 
+    // Método para confirmar si quiere remover la orden del verificador
+    confirmRemoveOrder(order) {
+      this.$confirm.require({
+        message: '¿Está seguro que desea remover esta orden del verificador?',
+        header: 'Confirmar',
+        icon: 'pi pi-exclamation-triangle',
+        rejectClass: 'p-button-secondary p-button-outlined',
+        rejectLabel: 'Cancelar',
+        acceptLabel: 'Remover',
+        acceptClass: 'p-button-danger',
+        accept: () => {
+          this.onRemoveOrder(order);
+        },
+        reject: () => {
+          // Acción al rechazar (opcional)
+        }
+      });
+    },
 
     // Recuperamos los datos del verificador por su ID (simulado)
     getVerifierById(verifierId) {
@@ -127,7 +134,6 @@ export default {
         console.error('Error al recuperar verificador:', error);
       })
     },
-
 
     // Recuperar órdenes asignadas (simulado)
     getAssignedOrdersByVerifierId(verifierId) {
@@ -167,6 +173,9 @@ export default {
 
 <template>
 
+  <!-- dialogo de confirmación -->
+  <pv-confirm-dialog />
+
   <!-- Detalles de la orden de servicio (se divide en cards tipo grid)-->
   <div class="order-container flex flex-column p-4 h-full w-full overflow-auto " >
 
@@ -193,8 +202,6 @@ export default {
           :edit="isEdit"
           :submitted="submitted"
           @save-verifier="onSaveVerifier($event)"
-          @delete-verifier="onDeleteVerifier"
-          @edit-verifier="onEditVerifier"
           @cancel-edit="OnCancelEdit"
       />
 
@@ -202,7 +209,7 @@ export default {
 
       <list-assigned-orders
           :items="assignedOrders"
-          @remove-order="handleRemoveOrder"
+          @remove-order="confirmRemoveOrder"
       />
     </div>
 

@@ -95,45 +95,11 @@ export default {
     },
 
     removeOrder(order){
-      // Solo emitir evento al componente padre
+      console.log('Intentando remover orden:', order);
+
+      // Emitir evento al componente padre para manejar la remoción
       this.$emit('remove-order', order);
     },
-
-    confirmRemoveOrder(order) {
-      // Validar si la orden puede ser removida
-      if (order.status !== 'ASIGNADO') {
-        this.$toast.add({
-          severity: 'warn',
-          summary: 'Acción no permitida',
-          detail: 'Solo se pueden remover órdenes con estado "ASIGNADO"',
-          life: 3000
-        });
-        return;
-      }
-
-      // Mostrar confirmación antes de remover
-      this.$confirm.require({
-        message: `¿Estás seguro de que deseas remover la orden ${order.orderCode} de la lista de órdenes asignadas?`,
-        header: 'Confirmar eliminación',
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Sí, remover',
-        rejectLabel: 'Cancelar',
-        acceptClass: 'p-button-danger',
-        accept: () => {
-          // Solo emitir evento al componente padre
-          this.$emit('remove-order', order);
-        },
-        reject: () => {
-          // No hacer nada si se cancela
-        }
-      });
-    },
-
-    canRemoveOrder(order) {
-      // Verificar si una orden puede ser removida (solo las ASIGNADO)
-      return order.status === 'ASIGNADO';
-    },
-
 
   },
 
@@ -204,8 +170,7 @@ export default {
                 'text-red-500 hover:text-red-700 cursor-pointer': order.status === 'ASIGNADO',
                 'text-gray-300 cursor-not-allowed': order.status === 'FINALIZADO' || order.status === 'EN_PROCESO'
               }"
-              v-tooltip.top="canRemoveOrder(order) ? 'Remover orden de la lista' : 'Solo se pueden remover órdenes con estado ASIGNADO'"
-              @click="canRemoveOrder(order) ? confirmRemoveOrder(order) : null"
+              @click="removeOrder(order)"
           ></i>
 
 

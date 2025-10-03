@@ -9,7 +9,6 @@ export class VerifierApiService {
         this.resourceEndpoint = _resourceEndpoint;
     }
 
-
     // Retornar todos los verificadores por ID de admin -> /api/v1/verifiers/admin/{adminId}
     getAllByAdminId(adminId) {
         return http.get(`${this.resourceEndpoint}/admin/${adminId}`);

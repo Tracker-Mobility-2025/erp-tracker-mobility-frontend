@@ -33,5 +33,10 @@ export class OrderRequestApi {
         return http.post(`${this.resourceEndpoint}/${orderId}/assign-verifier`, data);
     }
 
+    // Actualizar orden por Id
+    updateOrderById(orderId, data) {
+        return http.patch(`${this.resourceEndpoint}/${orderId}`, data);
+    }
+
 
 }

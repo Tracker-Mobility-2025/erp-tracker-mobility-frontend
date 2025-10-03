@@ -146,36 +146,15 @@ export default {
       return `${year}-${month}-${day}`;
     },
 
-    onNewItemRequested() {
-      console.log('Crear nueva orden de verificación');
-      // Implementar navegación a formulario de creación
-    },
-
+    // Eliminar múltiples órdenes seleccionadas
     onDeleteSelectedItems(selectedItems) {
-      console.log('Eliminar órdenes seleccionadas:', selectedItems);
-      // Implementar lógica de eliminación múltiple
+      // Recorrer cada orden seleccionada y eliminarla
       selectedItems.forEach(item => {
-        const index = this.itemsArray.findIndex(order => order.id === item.id);
-        if (index > -1) {
-          this.itemsArray.splice(index, 1);
-        }
+        this.deleteOrder(item.id);
       });
     },
 
-    onDeleteItem(item) {
-      console.log('Eliminar orden:', item);
-      // Implementar lógica de eliminación individual
-      const index = this.itemsArray.findIndex(order => order.id === item.id);
-      if (index > -1) {
-        this.itemsArray.splice(index, 1);
-      }
-    },
-
-    onEditItem(item) {
-      console.log('Editar orden:', item);
-      // Implementar navegación a formulario de edición
-    },
-
+    // Navegar a la vista de detalles de la orden
     onViewItem(item) {
       console.log('Ver detalles de orden:', item);
       // Implementar navegación a vista de detalles
@@ -190,24 +169,19 @@ export default {
 
     },
 
-    onRowSelect(event) {
-      console.log('Fila seleccionada:', event);
-    },
-
-    onRowUnselect(event) {
-      console.log('Fila deseleccionada:', event);
-    },
-
+    // Limpia todos los filtros (global, estado, fecha)
     onClearFilters() {
       this.globalFilterValue = '';
       this.selectedStatus = null;
       this.selectedDate = null;
     },
 
+    // Actualiza el valor del filtro global
     onGlobalFilterChange(value) {
       this.globalFilterValue = value;
     },
 
+    // Retorna la severidad para el tag de estado
     getStatusSeverity(status) {
       switch (status) {
         case 'PENDIENTE':
@@ -221,6 +195,24 @@ export default {
         default:
           return 'info';
       }
+    },
+
+    deleteOrder(orderId) {
+
+      this.loading = true;
+      this.orderRequestApi.delete(orderId).then(() => {
+        // Eliminar la orden del array local
+        this.itemsArray = this.itemsArray.filter(order => order.id !== orderId);
+        // Mostrar mensaje de éxito
+        this.$toast.add({ severity: 'success', summary: 'Éxito', detail: 'Orden eliminada correctamente', life: 3000 });
+
+      }).catch(error => {
+
+        console.error('Error al eliminar la orden:', error);
+
+      }).finally(() => {
+        this.loading = false;
+      });
     },
 
     // Retornar todas las órdenes desde la API (si se implementa)
@@ -296,13 +288,9 @@ export default {
       delete-button-label="Eliminar"
       export-button-label="Exportar"
       search-placeholder="Busca por código de orden, solicitante, verificador..."
-      @new-item-requested-manager="onNewItemRequested"
       @delete-selected-items-requested-manager="onDeleteSelectedItems"
       @delete-item-requested-manager="onDeleteItem"
-      @edit-item-requested-manager="onEditItem"
       @view-item-requested-manager="onViewItem"
-      @row-select="onRowSelect"
-      @row-unselect="onRowUnselect"
       @global-filter-change="onGlobalFilterChange"
       @clear-filters="onClearFilters"
     >
