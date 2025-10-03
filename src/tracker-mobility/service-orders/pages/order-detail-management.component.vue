@@ -143,7 +143,7 @@ export default {
     <!-- Breadcrumb -->
     <div class="text-base">
       <router-link
-          to="/admin/service-orders"
+          :to="{ name: 'service-orders' }"
           class="font-bold text-gray-900 no-underline hover:underline cursor-pointer"
       >
         Órdenes
