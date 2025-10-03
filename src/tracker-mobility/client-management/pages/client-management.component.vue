@@ -1,12 +1,12 @@
 <script>
 
-import ModuleUnderDevelopment from "../../../public/components/module-under-development.component.vue";
+import ClientCreateAndEdit from "../components/client-create-and-edit.component.vue";
 import {ClientTrackerApiService} from "../services/client-tracker-api.service.js";
 import {ClientTracker} from "../models/client-tracker-mobility.entity.js";
 
 export default {
   name:'client-management',
-  components: {ModuleUnderDevelopment},
+  components: {ClientCreateAndEdit},
 
   data () {
     return {
@@ -38,7 +38,7 @@ export default {
       // Estados para crear, editar ver diálogo
       isEdit: false,
       submitted: false,
-      createAndEditDialogIsVisible: true,
+      createAndEditDialogIsVisible: false,
 
       // Opciones para el dropdown de estado
       statusOptions: [
@@ -126,8 +126,19 @@ export default {
     },
 
 
-    onSaveRequested(item){
-
+    onSaveRequested(item) {
+      console.log('Guardar cliente:', item);
+      this.submitted = true;
+      
+      if (this.isEdit) {
+        this.update(item);
+      } else {
+        this.create(item);
+      }
+      
+      this.createAndEditDialogIsVisible = false;
+      this.isEdit = false;
+      this.itemClient = null;
     },
 
 
@@ -147,14 +158,27 @@ export default {
     onEditClient(client) {
       this.itemClient = client;
       this.isEdit = true;
+      this.submitted = false;
       this.createAndEditDialogIsVisible = true;
       console.log('Editar cliente:', client);
     },
 
     onDeleteClient(client) {
-      this.itemClient = client;
       console.log('Eliminar cliente:', client);
-      // Aquí puedes implementar la lógica de confirmación y eliminación
+      
+      // Confirmar eliminación con el usuario
+      this.$confirm.require({
+        message: `¿Está seguro de eliminar el cliente ${client.companyName}?`,
+        header: 'Confirmar eliminación',
+        icon: 'pi pi-exclamation-triangle',
+        acceptClass: 'p-button-danger',
+        accept: () => {
+          this.deleteClient(client.id);
+        },
+        reject: () => {
+          console.log('Eliminación cancelada');
+        }
+      });
     },
 
     // Manejar cambio de página
@@ -163,27 +187,112 @@ export default {
     },
 
 
-    create(){
+    create(clientData) {
+      this.loading = true;
+      
+      const newClient = new ClientTracker(clientData);
+      console.log('Creando cliente:', newClient);
 
-      this.clientTrackerApiService.create(this.createItem).then(response => {
-
-
-      }).catch(error => {
-        console.error("Error creating client:", error);
-      });
-
-
+      // Para simulación, agregar directamente al array
+      // En producción, esto usaría la API real:
+      // this.clientTrackerApiService.create(newClient)
+      
+      try {
+        // Simular ID autogenerado
+        newClient.id = Math.max(...this.clientArray.map(c => c.id), 0) + 1;
+        
+        this.clientArray.push(newClient);
+        
+        // Mostrar mensaje de éxito
+        this.$toast.add({
+          severity: 'success',
+          summary: 'Cliente creado',
+          detail: `El cliente ${newClient.companyName} ha sido creado exitosamente`,
+          life: 4000
+        });
+        
+      } catch (error) {
+        console.error('Error al crear cliente:', error);
+        
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Error al crear cliente',
+          detail: 'No se pudo crear el cliente. Por favor, intente nuevamente.',
+          life: 4000
+        });
+      } finally {
+        this.loading = false;
+      }
     },
 
-    update(){
+    update(clientData) {
+      this.loading = true;
+      
+      console.log('Actualizando cliente:', clientData);
+      
+      try {
+        // Encontrar y actualizar el cliente en el array
+        const index = this.clientArray.findIndex(c => c.id === clientData.id);
+        if (index > -1) {
+          // Mantener el ID original y actualizar los demás campos
+          this.clientArray[index] = new ClientTracker({
+            ...clientData,
+            id: this.clientArray[index].id
+          });
+          
+          // Mostrar mensaje de éxito
+          this.$toast.add({
+            severity: 'success',
+            summary: 'Cliente actualizado',
+            detail: `El cliente ${clientData.companyName} ha sido actualizado exitosamente`,
+            life: 4000
+          });
+        }
+        
+      } catch (error) {
+        console.error('Error al actualizar cliente:', error);
+        
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Error al actualizar cliente',
+          detail: 'No se pudo actualizar el cliente. Por favor, intente nuevamente.',
+          life: 4000
+        });
+      } finally {
+        this.loading = false;
+      }
+    },
 
-    this.clientTrackerApiService.update(this.itemClient.id, this.itemClient).then(response => {
-
-
-      }).catch(error => {
-        console.error("Error updating client:", error);
-      });
-
+    deleteClient(clientId) {
+      this.loading = true;
+      
+      try {
+        // Encontrar el cliente antes de eliminarlo para mostrar el mensaje
+        const clientToDelete = this.clientArray.find(c => c.id === clientId);
+        
+        // Eliminar del array local
+        this.clientArray = this.clientArray.filter(c => c.id !== clientId);
+        
+        // Mostrar mensaje de éxito
+        this.$toast.add({
+          severity: 'success',
+          summary: 'Cliente eliminado',
+          detail: `El cliente ${clientToDelete?.companyName || ''} ha sido eliminado exitosamente`,
+          life: 4000
+        });
+        
+      } catch (error) {
+        console.error('Error al eliminar cliente:', error);
+        
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Error al eliminar',
+          detail: 'No se pudo eliminar el cliente',
+          life: 4000
+        });
+      } finally {
+        this.loading = false;
+      }
     },
 
 
@@ -545,6 +654,15 @@ export default {
         />
       </div>
     </div>
+
+    <!-- Diálogo para crear/editar cliente -->
+    <client-create-and-edit
+        :edit="isEdit"
+        :item="itemClient"
+        :visible="createAndEditDialogIsVisible"
+        @cancel-requested="onCancelRequested"
+        @save-requested="onSaveRequested"
+    />
 
   </div>
 </template>
