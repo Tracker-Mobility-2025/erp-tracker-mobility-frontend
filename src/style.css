@@ -265,7 +265,7 @@ input:disabled, textarea:disabled, select:disabled {
 }
 
 /* Clases utilitarias de texto para estados */
-.text-primary {
+.text-primary-local {
     color: var(--color-primary) !important;
 }
 
@@ -403,8 +403,8 @@ input:disabled, textarea:disabled, select:disabled {
 /* Variables adicionales para tablas con mejor contraste */
 :root {
     /* Colores específicos para tablas */
-    --table-header-bg: #f1f5f9;
-    --table-header-text: #374151;
+    --table-header-bg: #4A60D0;
+    --table-header-text: var(--color-white);
     --table-header-border: #e5e7eb;
     --table-row-even: #fafbfc;
     --table-row-odd: var(--color-white);
@@ -418,7 +418,7 @@ input:disabled, textarea:disabled, select:disabled {
     
     /* Colores de contraste mejorado */
     --contrast-bg-primary: #f8fafc;
-    --contrast-bg-secondary: #f1f5f9;
+    --contrast-bg-secondary: #3949AB;
     --contrast-text-primary: #1f2937;
     --contrast-text-secondary: #4b5563;
     --contrast-border-light: #f3f4f6;
@@ -909,7 +909,7 @@ input:disabled, textarea:disabled, select:disabled {
 
 /* Los estilos de thead y tbody ya están definidos globalmente arriba */
 /* Pero mantenemos compatibilidad específica si es necesario */
-.p-datatable .p-datatable-thead > tr > th {
+.p-datatable .p-datatable-thead > tr > th .p-datatable-sort-icon {
     background: var(--table-header-bg) !important;
     color: var(--table-header-text) !important;
     border-color: var(--table-header-border) !important;
