@@ -24,6 +24,8 @@ import DetailsHomeVerificationReportComponent
     from "../tracker-mobility/verification-reports/pages/details-home-verification-report.component.vue";
 import DashboardManagementComponent from "../tracker-mobility/dashboard/pages/dashboard-management.component.vue";
 import ClientManagementComponent from "../tracker-mobility/client-management/pages/client-management.component.vue";
+import ClientDetailsManagementComponent
+    from "../tracker-mobility/client-management/pages/client-details-management.component.vue";
 
 
 
@@ -117,6 +119,13 @@ const router = createRouter({
                     component: ClientManagementComponent,
                     meta: {title: 'Clientes'}
                 },
+                {
+                    path: 'admin/client-detail',
+                    name: 'client-detail',
+                    component: ClientDetailsManagementComponent,
+                    meta: {title: 'Detalle del cliente'}
+                }
+
                 //========================================================
 
 
