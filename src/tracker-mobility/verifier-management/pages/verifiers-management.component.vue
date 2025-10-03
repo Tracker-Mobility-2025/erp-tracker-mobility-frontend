@@ -137,14 +137,6 @@ export default {
       });
     },
 
-    onRowSelect(event) {
-      console.log('Fila seleccionada:', event);
-    },
-
-    onRowUnselect(event) {
-      console.log('Fila deseleccionada:', event);
-    },
-
     onClearFilters() {
       this.globalFilterValue = '';
       this.selectedStatus = null;
@@ -328,7 +320,7 @@ export default {
   <div class="h-full overflow-hidden flex flex-column p-4">
 
     <!-- Título de la página -->
-    <h2 class="text-2xl font-bold mb-2">Gestión de verificadores</h2>
+    <h2 class="text-3xl font-bold mb-2">Gestión de verificadores</h2>
     <p> Gestiona los perfiles de verificadores, incluyendo información de contacto, credenciales de acceso y
       asignación de ordenes de servicio </p>
 
@@ -358,8 +350,6 @@ export default {
         @delete-selected-items-requested-manager="onDeleteSelectedItems"
         @delete-item-requested-manager="onDeleteItem"
         @view-item-requested-manager="onViewItem"
-        @row-select="onRowSelect"
-        @row-unselect="onRowUnselect"
         @global-filter-change="onGlobalFilterChange"
         @clear-filters="onClearFilters"
     >

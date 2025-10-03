@@ -137,6 +137,7 @@ export default {
       <!-- Custom filters slot -->
       <div class="flex w-full gap-2 mb-4 flex-wrap">
 
+        <!-- Global Search Input -->
         <pv-icon-field class="flex-grow-1">
           <pv-input-icon class="pi pi-search" />
           <pv-input-text

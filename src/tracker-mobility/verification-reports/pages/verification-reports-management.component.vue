@@ -173,7 +173,7 @@ export default {
   <div class="h-full overflow-hidden flex flex-column p-4">
 
     <!-- Título de la página -->
-    <h2 class="text-2xl font-bold mb-2"> Reportes de visitas domiciliarias </h2>
+    <h2 class="text-3xl font-bold mb-2"> Reportes de visitas domiciliarias </h2>
     <p> Informes detallados de las visitas domiciliarias para las órdenes de servicio </p>
 
     <data-manager

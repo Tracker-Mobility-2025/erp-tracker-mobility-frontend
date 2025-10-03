@@ -8,6 +8,7 @@ export class ClientTracker {
             RUC = null,
             companyName = null,
             role = null,
+            status = null,
         }
     )
     {
@@ -15,6 +16,7 @@ export class ClientTracker {
         this.RUC = RUC;
         this.companyName = companyName;
         this.role = role;
+        this.status = status;
     }
 
 
