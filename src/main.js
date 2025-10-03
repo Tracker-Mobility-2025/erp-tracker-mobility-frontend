@@ -55,7 +55,7 @@ import {
     AccordionHeader,
     AccordionPanel,
     AutoComplete,
-    Badge, Calendar, Chips, Dropdown, InputMask, InputSwitch, ProgressBar, ProgressSpinner,
+    Badge, Calendar, Chips, Dropdown, InputMask, InputSwitch, Paginator, ProgressBar, ProgressSpinner,
     SplitButton,
     TabPanels
 } from "primevue";
@@ -172,6 +172,7 @@ app.component('pv-button', Button)
     .component('pv-file-upload', FileUpload)
     .component('pv-progress-spinner', ProgressSpinner)
     .component('pv-input-mask', InputMask )
-    .component('pv-chip', Chip);
+    .component('pv-chip', Chip)
+    .component('pv-paginator', Paginator);
 
 app.mount('#app')

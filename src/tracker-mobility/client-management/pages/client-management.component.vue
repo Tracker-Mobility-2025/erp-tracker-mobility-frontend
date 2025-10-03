@@ -25,8 +25,7 @@ export default {
       employeeArray: [], // Array de empleados del cliente
       itemEmployee: null, // Empleado del cliente
 
-      // Clientes filtrados y empleados filtrados
-      filteredClients: [],
+      // Empleados filtrados
       filteredEmployees: [],
 
       // Contenido de la barra de búsqueda
@@ -47,6 +46,11 @@ export default {
         { label: 'Activo', value: 'ACTIVE' },
         { label: 'Inactivo', value: 'INACTIVE' }
       ],
+
+      // Paginación
+      currentPage: 0,
+      pageSize: 6, // Mostrar 6 elementos por página
+      totalRecords: 0,
 
     };
   },
@@ -73,6 +77,18 @@ export default {
       }
 
       return filtered;
+    },
+
+    // Clientes paginados
+    paginatedClients() {
+      const start = this.currentPage * this.pageSize;
+      const end = start + this.pageSize;
+      return this.filteredClients.slice(start, end);
+    },
+
+    // Total de registros para paginación
+    totalFilteredRecords() {
+      return this.filteredClients.length;
     },
   },
 
@@ -118,7 +134,7 @@ export default {
     onClearFilters() {
       this.search = '';
       this.selectStatus = '';
-      // No necesitamos asignar filteredClients manualmente ya que es computed
+      this.currentPage = 0; // Resetear a la primera página
     },
 
     // Nuevos métodos para acciones de cliente
@@ -139,6 +155,11 @@ export default {
       this.itemClient = client;
       console.log('Eliminar cliente:', client);
       // Aquí puedes implementar la lógica de confirmación y eliminación
+    },
+
+    // Manejar cambio de página
+    onPageChange(event) {
+      this.currentPage = event.page;
     },
 
 
@@ -241,7 +262,42 @@ export default {
           companyName: 'Transportes del Norte',
           role: 'CLIENTE',
           status: 'INACTIVE'
-        })
+        }),
+        new ClientTracker({
+          id: 11,
+          RUC: '21098765432',
+          companyName: 'Servicios Financieros Lima',
+          role: 'CLIENTE',
+          status: 'ACTIVE'
+        }),
+        new ClientTracker({
+          id: 12,
+          RUC: '21109876543',
+          companyName: 'Comercializadora Andina',
+          role: 'CLIENTE',
+          status: 'ACTIVE'
+        }),
+        new ClientTracker({
+          id: 13,
+          RUC: '21210987654',
+          companyName: 'Logística Integral SAC',
+          role: 'CLIENTE',
+          status: 'INACTIVE'
+        }),
+        new ClientTracker({
+          id: 14,
+          RUC: '21321098765',
+          companyName: 'Constructora del Pacífico',
+          role: 'CLIENTE',
+          status: 'ACTIVE'
+        }),
+        new ClientTracker({
+          id: 15,
+          RUC: '21432109876',
+          companyName: 'Agroindustria Los Andes',
+          role: 'CLIENTE',
+          status: 'INACTIVE'
+        }),
       ];
 
       /*
@@ -267,6 +323,16 @@ export default {
   },
 
 
+  watch: {
+    // Resetear página cuando cambian los filtros
+    search() {
+      this.currentPage = 0;
+    },
+    selectStatus() {
+      this.currentPage = 0;
+    }
+  },
+
   created() {
     // Inicializar servicio de cliente
     //this.clientTrackerApiService = new ClientTrackerApiService('/clients');
@@ -284,7 +350,7 @@ export default {
 <template>
   <div class="h-full overflow-hidden flex flex-column p-4">
     <!-- Header con título + descripción y resúmenes -->
-    <div class="flex justify-content-between align-items-center gap-1">
+    <div class="flex justify-content-between align-items-center mb-1">
       <!-- Título y descripción -->
       <div class="flex flex-column">
         <h2 class="text-3xl font-bold mb-2">Gestión de Clientes</h2>
@@ -315,8 +381,6 @@ export default {
         </div>
       </div>
     </div>
-
-
 
     <!-- Card con barra de búsqueda, filtro por estado y botón para limpiar filtros -->
     <div class="surface-card p-4 border-round shadow-2 mb-4">
@@ -370,92 +434,163 @@ export default {
     </div>
 
     <!-- Tarjetas de clientes -->
-    <div class="grid">
-      <div 
-        v-for="client in filteredClients" 
-        :key="client.id"
-        class="col-12 md:col-6 lg:col-4"
-      >
-        <div class="surface-card p-4 border-round shadow-2 h-full">
-          <!-- Header de la tarjeta con estado -->
-          <div class="flex justify-content-between align-items-start mb-3">
-            <div class="flex align-items-center gap-2">
-              <i class="pi pi-building text-primary text-xl"></i>
-              <span 
-                :class="{
-                  'bg-green-100 text-green-800': client.status === 'ACTIVE',
-                  'bg-red-100 text-red-800': client.status === 'INACTIVE'
-                }"
-                class="px-2 py-1 border-round text-xs font-semibold"
-              >
-                {{ client.status === 'ACTIVE' ? 'Activo' : 'Inactivo' }}
-              </span>
-            </div>
-          </div>
-
-          <!-- Información del cliente -->
-          <div class="mb-4">
-            <h4 class="text-lg font-bold text-900 mb-2 line-height-3">{{ client.companyName }}</h4>
-            <div class="flex flex-column gap-2">
+    <div class="flex-grow-1 flex flex-column" style="min-height: 0;">
+      <div class="cards-container overflow-auto flex-grow-1" style="min-height: 0;">
+        <div 
+          v-for="client in paginatedClients" 
+          :key="client.id"
+          class="card-item"
+        >
+          <div class="surface-card p-4 border-round shadow-2 h-full">
+            <!-- Header de la tarjeta con estado -->
+            <div class="flex justify-content-between align-items-start mb-3">
               <div class="flex align-items-center gap-2">
-                <i class="pi pi-id-card text-500"></i>
-                <span class="text-600 text-sm font-medium">RUC:</span>
-                <span class="text-900 font-semibold">{{ client.RUC }}</span>
+                <i class="pi pi-building text-primary text-xl"></i>
+                <span 
+                  :class="{
+                    'bg-green-100 text-green-800': client.status === 'ACTIVE',
+                    'bg-red-100 text-red-800': client.status === 'INACTIVE'
+                  }"
+                  class="px-2 py-1 border-round text-xs font-semibold"
+                >
+                  {{ client.status === 'ACTIVE' ? 'Activo' : 'Inactivo' }}
+                </span>
               </div>
             </div>
-          </div>
 
-          <!-- Botones de acción -->
-          <div class="flex gap-2">
-            <pv-button
-              icon="pi pi-eye"
-              severity="info"
-              outlined
-              size="small"
-              @click="onViewClient(client)"
-              v-tooltip="'Ver detalles'"
-              class="flex-1"
-            />
-            <pv-button
-              icon="pi pi-pencil"
-              severity="warning"
-              outlined
-              size="small"
-              @click="onEditClient(client)"
-              v-tooltip="'Editar cliente'"
-              class="flex-1"
-            />
-            <pv-button
-              icon="pi pi-trash"
-              severity="danger"
-              outlined
-              size="small"
-              @click="onDeleteClient(client)"
-              v-tooltip="'Eliminar cliente'"
-              class="flex-1"
-            />
+            <!-- Información del cliente -->
+            <div class="mb-4">
+              <h4 class="text-lg font-bold text-900 mb-2 line-height-3">{{ client.companyName }}</h4>
+              <div class="flex flex-column gap-2">
+                <div class="flex align-items-center gap-2">
+                  <i class="pi pi-id-card text-500"></i>
+                  <span class="text-600 text-sm font-medium">RUC:</span>
+                  <span class="text-900 font-semibold">{{ client.RUC }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="flex gap-2">
+              <pv-button
+                icon="pi pi-eye"
+                severity="info"
+                outlined
+                size="small"
+                @click="onViewClient(client)"
+                v-tooltip="'Ver detalles'"
+                class="flex-1"
+              />
+              <pv-button
+                icon="pi pi-pencil"
+                severity="warning"
+                outlined
+                size="small"
+                @click="onEditClient(client)"
+                v-tooltip="'Editar cliente'"
+                class="flex-1"
+              />
+              <pv-button
+                icon="pi pi-trash"
+                severity="danger"
+                outlined
+                size="small"
+                @click="onDeleteClient(client)"
+                v-tooltip="'Eliminar cliente'"
+                class="flex-1"
+              />
+            </div>
           </div>
         </div>
+      </div>
+
+      <!-- Paginador -->
+      <div v-if="totalFilteredRecords > 0" class="mt-3 flex-shrink-0">
+        <pv-paginator
+          :first="currentPage * pageSize"
+          :rows="pageSize"
+          :totalRecords="totalFilteredRecords"
+          @page="onPageChange"
+          template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+        />
       </div>
     </div>
 
     <!-- Mensaje cuando no hay clientes -->
-    <div v-if="filteredClients.length === 0" class="text-center py-8">
-      <i class="pi pi-inbox text-6xl text-400 mb-3 block"></i>
-      <h3 class="text-900 mb-2">No se encontraron clientes</h3>
-      <p class="text-600 mb-4">{{ search || selectStatus ? 'Intenta ajustar los filtros de búsqueda' : 'Comienza agregando tu primer cliente' }}</p>
-      <pv-button
-        v-if="!search && !selectStatus"
-        label="Agregar Primer Cliente"
-        icon="pi pi-plus"
-        severity="success"
-        @click="onNewItem"
-      />
+    <div v-if="clientArray.length === 0" class="flex-grow-1 flex align-items-center justify-content-center">
+      <div class="text-center">
+        <i class="pi pi-inbox text-6xl text-400 mb-3 block"></i>
+        <h3 class="text-900 mb-2">No hay clientes registrados</h3>
+        <p class="text-600 mb-4">Comienza agregando tu primer cliente</p>
+        <pv-button
+          label="Agregar Primer Cliente"
+          icon="pi pi-plus"
+          severity="success"
+          @click="onNewItem"
+        />
+      </div>
+    </div>
+
+    <!-- Mensaje cuando los filtros no devuelven resultados -->
+    <div v-else-if="filteredClients.length === 0 && (search || selectStatus)" class="flex-grow-1 flex align-items-center justify-content-center">
+      <div class="text-center">
+        <i class="pi pi-search text-6xl text-400 mb-3 block"></i>
+        <h3 class="text-900 mb-2">No se encontraron clientes</h3>
+        <p class="text-600 mb-4">Intenta ajustar los filtros de búsqueda</p>
+        <pv-button
+          label="Limpiar Filtros"
+          icon="pi pi-filter-slash"
+          severity="secondary"
+          @click="onClearFilters"
+        />
+      </div>
     </div>
 
   </div>
 </template>
 
 <style scoped>
-/* Estilos mínimos - usando principalmente PrimeFlex y PrimeVue */
+/* Contenedor de cards con CSS Grid */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  padding: 0;
+  max-width: 100%;
+}
+
+/* En desktop: máximo 3 columnas */
+@media (min-width: 992px) {
+  .cards-container {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 100%;
+  }
+}
+
+/* En tablet: máximo 2 columnas */
+@media (min-width: 576px) and (max-width: 991px) {
+  .cards-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* En móvil: 1 columna */
+@media (max-width: 575px) {
+  .cards-container {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
+/* Asegurar que las cards no se estiren verticalmente */
+.card-item {
+  display: flex;
+  height: fit-content;
+}
+
+.card-item .surface-card {
+  width: 100%;
+  height: fit-content;
+}
 </style>
