@@ -182,7 +182,7 @@ export default {
     <!-- Breadcrumb -->
     <div class="text-base">
       <router-link
-          to="/admin/verifiers"
+          :to="{ name: 'verifiers' }"
           class="font-bold text-gray-900 no-underline hover:underline cursor-pointer"
       >
         Verificadores
