@@ -63,7 +63,7 @@ export default {
 
       // Filtrar por texto de búsqueda
       if (this.search) {
-        const searchLower = this.search.toLowerCase();
+        const searchLower = this.search.toLowerCase().trim();
         filtered = filtered.filter(client =>
           client.RUC.toLowerCase().includes(searchLower) ||
           client.companyName.toLowerCase().includes(searchLower) ||
@@ -95,11 +95,6 @@ export default {
 
   methods: {
 
-    // ver detalles del cliente
-    onViewItem() {
-      return this.itemClient !== null && !this.isEdit;
-    },
-
     // E para crear, editar
     onNewItem() {
       console.log('Crear un nuevo cliente');
@@ -108,14 +103,7 @@ export default {
 
       this.isEdit = false;
       this.submitted = false;
-      this.createAndEditDialogIsVisible = true;    },
-
-    onEditItem() {
-      return this.itemClient !== null;
-    },
-
-    onDeleteItem() {
-      return this.itemClient !== null;
+      this.createAndEditDialogIsVisible = true;
     },
 
     onCancelRequested() {
@@ -149,13 +137,13 @@ export default {
     },
 
     // Nuevos métodos para acciones de cliente
-    onViewClient(client) {
+    onViewItem(client) {
       this.itemClient = client;
       console.log('Ver detalles del cliente:', client);
       // Aquí puedes implementar la lógica para mostrar detalles
     },
 
-    onEditClient(client) {
+    onEditItem(client) {
       this.itemClient = client;
       this.isEdit = true;
       this.submitted = false;
@@ -163,17 +151,20 @@ export default {
       console.log('Editar cliente:', client);
     },
 
-    onDeleteClient(client) {
+    onDeleteItem(client) {
       console.log('Eliminar cliente:', client);
       
       // Confirmar eliminación con el usuario
       this.$confirm.require({
         message: `¿Está seguro de eliminar el cliente ${client.companyName}?`,
-        header: 'Confirmar eliminación',
+        header: 'Confirmación',
         icon: 'pi pi-exclamation-triangle',
+        rejectClass: 'p-button-secondary p-button-outlined',
+        rejectLabel: 'Cancelar',
+        acceptLabel: 'Eliminar',
         acceptClass: 'p-button-danger',
         accept: () => {
-          this.deleteClient(client.id);
+          this.delete(client.id);
         },
         reject: () => {
           console.log('Eliminación cancelada');
@@ -263,7 +254,7 @@ export default {
       }
     },
 
-    deleteClient(clientId) {
+    delete(clientId) {
       this.loading = true;
       
       try {
@@ -456,6 +447,10 @@ export default {
 </script>
 
 <template>
+
+  <!-- Dialogo de confirmación -->
+  <pv-confirm-dialog />
+
   <div class="h-full overflow-hidden flex flex-column p-4">
     <!-- Header con título + descripción y resúmenes -->
     <div class="flex justify-content-between align-items-center mb-1">
@@ -585,7 +580,7 @@ export default {
                 severity="info"
                 outlined
                 size="small"
-                @click="onViewClient(client)"
+                @click="onViewItem(client)"
                 v-tooltip="'Ver detalles'"
                 class="flex-1"
               />
@@ -594,7 +589,7 @@ export default {
                 severity="warning"
                 outlined
                 size="small"
-                @click="onEditClient(client)"
+                @click="onEditItem(client)"
                 v-tooltip="'Editar cliente'"
                 class="flex-1"
               />
@@ -603,7 +598,7 @@ export default {
                 severity="danger"
                 outlined
                 size="small"
-                @click="onDeleteClient(client)"
+                @click="onDeleteItem(client)"
                 v-tooltip="'Eliminar cliente'"
                 class="flex-1"
               />
