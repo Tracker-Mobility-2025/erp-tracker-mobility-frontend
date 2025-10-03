@@ -435,11 +435,11 @@ export default {
 
     <!-- Tarjetas de clientes -->
     <div class="flex-grow-1 flex flex-column" style="min-height: 0;">
-      <div class="cards-container overflow-auto flex-grow-1" style="min-height: 0;">
+      <div class="grid overflow-auto flex-grow-1" style="min-height: 0;">
         <div 
           v-for="client in paginatedClients" 
           :key="client.id"
-          class="card-item"
+          class="col-12 sm:col-6 lg:col-4 xl:col-4"
         >
           <div class="surface-card p-4 border-round shadow-2 h-full">
             <!-- Header de la tarjeta con estado -->
@@ -551,46 +551,44 @@ export default {
 </template>
 
 <style scoped>
-/* Contenedor de cards con CSS Grid */
-.cards-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1rem;
-  padding: 0;
-  max-width: 100%;
+/* Usando PrimeFlex pero controlando el estiramiento */
+.grid {
+  justify-content: flex-start;
 }
 
-/* En desktop: máximo 3 columnas */
+/* Asegurar que las cards no se estiren horizontalmente */
+.grid > div[class*="col-"] {
+  max-width: 400px;
+  min-width: 300px;
+}
+
+/* En desktop (xl y lg): limitar a 3 columnas con ancho fijo */
 @media (min-width: 992px) {
-  .cards-container {
-    grid-template-columns: repeat(3, 1fr);
-    max-width: 100%;
+  .grid > div.col-12.sm\:col-6.lg\:col-4.xl\:col-4 {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
   }
 }
 
-/* En tablet: máximo 2 columnas */
+/* En tablet (sm y md): limitar a 2 columnas */
 @media (min-width: 576px) and (max-width: 991px) {
-  .cards-container {
-    grid-template-columns: repeat(2, 1fr);
+  .grid > div.col-12.sm\:col-6.lg\:col-4.xl\:col-4 {
+    flex: 0 0 50%;
+    max-width: 50%;
   }
 }
 
-/* En móvil: 1 columna */
+/* En móvil: 1 columna completa */
 @media (max-width: 575px) {
-  .cards-container {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
+  .grid > div.col-12.sm\:col-6.lg\:col-4.xl\:col-4 {
+    flex: 0 0 100%;
+    max-width: 100%;
+    min-width: auto;
   }
 }
 
-/* Asegurar que las cards no se estiren verticalmente */
-.card-item {
-  display: flex;
-  height: fit-content;
-}
-
-.card-item .surface-card {
-  width: 100%;
-  height: fit-content;
+/* Asegurar que las cards mantengan altura natural */
+.surface-card {
+  height: fit-content !important;
 }
 </style>
