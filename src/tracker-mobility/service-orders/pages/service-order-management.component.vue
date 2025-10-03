@@ -262,10 +262,45 @@ export default {
 
 
   <div class="h-full overflow-hidden flex flex-column p-4">
+    <!-- Header con título + descripción y resúmenes -->
+    <div class="flex justify-content-between align-items-center mb-1">
+      <!-- Título y descripción -->
+      <div class="flex flex-column">
+        <h2 class="text-3xl font-bold mb-2">Gestión de órdenes de verificación</h2>
+        <p>Administra las órdenes de verificación, asigna verificadores y programa visitas.</p>
+      </div>
 
-    <!-- Título de la página -->
-    <h2 class="text-3xl font-bold mb-2">Gestión de órdenes de verificación</h2>
-    <p>Administra las órdenes de verificación, asigna verificadores y programa visitas.</p>
+      <!-- Resumen de cantidad de órdenes -->
+      <div class="flex gap-3 flex-wrap">
+        <!-- Total de órdenes -->
+        <div class="flex align-items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1 border-round border-1 border-blue-200">
+          <i class="pi pi-file-o text-blue-600"></i>
+          <span class="font-semibold text-sm">Total:</span>
+          <span class="font-bold">{{ itemsArray.length }}</span>
+        </div>
+
+        <!-- Órdenes Finalizadas -->
+        <div class="flex align-items-center gap-2 bg-green-50 text-green-700 px-3 py-1 border-round border-1 border-green-200">
+          <i class="pi pi-check-circle text-green-600"></i>
+          <span class="font-semibold text-sm">Finalizadas:</span>
+          <span class="font-bold">{{ itemsArray.filter(o => o.status === 'FINALIZADO').length }}</span>
+        </div>
+
+        <!-- Órdenes Pendientes -->
+        <div class="flex align-items-center gap-2 bg-orange-50 text-orange-700 px-3 py-1 border-round border-1 border-orange-200">
+          <i class="pi pi-clock text-orange-600"></i>
+          <span class="font-semibold text-sm">Pendientes:</span>
+          <span class="font-bold">{{ itemsArray.filter(o => o.status === 'PENDIENTE').length }}</span>
+        </div>
+
+        <!-- Órdenes En Proceso -->
+        <div class="flex align-items-center gap-2 bg-cyan-50 text-cyan-700 px-3 py-1 border-round border-1 border-cyan-200">
+          <i class="pi pi-cog text-cyan-600"></i>
+          <span class="font-semibold text-sm">En Proceso:</span>
+          <span class="font-bold">{{ itemsArray.filter(o => o.status === 'EN_PROCESO' || o.status === 'ASIGNADO').length }}</span>
+        </div>
+      </div>
+    </div>
 
     <!-- Componente DataManager para gestionar ordenes de servicio-->
     <data-manager

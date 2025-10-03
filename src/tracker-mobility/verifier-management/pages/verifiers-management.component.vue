@@ -318,11 +318,38 @@ export default {
 <template>
 
   <div class="h-full overflow-hidden flex flex-column p-4">
+    <!-- Header con título + descripción y resúmenes -->
+    <div class="flex justify-content-between align-items-center mb-1">
+      <!-- Título y descripción -->
+      <div class="flex flex-column">
+        <h2 class="text-3xl font-bold mb-2">Gestión de verificadores</h2>
+        <p>Gestión de verificadores: contacto, credenciales y asignación de órdenes</p>
+      </div>
 
-    <!-- Título de la página -->
-    <h2 class="text-3xl font-bold mb-2">Gestión de verificadores</h2>
-    <p> Gestiona los perfiles de verificadores, incluyendo información de contacto, credenciales de acceso y
-      asignación de ordenes de servicio </p>
+      <!-- Resumen de cantidad de verificadores -->
+      <div class="flex gap-3 flex-wrap">
+        <!-- Total de verificadores -->
+        <div class="flex align-items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1 border-round border-1 border-blue-200">
+          <i class="pi pi-users text-blue-600"></i>
+          <span class="font-semibold text-sm">Total:</span>
+          <span class="font-bold">{{ itemsArray.length }}</span>
+        </div>
+
+        <!-- Verificadores Activos -->
+        <div class="flex align-items-center gap-2 bg-green-50 text-green-700 px-3 py-1 border-round border-1 border-green-200">
+          <i class="pi pi-check-circle text-green-600"></i>
+          <span class="font-semibold text-sm">Activos:</span>
+          <span class="font-bold">{{ itemsArray.filter(v => v.status === 'ACTIVO').length }}</span>
+        </div>
+
+        <!-- Verificadores Inactivos -->
+        <div class="flex align-items-center gap-2 bg-red-50 text-red-700 px-3 py-1 border-round border-1 border-red-200">
+          <i class="pi pi-times-circle text-red-600"></i>
+          <span class="font-semibold text-sm">Inactivos:</span>
+          <span class="font-bold">{{ itemsArray.filter(v => v.status === 'INACTIVO').length }}</span>
+        </div>
+      </div>
+    </div>
 
     <!-- Componente DataManager para gestionar verificadores -->
 
