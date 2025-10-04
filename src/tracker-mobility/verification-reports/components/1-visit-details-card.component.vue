@@ -29,11 +29,13 @@ export default {
 
 <template>
   <pv-card class="w-full">
-    <template #content>
-      <h3 class="text-lg font-bold mb-4 text-primary flex align-items-center gap-2">
-        <i class="pi pi-map-marker"></i>
-        Detalles de la visita:
+    <template #header>
+      <h3 class="text-lg font-bold flex align-items-center gap-2 text-white p-3 m-0">
+        <i class="pi pi-map-marker text-white"></i>
+        Detalles de la visita
       </h3>
+    </template>
+    <template #content>
       
       <div class="formgrid grid">
         <!-- Verificador -->
@@ -90,5 +92,16 @@ export default {
 
 .break-all {
   word-break: break-all;
+}
+
+:deep(.p-card-header) {
+  background-color: #4A60D0;
+  border-radius: 0.375rem 0.375rem 0 0;
+  overflow: hidden;
+}
+
+:deep(.p-card) {
+  overflow: hidden;
+  border-radius: 0.375rem;
 }
 </style>
