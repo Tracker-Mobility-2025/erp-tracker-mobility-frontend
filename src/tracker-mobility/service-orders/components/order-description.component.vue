@@ -480,11 +480,13 @@ export default {
 
     <!-- ====================== Card -> Datos del solicitante ====================== -->
     <pv-card class="w-full">
-      <template #content >
-        <h3 class="text-lg font-bold mb-4 text-primary flex align-items-center gap-2">
-          <i class="pi pi-briefcase"></i>
-          Datos del solicitante
-        </h3>
+      <template #header>
+        <div class="flex align-items-center gap-2 px-3 py-2" style="background-color: #4A60D0; color: white;">
+          <i class="pi pi-briefcase" style="color: white;"></i>
+          <span class="text-lg font-bold">Datos del solicitante</span>
+        </div>
+      </template>
+      <template #content>
 
         <div class="formgrid grid">
           <!-- Fila 1: RUC, Razón Social y Nombre de ejecutivo -->
@@ -532,11 +534,13 @@ export default {
 
     <!-- ====================== Card -> Datos del cliente ====================== -->
     <pv-card class="w-full">
+      <template #header>
+        <div class="flex align-items-center gap-2 px-3 py-2" style="background-color: #4A60D0; color: white;">
+          <i class="pi pi-user-plus" style="color: white;"></i>
+          <span class="text-lg font-bold">Datos del cliente</span>
+        </div>
+      </template>
       <template #content>
-        <h3 class="text-lg font-bold mb-4 text-primary flex align-items-center gap-2">
-          <i class="pi pi-user-plus"></i>
-          Datos del cliente
-        </h3>
 
         <div class="formgrid grid">
           <!-- Fila 1: Nombres completos, Apellidos completos y Tipo de documento -->
@@ -613,11 +617,13 @@ export default {
 
     <!-- ====================== Card -> Documentos adjuntos ====================== -->
     <pv-card class="w-full">
+      <template #header>
+        <div class="flex align-items-center gap-2 px-3 py-2" style="background-color: #4A60D0; color: white;">
+          <i class="pi pi-paperclip" style="color: white;"></i>
+          <span class="text-lg font-bold">Documentos adjuntos</span>
+        </div>
+      </template>
       <template #content>
-        <h3 class="text-lg font-bold mb-4 text-primary flex align-items-center gap-2">
-          <i class="pi pi-paperclip"></i>
-          Documentos adjuntos
-        </h3>
 
         <div v-if="item?.client?.documents && item.client.documents.length > 0" class="formgrid grid">
           <!-- Mostrar documentos disponibles dinámicamente en 3 columnas -->
@@ -676,11 +682,13 @@ export default {
 
     <!-- ====================== Card -> Datos del arrendador ====================== -->
     <pv-card class="w-full">
+      <template #header>
+        <div class="flex align-items-center gap-2 px-3 py-2" style="background-color: #4A60D0; color: white;">
+          <i class="pi pi-home" style="color: white;"></i>
+          <span class="text-lg font-bold">Datos del arrendador</span>
+        </div>
+      </template>
       <template #content>
-        <h3 class="text-lg font-bold mb-4 text-primary flex align-items-center gap-2">
-          <i class="pi pi-home"></i>
-          Datos del arrendador
-        </h3>
 
         <div class="formgrid grid">
           <div class="field col-12 md:col-4">
@@ -850,6 +858,22 @@ export default {
 
 :deep(.p-card-content) {
   padding: 0.5rem;
+}
+
+/* Estilos para el header de las cards */
+:deep(.p-card .p-card-header) {
+  background-color: #4A60D0 !important;
+  color: white !important;
+  border-top-left-radius: var(--border-radius) !important;
+  border-top-right-radius: var(--border-radius) !important;
+  padding: 0 !important;
+  border-bottom: none !important;
+}
+
+/* Asegurar que la card mantenga sus bordes redondeados */
+:deep(.p-card) {
+  border-radius: var(--border-radius) !important;
+  overflow: hidden !important;
 }
 
 /* Estilos para el modal de documentos */
