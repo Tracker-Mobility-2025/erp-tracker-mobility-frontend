@@ -65,7 +65,7 @@ export default {
             Información de Residencia
           </h4>
           <div class="formgrid grid">
-            <div class="field col-12 md:col-6">
+            <div class="field col-12 md:col-3">
               <label class="font-semibold text-color-secondary flex align-items-center gap-2">
                 <i class="pi pi-users text-primary"></i>
                 Vive con:
@@ -179,7 +179,7 @@ export default {
             Información de la Zona
           </h4>
           <div class="formgrid grid">
-            <div class="field col-12 md:col-4">
+            <div class="field col-12 md:col-3">
               <label class="font-semibold text-color-secondary flex align-items-center gap-2">
                 <i class="pi pi-map text-primary"></i>
                 Zona:
@@ -187,7 +187,7 @@ export default {
               <p class="font-semibold text-dark m-0">{{ item?.zone || 'No especificado' }}</p>
             </div>
             
-            <div class="field col-12 md:col-4">
+            <div class="field col-12 md:col-3">
               <label class="font-semibold text-color-secondary flex align-items-center gap-2">
                 <i class="pi pi-eye text-primary"></i>
                 Característica de la zona:
@@ -195,7 +195,7 @@ export default {
               <p class="font-semibold text-dark m-0">{{ item?.zoneCharacteristic || 'No especificado' }}</p>
             </div>
             
-            <div class="field col-12 md:col-4">
+            <div class="field col-12 md:col-3">
               <label class="font-semibold text-color-secondary flex align-items-center gap-2">
                 <i class="pi pi-exclamation-triangle text-primary"></i>
                 Riesgo de la zona:
@@ -203,7 +203,7 @@ export default {
               <p class="font-semibold text-dark m-0">{{ item?.zoneRisk || 'No especificado' }}</p>
             </div>
             
-            <div class="field col-12 md:col-6">
+            <div class="field col-12 md:col-3">
               <label class="font-semibold text-color-secondary flex align-items-center gap-2">
                 <i class="pi pi-sign-in text-primary"></i>
                 Acceso a la vivienda:
