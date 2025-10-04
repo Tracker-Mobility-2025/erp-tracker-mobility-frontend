@@ -34,6 +34,19 @@ export default {
 
       // Servicio de verificador
       verifierApiServices: null,
+      
+      // Estados de carga
+      isLoading: true,
+      hasError: false,
+      errorMessage: '',
+      
+      // Progreso de carga
+      loadingStep: 0,
+      loadingSteps: [
+        { icon: 'pi-user', label: 'Datos del verificador' },
+        { icon: 'pi-list', label: 'Órdenes asignadas' },
+        { icon: 'pi-check', label: 'Configuración completa' }
+      ],
     }
   },
 
@@ -117,9 +130,35 @@ export default {
       });
     },
 
+    simulateLoadingProgress() {
+      // Simular progreso paso a paso para mejor UX
+      const progressInterval = setInterval(() => {
+        if (this.loadingStep < this.loadingSteps.length - 1) {
+          this.loadingStep++;
+        } else {
+          clearInterval(progressInterval);
+        }
+      }, 700); // Cambiar paso cada 700ms
+      
+      // Limpiar intervalo si la carga se completa antes
+      setTimeout(() => {
+        clearInterval(progressInterval);
+      }, 4000);
+    },
+
+    retryLoading() {
+      const verifierId = this.$route.query.id;
+      this.hasError = false;
+      this.isLoading = true;
+      this.loadingStep = 0;
+      
+      this.simulateLoadingProgress();
+      this.getVerifierById(verifierId);
+      this.getAssignedOrdersByVerifierId(verifierId);
+    },
+
     // Recuperamos los datos del verificador por su ID (simulado)
     getVerifierById(verifierId) {
-
       this.verifierApiServices.getById(verifierId).then(response => {
         this.item = new Verifier(response.data);
 
@@ -133,40 +172,56 @@ export default {
         console.log('Verificador recuperado:', this.item);
       }).catch(error => {
         console.error('Error al recuperar verificador:', error);
-      })
+        this.hasError = true;
+        this.isLoading = false;
+        this.errorMessage = 'No se pudo cargar la información del verificador. Intente nuevamente.';
+      });
     },
 
     // Recuperar órdenes asignadas (simulado)
     getAssignedOrdersByVerifierId(verifierId) {
-
       let verifierApiServicesTmp = new VerifierApiService('/orders/verifier');
 
       verifierApiServicesTmp.getAssignedOrders(verifierId).then(response => {
-
         this.assignedOrders = response.data.map(orderData => new Order(orderData));
-
-        console.log('Órdenes asignadas recuperadas:', this.assignedOrders);
+        
+        // Completar todos los pasos y finalizar carga
+        this.loadingStep = this.loadingSteps.length;
+        
+        setTimeout(() => {
+          this.isLoading = false;
+          console.log('Órdenes asignadas recuperadas:', this.assignedOrders);
+        }, 300);
       }).catch(error => {
         console.error('Error al recuperar órdenes asignadas:', error);
+        this.hasError = true;
+        this.isLoading = false;
+        this.errorMessage = 'No se pudieron cargar las órdenes asignadas. Intente nuevamente.';
       });
-
-
     }
 
 
   },
 
   created() {
-
     this.verifierApiServices = new VerifierApiService('/verifiers');
 
     const verifierId = this.$route.query.id;
 
-    this.getVerifierById(verifierId);
-
-    this.getAssignedOrdersByVerifierId(verifierId);
-
-
+    if (verifierId) {
+      this.isLoading = true;
+      this.loadingStep = 0;
+      
+      // Simular progreso de carga
+      this.simulateLoadingProgress();
+      
+      this.getVerifierById(verifierId);
+      this.getAssignedOrdersByVerifierId(verifierId);
+    } else {
+      this.hasError = true;
+      this.isLoading = false;
+      this.errorMessage = 'ID de verificador no válido.';
+    }
   }
 }
 
@@ -194,9 +249,42 @@ export default {
       </span>
     </div>
 
-    <!-- Contenido en una solo columna -->
-    <div class="flex-1 flex flex-column gap-4 mt-4">
+    <!-- Estado de carga minimalista -->
+    <div v-if="isLoading" class="loading-container">
+      <div class="loading-content">
+        <!-- Spinner elegante -->
+        <pv-progress-spinner 
+          size="48" 
+          stroke-width="4" 
+          animation-duration="1.2s" 
+          class="loading-spinner"
+        />
+        
+        <!-- Contenido textual simple -->
+        <div class="loading-text">
+          <h3 class="loading-title">Cargando verificador</h3>
+          <p class="loading-subtitle">{{ loadingSteps[loadingStep]?.label || 'Preparando datos...' }}</p>
+        </div>
+      </div>
+    </div>
 
+    <!-- Estado de error -->
+    <div v-else-if="hasError" class="flex justify-content-center align-items-center" style="min-height: 50vh;">
+      <div class="text-center">
+        <i class="pi pi-exclamation-triangle text-6xl text-orange-500 mb-3"></i>
+        <h3 class="text-xl text-gray-700">Error al cargar verificador</h3>
+        <p class="text-gray-500 mb-4">{{ errorMessage }}</p>
+        <pv-button 
+          label="Reintentar" 
+          icon="pi pi-refresh" 
+          @click="retryLoading"
+          class="p-button-outlined"
+        />
+      </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div v-else class="flex-1 flex flex-column gap-4 mt-4">
       <verifier-data-and-edit
           :item="item"
           :cant-orders="assignedOrders.length"
@@ -207,7 +295,6 @@ export default {
       />
 
       <!-- Lista de ordenes asignadas al verificador -->
-
       <list-assigned-orders
           :items="assignedOrders"
           @remove-order="confirmRemoveOrder"
@@ -220,5 +307,64 @@ export default {
 </template>
 
 <style scoped>
+
+/* Estilos del indicador de carga minimalista */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  background: #fafafa;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.5rem;
+}
+
+.loading-spinner {
+  opacity: 0.8;
+}
+
+.loading-text {
+  max-width: 300px;
+}
+
+.loading-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #374151;
+  margin: 0;
+  letter-spacing: -0.025em;
+}
+
+.loading-subtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+  font-weight: 400;
+  transition: opacity 0.3s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .loading-container {
+    min-height: 40vh;
+    margin: 0.5rem 0;
+  }
+  
+  .loading-title {
+    font-size: 1.125rem;
+  }
+  
+  .loading-subtitle {
+    font-size: 0.8125rem;
+  }
+}
 
 </style>
