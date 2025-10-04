@@ -50,21 +50,33 @@ export default {
       if (!date) return "Sin fecha";
       
       try {
-        // Crear fecha sin problemas de zona horaria
-        const dateObj = new Date(date);
+        // Manejar diferentes formatos de fecha de entrada
+        let dateToFormat;
         
-        // Verificar si la fecha es válida
-        if (isNaN(dateObj.getTime())) {
-          return "Fecha inválida";
+        if (date.includes('T')) {
+          // Si tiene formato ISO con hora, extraer solo la fecha
+          const datePart = date.split('T')[0];
+          const [year, month, day] = datePart.split('-');
+          // Crear fecha usando componentes individuales para evitar zona horaria
+          dateToFormat = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        } else if (date.includes('-')) {
+          // Si es formato YYYY-MM-DD
+          const [year, month, day] = date.split('-');
+          dateToFormat = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        } else {
+          // Fallback para otros formatos
+          dateToFormat = new Date(date);
         }
         
-        // Formatear fecha en español peruano
-        return dateObj.toLocaleDateString("es-PE", {
-          day: "2-digit",
-          month: "long",
-          year: "numeric",
-          timeZone: "America/Lima"
-        });
+        // Verificar que la fecha sea válida
+        if (isNaN(dateToFormat.getTime())) return "Fecha inválida";
+        
+        // Formatear como dd/mm/aaaa usando los métodos locales
+        const day = dateToFormat.getDate().toString().padStart(2, '0');
+        const month = (dateToFormat.getMonth() + 1).toString().padStart(2, '0');
+        const year = dateToFormat.getFullYear();
+        
+        return `${day}/${month}/${year}`;
       } catch (error) {
         console.error('Error formateando fecha:', error);
         return "Error en fecha";

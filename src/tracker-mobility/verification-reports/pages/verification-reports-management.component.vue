@@ -66,10 +66,15 @@ export default {
         filtered = filtered.filter(report => report.finalResult === this.selectedStatus);
       }
 
-      // Filtro por fecha seleccionada
+      // Filtro por fecha seleccionada (corregido para zona horaria)
       if (this.selectedDate) {
-        const selectedDateStr = this.selectedDate.toISOString().split('T')[0];
-        filtered = filtered.filter(report => report.requestDate === selectedDateStr);
+        const selectedDateStr = this.dateToComparableString(this.selectedDate);
+        if (selectedDateStr) {
+          filtered = filtered.filter(report => {
+            const reportDateStr = this.normalizeDateForComparison(report.requestDate);
+            return reportDateStr === selectedDateStr;
+          });
+        }
       }
 
       return filtered;
@@ -152,21 +157,74 @@ export default {
       if (!dateString) return '';
       
       try {
-        // Crear objeto Date desde el string
-        const date = new Date(dateString);
+        // Manejar diferentes formatos de fecha de entrada
+        let dateToFormat;
+        
+        if (dateString.includes('T')) {
+          // Si tiene formato ISO con hora, extraer solo la fecha
+          const datePart = dateString.split('T')[0];
+          const [year, month, day] = datePart.split('-');
+          // Crear fecha usando componentes individuales para evitar zona horaria
+          dateToFormat = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        } else if (dateString.includes('-')) {
+          // Si es formato YYYY-MM-DD
+          const [year, month, day] = dateString.split('-');
+          dateToFormat = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        } else {
+          // Fallback para otros formatos
+          dateToFormat = new Date(dateString);
+        }
         
         // Verificar que la fecha sea válida
-        if (isNaN(date.getTime())) return dateString;
+        if (isNaN(dateToFormat.getTime())) return dateString;
         
-        // Formatear como dd/mm/aaaa
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const year = date.getFullYear();
+        // Formatear como dd/mm/aaaa usando los métodos locales
+        const day = dateToFormat.getDate().toString().padStart(2, '0');
+        const month = (dateToFormat.getMonth() + 1).toString().padStart(2, '0');
+        const year = dateToFormat.getFullYear();
         
         return `${day}/${month}/${year}`;
       } catch (error) {
         console.error('Error al formatear fecha:', error);
         return dateString;
+      }
+    },
+
+    // Función para normalizar fechas y evitar problemas de zona horaria
+    normalizeDateForComparison(dateString) {
+      if (!dateString) return null;
+      
+      try {
+        // Crear fecha desde string de API (formato YYYY-MM-DD)
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return null;
+        
+        // Retornar solo la parte de la fecha (YYYY-MM-DD) sin hora
+        return date.toISOString().split('T')[0];
+      } catch (error) {
+        console.error('Error al normalizar fecha:', error);
+        return null;
+      }
+    },
+
+    // Función para convertir Date de calendario a string comparable
+    dateToComparableString(dateObject) {
+      if (!dateObject) return null;
+      
+      try {
+        // Asegurar que es un objeto Date válido
+        const date = dateObject instanceof Date ? dateObject : new Date(dateObject);
+        if (isNaN(date.getTime())) return null;
+        
+        // Usar fecha local para evitar problemas de zona horaria
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        
+        return `${year}-${month}-${day}`;
+      } catch (error) {
+        console.error('Error al convertir fecha del calendario:', error);
+        return null;
       }
     },
 
@@ -195,6 +253,7 @@ export default {
             clientName: item.order?.client ? `${item.order.client.name || ''} ${item.order.client.lastName || ''}`.trim() : 'Cliente no especificado',
             companyName: item.order?.applicantCompany?.companyName || 'Empresa no especificada',
             requestDate: item.order?.requestDate || '',
+            requestDateNormalized: this.normalizeDateForComparison(item.order?.requestDate), // Fecha normalizada para filtros
             finalResult: item.finalResult || 'PENDIENTE',
             
             // Mantener referencia al objeto completo para usar en detalles
