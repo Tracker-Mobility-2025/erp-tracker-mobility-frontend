@@ -26,11 +26,11 @@ export default {
       employeeClientTrackerApiService: new EmployeeClientTrackerApiService('/company-employees'),
 
       columns: [
-        { field: 'name', header: 'Nombres', sortable: true, filter: true, style: 'min-width: 12rem' },
-        { field: 'lastName', header: 'Apellidos', sortable: true, filter: true, style: 'min-width: 12rem' },
-        { field: 'email', header: 'Email', sortable: true, filter: true, style: 'min-width: 14rem' },
-        { field: 'phone', header: 'Teléfono', sortable: true, filter: true, style: 'min-width: 10rem' },
-        { field: 'status', header: 'Estado', sortable: true, filter: true, style: 'min-width: 8rem' },
+        { field: 'name', header: 'Nombres', sortable: true, style: 'width: 160px;' },
+        { field: 'lastName', header: 'Apellidos', sortable: true, style: 'width: 160px;' },
+        { field: 'email', header: 'Email', sortable: true, style: 'width: 200px;' },
+        { field: 'phone', header: 'Teléfono', sortable: true, style: 'width: 140px;' },
+        { field: 'status', header: 'Estado', sortable: true, template: 'status', style: 'width: 120px;' },
       ],
 
       statusOptions: [      // Opciones de estado para el filtro
@@ -65,11 +65,25 @@ export default {
 
   computed: {
 
-    filteredItemsArray () {
+    filteredItemsArray() {
       let filtered = [...this.employeeArray];
-      if (this.selectedStatus) {
-        filtered = filtered.filter(item => item.status === this.selectedStatus);
+
+      // Filtro por búsqueda global (nombre, apellido, email, teléfono)
+      if (this.globalFilterValue) {
+        const searchTerm = this.globalFilterValue.toLowerCase().trim();
+        filtered = filtered.filter(employee =>
+          employee.name.toLowerCase().includes(searchTerm) ||
+          employee.lastName.toLowerCase().includes(searchTerm) ||
+          employee.email.toLowerCase().includes(searchTerm) ||
+          employee.phone.toLowerCase().includes(searchTerm)
+        );
       }
+
+      // Filtro por estado seleccionado
+      if (this.selectedStatus) {
+        filtered = filtered.filter(employee => employee.status === this.selectedStatus);
+      }
+
       return filtered;
     },
 
@@ -118,6 +132,8 @@ export default {
         acceptClass: 'p-button-danger',
         accept: () => {
           this.delete(item.id);
+          this.$confirm.close(); // Cierra el diálogo manualmente
+
         },
         reject: () => {
           console.log('Eliminación cancelada');
@@ -145,6 +161,17 @@ export default {
     onClearFilters() {
       this.selectedStatus = null;
       this.globalFilterValue = '';
+    },
+
+    getStatusItemsArray(status) {
+      switch (status) {
+        case 'ACTIVE':
+          return 'success';
+        case 'INACTIVE':
+          return 'danger';
+        default:
+          return 'info';
+      }
     },
 
     onCancelRequested() {
@@ -238,6 +265,8 @@ export default {
     delete(employeeId) {
       this.loading = true;
 
+      console.log('Eliminando colaborador con ID:', employeeId);
+
       this.employeeClientTrackerApiService.delete(employeeId).then(response => {
         console.log('Colaborador eliminado en backend:', response.data);
         
@@ -270,15 +299,16 @@ export default {
       // Lógica para obtener los colaboradores asociados al cliente por ID
       console.log('Obtener colaboradores del cliente por ID:', this.clientId);
 
-      this.employeeClientTrackerApiService = new EmployeeClientTrackerApiService('/company-employees/applicant-company');
+      const employeeClientTrackerApiServiceTmp = new EmployeeClientTrackerApiService('/company-employees/applicant-company');
 
-      this.employeeClientTrackerApiService.getAllByClient(this.clientId).then(response => {
+      employeeClientTrackerApiServiceTmp.getAllByClient(this.clientId).then(response => {
         this.employeeArray = response.data.map(item => (new EmployeeClientTracker(item)));
+        
+        console.log('Colaboradores obtenidos:', this.employeeArray);
       }).catch(error => {
         console.error('Error al obtener los colaboradores del cliente:', error);
       })
     },
-
 
     getClientById() {
 
@@ -379,7 +409,36 @@ export default {
         @global-filter-change="onGlobalFilterChange"
         @clear-filters="onClearFilters"
     >
+      <!-- Filtro personalizado para el estado -->
+      <template #filters="{ clearFilters }">
+        <div class="flex align-items-center gap-2">
+          <pv-dropdown
+              v-model="selectedStatus"
+              :options="statusOptions"
+              option-label="label"
+              option-value="value"
+              placeholder="Estado: Todos"
+              class="flex-1 h-full"
+          />
 
+          <!-- Botón para limpiar filtros específicos -->
+          <pv-button
+              label="Limpiar filtros"
+              icon="pi pi-filter-slash"
+              @click="onClearFilters()"
+              class="p-button-secondary flex-shrink-0 h-full"
+          />
+        </div>
+      </template>
+
+      <!-- Columna Personalizada de estatus de colaborador -->
+      <template #status="{ data }">
+        <pv-tag
+            :value="data.status === 'ACTIVE' ? 'ACTIVO' : 'INACTIVO'"
+            :severity="getStatusItemsArray(data.status)"
+            class="text-sm"
+        />
+      </template>
     </data-manager>
 
     <!-- Diálogo para crear/editar colaborador -->
