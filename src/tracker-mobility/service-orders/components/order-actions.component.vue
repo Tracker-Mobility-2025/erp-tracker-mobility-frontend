@@ -339,12 +339,14 @@ export default {
   <div class="flex flex-column gap-4 w-full">
 
     <!-- ====================== Card -> Asignar a verificador ====================== -->
-    <pv-card class="w-full ">
+    <pv-card class="w-full">
+      <template #header>
+        <div class="flex align-items-center gap-2 px-3 py-2" style="background-color: #4A60D0; color: white;">
+          <i class="pi pi-user-plus" style="color: white;"></i>
+          <span class="text-lg font-bold">Asignar a verificador</span>
+        </div>
+      </template>
       <template #content>
-        <h3 class="text-lg font-bold mb-4 text-primary flex align-items-center gap-2">
-          <i class="pi pi-user-plus"></i>
-          Asignar a verificador
-        </h3>
 
         <div class="field mb-3">
           <label for="verifier" class="font-medium text-gray-700 flex align-items-center gap-2">
@@ -434,11 +436,13 @@ export default {
 
     <!-- ====================== Card -> Estado del Servicio ====================== -->
     <pv-card class="w-full">
+      <template #header>
+        <div class="flex align-items-center gap-2 px-3 py-2" style="background-color: #4A60D0; color: white;">
+          <i class="pi pi-flag" style="color: white;"></i>
+          <span class="text-lg font-bold">Estado del Servicio</span>
+        </div>
+      </template>
       <template #content>
-        <h3 class="text-lg font-bold mb-4 text-primary flex align-items-center gap-2">
-          <i class="pi pi-flag"></i>
-          Estado del Servicio
-        </h3>
 
         <div class="field mb-3">
           <label class="font-medium text-gray-700 flex align-items-center gap-2 mb-2">
@@ -457,11 +461,13 @@ export default {
 
     <!-- ====================== Card -> Observaciones ====================== -->
     <pv-card class="w-full">
+      <template #header>
+        <div class="flex align-items-center gap-2 px-3 py-2" style="background-color: #4A60D0; color: white;">
+          <i class="pi pi-comment" style="color: white;"></i>
+          <span class="text-lg font-bold">Observaciones</span>
+        </div>
+      </template>
       <template #content>
-        <h3 class="text-lg font-bold mb-4 text-primary flex align-items-center gap-2">
-          <i class="pi pi-comment"></i>
-          Observaciones
-        </h3>
 
         <div class="field mb-3">
           <label for="documentType" class="font-medium text-gray-700 flex align-items-center gap-2">
@@ -533,6 +539,22 @@ export default {
 
 :deep(.p-card-content) {
   padding: 0.5rem;
+}
+
+/* Estilos para el header de las cards */
+:deep(.p-card .p-card-header) {
+  background-color: #4A60D0 !important;
+  color: white !important;
+  border-top-left-radius: var(--border-radius) !important;
+  border-top-right-radius: var(--border-radius) !important;
+  padding: 0 !important;
+  border-bottom: none !important;
+}
+
+/* Asegurar que la card mantenga sus bordes redondeados */
+:deep(.p-card) {
+  border-radius: var(--border-radius) !important;
+  overflow: hidden !important;
 }
 
 /* Estilos para campos requeridos */
