@@ -2,6 +2,7 @@
 
 import DataManager from "../../../shared/components/data-manager.component.vue";
 import {ReportApiService} from "../services/reports-api.service.js";
+import {VerificationReport} from "../models/verification-report.entity.js";
 
 export default {
   name: 'verification-reports-management',
@@ -16,12 +17,12 @@ export default {
       itemsArray:[],
 
       columns: [
-        { field: 'reportId', header: 'ID Informe', sortable: true, style: 'width: 120px;' },
-        { field: 'serviceOrderId', header: 'ID Orden', sortable: true, style: 'width: 160px;' },
-        { field: 'petitioner', header: 'Solicitante', sortable: true, style: 'width: 200px;' },
-        { field: 'verifierName', header: 'Verificador', sortable: true, style: 'width: 200px;' },
-        { field: 'resultDate', header: 'Fecha', sortable: true, style: 'width: 160px;' },
-        { field: 'result', header: 'Resultado', sortable: true, template: 'result', style: 'width: 120px;' },
+        { field: 'reportCode', header: 'Código Informe', sortable: true, style: 'width: 150px;' },
+        { field: 'orderCode', header: 'Código Orden', sortable: true, style: 'width: 150px;' },
+        { field: 'clientName', header: 'Cliente', sortable: true, style: 'width: 200px;' },
+        { field: 'companyName', header: 'Empresa Solicitante', sortable: true, style: 'width: 200px;' },
+        { field: 'requestDate', header: 'Fecha Solicitud', sortable: true, template: 'requestDate', style: 'width: 140px;' },
+        { field: 'finalResult', header: 'Resultado', sortable: true, template: 'result', style: 'width: 120px;' },
       ],
 
       globalFilterValue: '', // Valor del filtro global de búsqueda
@@ -29,9 +30,9 @@ export default {
       selectedStatus: null, // Estado seleccionado en el filtro
       statusOptions: [      // Opciones de estado para el filtro
         { label: 'Todos', value: null },
-        { label: 'Conforme', value: 'Conforme' },
-        { label: 'Observado', value: 'Observado' },
-        { label: 'Rechazado', value: 'Rechazado' },
+        { label: 'Conforme', value: 'CONFORME' },
+        { label: 'Observado', value: 'OBSERVADO' },
+        { label: 'Rechazado', value: 'RECHAZADO' },
       ],
 
       title: {
@@ -49,25 +50,26 @@ export default {
     filteredItemsArray() {
       let filtered = [...this.itemsArray]; // Copia del array original para filtrar sin mutar el original
 
-      // Filtro por búsqueda global (nombre de solicitante, ID reporte, ID orden)
+      // Filtro por búsqueda global (nombre de cliente, código reporte, código orden, empresa)
       if (this.globalFilterValue) {
         const searchTerm = this.globalFilterValue.toLowerCase().trim();
         filtered = filtered.filter(report =>
-          report.petitioner.toLowerCase().includes(searchTerm) ||
-          report.reportId.toLowerCase().includes(searchTerm) ||
-          report.serviceOrderId.toLowerCase().includes(searchTerm)
+          (report.clientName && report.clientName.toLowerCase().includes(searchTerm)) ||
+          (report.reportCode && report.reportCode.toLowerCase().includes(searchTerm)) ||
+          (report.orderCode && report.orderCode.toLowerCase().includes(searchTerm)) ||
+          (report.companyName && report.companyName.toLowerCase().includes(searchTerm))
         );
       }
 
       // Filtro por estado seleccionado
       if (this.selectedStatus) {
-        filtered = filtered.filter(report => report.result === this.selectedStatus);
+        filtered = filtered.filter(report => report.finalResult === this.selectedStatus);
       }
 
       // Filtro por fecha seleccionada
       if (this.selectedDate) {
         const selectedDateStr = this.selectedDate.toISOString().split('T')[0];
-        filtered = filtered.filter(report => report.resultDate === selectedDateStr);
+        filtered = filtered.filter(report => report.requestDate === selectedDateStr);
       }
 
       return filtered;
@@ -107,12 +109,12 @@ export default {
     },
 
     onViewItem(item) {
-      console.log('Ver detalles de orden:', item);
-      // Implementar navegación a vista de detalles
-
-      // Navegar con router a /admin/order-details
-      this.$router.push({ name: 'verification-reports-details'});
-
+      console.log('Ver detalles de informe:', item);
+      // Navegar a vista de detalles pasando el ID del informe
+      this.$router.push({ 
+        name: 'verification-reports-details', 
+        query: { id: item.id } 
+      });
     },
 
     onRowSelect(event) {
@@ -135,38 +137,103 @@ export default {
 
     getStatusSeverity(status) {
       switch (status) {
-        case 'Pendiente':
-          return 'warn';
-        case 'En Proceso':
-          return 'info';
-        case 'Completado':
+        case 'CONFORME':
           return 'success';
-        case 'Cancelado':
+        case 'OBSERVADO':
+          return 'warn';
+        case 'RECHAZADO':
           return 'danger';
         default:
           return 'info';
       }
     },
 
+    formatDate(dateString) {
+      if (!dateString) return '';
+      
+      try {
+        // Crear objeto Date desde el string
+        const date = new Date(dateString);
+        
+        // Verificar que la fecha sea válida
+        if (isNaN(date.getTime())) return dateString;
+        
+        // Formatear como dd/mm/aaaa
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        
+        return `${day}/${month}/${year}`;
+      } catch (error) {
+        console.error('Error al formatear fecha:', error);
+        return dateString;
+      }
+    },
 
-    /*
-    getAll(){
 
+
+
+    getAll() {
       this.loading = true;
-
       this.reportApiService.getAll().then(response => {
-        this.itemsArray = response.data.map(item => new
-        }));
+        // Validar que la respuesta tenga datos
+        if (!response || !response.data || !Array.isArray(response.data)) {
+          throw new Error('Formato de respuesta inválido de la API');
+        }
 
-        console.log('Informes de verificación obtenidos:', this.itemsArray);
+        // Mapear los datos de la API a la estructura esperada por la tabla
+        this.itemsArray = response.data.map(item => {
+          // Crear el objeto VerificationReport para mantener la estructura del modelo
+          const report = new VerificationReport(item);
+          
+          // Agregar propiedades calculadas para la tabla
+          return {
+            ...report,
+            // Campos para mostrar en la tabla
+            reportCode: item.reportCode || 'N/A',
+            orderCode: item.order?.orderCode || 'N/A',
+            clientName: item.order?.client ? `${item.order.client.name || ''} ${item.order.client.lastName || ''}`.trim() : 'Cliente no especificado',
+            companyName: item.order?.applicantCompany?.companyName || 'Empresa no especificada',
+            requestDate: item.order?.requestDate || '',
+            finalResult: item.finalResult || 'PENDIENTE',
+            
+            // Mantener referencia al objeto completo para usar en detalles
+            fullData: item
+          };
+        });
 
+        console.log('Informes de verificación procesados:', this.itemsArray);
+        
+        // Mostrar mensaje de éxito si se cargaron datos
+        if (this.itemsArray.length > 0) {
+          this.$toast.add({
+            severity: 'success',
+            summary: 'Datos cargados',
+            detail: `${this.itemsArray.length} informes de verificación cargados correctamente`,
+            life: 3000
+          });
+        }
+        
       }).catch(error => {
         console.error('Error al obtener los informes de verificación:', error);
+        this.itemsArray = []; // Limpiar datos en caso de error
+        
+        let errorMessage = 'No se pudieron cargar los informes de verificación';
+        if (error.message) {
+          errorMessage += `: ${error.message}`;
+        }
+        
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Error de carga',
+          detail: errorMessage,
+          life: 5000
+        });
       }).finally(() => {
         this.loading = false;
       });
     }
-    */
+
 
 
   },
@@ -174,20 +241,11 @@ export default {
 
 
   created() {
-
-    this.itemsArray = [
-      { id: 1, reportId: 'VR001', serviceOrderId: 'SO123', petitioner: 'Carlos López', verifierName: 'Ana Martínez', resultDate: '2024-01-15', result: 'Conforme' },
-      { id: 2, reportId: 'VR002', serviceOrderId: 'SO124', petitioner: 'Lucía Fernández', verifierName: 'Miguel Torres', resultDate: '2024-01-16', result: 'Observado' },
-      { id: 3, reportId: 'VR003', serviceOrderId: 'SO125', petitioner: 'Jorge Ramírez', verifierName: 'Sofía Gómez', resultDate: '2024-01-17', result: 'Rechazado' },
-      { id: 4, reportId: 'VR004', serviceOrderId: 'SO126', petitioner: 'Mariana Díaz', verifierName: 'Luis Hernández', resultDate: '2024-01-18', result: 'Conforme' },
-      { id: 5, reportId: 'VR005', serviceOrderId: 'SO127', petitioner: 'Andrés Silva', verifierName: 'Carmen Rodríguez', resultDate: '2024-01-19', result: 'Observado' },
-      { id: 6, reportId: 'VR006', serviceOrderId: 'SO128', petitioner: 'Sofía Morales', verifierName: 'Diego Pérez', resultDate: '2024-01-20', result: 'Conforme' },
-      { id: 7, reportId: 'VR007', serviceOrderId: 'SO129', petitioner: 'Fernando Castro', verifierName: 'Laura Sánchez', resultDate: '2024-01-21', result: 'Rechazado' },
-      { id: 8 , reportId: 'VR008', serviceOrderId: 'SO130', petitioner: 'Valentina Ruiz', verifierName: 'Javier Flores', resultDate: '2024-01-22', result: 'Conforme' },
-      { id: 9 , reportId: 'VR009', serviceOrderId: 'SO131', petitioner: 'Diego Vargas', verifierName: 'Marta Jiménez', resultDate: '2024-01-23', result: 'Observado' },
-      { id: 10, reportId: 'VR010', serviceOrderId: 'SO132', petitioner: 'Camila Ortiz', verifierName: 'Ricardo Gómez', resultDate: '2024-01-24', result: 'Conforme' },
-    ];
-
+    // Inicialización del servicio API - usar el endpoint correcto
+    this.reportApiService = new ReportApiService('/reports');
+    
+    // Cargar datos al inicializar el componente
+    this.getAll();
   }
 
 
@@ -222,7 +280,7 @@ export default {
         new-button-label="Nueva Orden"
         delete-button-label="Eliminar"
         export-button-label="Exportar"
-        search-placeholder="Busca por ID orden, solicitante, verificador..."
+        search-placeholder="Busca por código, cliente, empresa solicitante..."
         @new-item-requested-manager="onNewItemRequested"
         @delete-selected-items-requested-manager="onDeleteSelectedItems"
         @delete-item-requested-manager="onDeleteItem"
@@ -268,10 +326,15 @@ export default {
       <!-- Template para el campo "result" -->
       <template #result="{ data }">
         <pv-tag
-            :value="data.result"
-            :severity="getStatusSeverity(data.result)"
+            :value="data.finalResult"
+            :severity="getStatusSeverity(data.finalResult)"
             class="text-sm"
         />
+      </template>
+
+      <!-- Template para el campo "requestDate" -->
+      <template #requestDate="{ data }">
+        <span>{{ formatDate(data.requestDate) }}</span>
       </template>
 
 
