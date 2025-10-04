@@ -21,11 +21,13 @@ export default {
 
 <template>
   <pv-card class="w-full">
-    <template #content>
-      <h3 class="text-lg font-bold mb-4 text-primary flex align-items-center gap-2">
-        <i class="pi pi-exclamation-triangle"></i>
+    <template #header>
+      <h3 class="text-lg font-bold flex align-items-center gap-2 text-white p-3 m-0">
+        <i class="pi pi-exclamation-triangle text-white"></i>
         Observación
       </h3>
+    </template>
+    <template #content>
       
       <div class="formgrid grid">
         <div class="field col-12">
@@ -61,5 +63,16 @@ ol li:before {
   counter-increment: item;
   font-weight: bold;
   color: var(--primary-color);
+}
+
+:deep(.p-card-header) {
+  background-color: #4A60D0;
+  border-radius: 0.375rem 0.375rem 0 0;
+  overflow: hidden;
+}
+
+:deep(.p-card) {
+  overflow: hidden;
+  border-radius: 0.375rem;
 }
 </style>
