@@ -1,26 +1,23 @@
 
-
 export class EmployeeClientTracker {
 
     constructor(
         {
             id = null,
+            email = "",
+            name = "",
+            lastName = "",
+            phone = "",
             companyId = null,
-            role = null,
-            name = '',
-            lastName = '',
-            email = '',
-            phone = '',
-            status = null,
+            status = "ACTIVE"
         }
     ) {
         this.id = id;
-        this.companyId = companyId
-        this.role = role;
+        this.email = email;
         this.name = name;
         this.lastName = lastName;
-        this.email = email;
         this.phone = phone;
+        this.companyId = companyId;
         this.status = status;
     }
 
