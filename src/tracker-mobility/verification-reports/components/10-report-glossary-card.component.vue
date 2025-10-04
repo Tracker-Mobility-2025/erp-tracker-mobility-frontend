@@ -32,8 +32,13 @@ export default {
 
 <template>
   <pv-card class="w-full">
+    <template #header>
+      <h3 class="text-lg font-bold flex align-items-center gap-2 text-white p-3 m-0">
+        <i class="pi pi-book text-white"></i>
+        Glosario
+      </h3>
+    </template>
     <template #content>
-      <h3 class="text-lg font-bold mb-4 text-primary">Glosario</h3>
       
       <div class="formgrid grid">
         <div class="field col-12">
