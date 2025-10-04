@@ -35,8 +35,8 @@ export default {
 
       statusOptions: [      // Opciones de estado para el filtro
         { label: 'Todos', value: null },
-        { label: 'Activo', value: 'ACTIVO' },
-        { label: 'Inactivo', value: 'INACTIVO' },
+        { label: 'Activo', value: 'ACTIVE' },
+        { label: 'Inactivo', value: 'INACTIVE' },
       ],
 
 
@@ -202,7 +202,9 @@ export default {
       
       console.log('Creando colaborador:', employeeData);
 
-      this.employeeClientTrackerApiService.create(employeeData).then(response => {
+      let newEmployee = new CreateEmployeeClient(employeeData);
+
+      this.employeeClientTrackerApiService.create(newEmployee).then(response => {
         console.log('Colaborador creado en backend:', response.data);
         // Agregar al array local
         this.employeeArray.push(new EmployeeClientTracker(response.data));
@@ -303,7 +305,7 @@ export default {
 
       employeeClientTrackerApiServiceTmp.getAllByClient(this.clientId).then(response => {
         this.employeeArray = response.data.map(item => (new EmployeeClientTracker(item)));
-        
+
         console.log('Colaboradores obtenidos:', this.employeeArray);
       }).catch(error => {
         console.error('Error al obtener los colaboradores del cliente:', error);

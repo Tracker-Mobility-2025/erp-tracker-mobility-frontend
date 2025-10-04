@@ -21,6 +21,4 @@ export class EmployeeClientTracker {
         this.status = status;
     }
 
-
-
 }

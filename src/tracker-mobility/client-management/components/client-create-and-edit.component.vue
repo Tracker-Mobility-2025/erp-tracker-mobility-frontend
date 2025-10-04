@@ -1,7 +1,6 @@
 <script>
 
 import CreateAndEdit from "../../../shared/components/create-and-edit.component.vue";
-import {ClientTracker} from "../models/client-tracker-mobility.entity.js";
 
 export default {
   name: 'client-create-and-edit',

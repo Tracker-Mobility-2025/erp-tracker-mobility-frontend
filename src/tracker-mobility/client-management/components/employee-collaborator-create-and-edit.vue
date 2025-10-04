@@ -78,6 +78,7 @@ export default {
             email: this.employeeEntity.email,
             password: this.employeeEntity.password,
             name: this.employeeEntity.name,
+            phoneNumber: this.employeeEntity.phoneNumber,
             lastName: this.employeeEntity.lastName,
             applicantCompanyId: this.clientId,
           });
