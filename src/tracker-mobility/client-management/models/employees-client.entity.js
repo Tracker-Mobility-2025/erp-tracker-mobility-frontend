@@ -7,8 +7,8 @@ export class EmployeeClientTracker {
             email = "",
             name = "",
             lastName = "",
-            phone = "",
-            companyId = null,
+            phoneNumber = null,
+            applicantCompanyId = null,
             status = "ACTIVE"
         }
     ) {
@@ -16,8 +16,8 @@ export class EmployeeClientTracker {
         this.email = email;
         this.name = name;
         this.lastName = lastName;
-        this.phone = phone;
-        this.companyId = companyId;
+        this.phoneNumber = phoneNumber;
+        this.applicantCompanyId = applicantCompanyId;
         this.status = status;
     }
 

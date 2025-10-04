@@ -33,7 +33,7 @@ export default {
           name: this.item.name || '',
           lastName: this.item.lastName || '',
           email: this.item.email || '',
-          phone: this.item.phone || '',
+          phoneNumber: this.item.phoneNumber || '',
           password: '', // No cargar password existente por seguridad
           status: this.item.status || 'ACTIVE'
         };
@@ -92,7 +92,7 @@ export default {
       const nameValid = this.employeeEntity.name && this.isValidName(this.employeeEntity.name);
       const lastNameValid = this.employeeEntity.lastName && this.isValidName(this.employeeEntity.lastName);
       const emailValid = this.employeeEntity.email && this.isValidEmail(this.employeeEntity.email);
-      const phoneValid = this.employeeEntity.phone && this.isValidPhone(this.employeeEntity.phone);
+      const phoneNumberValid = this.employeeEntity.phoneNumber && this.isValidphoneNumber(this.employeeEntity.phoneNumber);
       
       // Password validation logic:
       // - Creating new employee: password is required
@@ -106,7 +106,7 @@ export default {
         passwordValid = !this.employeeEntity.password || this.isValidPassword(this.employeeEntity.password);
       }
       
-      return nameValid && lastNameValid && emailValid && phoneValid && passwordValid;
+      return nameValid && lastNameValid && emailValid && phoneNumberValid && passwordValid;
     },
 
     isValidName(name) {
@@ -120,10 +120,10 @@ export default {
       return emailRegex.test(email);
     },
 
-    isValidPhone(phone) {
+    isValidphoneNumber(phoneNumber) {
       // Permitir números, espacios, guiones y paréntesis, mínimo 9 dígitos
-      const phoneRegex = /^[\d\s\-\(\)\+]{9,}$/;
-      return phoneRegex.test(phone);
+      const phoneNumberRegex = /^[\d\s\-\(\)\+]{9,}$/;
+      return phoneNumberRegex.test(phoneNumber);
     },
 
     isValidPassword(password) {
@@ -137,7 +137,7 @@ export default {
         name: '',
         lastName: '',
         email: '',
-        phone: '',
+        phoneNumber: '',
         password: '',
         status: 'ACTIVE'
       };
@@ -250,23 +250,23 @@ export default {
         <!-- ======== Fila 2: Teléfono ======== -->
         <div class="col-12 md:col-6 px-2 pb-1">
           <div class="field">
-            <label for="phone" class="block text-900 font-medium mb-2">
+            <label for="phoneNumber" class="block text-900 font-medium mb-2">
               <i class="pi pi-phone mr-2"></i>Teléfono *
             </label>
             <pv-input-text
-                id="phone"
-                v-model="employeeEntity.phone"
+                id="phoneNumber"
+                v-model="employeeEntity.phoneNumber"
                 class="w-full"
                 size="small"
                 placeholder="Ingrese el teléfono"
-                :aria-invalid="submitted && (!employeeEntity.phone || !isValidPhone(employeeEntity.phone))"
+                :aria-invalid="submitted && (!employeeEntity.phoneNumber || !isValidphoneNumber(employeeEntity.phoneNumber))"
                 aria-describedby="phone-error"
-                :class="{ 'p-invalid': submitted && (!employeeEntity.phone || !isValidPhone(employeeEntity.phone)) }"
+                :class="{ 'p-invalid': submitted && (!employeeEntity.phoneNumber || !isValidphoneNumber(employeeEntity.phoneNumber)) }"
             />
-            <small v-if="submitted && !employeeEntity.phone" class="p-error">
+            <small v-if="submitted && !employeeEntity.phoneNumber" class="p-error">
               El teléfono es requerido
             </small>
-            <small v-else-if="submitted && employeeEntity.phone && !isValidPhone(employeeEntity.phone)"
+            <small v-else-if="submitted && employeeEntity.phoneNumber && !isValidphoneNumber(employeeEntity.phoneNumber)"
                    class="p-error">
               El teléfono debe tener al menos 9 dígitos
             </small>

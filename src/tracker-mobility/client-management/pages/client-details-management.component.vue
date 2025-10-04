@@ -29,7 +29,7 @@ export default {
         { field: 'name', header: 'Nombres', sortable: true, style: 'width: 160px;' },
         { field: 'lastName', header: 'Apellidos', sortable: true, style: 'width: 160px;' },
         { field: 'email', header: 'Email', sortable: true, style: 'width: 200px;' },
-        { field: 'phone', header: 'Teléfono', sortable: true, style: 'width: 140px;' },
+        { field: 'phoneNumber', header: 'Teléfono', sortable: true, style: 'width: 140px;' },
         { field: 'status', header: 'Estado', sortable: true, template: 'status', style: 'width: 120px;' },
       ],
 
@@ -75,7 +75,7 @@ export default {
           employee.name.toLowerCase().includes(searchTerm) ||
           employee.lastName.toLowerCase().includes(searchTerm) ||
           employee.email.toLowerCase().includes(searchTerm) ||
-          employee.phone.toLowerCase().includes(searchTerm)
+          employee.phoneNumber.toLowerCase().includes(searchTerm)
         );
       }
 

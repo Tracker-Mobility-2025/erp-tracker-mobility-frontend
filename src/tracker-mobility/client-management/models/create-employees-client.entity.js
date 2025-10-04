@@ -7,6 +7,7 @@ export class CreateEmployeeClient {
             password = "",
             name = "",
             lastName = "",
+            phoneNumber= null,
             applicantCompanyId = null
         }
     )
@@ -15,6 +16,7 @@ export class CreateEmployeeClient {
         this.password = password;
         this.name = name;
         this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
         this.applicantCompanyId = applicantCompanyId;
     }
 }
