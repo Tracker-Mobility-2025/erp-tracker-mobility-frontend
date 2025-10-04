@@ -31,6 +31,7 @@ export default {
     deleteButtonLabel: { type: String, default: 'Eliminar' },
     exportButtonLabel: { type: String, default: 'Exportar' },
     // Configuración de acciones por fila (opcional) - Columna de acciones de la tabla
+    showViewAction: { type: Boolean, default: true },
     showEditAction: { type: Boolean, default: false },
     showDeleteAction: { type: Boolean, default: false },
     editButtonLabel: { type: String, default: 'Editar' },
@@ -256,12 +257,13 @@ export default {
           v-if="showActions"
           :exportable="false"
           header="Acciones"
-          header-style="width: 10rem; text-align: center"
+          header-style="width: 8rem; text-align: center"
           body-style="text-align: center"
         >
           <template #body="slotProps">
-            <div class="flex gap-1">
+            <div class="flex gap-1 justify-content-center">
               <pv-button
+                  v-if="showViewAction"
                   label="Ver detalles"
                   severity="info"
                   text
@@ -271,20 +273,22 @@ export default {
               />
               <pv-button
                   v-if="showEditAction"
-                  :label="editButtonLabel"
+                  icon="pi pi-pencil"
                   severity="warning"
-                  text
+                  rounded
                   size="small"
-                  class="p-button-link"
+                  class="action-button edit-button"
+                  v-tooltip.top="editButtonLabel"
                   @click="$emit('edit-item-requested-manager', slotProps.data)"
               />
               <pv-button
                   v-if="showDeleteAction"
-                  :label="deleteActionLabel"
+                  icon="pi pi-trash"
                   severity="danger"
-                  text
+                  rounded
                   size="small"
-                  class="p-button-link"
+                  class="action-button delete-button"
+                  v-tooltip.top="deleteActionLabel"
                   @click="$emit('delete-item-requested-manager', slotProps.data)"
               />
             </div>
@@ -394,5 +398,63 @@ export default {
   bottom: 0;
   z-index: 10;
   flex-shrink: 0;
+}
+
+/* ========== ESTILOS PARA BOTONES DE ACCIÓN ========== */
+/* Botones de acción con diseño distintivo */
+:deep(.action-button) {
+  width: 2rem !important;
+  height: 2rem !important;
+  min-width: 2rem !important;
+  padding: 0 !important;
+  margin: 0.125rem !important;
+  transition: all 0.2s ease-in-out !important;
+  border: 1px solid transparent !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+:deep(.action-button .p-button-icon) {
+  font-size: 0.875rem !important;
+  margin: 0 !important;
+}
+
+/* Botón de editar - amarillo/naranja */
+:deep(.edit-button) {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+  color: white !important;
+  border-color: #f59e0b !important;
+}
+
+:deep(.edit-button:hover) {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3) !important;
+  border-color: #d97706 !important;
+}
+
+:deep(.edit-button:active) {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2) !important;
+}
+
+/* Botón de eliminar - rojo */
+:deep(.delete-button) {
+  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+  color: white !important;
+  border-color: #dc2626 !important;
+}
+
+:deep(.delete-button:hover) {
+  background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
+  border-color: #b91c1c !important;
+}
+
+:deep(.delete-button:active) {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2) !important;
 }
 </style>
