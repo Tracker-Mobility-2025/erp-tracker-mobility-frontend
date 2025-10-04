@@ -292,8 +292,6 @@ export default {
           return verifier;
         });
 
-
-
         this.loading = false;
       }).catch(error => {
         console.error('Error al obtener verificadores:', error);

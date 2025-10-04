@@ -203,16 +203,7 @@ export default {
         });
 
         console.log('Informes de verificación procesados:', this.itemsArray);
-        
-        // Mostrar mensaje de éxito si se cargaron datos
-        if (this.itemsArray.length > 0) {
-          this.$toast.add({
-            severity: 'success',
-            summary: 'Datos cargados',
-            detail: `${this.itemsArray.length} informes de verificación cargados correctamente`,
-            life: 3000
-          });
-        }
+
         
       }).catch(error => {
         console.error('Error al obtener los informes de verificación:', error);

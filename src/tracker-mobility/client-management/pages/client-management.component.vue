@@ -310,12 +310,15 @@ export default {
 
         console.log("Clients recuperados:", this.clientArray);
 
-        this.loading = false;
 
       }).catch(error => {
         console.error("Error fetching clients:", error);
         this.loading = false;
-      });
+      }).finally(
+        () => {
+          this.loading = false;
+        }
+      )
 
 
     },

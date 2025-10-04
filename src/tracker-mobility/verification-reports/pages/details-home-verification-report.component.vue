@@ -17,6 +17,7 @@ import Annexe03CandidateCard from '../components/14-annexe-03-candidate-card.com
 import Annexe04GarageLocationCard from '../components/15-annexe-04-garage-location-card.component.vue'
 import Annexe05RoomsCard from '../components/16-annexe-05-rooms-card.component.vue'
 import Annexe06DomicileLocationCard from '../components/17-annexe-06-domicile-location-card.component.vue'
+import {ReportApiService} from "../services/reports-api.service.js";
 
 export default {
   name:'details-home-verification-report',
@@ -48,118 +49,170 @@ export default {
     },
   },
 
+  computed: {
+    // Mapear datos de detalles de visita
+    visitDetails() {
+      return {
+        verifier: this.item?.order?.homeVisitDetails?.verifierName || 'No especificado',
+        googleMapsLink: this.item?.order?.client?.location?.mapLocation || '#',
+        verificationDate: this.formatDate(this.item?.order?.homeVisitDetails?.visitDate) || 'No especificada'
+      };
+    },
+
+    // Mapear datos del solicitante
+    applicantData() {
+      return {
+        businessName: this.item?.order?.applicantCompany?.companyName || 'No especificado',
+        ruc: this.item?.order?.applicantCompany?.ruc || 'No especificado',
+        requestDate: this.formatDate(this.item?.order?.requestDate) || 'No especificada',
+        result: this.item?.finalResult || 'PENDIENTE'
+      };
+    },
+
+    // Mapear datos del cliente
+    customerData() {
+      const client = this.item?.order?.client;
+      return {
+        fullName: client ? `${client.name || ''} ${client.lastName || ''}`.trim() : 'No especificado',
+        interviewee: client ? `${client.name || ''} ${client.lastName || ''}`.trim() : 'No especificado',
+        relationship: 'Titular', // Este valor no viene de la API, mantener como está
+        documentType: client?.identityDocument?.documentType || 'No especificado',
+        documentNumber: client?.identityDocument?.documentNumber || 'No especificado'
+      };
+    },
+
+    // Mapear dirección del cliente
+    customerAddress() {
+      const location = this.item?.order?.client?.location;
+      const dwelling = this.item?.order?.client?.dwelling;
+      return {
+        department: location?.department || 'No especificado',
+        province: location?.province || 'No especificado',
+        district: location?.district || 'No especificado',
+        fullAddress: dwelling?.homeAddress || 'No especificada'
+      };
+    },
+
+    // Mapear detalles de residencia
+    residenceDetails() {
+      const client = this.item?.order?.client;
+      const residence = client?.residence;
+      const dwelling = client?.dwelling;
+      const zone = client?.zone;
+      
+      return {
+        livesWith: residence?.livesWith || 'No especificado',
+        resides: residence?.isResident ? 'Sí' : (residence?.isResident === false ? 'No' : 'No especificado'),
+        residenceTime: residence?.time ? `${residence.time} ${residence.timeType || ''}` : 'No especificado',
+        housingRented: client?.isTenant ? 'Alquilado' : 'Propio',
+        housingType: dwelling?.dwellingType || 'No especificado',
+        floorsQuantity: dwelling?.numberFloors || 'No especificado',
+        floorLives: dwelling?.floorOccupied || 'No especificado',
+        facadeColor: dwelling?.facadeColor || 'No especificado',
+        material: dwelling?.dwellingMaterial || 'No especificado',
+        state: dwelling?.dwellingCondition || 'No especificado',
+        zone: zone?.zoneType || 'No especificado',
+        housingStatus: dwelling?.typeFurnished || 'No especificado',
+        roofType: dwelling?.roofType || 'No especificado',
+        zoneCharacteristic: zone?.zoneCharacteristics?.join(', ') || 'No especificado',
+        housingAccess: zone?.accessType || 'No especificado',
+        zoneRisk: zone?.riskLevel || 'No especificado',
+        garageIs: dwelling?.garage?.garageType || 'No especificado',
+        garageDistance: dwelling?.garage?.distanceToDwelling || 'No especificado',
+        realDirection: dwelling?.homeAddress || 'No especificada',
+        familiarReferences: client?.contactReferences?.map(ref => ({
+          name: ref.fullName || 'No especificado',
+          contact: ref.phoneNumber || 'No especificado',
+          relationship: ref.relation || 'No especificado'
+        })) || []
+      };
+    },
+
+    // Mapear datos del arrendador
+    landlordData() {
+      const landlord = this.item?.order?.client?.landlord;
+      return {
+        fullName: landlord?.fullName || 'No especificado',
+        contactNumber: landlord?.phoneNumber || 'No especificado',
+        documentNumber: 'No disponible en API',
+        documentType: 'No disponible en API'
+      };
+    },
+
+    // Mapear detalles de entrevista
+    interviewDetails() {
+      const interview = this.item?.order?.client?.landlord?.interviewDetails;
+      const client = this.item?.order?.client;
+      
+      return {
+        tenantName: interview?.clientNameAccordingToLandlord || (client ? `${client.name || ''} ${client.lastName || ''}`.trim() : 'No especificado'),
+        ownHouse: this.item?.order?.client?.landlord?.ownHome ? 'Sí' : 'No',
+        serviceClientPays: interview?.servicesPaidByClient?.join(', ') || 'No especificado',
+        clientPaysPunctual: interview?.isTheClientPunctualWithPayments ? 'Sí' : (interview?.isTheClientPunctualWithPayments === false ? 'No' : 'No especificado'),
+        clientRentalTime: interview?.time ? `${interview.time} ${interview.timeType || ''}` : 'No especificado',
+        clientFloorNumber: interview?.floorOccupiedByClient || 'No especificado'
+      };
+    },
+
+    // Mapear observaciones
+    observationsData() {
+      return {
+        observations: this.item?.observations?.map(obs => obs.value) || []
+      };
+    },
+
+    // Mapear resumen
+    summaryData() {
+      return {
+        summary: this.item?.summary || 'No disponible'
+      };
+    },
+
+    // Mapear glosario
+    glossaryData() {
+      return {
+        glossaryItems: this.item?.glossary?.map(item => ({
+          term: item.value?.split(':')[0]?.trim() || 'Término',
+          definition: item.value?.split(':')[1]?.trim() || item.value || 'Definición no disponible'
+        })) || []
+      };
+    },
+
+    // Mapear casuística
+    casuistryData() {
+      return {
+        casuistryItems: this.item?.casuistics?.map(item => {
+          const parts = item.value?.split(':');
+          return {
+            title: parts?.[0]?.trim() || 'Casuística',
+            description: parts?.[1]?.trim() || item.value || 'Descripción no disponible'
+          };
+        }) || []
+      };
+    }
+  },
+
   data() {
     return {
+
+      // Servicio para manejar reportes de verificación
+      reportApiService: new ReportApiService('/reports'),
+
+      // item de reporte de verificación
+      item: null,
+      
+      // Estado de carga
+      loading: false,
+      
+      // Progreso de carga
+      loadingStep: 0,
+      loadingSteps: [
+        { icon: 'pi-file-o', label: 'Datos del reporte' },
+        { icon: 'pi-users', label: 'Información del cliente' },
+        { icon: 'pi-home', label: 'Detalles de la visita' }
+      ],
+
       statusOptions: ['Pendiente', 'En Proceso', 'Completado', 'Cancelado'],
-      
-      // Datos de ejemplo para las tarjetas
-      visitDetails: {
-        verifier: 'Janover Gonzalo Saldaña Vela',
-        googleMapsLink: 'https://maps.app.goo.gl/WQpZ2SPsPAinAovTA',
-        verificationDate: '10/09/2025'
-      },
-      
-      applicantData: {
-        businessName: 'MOTOS MILLENNIUM SAC',
-        ruc: '20605680446',
-        requestDate: '20/08/2025',
-        result: 'OBSERVADO'
-      },
-      
-      customerData: {
-        fullName: 'Alfonso Eloy Sanchez Vela',
-        interviewee: 'Alfonso Eloy Sanchez Vela',
-        relationship: 'Titular',
-        documentType: 'CE',
-        documentNumber: '007943592'
-      },
-      
-      customerAddress: {
-        department: 'Lima',
-        province: 'Lima',
-        district: 'Santa Anita',
-        fullAddress: 'Asociación la pradera de Santa Anita - ref. Reparto mz k lt 46 - Santa Anita'
-      },
-      
-      residenceDetails: {
-        livesWith: 'Vive con su pareja e hijos',
-        resides: 'Sí',
-        residenceTime: '5 años',
-        housingRented: 'Alquilado',
-        housingType: 'Departamento',
-        floorsQuantity: '5 pisos',
-        floorLives: '5 piso',
-        facadeColor: 'Verde',
-        material: 'Noble',
-        state: 'Bueno',
-        zone: 'Urbana',
-        housingStatus: 'Amoblada',
-        roofType: 'Techada',
-        zoneCharacteristic: 'Vigilada',
-        housingAccess: 'Fácil',
-        zoneRisk: 'Ninguna',
-        garageIs: 'Alquilado',
-        garageDistance: 'Ubicada dentro de la vivienda',
-        realDirection: 'Calle 27 las praderas Mz K Lote 46 Santa Anita',
-        familiarReferences: [
-          { name: 'Lucila', contact: '999 666 777', relationship: 'Arrendador' },
-          { name: 'Meleni', contact: '999 666 777', relationship: 'Esposa' },
-          { name: 'José', contact: '999 666 777', relationship: 'Primo' }
-        ]
-      },
-      
-      landlordData: {
-        fullName: 'Janover Gonzalo Saldaña Vela',
-        contactNumber: '999 777 666',
-        documentNumber: '007943592',
-        documentType: 'CE'
-      },
-      
-      interviewDetails: {
-        tenantName: 'Alfonso Eloy Sanchez Vela',
-        ownHouse: '-',
-        serviceClientPays: '-',
-        clientPaysPunctual: '-',
-        clientRentalTime: '-',
-        clientFloorNumber: '-'
-      },
-      
-      observationsData: {
-        observations: [
-          'EL CLIENTE DIO COMO REFERENCIA A LA SEÑORA LUCILA, QUIEN EN LA ENTREVISTA DUO QUE ES LA SUEGRA Y QUE SOLO ES INQUILINA, NO LA DUEÑA DEL LUGAR. POR ESO, NO SE PUDO CONTACTAR A LA TITULAR PARA ASEGURAR LA RESIDENCIA EN LA DIRECCIÓN MENCIONADA.',
-          'EL LUGAR QUE EL CLIENTE SEÑALA PARA LA COCHERA ES UN PASILLO POR DONDE PASAN LAS PERSONAS. CABE RESALTAR QUE HAY UN DEPARTAMENTO EN LA PARTE DE ATRÁS, LO QUE DIFICULTA EL PASO.'
-        ]
-      },
-      
-      summaryData: {
-        summary: 'EL CLIENTE VIVE CON SU PAREJA E HIJO EN UNA CASA ALQUILADA UBICADA EN CALLE 27 LAS PRADERAS MZ K LOTE 46 SANTA ANITA. LA COCHERA ESTÁ DENTRO DE LA MISMA PROPIEDAD. COMO REFERENCIA, EL CLIENTE PROPORCIONÓ EL NÚMERO DE TELÉFONO DE SU FAMILIAR (SUEGRA) LUCILA 914011796 QUIEN INDICÓ SER UNA INQUILINA NO SE PUDO CONTACTAR CON EL TITULAR DEL PREDIO LA ZONA ES SEGURA – DATACRIM.'
-      },
-      
-      glossaryData: {
-        glossaryItems: [
-          {
-            term: 'SE TRANSITA CON CAUTELA',
-            definition: 'IMPLICA QUE SE DEBE PROCEDER CON CUIDADO Y ATENCIÓN AL MOVERSE O ACTUAR EN UNA DETERMINADA ÁREA O SITUACIÓN.'
-          },
-          {
-            term: 'PRESENCIA - DELINCUENCIAL',
-            definition: 'INDICA LA EXISTENCIA DE ACTIVIDAD CRIMINAL O LA PRESENCIA DE PERSONAS INVOLUCRADAS EN ACTIVIDADES DELICTIVAS EN EL ÁREA EN CUESTIÓN.'
-          },
-          {
-            term: 'ZONA PELIGROSA',
-            definition: 'SEÑALA UN LUGAR CON UN NIVEL DE RIESGO SIGNIFICATIVO, DONDE PUEDEN OCURRIR EVENTOS O SITUACIONES QUE REPRESENTAN AMENAZAS PARA LA SEGURIDAD.'
-          }
-        ]
-      },
-      
-      casuistryData: {
-        casuistryItems: [
-          {
-            title: 'Dificultades de comunicación con el arrendador',
-            description: 'no se ha logrado establecer comunicación con el dueño de la vivienda donde el cliente alquila, lo que impide la verificación de información clave sobre las condiciones de arrendamiento y la relación con el propietario.'
-          }
-        ]
-      },
       
       annexe01Data: {
         title: 'ANEXO 01: Registro fotográfico del domicilio',
@@ -256,6 +309,25 @@ export default {
 
   methods : {
 
+    // Función para formatear fechas en formato dd/mm/aaaa
+    formatDate(dateString) {
+      if (!dateString) return '';
+      
+      try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return dateString;
+        
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        
+        return `${day}/${month}/${year}`;
+      } catch (error) {
+        console.error('Error al formatear fecha:', error);
+        return dateString;
+      }
+    },
+
     // Función para enviar el reporte de verificación por correo electrónico
     onSendVerificationReportByEmail() {
       // Lógica para enviar el reporte por correo electrónico
@@ -264,8 +336,91 @@ export default {
     // Función para descargar o imprimir el reporte de verificación en formato PDF
     onDownloadOrPrintVerificationReport() {
       // Lógica para descargar o imprimir el reporte en PDF
-    }
+    },
 
+
+    getVerificationReportById(reportId) {
+      this.loading = true;
+      this.loadingStep = 0;
+      
+      // Simular progreso de carga
+      this.simulateLoadingProgress();
+      
+      this.reportApiService.getById(reportId)
+          .then(response => {
+            this.item = response.data;
+            console.log('Reporte de verificación obtenido:', this.item);
+            
+            // Completar todos los pasos
+            this.loadingStep = this.loadingSteps.length;
+            
+            // Mostrar mensaje de éxito después de un breve delay
+            setTimeout(() => {
+              this.$toast.add({
+                severity: 'success',
+                summary: 'Datos cargados',
+                detail: 'Reporte de verificación cargado correctamente',
+                life: 3000
+              });
+            }, 300);
+          })
+          .catch(error => {
+            console.error('Error al obtener el reporte de verificación:', error);
+            
+            // Mostrar mensaje de error
+            this.$toast.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'No se pudo cargar el reporte de verificación',
+              life: 5000
+            });
+            
+            // Navegar de vuelta a la lista si no se puede cargar
+            this.$router.push({ name: 'verification-reports' });
+          })
+          .finally(() => {
+            this.loading = false;
+          });
+    },
+
+    simulateLoadingProgress() {
+      // Simular progreso paso a paso para mejor UX
+      const progressInterval = setInterval(() => {
+        if (this.loadingStep < this.loadingSteps.length - 1) {
+          this.loadingStep++;
+        } else {
+          clearInterval(progressInterval);
+        }
+      }, 800); // Cambiar paso cada 800ms
+      
+      // Limpiar intervalo si la carga se completa antes
+      setTimeout(() => {
+        clearInterval(progressInterval);
+      }, 5000);
+    }
+  },
+
+  created() {
+    this.reportApiService = new ReportApiService('/reports');
+
+    // Obtener ID desde params o query
+    const reportId = this.$route.params.id || this.$route.query.id;
+    
+    if (reportId) {
+      this.getVerificationReportById(reportId);
+    } else {
+      console.warn('No se proporcionó un ID de reporte en los parámetros de la ruta.');
+      
+      this.$toast.add({
+        severity: 'warn',
+        summary: 'Advertencia',
+        detail: 'No se especificó un ID de reporte válido',
+        life: 3000
+      });
+      
+      // Navegar de vuelta a la lista
+      this.$router.push({ name: 'verification-reports' });
+    }
   }
 
 };
@@ -275,7 +430,29 @@ export default {
 
 <template>
   <!-- Detalles de la orden de servicio (se divide en cards tipo grid)-->
-  <div class="order-container flex flex-column p-4 h-full w-full overflow-auto " >
+  <div class="order-container flex flex-column p-4 h-full w-full overflow-auto ">
+  
+    <!-- Indicador de carga minimalista -->
+    <div v-if="loading" class="loading-container">
+      <div class="loading-content">
+        <!-- Spinner elegante -->
+        <pv-progress-spinner 
+          size="48" 
+          stroke-width="4" 
+          animation-duration="1.2s" 
+          class="loading-spinner"
+        />
+        
+        <!-- Contenido textual simple -->
+        <div class="loading-text">
+          <h3 class="loading-title">Cargando reporte</h3>
+          <p class="loading-subtitle">{{ loadingSteps[loadingStep]?.label || 'Preparando datos...' }}</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Contenido principal - solo se muestra cuando no está cargando y hay datos -->
+    <template v-else-if="item">
 
     <!-- Breadcrumb -->
     <div class="text-base">
@@ -295,12 +472,12 @@ export default {
     <div class="flex align-content-center justify-content-between  mt-4 mb-2">
       <!-- Izquierda -->
       <h2 class="text-2xl xl:font-bold font-extrabold text-gray-900">
-        Reporte:<span class="text-blue-700 xl:font-bold "> REP-2025-001</span>
+        Reporte:<span class="text-blue-700 xl:font-bold "> {{ item?.reportCode || 'Cargando...' }}</span>
       </h2>
 
       <!-- Derecha -->
       <span class="font-medium text-gray-900">
-        Fecha de solicitud: 10/09/2025
+        Fecha de solicitud: {{ formatDate(item?.order?.requestDate) || 'Cargando...' }}
       </span>
     </div>
 
@@ -410,6 +587,23 @@ export default {
       <!-- Decimosexta sección: ANEXO 06 - Ubicación del domicilio -->
       <Annexe06DomicileLocationCard :item="annexe06Data" />
     </div>
+    
+    </template>
+    
+    <!-- Mensaje cuando no hay datos -->
+    <div v-else class="flex justify-content-center align-items-center p-8">
+      <div class="text-center">
+        <i class="pi pi-exclamation-triangle text-6xl text-orange-500 mb-3"></i>
+        <h3 class="text-xl text-gray-700">No se encontró el reporte de verificación</h3>
+        <p class="text-gray-500 mb-4">El reporte solicitado no existe o no se pudo cargar.</p>
+        <pv-button 
+          label="Volver a la lista" 
+          icon="pi pi-arrow-left" 
+          @click="$router.push({ name: 'verification-reports' })"
+          class="p-button-outlined"
+        />
+      </div>
+    </div>
 
   </div>
 
@@ -418,6 +612,65 @@ export default {
 </template>
 
 <style scoped>
+
+/* Estilos del indicador de carga minimalista */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  background: #fafafa;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.5rem;
+}
+
+.loading-spinner {
+  opacity: 0.8;
+}
+
+.loading-text {
+  max-width: 300px;
+}
+
+.loading-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #374151;
+  margin: 0;
+  letter-spacing: -0.025em;
+}
+
+.loading-subtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+  font-weight: 400;
+  transition: opacity 0.3s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .loading-container {
+    min-height: 40vh;
+    margin: 0.5rem 0;
+  }
+  
+  .loading-title {
+    font-size: 1.125rem;
+  }
+  
+  .loading-subtitle {
+    font-size: 0.8125rem;
+  }
+}
 
 /* Estilos personalizados para los botones */
 /* Botón descargar en PDF */

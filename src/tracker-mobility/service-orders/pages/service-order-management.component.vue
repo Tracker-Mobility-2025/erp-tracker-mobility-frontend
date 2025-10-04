@@ -219,14 +219,14 @@ export default {
     getAllOrders() {
       this.loading = true;
       this.orderRequestApi.getAll().then(response => {
-          this.itemsArray = response.data;
-        })
-        .catch(error => {
-          console.error('Error al cargar las órdenes:', error);
-        })
-        .finally(() => {
-          this.loading = false;
-        });
+        this.itemsArray = response.data;
+
+
+      }).catch(error => {
+        console.error('Error al cargar las órdenes:', error);
+      }).finally(() => {
+        this.loading = false;
+      });
     },
 
     // Retorna todos los verificadores
