@@ -71,11 +71,13 @@ export default {
   <div class="flex flex-column gap-4">
 
     <pv-card class="w-full">
-      <template #content>
-        <h3 class="text-lg font-bold mb-4 text-primary flex align-items-center gap-2">
-          <i class="pi pi-user-edit text-blue-500"></i>
-          Datos del verificador:
+      <template #header>
+        <h3 class="text-lg font-bold flex align-items-center gap-2 text-white p-3 m-0">
+          <i class="pi pi-user-edit text-white"></i>
+          Datos del verificador
         </h3>
+      </template>
+      <template #content>
 
         <div class="formgrid grid">
           <!-- Fila 1 -->
@@ -226,6 +228,17 @@ export default {
 
 :deep(.p-inputtext) {
   width: 100%;
+}
+
+:deep(.p-card-header) {
+  background-color: #4A60D0;
+  border-radius: 0.375rem 0.375rem 0 0;
+  overflow: hidden;
+}
+
+:deep(.p-card) {
+  overflow: hidden;
+  border-radius: 0.375rem;
 }
 
 </style>
