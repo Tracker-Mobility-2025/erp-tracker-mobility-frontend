@@ -24,11 +24,13 @@ export default {
 
 <template>
   <pv-card class="w-full">
-    <template #content>
-      <h3 class="text-lg font-bold mb-4 text-primary flex align-items-center gap-2">
-        <i class="pi pi-comments"></i>
+    <template #header>
+      <h3 class="text-lg font-bold flex align-items-center gap-2 text-white p-3 m-0">
+        <i class="pi pi-comments text-white"></i>
         Detalles de la entrevista
       </h3>
+    </template>
+    <template #content>
       
       <div class="formgrid grid">
         <!-- Primera fila -->
@@ -100,5 +102,16 @@ export default {
 <style scoped>
 :deep(.p-card-content) {
   padding: 0.5rem;
+}
+
+:deep(.p-card-header) {
+  background-color: #4A60D0;
+  border-radius: 0.375rem 0.375rem 0 0;
+  overflow: hidden;
+}
+
+:deep(.p-card) {
+  overflow: hidden;
+  border-radius: 0.375rem;
 }
 </style>
