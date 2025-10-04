@@ -36,7 +36,7 @@ export default {
         <!-- Primera fila -->
         <div class="field col-12 md:col-4">
           <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-user"></i>
+            <i class="pi pi-user text-primary"></i>
             Nombre del inquilino:
           </label>
           <p class="font-semibold text-dark m-0">
@@ -46,7 +46,7 @@ export default {
         
         <div class="field col-12 md:col-4">
           <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-home"></i>
+            <i class="pi pi-home text-primary"></i>
             Casa propia
           </label>
           <p class="font-semibold text-dark m-0">
@@ -56,7 +56,7 @@ export default {
         
         <div class="field col-12 md:col-4">
           <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-dollar"></i>
+            <i class="pi pi-dollar text-primary"></i>
             Servicio que paga el cliente
           </label>
           <p class="font-semibold text-dark m-0">
@@ -67,7 +67,7 @@ export default {
         <!-- Segunda fila -->
         <div class="field col-12 md:col-4">
           <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-check-circle"></i>
+            <i class="pi pi-check-circle text-primary"></i>
             ¿El cliente paga puntual?
           </label>
           <p class="font-semibold text-dark m-0">
@@ -77,7 +77,7 @@ export default {
         
         <div class="field col-12 md:col-4">
           <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-clock"></i>
+            <i class="pi pi-clock text-primary"></i>
             Tiempo de arrendamiento del cliente:
           </label>
           <p class="font-semibold text-dark m-0">
@@ -87,7 +87,7 @@ export default {
         
         <div class="field col-12 md:col-4">
           <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-building"></i>
+            <i class="pi pi-building text-primary"></i>
             Nro de piso en el que habita el cliente:
           </label>
           <p class="font-semibold text-dark m-0">
