@@ -1,29 +1,35 @@
 <script>
 
 import {ClientTracker} from "../models/client-tracker-mobility.entity.js";
+import {ClientTrackerApiService} from "../services/client-tracker-api.service.js";
 import DataManager from "../../../shared/components/data-manager.component.vue";
+import {EmployeeClientTrackerApiService} from "../services/employee-client-tracker-api.service.js";
+import {EmployeeClientTracker} from "../models/employees-client.entity.js";
+import {CreateEmployeeClient} from "../models/create-employees-client.entity.js";
+import EmployeeCollaboratorCreateAndEdit from "../components/employee-collaborator-create-and-edit.vue";
 
 export default {
   name: "client-details-management",
-  components: {DataManager},
-
-  props: {
-    item: {
-      type: ClientTracker,
-      required: true
-    }
-  },
+  components: {DataManager, EmployeeCollaboratorCreateAndEdit},
 
   data() {
     return {
 
-      clientId: null,
+      clientId: null, // ID del cliente obtenido de los query parameters
+      item: null, // Cliente actual
+      employeeArray: [], // Array de colaboradores del cliente
+
+      // Servicio para el cliente
+      clientTrackerApiService: new ClientTrackerApiService('/applicant-companies'),
+
+      // Servicio para los colaboradores (empleados) del cliente
+      employeeClientTrackerApiService: new EmployeeClientTrackerApiService('/company-employees'),
 
       columns: [
-        { field: 'firstName', header: 'Nombres', sortable: true, filter: true, style: 'min-width: 12rem' },
+        { field: 'name', header: 'Nombres', sortable: true, filter: true, style: 'min-width: 12rem' },
         { field: 'lastName', header: 'Apellidos', sortable: true, filter: true, style: 'min-width: 12rem' },
         { field: 'email', header: 'Email', sortable: true, filter: true, style: 'min-width: 14rem' },
-        { field: 'phoneNumber', header: 'Teléfono', sortable: true, filter: true, style: 'min-width: 10rem' },
+        { field: 'phone', header: 'Teléfono', sortable: true, filter: true, style: 'min-width: 10rem' },
         { field: 'status', header: 'Estado', sortable: true, filter: true, style: 'min-width: 8rem' },
       ],
 
@@ -34,7 +40,7 @@ export default {
       ],
 
 
-      collaboratorArray: [],
+
 
       globalFilterValue: '', // Valor del filtro global de búsqueda
       selectedStatus: null, // Estado seleccionado en el filtro
@@ -52,9 +58,7 @@ export default {
       createAndEditDialogIsVisible: false,
       isEdit: false,
       submitted: false,
-
-
-
+      itemEmployee: null, // Empleado seleccionado para edición
 
     };
   },
@@ -62,7 +66,7 @@ export default {
   computed: {
 
     filteredItemsArray () {
-      let filtered = [...this.collaboratorArray];
+      let filtered = [...this.employeeArray];
       if (this.selectedStatus) {
         filtered = filtered.filter(item => item.status === this.selectedStatus);
       }
@@ -70,10 +74,8 @@ export default {
     },
 
 
-
-
     statusProps() {
-      if (this.item.status === 'ACTIVO') {
+      if (this.item?.status === 'ACTIVE') {
         return {
           container: 'bg-green-50 text-green-700 border-green-200',
           icon: 'pi pi-check-circle text-green-600'
@@ -90,8 +92,11 @@ export default {
   methods: {
     // Aquí puedes agregar métodos si es necesario
     onNewItem() {
-      // Lógica para manejar la creación de un nuevo ítem
-      console.log('Nuevo ítem solicitado');
+      console.log('Crear nuevo colaborador');
+      this.itemEmployee = null;
+      this.isEdit = false;
+      this.submitted = false;
+      this.createAndEditDialogIsVisible = true;
     },
 
     onDeleteSelectedItems(selectedItems) {
@@ -100,13 +105,37 @@ export default {
     },
 
     onDeleteItem(item) {
-      // Lógica para manejar la eliminación de un ítem específico
-      console.log('Eliminar ítem:', item);
+      console.log('Eliminar colaborador:', item);
+      
+      // Confirmar eliminación con el usuario
+      this.$confirm.require({
+        message: `¿Está seguro de eliminar al colaborador ${item.name} ${item.lastName}?`,
+        header: 'Confirmación',
+        icon: 'pi pi-exclamation-triangle',
+        rejectClass: 'p-button-secondary p-button-outlined',
+        rejectLabel: 'Cancelar',
+        acceptLabel: 'Eliminar',
+        acceptClass: 'p-button-danger',
+        accept: () => {
+          this.delete(item.id);
+        },
+        reject: () => {
+          console.log('Eliminación cancelada');
+        }
+      });
     },
 
     onViewItem(item) {
       // Lógica para manejar la visualización de un ítem específico
       console.log('Ver ítem:', item);
+    },
+
+    onEditItem(item) {
+      console.log('Editar colaborador:', item);
+      this.itemEmployee = new EmployeeClientTracker(item);
+      this.isEdit = true;
+      this.submitted = false;
+      this.createAndEditDialogIsVisible = true;
     },
 
     onGlobalFilterChange(value) {
@@ -118,22 +147,163 @@ export default {
       this.globalFilterValue = '';
     },
 
-
-    getClientById() {
-      // Lógica para obtener los detalles del cliente por ID
-      console.log('Obtener detalles del cliente por ID:', this.clientId);
+    onCancelRequested() {
+      this.isEdit = false;
+      this.submitted = false;
+      this.itemEmployee = null;
+      this.createAndEditDialogIsVisible = false;
     },
 
-    getCollaboratorsByClientId() {
+    onSaveRequested(employeeData) {
+      console.log('Guardar colaborador:', employeeData);
+      this.submitted = true;
+      
+      if (this.isEdit) {
+        this.update(employeeData);
+      } else {
+        this.create(employeeData);
+      }
+      
+      this.createAndEditDialogIsVisible = false;
+      this.isEdit = false;
+      this.itemEmployee = null;
+    },
+
+    // Crear nuevo empleado
+    create(employeeData) {
+      this.loading = true;
+      
+      console.log('Creando colaborador:', employeeData);
+
+      this.employeeClientTrackerApiService.create(employeeData).then(response => {
+        console.log('Colaborador creado en backend:', response.data);
+        // Agregar al array local
+        this.employeeArray.push(new EmployeeClientTracker(response.data));
+        // Mostrar mensaje de éxito
+        this.$toast.add({
+          severity: 'success',
+          summary: 'Colaborador creado',
+          detail: `El colaborador ${employeeData.name} ${employeeData.lastName} ha sido creado exitosamente`,
+          life: 4000
+        });
+      }).catch(error => {
+        console.error('Error al crear colaborador en backend:', error);
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Error al crear',
+          detail: 'No se pudo crear el colaborador',
+          life: 4000
+        });
+      }).finally(() => {
+        this.loading = false;
+      });
+    },
+
+    // Actualizar empleado
+    update(employeeData) {
+      this.loading = true;
+      
+      console.log('Actualizando colaborador:', employeeData);
+
+      this.employeeClientTrackerApiService.update(employeeData.id, employeeData).then(response => {
+        console.log('Colaborador actualizado en backend:', response.data);
+        
+        // Actualizar en el array local
+        const index = this.employeeArray.findIndex(emp => emp.id === employeeData.id);
+        if (index !== -1) {
+          this.employeeArray.splice(index, 1, new EmployeeClientTracker(response.data));
+        }
+        
+        // Mostrar mensaje de éxito
+        this.$toast.add({
+          severity: 'success',
+          summary: 'Colaborador actualizado',
+          detail: `El colaborador ${employeeData.name} ${employeeData.lastName} ha sido actualizado exitosamente`,
+          life: 4000
+        });
+      }).catch(error => {
+        console.error('Error al actualizar colaborador en backend:', error);
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Error al actualizar',
+          detail: 'No se pudo actualizar el colaborador',
+          life: 4000
+        });
+      }).finally(() => {
+        this.loading = false;
+      });
+    },
+
+    // Eliminar empleado
+    delete(employeeId) {
+      this.loading = true;
+
+      this.employeeClientTrackerApiService.delete(employeeId).then(response => {
+        console.log('Colaborador eliminado en backend:', response.data);
+        
+        // Eliminar del array local
+        this.employeeArray = this.employeeArray.filter(emp => emp.id !== employeeId);
+        
+        // Mostrar mensaje de éxito
+        this.$toast.add({
+          severity: 'success',
+          summary: 'Colaborador eliminado',
+          detail: 'El colaborador ha sido eliminado exitosamente',
+          life: 4000
+        });
+      }).catch(error => {
+        console.error('Error al eliminar colaborador en backend:', error);
+        
+        // Mostrar mensaje de error
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Error al eliminar',
+          detail: 'No se pudo eliminar el colaborador',
+          life: 4000
+        });
+      }).finally(() => {
+        this.loading = false;
+      });
+    },
+
+    getEmployeesByClientId() {
       // Lógica para obtener los colaboradores asociados al cliente por ID
       console.log('Obtener colaboradores del cliente por ID:', this.clientId);
+
+      this.employeeClientTrackerApiService = new EmployeeClientTrackerApiService('/company-employees/applicant-company');
+
+      this.employeeClientTrackerApiService.getAllByClient(this.clientId).then(response => {
+        this.employeeArray = response.data.map(item => (new EmployeeClientTracker(item)));
+      }).catch(error => {
+        console.error('Error al obtener los colaboradores del cliente:', error);
+      })
+    },
+
+
+    getClientById() {
+
+      this.loading = true;
+
+      this.clientTrackerApiService.getById(this.clientId).then(response => {
+        this.item = new ClientTracker(response.data);
+      }).catch(error => {
+        console.error('Error al obtener el cliente por ID:', error);
+      }).finally(() => {
+        this.loading = false;
+        this.getEmployeesByClientId();
+      });
+
     },
 
   },
 
 
   created() {
-
+    // Obtener el ID del cliente desde los query parameters
+    this.clientId = this.$route.query.id;
+    if (this.clientId) {
+      this.getClientById();
+    }
   },
 
 
@@ -142,6 +312,8 @@ export default {
 </script>
 
 <template>
+  <!-- Dialogo de confirmación -->
+  <pv-confirm-dialog />
 
   <div class="h-full overflow-hidden flex flex-column p-4">
 
@@ -151,16 +323,22 @@ export default {
       <!-- Título y descripción -->
       <div class="flex flex-column pb-1" >
         <h2 class="text-3xl font-bold mb-2">Gestión de colaboradores del cliente</h2>
-        <p><span class="font-bold text-primary-local ">{{ item.executiveName }}: </span> Contacto y credenciales de
-          colaboradores</p>
+        <p v-if="item">
+          <span class="font-bold text-primary-local ">{{ item.executiveName }}: </span> 
+          Contacto y credenciales de colaboradores
+        </p>
+        <p v-else>Cargando información del cliente...</p>
       </div>
 
-
       <!-- Estado del cliente-->
-      <div :class="['flex align-items-center gap-2 px-3 py-1 border-round border-1', statusProps.container]">
+      <div 
+        v-if="item" 
+        :class="['flex align-items-center gap-2 px-3 py-1 border-round border-1', statusProps.container]"
+      >
         <i :class="statusProps.icon"></i>
         <span class="font-semibold text-sm">Estado del cliente:</span>
-        <span class="font-bold">{{ item.status.toLowerCase() }}</span>
+
+        <span class="font-bold"> {{ item.status === 'ACTIVE' ? 'Activo' : 'Inactivo' }} </span>
       </div>
 
     </div>
@@ -169,7 +347,7 @@ export default {
 
 
     <data-manager
-        :items="collaboratorArray"
+        :items="employeeArray"
         :filtered-items="filteredItemsArray"
         :global-filter-value="globalFilterValue"
         :columns="columns"
@@ -182,15 +360,21 @@ export default {
         :show-selection="true"
         :show-actions="true"
         :show-action-buttons="true"
+        :show-view-action="false"
+        :show-edit-action="true"
+        :show-delete-action="true"
         :rows="10"
         :rows-per-page-options="[5, 10, 15, 20, 50]"
         new-button-label="Nuevo colaborador"
         delete-button-label="Eliminar"
         export-button-label="Exportar"
+        edit-button-label="Editar"
+        delete-action-label="Eliminar"
         search-placeholder="Busca por nombre, apellido, email, teléfono..."
         @new-item-requested-manager="onNewItem"
         @delete-selected-items-requested-manager="onDeleteSelectedItems"
         @delete-item-requested-manager="onDeleteItem"
+        @edit-item-requested-manager="onEditItem"
         @view-item-requested-manager="onViewItem"
         @global-filter-change="onGlobalFilterChange"
         @clear-filters="onClearFilters"
@@ -198,14 +382,17 @@ export default {
 
     </data-manager>
 
+    <!-- Diálogo para crear/editar colaborador -->
+    <employee-collaborator-create-and-edit
+        :edit="isEdit"
+        :item="itemEmployee"
+        :visible="createAndEditDialogIsVisible"
+        :client-id="clientId"
+        @cancel-requested="onCancelRequested"
+        @save-requested="onSaveRequested"
+    />
+
   </div>
-
-
-
-
-
-
-
 
 </template>
 
