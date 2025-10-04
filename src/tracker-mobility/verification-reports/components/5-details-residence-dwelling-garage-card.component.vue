@@ -48,12 +48,16 @@ export default {
 </script>
 
 <template>
-  <pv-card class="w-full">
-    <template #content>
-      <h3 class="text-lg font-bold mb-4 text-primary flex align-items-center gap-2">
-        <i class="pi pi-home"></i>
-        Detalles de residencia, vivienda y cochera
-      </h3>
+  <div class="flex flex-column gap-4">
+    <!-- Primera card: Detalles de residencia, vivienda y cochera -->
+    <pv-card class="w-full">
+      <template #header>
+        <h3 class="text-lg font-bold flex align-items-center gap-2 text-white p-3 m-0">
+          <i class="pi pi-home text-white"></i>
+          Detalles de residencia, vivienda y cochera
+        </h3>
+      </template>
+      <template #content>
       
       <div class="formgrid grid">
         <!-- Primera fila -->
@@ -213,38 +217,70 @@ export default {
           </label>
           <p class="font-semibold text-dark m-0">{{ item?.realDirection || 'No especificado' }}</p>
         </div>
-        
-        <!-- Referencias familiares -->
-        <div class="field col-12">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-users"></i>
-            DATOS REFERENCIALES DE FAMILIARES O ARRENDADORES:
-          </label>
-          <div v-if="item?.familiarReferences && item.familiarReferences.length > 0" class="mt-2">
-            <div v-for="(reference, index) in item.familiarReferences" :key="index" class="flex align-items-center gap-4 mb-2 p-2 bg-gray-50 border-round">
-              <div class="flex-1">
-                <span class="font-semibold text-color-secondary">Nombre: </span>
-                <span class="font-semibold text-dark">{{ reference.name }}</span>
-              </div>
-              <div class="flex-1">
-                <span class="font-semibold text-color-secondary">Contacto: </span>
-                <span class="font-semibold text-dark">{{ reference.contact }}</span>
-              </div>
-              <div class="flex-1">
-                <span class="font-semibold text-color-secondary">Parentesco: </span>
-                <span class="font-semibold text-dark">{{ reference.relationship }}</span>
-              </div>
-            </div>
-          </div>
-          <p v-else class="font-semibold text-dark m-0">No hay referencias registradas</p>
-        </div>
       </div>
     </template>
   </pv-card>
+
+    <!-- Segunda card: Datos referenciales de familiares o arrendadores -->
+    <pv-card class="w-full">
+      <template #header>
+        <h3 class="text-lg font-bold flex align-items-center gap-2 text-white p-3 m-0">
+          <i class="pi pi-users text-white"></i>
+          Datos referenciales de familiares o arrendadores
+        </h3>
+      </template>
+      <template #content>
+        <div class="formgrid grid">
+          <div class="field col-12">
+            <div v-if="item?.familiarReferences && item.familiarReferences.length > 0" class="mt-2">
+              <div v-for="(reference, index) in item.familiarReferences" :key="index" class="flex align-items-center gap-4 mb-2 p-3 bg-gray-50 border-round">
+                <div class="flex-1">
+                  <span class="font-semibold text-color-secondary flex align-items-center gap-2">
+                    <i class="pi pi-user text-primary"></i>
+                    Nombre:
+                  </span>
+                  <span class="font-semibold text-dark">{{ reference.name }}</span>
+                </div>
+                <div class="flex-1">
+                  <span class="font-semibold text-color-secondary flex align-items-center gap-2">
+                    <i class="pi pi-phone text-primary"></i>
+                    Contacto:
+                  </span>
+                  <span class="font-semibold text-dark">{{ reference.contact }}</span>
+                </div>
+                <div class="flex-1">
+                  <span class="font-semibold text-color-secondary flex align-items-center gap-2">
+                    <i class="pi pi-heart text-primary"></i>
+                    Parentesco:
+                  </span>
+                  <span class="font-semibold text-dark">{{ reference.relationship }}</span>
+                </div>
+              </div>
+            </div>
+            <div v-else class="text-center p-4">
+              <i class="pi pi-info-circle text-3xl text-gray-400 mb-3"></i>
+              <p class="font-semibold text-gray-500 m-0">No hay referencias registradas</p>
+            </div>
+          </div>
+        </div>
+      </template>
+    </pv-card>
+  </div>
 </template>
 
 <style scoped>
 :deep(.p-card-content) {
   padding: 0.5rem;
+}
+
+:deep(.p-card-header) {
+  background-color: #4A60D0;
+  border-radius: 0.375rem 0.375rem 0 0;
+  overflow: hidden;
+}
+
+:deep(.p-card) {
+  overflow: hidden;
+  border-radius: 0.375rem;
 }
 </style>
