@@ -9,22 +9,14 @@ export default {
 
   props: {
     edit: Boolean,
-    item: {
-        type: ClientTracker,
-        default: null
-      },
+    item: null, // Cliente a editar
     visible: Boolean
   },
 
   data() {
     return {
       submitted: false,
-      clientEntity: {
-        ruc: '',
-        executiveName: '',
-        role: 'CLIENTE',
-        status: 'ACTIVE'
-      }
+      clientEntity: null,
     };
   },
 
@@ -35,7 +27,7 @@ export default {
         this.clientEntity = {
           ruc: this.item.ruc || '',
           executiveName: this.item.executiveName || '',
-          role: this.item.role || 'CLIENTE',
+          password: '', // No cargar password existente por seguridad
           status: this.item.status || 'ACTIVE'
         };
       } else if (newValue && !this.edit) {
@@ -58,10 +50,17 @@ export default {
       
       // Validar campos requeridos
       if (this.isFormValid()) {
-        // Si es edición, incluir el ID
+        // Preparar datos del cliente
         const clientData = { ...this.clientEntity };
+        
+        // Si es edición, incluir el ID
         if (this.edit && this.item) {
           clientData.id = this.item.id;
+          
+          // Si no se proporciona password en modo edición, no incluirla en los datos
+          if (!clientData.password || clientData.password.trim() === '') {
+            delete clientData.password;
+          }
         }
         
         this.$emit('save-requested', clientData);
@@ -73,7 +72,19 @@ export default {
       const rucValid = this.clientEntity.ruc && this.isValidruc(this.clientEntity.ruc);
       const executiveNameValid = this.clientEntity.executiveName && this.isValidexecutiveName(this.clientEntity.executiveName);
       
-      return rucValid && executiveNameValid;
+      // Password validation logic:
+      // - Creating new client: password is required
+      // - Editing existing client: password is optional (only validate if provided)
+      let passwordValid = true;
+      if (!this.edit) {
+        // Creating: password required and must be valid
+        passwordValid = this.clientEntity.password && this.isValidPassword(this.clientEntity.password);
+      } else {
+        // Editing: if password is provided, it must be valid; if empty, it's ok
+        passwordValid = !this.clientEntity.password || this.isValidPassword(this.clientEntity.password);
+      }
+      
+      return rucValid && executiveNameValid && passwordValid;
     },
 
     isValidruc(ruc) {
@@ -88,10 +99,17 @@ export default {
       return nameRegex.test(name.trim());
     },
 
+    isValidPassword(password) {
+      // Al menos 8 caracteres, al menos una letra y un número
+      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/;
+      return passwordRegex.test(password);
+    },
+
     resetForm() {
       this.clientEntity = {
         ruc: '',
         executiveName: '',
+        password: '',
         role: 'CLIENTE',
         status: 'ACTIVE'
       };
@@ -176,7 +194,35 @@ export default {
           </div>
         </div>
 
-        <!-- ======== Fila 3: Estado (solo en edición) ======== -->
+        <!-- ======== Fila 3: Password ======== -->
+        <div class="col-12 px-2 pb-1">
+          <div class="field">
+            <label for="password" class="block text-900 font-medium mb-2">
+              <i class="pi pi-lock mr-2"></i>Contraseña {{ !edit ? '*' : '(cambiar)' }}
+            </label>
+            <pv-password
+                id="password"
+                v-model="clientEntity.password"
+                class="w-full"
+                input-class="w-full"
+                :placeholder="edit ? 'Dejar vacío para mantener contraseña actual' : 'Ingrese la contraseña'"
+                :feedback="false"
+                toggle-mask
+                :aria-invalid="submitted && ((!edit && !clientEntity.password) || (clientEntity.password && !isValidPassword(clientEntity.password)))"
+                aria-describedby="password-error"
+                :class="{ 'p-invalid': submitted && ((!edit && !clientEntity.password) || (clientEntity.password && !isValidPassword(clientEntity.password))) }"
+            />
+            <small v-if="submitted && !edit && !clientEntity.password" class="p-error">
+              La contraseña es requerida para crear un nuevo cliente
+            </small>
+            <small v-else-if="submitted && clientEntity.password && !isValidPassword(clientEntity.password)"
+                   class="p-error">
+              La contraseña debe tener al menos 8 caracteres, incluyendo al menos una letra y un número
+            </small>
+          </div>
+        </div>
+
+        <!-- ======== Fila 4: Estado (solo en edición) ======== -->
         <div v-if="edit" class="col-12 px-2 pb-1">
           <div class="field">
             <label for="status" class="block text-900 font-medium mb-2">
