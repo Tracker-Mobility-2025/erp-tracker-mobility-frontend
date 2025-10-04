@@ -60,8 +60,7 @@ export default {
       <template #content>
         <!-- SECCIÓN: Información de Residencia -->
         <div class="mb-4">
-          <h4 class="text-md font-bold text-primary mb-3 flex align-items-center gap-2">
-            <i class="pi pi-users text-primary"></i>
+          <h4 class="text-md font-bold text-primary mb-3">
             Información de Residencia
           </h4>
           <div class="formgrid grid">
@@ -93,8 +92,7 @@ export default {
 
         <!-- SECCIÓN: Características de la Vivienda -->
         <div class="mb-4">
-          <h4 class="text-md font-bold text-primary mb-3 flex align-items-center gap-2">
-            <i class="pi pi-home text-primary"></i>
+          <h4 class="text-md font-bold text-primary mb-3">
             Características de la Vivienda
           </h4>
           <div class="formgrid grid">
@@ -174,8 +172,7 @@ export default {
 
         <!-- SECCIÓN: Información de la Zona -->
         <div class="mb-4">
-          <h4 class="text-md font-bold text-primary mb-3 flex align-items-center gap-2">
-            <i class="pi pi-map text-primary"></i>
+          <h4 class="text-md font-bold text-primary mb-3">
             Información de la Zona
           </h4>
           <div class="formgrid grid">
@@ -215,8 +212,7 @@ export default {
 
         <!-- SECCIÓN: Información de Cochera -->
         <div class="mb-4">
-          <h4 class="text-md font-bold text-primary mb-3 flex align-items-center gap-2">
-            <i class="pi pi-car text-primary"></i>
+          <h4 class="text-md font-bold text-primary mb-3">
             Información de Cochera
           </h4>
           <div class="formgrid grid">
@@ -240,8 +236,7 @@ export default {
         
         <!-- SECCIÓN: Ubicación -->
         <div class="mb-4">
-          <h4 class="text-md font-bold text-primary mb-3 flex align-items-center gap-2">
-            <i class="pi pi-map-marker text-primary"></i>
+          <h4 class="text-md font-bold text-primary mb-3">
             Ubicación
           </h4>
           <div class="formgrid grid">
