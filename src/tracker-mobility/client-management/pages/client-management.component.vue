@@ -3,6 +3,7 @@
 import ClientCreateAndEdit from "../components/client-create-and-edit.component.vue";
 import {ClientTrackerApiService} from "../services/client-tracker-api.service.js";
 import {ClientTracker} from "../models/client-tracker-mobility.entity.js";
+import {CreateClientTracker} from "../models/create-client-tracker-mobility.entity.js";
 
 export default {
   name:'client-management',
@@ -186,111 +187,116 @@ export default {
     create(clientData) {
       this.loading = true;
       
-      const newClient = new ClientTracker(clientData);
+      const newClient = new CreateClientTracker(clientData);
+
       console.log('Creando cliente:', newClient);
 
-      // Para simulación, agregar directamente al array
-      // En producción, esto usaría la API real:
-      // this.clientTrackerApiService.create(newClient)
-      
-      try {
-        // Simular ID autogenerado
-        newClient.id = Math.max(...this.clientArray.map(c => c.id), 0) + 1;
-        
-        this.clientArray.push(newClient);
-        
+      this.clientTrackerApiService.create(clientData).then(response => {
+        console.log('Cliente creado en backend:', response.data);
+        // Agregar al array local
+        this.clientArray.push(new ClientTracker(response.data));
         // Mostrar mensaje de éxito
         this.$toast.add({
           severity: 'success',
           summary: 'Cliente creado',
-          detail: `El cliente ${newClient.companyName} ha sido creado exitosamente`,
+          detail: `El cliente ${clientData.executiveName} ha sido creado exitosamente`,
           life: 4000
         });
-        
-      } catch (error) {
-        console.error('Error al crear cliente:', error);
-        
+
+      }).catch(error => {
+        console.error('Error al crear cliente en backend:', error);
+
         this.$toast.add({
           severity: 'error',
-          summary: 'Error al crear cliente',
-          detail: 'No se pudo crear el cliente. Por favor, intente nuevamente.',
+          summary: 'Error al crear',
+          detail: 'No se pudo crear el cliente',
           life: 4000
         });
-      } finally {
+      }).finally(() => {
         this.loading = false;
-      }
+      });
+      
+
     },
 
+    // Actualizar cliente
     update(clientData) {
       this.loading = true;
       
       console.log('Actualizando cliente:', clientData);
-      
-      try {
-        // Encontrar y actualizar el cliente en el array
+
+      this.clientTrackerApiService.update(clientData.id, clientData).then(response => {
+        console.log('Cliente actualizado en backend:', response.data);
+
+        // Actualizar en el array local
         const index = this.clientArray.findIndex(c => c.id === clientData.id);
-        if (index > -1) {
-          // Mantener el ID original y actualizar los demás campos
-          this.clientArray[index] = new ClientTracker({
-            ...clientData,
-            id: this.clientArray[index].id
-          });
-          
-          // Mostrar mensaje de éxito
-          this.$toast.add({
-            severity: 'success',
-            summary: 'Cliente actualizado',
-            detail: `El cliente ${clientData.companyName} ha sido actualizado exitosamente`,
-            life: 4000
-          });
+        if (index !== -1) {
+          this.clientArray.splice(index, 1, new ClientTracker(response.data));
         }
-        
-      } catch (error) {
-        console.error('Error al actualizar cliente:', error);
-        
+
+        // Mostrar mensaje de éxito
         this.$toast.add({
-          severity: 'error',
-          summary: 'Error al actualizar cliente',
-          detail: 'No se pudo actualizar el cliente. Por favor, intente nuevamente.',
+          severity: 'success',
+          summary: 'Cliente actualizado',
+          detail: `El cliente ${clientData.executiveName} ha sido actualizado exitosamente`,
           life: 4000
         });
-      } finally {
+
+
+      }).catch(error => {
+        console.error('Error al actualizar cliente en backend:', error);
+
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Error al actualizar',
+          detail: 'No se pudo actualizar el cliente',
+          life: 4000
+        });
+
+      }).finally(() => {
         this.loading = false;
-      }
+      });
+
+
+
     },
 
+    // Eliminar cliente
     delete(clientId) {
       this.loading = true;
-      
-      try {
-        // Encontrar el cliente antes de eliminarlo para mostrar el mensaje
-        const clientToDelete = this.clientArray.find(c => c.id === clientId);
-        
+
+
+      this.clientTrackerApiService.delete(clientId).then(response => {
+        console.log('Cliente eliminado en backend:', response.data);
+
         // Eliminar del array local
         this.clientArray = this.clientArray.filter(c => c.id !== clientId);
-        
+
         // Mostrar mensaje de éxito
         this.$toast.add({
           severity: 'success',
           summary: 'Cliente eliminado',
-          detail: `El cliente ${clientToDelete?.companyName || ''} ha sido eliminado exitosamente`,
+          detail: `El cliente ha sido eliminado exitosamente`,
           life: 4000
         });
-        
-      } catch (error) {
-        console.error('Error al eliminar cliente:', error);
-        
+
+      }).catch(error => {
+        console.error('Error al eliminar cliente en backend:', error);
+
+        // Mostrar mensaje de error
         this.$toast.add({
           severity: 'error',
           summary: 'Error al eliminar',
           detail: 'No se pudo eliminar el cliente',
           life: 4000
         });
-      } finally {
-        this.loading = false;
-      }
-    },
 
+      }).finally(() => {
+        this.loading = false;
+      });
+      
+
+    },
 
     // Retornar todo los clientes
     getAllClients() {
