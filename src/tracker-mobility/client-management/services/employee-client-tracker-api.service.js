@@ -11,12 +11,12 @@ export class EmployeeClientTrackerApiService {
 
     // Retornar todos los empleados de un cliente especifico
     getAllByClient(clientId) {
-        return http.get(`${this.resourceEndpoint}/client/${clientId}`);
+        return http.get(`${this.resourceEndpoint}/${clientId}`);
     }
 
     // Crear nuevo empleado para un cliente especifico
-    create(clientId, data) {
-        return http.post(`${this.resourceEndpoint}/client/${clientId}`, data);
+    create(data) {
+        return http.post(this.resourceEndpoint, data);
     }
 
     // Actualizar empleado por Id
