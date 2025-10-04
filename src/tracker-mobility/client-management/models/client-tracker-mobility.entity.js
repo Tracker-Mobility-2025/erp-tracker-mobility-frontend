@@ -1,23 +1,18 @@
 
-
 export class ClientTracker {
 
     constructor(
         {
-            id = null,
-            RUC = null,
-            companyName = null,
-            role = null,
-            status = null,
-        }
-    )
-    {
+            id = 0,
+            ruc = "",
+            executiveName = "",
+            status = "ACTIVE"
+        } = {}
+    ) {
         this.id = id;
-        this.RUC = RUC;
-        this.companyName = companyName;
-        this.role = role;
+        this.ruc = ruc;
+        this.executiveName = executiveName;
         this.status = status;
     }
-
 
 }

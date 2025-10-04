@@ -1,6 +1,7 @@
 <script>
 
 import DataManager from "../../../shared/components/data-manager.component.vue";
+import {ReportApiService} from "../services/reports-api.service.js";
 
 export default {
   name: 'verification-reports-management',
@@ -8,6 +9,9 @@ export default {
 
   data(){
     return {
+
+      // Servicio para manejar reportes de verificación
+      reportApiService: new ReportApiService('/reports'),
 
       itemsArray:[],
 
@@ -71,6 +75,7 @@ export default {
   },
 
   methods: {
+
     onNewItemRequested() {
       console.log('Crear nueva orden de verificación');
       // Implementar navegación a formulario de creación
@@ -141,7 +146,29 @@ export default {
         default:
           return 'info';
       }
+    },
+
+
+    /*
+    getAll(){
+
+      this.loading = true;
+
+      this.reportApiService.getAll().then(response => {
+        this.itemsArray = response.data.map(item => new
+        }));
+
+        console.log('Informes de verificación obtenidos:', this.itemsArray);
+
+      }).catch(error => {
+        console.error('Error al obtener los informes de verificación:', error);
+      }).finally(() => {
+        this.loading = false;
+      });
     }
+    */
+
+
   },
 
 

@@ -1,6 +1,7 @@
 <script>
 
 import CreateAndEdit from "../../../shared/components/create-and-edit.component.vue";
+import {ClientTracker} from "../models/client-tracker-mobility.entity.js";
 
 export default {
   name: 'client-create-and-edit',
@@ -8,7 +9,10 @@ export default {
 
   props: {
     edit: Boolean,
-    item: null,
+    item: {
+        type: ClientTracker,
+        default: null
+      },
     visible: Boolean
   },
 
@@ -16,8 +20,8 @@ export default {
     return {
       submitted: false,
       clientEntity: {
-        RUC: '',
-        companyName: '',
+        ruc: '',
+        executiveName: '',
         role: 'CLIENTE',
         status: 'ACTIVE'
       }
@@ -29,8 +33,8 @@ export default {
     visible(newValue) {
       if (newValue && this.edit && this.item) {
         this.clientEntity = {
-          RUC: this.item.RUC || '',
-          companyName: this.item.companyName || '',
+          ruc: this.item.ruc || '',
+          executiveName: this.item.executiveName || '',
           role: this.item.role || 'CLIENTE',
           status: this.item.status || 'ACTIVE'
         };
@@ -66,19 +70,19 @@ export default {
     },
 
     isFormValid() {
-      const rucValid = this.clientEntity.RUC && this.isValidRUC(this.clientEntity.RUC);
-      const companyNameValid = this.clientEntity.companyName && this.isValidCompanyName(this.clientEntity.companyName);
+      const rucValid = this.clientEntity.ruc && this.isValidruc(this.clientEntity.ruc);
+      const executiveNameValid = this.clientEntity.executiveName && this.isValidexecutiveName(this.clientEntity.executiveName);
       
-      return rucValid && companyNameValid;
+      return rucValid && executiveNameValid;
     },
 
-    isValidRUC(ruc) {
-      // RUC peruano: 11 dígitos numéricos
+    isValidruc(ruc) {
+      // ruc peruano: 11 dígitos numéricos
       const rucRegex = /^[0-9]{11}$/;
       return rucRegex.test(ruc);
     },
 
-    isValidCompanyName(name) {
+    isValidexecutiveName(name) {
       // Al menos 2 caracteres, permitir letras, números, espacios y algunos caracteres especiales
       const nameRegex = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\.\-&]{2,}$/;
       return nameRegex.test(name.trim());
@@ -86,8 +90,8 @@ export default {
 
     resetForm() {
       this.clientEntity = {
-        RUC: '',
-        companyName: '',
+        ruc: '',
+        executiveName: '',
         role: 'CLIENTE',
         status: 'ACTIVE'
       };
@@ -119,29 +123,29 @@ export default {
     <template #content>
       <div class="grid p-2">
 
-        <!-- ======== Fila 1: RUC ======== -->
+        <!-- ======== Fila 1: ruc ======== -->
         <div class="col-12 px-2 pb-1">
           <div class="field">
             <label for="ruc" class="block text-900 font-medium mb-2">
-              <i class="pi pi-id-card mr-2"></i>RUC *
+              <i class="pi pi-id-card mr-2"></i>ruc *
             </label>
             <pv-input-text
                 id="ruc"
-                v-model="clientEntity.RUC"
+                v-model="clientEntity.ruc"
                 class="w-full"
                 size="small"
-                placeholder="Ingrese el RUC (11 dígitos)"
+                placeholder="Ingrese el ruc (11 dígitos)"
                 maxlength="11"
-                :aria-invalid="submitted && (!clientEntity.RUC || !isValidRUC(clientEntity.RUC))"
+                :aria-invalid="submitted && (!clientEntity.ruc || !isValidruc(clientEntity.ruc))"
                 aria-describedby="ruc-error"
-                :class="{ 'p-invalid': submitted && (!clientEntity.RUC || !isValidRUC(clientEntity.RUC)) }"
+                :class="{ 'p-invalid': submitted && (!clientEntity.ruc || !isValidruc(clientEntity.ruc)) }"
             />
-            <small v-if="submitted && !clientEntity.RUC" class="p-error">
-              El RUC es requerido
+            <small v-if="submitted && !clientEntity.ruc" class="p-error">
+              El ruc es requerido
             </small>
-            <small v-else-if="submitted && clientEntity.RUC && !isValidRUC(clientEntity.RUC)" 
+            <small v-else-if="submitted && clientEntity.ruc && !isValidruc(clientEntity.ruc)"
                    class="p-error">
-              El RUC debe tener exactamente 11 dígitos numéricos
+              El ruc debe tener exactamente 11 dígitos numéricos
             </small>
           </div>
         </div>
@@ -149,23 +153,23 @@ export default {
         <!-- ======== Fila 2: Nombre de la empresa ======== -->
         <div class="col-12 px-2 pb-1">
           <div class="field">
-            <label for="companyName" class="block text-900 font-medium mb-2">
+            <label for="executiveName" class="block text-900 font-medium mb-2">
               <i class="pi pi-building mr-2"></i>Nombre de la empresa *
             </label>
             <pv-input-text
-                id="companyName"
-                v-model="clientEntity.companyName"
+                id="executiveName"
+                v-model="clientEntity.executiveName"
                 class="w-full"
                 size="small"
                 placeholder="Ingrese el nombre de la empresa"
-                :aria-invalid="submitted && (!clientEntity.companyName || !isValidCompanyName(clientEntity.companyName))"
-                aria-describedby="companyName-error"
-                :class="{ 'p-invalid': submitted && (!clientEntity.companyName || !isValidCompanyName(clientEntity.companyName)) }"
+                :aria-invalid="submitted && (!clientEntity.executiveName || !isValidexecutiveName(clientEntity.executiveName))"
+                aria-describedby="executiveName-error"
+                :class="{ 'p-invalid': submitted && (!clientEntity.executiveName || !isValidexecutiveName(clientEntity.executiveName)) }"
             />
-            <small v-if="submitted && !clientEntity.companyName" class="p-error">
+            <small v-if="submitted && !clientEntity.executiveName" class="p-error">
               El nombre de la empresa es requerido
             </small>
-            <small v-else-if="submitted && clientEntity.companyName && !isValidCompanyName(clientEntity.companyName)" 
+            <small v-else-if="submitted && clientEntity.executiveName && !isValidexecutiveName(clientEntity.executiveName)"
                    class="p-error">
               El nombre debe tener al menos 2 caracteres y contener solo letras, números y caracteres básicos
             </small>

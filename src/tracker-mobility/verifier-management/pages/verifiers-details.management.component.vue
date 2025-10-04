@@ -72,6 +72,7 @@ export default {
     onRemoveOrder(order) {
 
       console.log('Removiendo orden del verificador:', order);
+
       this.updateOrder = {
         "homeVisitDetails": {
           "verifierId": null,

@@ -12,7 +12,7 @@ export default {
     return {
 
       // Servicio de cliente
-      clientTrackerApiService: new ClientTrackerApiService('/clients'),
+      clientTrackerApiService: new ClientTrackerApiService('/applicant-companies'),
 
       // Nuevo cliente
       createItem: new ClientTracker({}), // Nuevo
@@ -138,7 +138,7 @@ export default {
 
     // Nuevos métodos para acciones de cliente
     onViewItem(item) {
-      this.itemClient = item;
+      this.itemClient = new ClientTracker(item);
       console.log('Ver detalles del cliente:', item);
       // router para navegar a una página de detalles.
       this.$router.push({
@@ -295,122 +295,14 @@ export default {
     // Retornar todo los clientes
     getAllClients() {
 
-      // Data mockeada
-
-      this.clientArray = [
-        new ClientTracker({
-          id: 1,
-          RUC: '12345678901',
-          companyName: 'Empresa A',
-          role: 'CLIENTE',
-          status: 'ACTIVE'
-        }),
-        new ClientTracker({
-          id: 2,
-          RUC: '10987654321',
-          companyName: 'Empresa B',
-          role: 'CLIENTE',
-          status: 'INACTIVE'
-        }),
-        new ClientTracker({
-          id: 3,
-          RUC: '11223344556',
-          companyName: 'Empresa C',
-          role: 'CLIENTE',
-          status: 'ACTIVE'
-        }),
-        new ClientTracker({
-          id: 4,
-          RUC: '20123456789',
-          companyName: 'Constructora Andina SAC',
-          role: 'CLIENTE',
-          status: 'ACTIVE'
-        }),
-        new ClientTracker({
-          id: 5,
-          RUC: '20567891234',
-          companyName: 'Servicios Logísticos del Sur',
-          role: 'CLIENTE',
-          status: 'ACTIVE'
-        }),
-        new ClientTracker({
-          id: 6,
-          RUC: '20456789123',
-          companyName: 'Agroexportadora Pacífico',
-          role: 'CLIENTE',
-          status: 'INACTIVE'
-        }),
-        new ClientTracker({
-          id: 7,
-          RUC: '20654321987',
-          companyName: 'Consultora Global Solutions',
-          role: 'CLIENTE',
-          status: 'ACTIVE'
-        }),
-        new ClientTracker({
-          id: 8,
-          RUC: '20765432198',
-          companyName: 'Inversiones Rivera EIRL',
-          role: 'CLIENTE',
-          status: 'INACTIVE'
-        }),
-        new ClientTracker({
-          id: 9,
-          RUC: '20876543219',
-          companyName: 'Tecnologías Innovadoras SAC',
-          role: 'CLIENTE',
-          status: 'ACTIVE'
-        }),
-        new ClientTracker({
-          id: 10,
-          RUC: '20987654321',
-          companyName: 'Transportes del Norte',
-          role: 'CLIENTE',
-          status: 'INACTIVE'
-        }),
-        new ClientTracker({
-          id: 11,
-          RUC: '21098765432',
-          companyName: 'Servicios Financieros Lima',
-          role: 'CLIENTE',
-          status: 'ACTIVE'
-        }),
-        new ClientTracker({
-          id: 12,
-          RUC: '21109876543',
-          companyName: 'Comercializadora Andina',
-          role: 'CLIENTE',
-          status: 'ACTIVE'
-        }),
-        new ClientTracker({
-          id: 13,
-          RUC: '21210987654',
-          companyName: 'Logística Integral SAC',
-          role: 'CLIENTE',
-          status: 'INACTIVE'
-        }),
-        new ClientTracker({
-          id: 14,
-          RUC: '21321098765',
-          companyName: 'Constructora del Pacífico',
-          role: 'CLIENTE',
-          status: 'ACTIVE'
-        }),
-        new ClientTracker({
-          id: 15,
-          RUC: '21432109876',
-          companyName: 'Agroindustria Los Andes',
-          role: 'CLIENTE',
-          status: 'INACTIVE'
-        }),
-      ];
-
-      /*
       this.loading = true;
 
       this.clientTrackerApiService.getAll().then(response => {
 
-        this.clientArray = response.data.map(clientData => new ClientTrackerApiService(clientData));
+        // Asignar datos al array de clientes parseando a la entidad ClientTracker
+        this.clientArray = response.data.map(clientData => new ClientTracker(clientData));
+
+        console.log("Clients recuperados:", this.clientArray);
 
         this.loading = false;
 
@@ -418,7 +310,6 @@ export default {
         console.error("Error fetching clients:", error);
         this.loading = false;
       });
-      */
 
 
     },
@@ -546,7 +437,7 @@ export default {
       <div class="grid overflow-auto flex-grow-1" style="min-height: 0;">
         <div 
           v-for="client in paginatedClients" 
-          :key="client.id"
+          :key="client.ruc"
           class="col-12 sm:col-6 lg:col-4 xl:col-4"
         >
           <div class="surface-card p-4 border-round shadow-2 h-full">
@@ -568,12 +459,12 @@ export default {
 
             <!-- Información del cliente -->
             <div class="mb-4">
-              <h4 class="text-lg font-bold text-900 mb-2 line-height-3">{{ client.companyName }}</h4>
+              <h4 class="text-lg font-bold text-900 mb-2 line-height-3">{{ client.executiveName }}</h4>
               <div class="flex flex-column gap-2">
                 <div class="flex align-items-center gap-2">
                   <i class="pi pi-id-card text-500"></i>
                   <span class="text-600 text-sm font-medium">RUC:</span>
-                  <span class="text-900 font-semibold">{{ client.RUC }}</span>
+                  <span class="text-900 font-semibold">{{ client.ruc }}</span>
                 </div>
               </div>
             </div>

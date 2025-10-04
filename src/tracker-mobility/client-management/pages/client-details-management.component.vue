@@ -10,15 +10,8 @@ export default {
   props: {
     item: {
       type: ClientTracker,
-      required: true,
-      default: () => new ClientTracker({
-        id: 1,
-        RUC: '12345678901',
-        companyName: 'TRACKER MOBILITY S.A.C',
-        role: 'CLIENTE',
-        status: 'ACTIVO',
-      }),
-    },
+      required: true
+    }
   },
 
   data() {
@@ -158,7 +151,7 @@ export default {
       <!-- Título y descripción -->
       <div class="flex flex-column pb-1" >
         <h2 class="text-3xl font-bold mb-2">Gestión de colaboradores del cliente</h2>
-        <p><span class="font-bold text-primary-local ">{{ item.companyName }}: </span> Contacto y credenciales de
+        <p><span class="font-bold text-primary-local ">{{ item.executiveName }}: </span> Contacto y credenciales de
           colaboradores</p>
       </div>
 
