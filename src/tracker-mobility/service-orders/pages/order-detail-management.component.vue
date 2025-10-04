@@ -37,7 +37,15 @@ export default {
       // Estados de carga
       isLoading: true,
       hasError: false,
-      errorMessage: ''
+      errorMessage: '',
+      
+      // Progreso de carga
+      loadingStep: 0,
+      loadingSteps: [
+        { icon: 'pi-file-o', label: 'Datos de la orden' },
+        { icon: 'pi-users', label: 'Información del cliente' },
+        { icon: 'pi-cog', label: 'Detalles del servicio' }
+      ],
 
 
     };
@@ -73,13 +81,22 @@ export default {
       
       this.isLoading = true;
       this.hasError = false;
+      this.loadingStep = 0;
+      
+      // Simular progreso de carga
+      this.simulateLoadingProgress();
       
       this.orderRequestApi.getById(orderId).then(response => {
-
           this.item = new OrderService(response.data);
-          this.isLoading = false;
-
-          console.log('Detalles de la orden obtenidos:', this.item);
+          
+          // Completar todos los pasos
+          this.loadingStep = this.loadingSteps.length;
+          
+          // Mostrar mensaje de éxito después de un breve delay
+          setTimeout(() => {
+            this.isLoading = false;
+            console.log('Detalles de la orden obtenidos:', this.item);
+          }, 300);
         })
         .catch(error => {
           console.error('Error al obtener detalles de la orden:', error);
@@ -88,6 +105,22 @@ export default {
           this.errorMessage = 'Error al cargar los detalles de la orden. Por favor, intente nuevamente.';
         });
 
+    },
+
+    simulateLoadingProgress() {
+      // Simular progreso paso a paso para mejor UX
+      const progressInterval = setInterval(() => {
+        if (this.loadingStep < this.loadingSteps.length - 1) {
+          this.loadingStep++;
+        } else {
+          clearInterval(progressInterval);
+        }
+      }, 600); // Cambiar paso cada 600ms
+      
+      // Limpiar intervalo si la carga se completa antes
+      setTimeout(() => {
+        clearInterval(progressInterval);
+      }, 4000);
     },
 
     // Obtener lista de verificadores disponibles
@@ -168,10 +201,23 @@ export default {
     </div>
 
 
-    <!-- Estado de carga -->
-    <div v-if="isLoading" class="flex justify-content-center align-items-center h-20rem">
-      <pv-progressSpinner />
-      <span class="ml-3">Cargando detalles de la orden...</span>
+    <!-- Estado de carga minimalista -->
+    <div v-if="isLoading" class="loading-container">
+      <div class="loading-content">
+        <!-- Spinner elegante -->
+        <pv-progress-spinner 
+          size="48" 
+          stroke-width="4" 
+          animation-duration="1.2s" 
+          class="loading-spinner"
+        />
+        
+        <!-- Contenido textual simple -->
+        <div class="loading-text">
+          <h3 class="loading-title">Cargando orden de servicio</h3>
+          <p class="loading-subtitle">{{ loadingSteps[loadingStep]?.label || 'Preparando datos...' }}</p>
+        </div>
+      </div>
     </div>
 
     <!-- Estado de error -->
@@ -221,5 +267,64 @@ export default {
 </template>
 
 <style scoped>
+
+/* Estilos del indicador de carga minimalista */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  background: #fafafa;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.5rem;
+}
+
+.loading-spinner {
+  opacity: 0.8;
+}
+
+.loading-text {
+  max-width: 300px;
+}
+
+.loading-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #374151;
+  margin: 0;
+  letter-spacing: -0.025em;
+}
+
+.loading-subtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+  font-weight: 400;
+  transition: opacity 0.3s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .loading-container {
+    min-height: 40vh;
+    margin: 0.5rem 0;
+  }
+  
+  .loading-title {
+    font-size: 1.125rem;
+  }
+  
+  .loading-subtitle {
+    font-size: 0.8125rem;
+  }
+}
 
 </style>
