@@ -58,168 +58,204 @@ export default {
         </h3>
       </template>
       <template #content>
-      
-      <div class="formgrid grid">
-        <!-- Primera fila -->
-        <div class="field col-12 md:col-3">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-users"></i>
-            Vive con:
-          </label>
-          <p class="font-semibold text-dark m-0">{{ item?.livesWith || 'No especificado' }}</p>
+        <!-- SECCIÓN: Información de Residencia -->
+        <div class="mb-4">
+          <h4 class="text-md font-bold text-primary mb-3 flex align-items-center gap-2">
+            <i class="pi pi-users text-primary"></i>
+            Información de Residencia
+          </h4>
+          <div class="formgrid grid">
+            <div class="field col-12 md:col-6">
+              <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+                <i class="pi pi-users text-primary"></i>
+                Vive con:
+              </label>
+              <p class="font-semibold text-dark m-0">{{ item?.livesWith || 'No especificado' }}</p>
+            </div>
+            
+            <div class="field col-12 md:col-3">
+              <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+                <i class="pi pi-check-circle text-primary"></i>
+                Reside:
+              </label>
+              <p class="font-semibold text-dark m-0">{{ item?.resides || 'No especificado' }}</p>
+            </div>
+            
+            <div class="field col-12 md:col-3">
+              <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+                <i class="pi pi-clock text-primary"></i>
+                Tiempo de residencia:
+              </label>
+              <p class="font-semibold text-dark m-0">{{ item?.residenceTime || 'No especificado' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN: Características de la Vivienda -->
+        <div class="mb-4">
+          <h4 class="text-md font-bold text-primary mb-3 flex align-items-center gap-2">
+            <i class="pi pi-home text-primary"></i>
+            Características de la Vivienda
+          </h4>
+          <div class="formgrid grid">
+            <div class="field col-12 md:col-3">
+              <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+                <i class="pi pi-key text-primary"></i>
+                Vivienda es:
+              </label>
+              <p class="font-semibold text-dark m-0">{{ item?.housingRented || 'No especificado' }}</p>
+            </div>
+            
+            <div class="field col-12 md:col-3">
+              <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+                <i class="pi pi-building text-primary"></i>
+                Tipo de vivienda:
+              </label>
+              <p class="font-semibold text-dark m-0">{{ item?.housingType || 'No especificado' }}</p>
+            </div>
+            
+            <div class="field col-12 md:col-3">
+              <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+                <i class="pi pi-sort-numeric-up text-primary"></i>
+                Cant. de pisos:
+              </label>
+              <p class="font-semibold text-dark m-0">{{ item?.floorsQuantity || 'No especificado' }}</p>
+            </div>
+            
+            <div class="field col-12 md:col-3">
+              <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+                <i class="pi pi-arrow-up text-primary"></i>
+                Piso que habita:
+              </label>
+              <p class="font-semibold text-dark m-0">{{ item?.floorLives || 'No especificado' }}</p>
+            </div>
+            
+            <div class="field col-12 md:col-3">
+              <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+                <i class="pi pi-home text-primary"></i>
+                La vivienda está:
+              </label>
+              <p class="font-semibold text-dark m-0">{{ item?.housingStatus || 'No especificado' }}</p>
+            </div>
+            
+            <div class="field col-12 md:col-3">
+              <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+                <i class="pi pi-angle-up text-primary"></i>
+                Techo de vivienda:
+              </label>
+              <p class="font-semibold text-dark m-0">{{ item?.roofType || 'No especificado' }}</p>
+            </div>
+            
+            <div class="field col-12 md:col-3">
+              <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+                <i class="pi pi-wrench text-primary"></i>
+                Material:
+              </label>
+              <p class="font-semibold text-dark m-0">{{ item?.material || 'No especificado' }}</p>
+            </div>
+            
+            <div class="field col-12 md:col-3">
+              <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+                <i class="pi pi-star text-primary"></i>
+                Estado:
+              </label>
+              <p class="font-semibold text-dark m-0">{{ item?.state || 'No especificado' }}</p>
+            </div>
+            
+            <div class="field col-12 md:col-4">
+              <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+                <i class="pi pi-palette text-primary"></i>
+                Color de fachada:
+              </label>
+              <p class="font-semibold text-dark m-0">{{ item?.facadeColor || 'No especificado' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN: Información de la Zona -->
+        <div class="mb-4">
+          <h4 class="text-md font-bold text-primary mb-3 flex align-items-center gap-2">
+            <i class="pi pi-map text-primary"></i>
+            Información de la Zona
+          </h4>
+          <div class="formgrid grid">
+            <div class="field col-12 md:col-4">
+              <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+                <i class="pi pi-map text-primary"></i>
+                Zona:
+              </label>
+              <p class="font-semibold text-dark m-0">{{ item?.zone || 'No especificado' }}</p>
+            </div>
+            
+            <div class="field col-12 md:col-4">
+              <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+                <i class="pi pi-eye text-primary"></i>
+                Característica de la zona:
+              </label>
+              <p class="font-semibold text-dark m-0">{{ item?.zoneCharacteristic || 'No especificado' }}</p>
+            </div>
+            
+            <div class="field col-12 md:col-4">
+              <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+                <i class="pi pi-exclamation-triangle text-primary"></i>
+                Riesgo de la zona:
+              </label>
+              <p class="font-semibold text-dark m-0">{{ item?.zoneRisk || 'No especificado' }}</p>
+            </div>
+            
+            <div class="field col-12 md:col-6">
+              <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+                <i class="pi pi-sign-in text-primary"></i>
+                Acceso a la vivienda:
+              </label>
+              <p class="font-semibold text-dark m-0">{{ item?.housingAccess || 'No especificado' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN: Información de Cochera -->
+        <div class="mb-4">
+          <h4 class="text-md font-bold text-primary mb-3 flex align-items-center gap-2">
+            <i class="pi pi-car text-primary"></i>
+            Información de Cochera
+          </h4>
+          <div class="formgrid grid">
+            <div class="field col-12 md:col-3">
+              <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+                <i class="pi pi-car text-primary"></i>
+                La cochera es:
+              </label>
+              <p class="font-semibold text-dark m-0">{{ item?.garageIs || 'No especificado' }}</p>
+            </div>
+            
+            <div class="field col-12 md:col-9">
+              <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+                <i class="pi pi-compass text-primary"></i>
+                Distancia de la cochera:
+              </label>
+              <p class="font-semibold text-dark m-0">{{ item?.garageDistance || 'No especificado' }}</p>
+            </div>
+          </div>
         </div>
         
-        <div class="field col-12 md:col-3">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-check-circle"></i>
-            Reside:
-          </label>
-          <p class="font-semibold text-dark m-0">{{ item?.resides || 'No especificado' }}</p>
+        <!-- SECCIÓN: Ubicación -->
+        <div class="mb-4">
+          <h4 class="text-md font-bold text-primary mb-3 flex align-items-center gap-2">
+            <i class="pi pi-map-marker text-primary"></i>
+            Ubicación
+          </h4>
+          <div class="formgrid grid">
+            <div class="field col-12">
+              <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+                <i class="pi pi-map-marker text-primary"></i>
+                Dirección real:
+              </label>
+              <p class="font-semibold text-dark m-0">{{ item?.realDirection || 'No especificado' }}</p>
+            </div>
+          </div>
         </div>
-        
-        <div class="field col-12 md:col-3">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-clock"></i>
-            Tiempo de residencia:
-          </label>
-          <p class="font-semibold text-dark m-0">{{ item?.residenceTime || 'No especificado' }}</p>
-        </div>
-        
-        <div class="field col-12 md:col-3">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-key"></i>
-            Vivienda es:
-          </label>
-          <p class="font-semibold text-dark m-0">{{ item?.housingRented || 'No especificado' }}</p>
-        </div>
-        
-        <!-- Segunda fila -->
-        <div class="field col-12 md:col-3">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-building"></i>
-            Tipo de vivienda:
-          </label>
-          <p class="font-semibold text-dark m-0">{{ item?.housingType || 'No especificado' }}</p>
-        </div>
-        
-        <div class="field col-12 md:col-3">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-sort-numeric-up"></i>
-            Cant. de pisos:
-          </label>
-          <p class="font-semibold text-dark m-0">{{ item?.floorsQuantity || 'No especificado' }}</p>
-        </div>
-        
-        <div class="field col-12 md:col-3">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-arrow-up"></i>
-            Piso que habita:
-          </label>
-          <p class="font-semibold text-dark m-0">{{ item?.floorLives || 'No especificado' }}</p>
-        </div>
-        
-        <div class="field col-12 md:col-3">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-palette"></i>
-            Color de fachada:
-          </label>
-          <p class="font-semibold text-dark m-0">{{ item?.facadeColor || 'No especificado' }}</p>
-        </div>
-        
-        <!-- Tercera fila -->
-        <div class="field col-12 md:col-3">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-wrench"></i>
-            Material:
-          </label>
-          <p class="font-semibold text-dark m-0">{{ item?.material || 'No especificado' }}</p>
-        </div>
-        
-        <div class="field col-12 md:col-3">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-star"></i>
-            Estado:
-          </label>
-          <p class="font-semibold text-dark m-0">{{ item?.state || 'No especificado' }}</p>
-        </div>
-        
-        <div class="field col-12 md:col-3">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-map"></i>
-            Zona:
-          </label>
-          <p class="font-semibold text-dark m-0">{{ item?.zone || 'No especificado' }}</p>
-        </div>
-        
-        <div class="field col-12 md:col-3">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-home"></i>
-            La vivienda está:
-          </label>
-          <p class="font-semibold text-dark m-0">{{ item?.housingStatus || 'No especificado' }}</p>
-        </div>
-        
-        <!-- Cuarta fila -->
-        <div class="field col-12 md:col-3">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-angle-up"></i>
-            Techo de vivienda:
-          </label>
-          <p class="font-semibold text-dark m-0">{{ item?.roofType || 'No especificado' }}</p>
-        </div>
-        
-        <div class="field col-12 md:col-3">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-eye"></i>
-            Característica de la zona:
-          </label>
-          <p class="font-semibold text-dark m-0">{{ item?.zoneCharacteristic || 'No especificado' }}</p>
-        </div>
-        
-        <div class="field col-12 md:col-3">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-sign-in"></i>
-            Acceso a la vivienda:
-          </label>
-          <p class="font-semibold text-dark m-0">{{ item?.housingAccess || 'No especificado' }}</p>
-        </div>
-        
-        <div class="field col-12 md:col-3">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-exclamation-triangle"></i>
-            Riesgo de la zona:
-          </label>
-          <p class="font-semibold text-dark m-0">{{ item?.zoneRisk || 'No especificado' }}</p>
-        </div>
-        
-        <!-- Quinta fila -->
-        <div class="field col-12 md:col-3">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-car"></i>
-            La cochera es:
-          </label>
-          <p class="font-semibold text-dark m-0">{{ item?.garageIs || 'No especificado' }}</p>
-        </div>
-        
-        <div class="field col-12 md:col-9">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-compass"></i>
-            Distancia de la cochera:
-          </label>
-          <p class="font-semibold text-dark m-0">{{ item?.garageDistance || 'No especificado' }}</p>
-        </div>
-        
-        <!-- Sexta fila -->
-        <div class="field col-12">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-map-marker"></i>
-            Dirección real:
-          </label>
-          <p class="font-semibold text-dark m-0">{{ item?.realDirection || 'No especificado' }}</p>
-        </div>
-      </div>
-    </template>
-  </pv-card>
+      </template>
+    </pv-card>
 
     <!-- Segunda card: Datos referenciales de familiares o arrendadores -->
     <pv-card class="w-full">
