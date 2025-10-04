@@ -233,27 +233,27 @@ export default {
         <div class="formgrid grid">
           <div class="field col-12">
             <div v-if="item?.familiarReferences && item.familiarReferences.length > 0" class="mt-2">
-              <div v-for="(reference, index) in item.familiarReferences" :key="index" class="flex align-items-center gap-4 mb-2 p-3 bg-gray-50 border-round">
-                <div class="flex-1">
+              <div v-for="(reference, index) in item.familiarReferences" :key="index" class="grid mb-3 p-3 bg-gray-50 border-round">
+                <div class="col-4 flex align-items-center">
                   <span class="font-semibold text-color-secondary flex align-items-center gap-2">
                     <i class="pi pi-user text-primary"></i>
                     Nombre:
                   </span>
-                  <span class="font-semibold text-dark">{{ reference.name }}</span>
+                  <span class="font-semibold text-dark ml-2">{{ reference.name }}</span>
                 </div>
-                <div class="flex-1">
+                <div class="col-4 flex align-items-center">
                   <span class="font-semibold text-color-secondary flex align-items-center gap-2">
                     <i class="pi pi-phone text-primary"></i>
                     Contacto:
                   </span>
-                  <span class="font-semibold text-dark">{{ reference.contact }}</span>
+                  <span class="font-semibold text-dark ml-2">{{ reference.contact }}</span>
                 </div>
-                <div class="flex-1">
+                <div class="col-4 flex align-items-center">
                   <span class="font-semibold text-color-secondary flex align-items-center gap-2">
                     <i class="pi pi-heart text-primary"></i>
                     Parentesco:
                   </span>
-                  <span class="font-semibold text-dark">{{ reference.relationship }}</span>
+                  <span class="font-semibold text-dark ml-2">{{ reference.relationship }}</span>
                 </div>
               </div>
             </div>
