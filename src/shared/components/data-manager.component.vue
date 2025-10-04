@@ -29,7 +29,12 @@ export default {
     // Labels personalizables
     newButtonLabel: { type: String, default: 'Agregar' },
     deleteButtonLabel: { type: String, default: 'Eliminar' },
-    exportButtonLabel: { type: String, default: 'Exportar' }
+    exportButtonLabel: { type: String, default: 'Exportar' },
+    // Configuración de acciones por fila (opcional) - Columna de acciones de la tabla
+    showEditAction: { type: Boolean, default: false },
+    showDeleteAction: { type: Boolean, default: false },
+    editButtonLabel: { type: String, default: 'Editar' },
+    deleteActionLabel: { type: String, default: 'Eliminar' }
   },
 
   data() {
@@ -247,22 +252,42 @@ export default {
         </pv-column>
 
         <!-- Actions Column -->
-        <pv-column 
+        <pv-column
           v-if="showActions"
-          :exportable="false" 
+          :exportable="false"
           header="Acciones"
           header-style="width: 10rem; text-align: center"
           body-style="text-align: center"
         >
           <template #body="slotProps">
-            <pv-button 
-              label="Ver detalles"
-              severity="info"
-              text 
-              size="small"
-              class="p-button-link"
-              @click="$emit('view-item-requested-manager', slotProps.data)"
-            />
+            <div class="flex gap-1">
+              <pv-button
+                  label="Ver detalles"
+                  severity="info"
+                  text
+                  size="small"
+                  class="p-button-link"
+                  @click="$emit('view-item-requested-manager', slotProps.data)"
+              />
+              <pv-button
+                  v-if="showEditAction"
+                  :label="editButtonLabel"
+                  severity="warning"
+                  text
+                  size="small"
+                  class="p-button-link"
+                  @click="$emit('edit-item-requested-manager', slotProps.data)"
+              />
+              <pv-button
+                  v-if="showDeleteAction"
+                  :label="deleteActionLabel"
+                  severity="danger"
+                  text
+                  size="small"
+                  class="p-button-link"
+                  @click="$emit('delete-item-requested-manager', slotProps.data)"
+              />
+            </div>
           </template>
         </pv-column>
 
