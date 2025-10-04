@@ -59,6 +59,17 @@ export default {
   padding: 0.5rem;
 }
 
+:deep(.p-card-header) {
+  background-color: #4A60D0;
+  border-radius: 0.375rem 0.375rem 0 0;
+  overflow: hidden;
+}
+
+:deep(.p-card) {
+  overflow: hidden;
+  border-radius: 0.375rem;
+}
+
 ul {
   list-style-type: disc;
 }
