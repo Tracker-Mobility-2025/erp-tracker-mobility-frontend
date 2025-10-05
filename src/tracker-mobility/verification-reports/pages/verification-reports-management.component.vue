@@ -234,9 +234,21 @@ export default {
     getAll() {
       this.loading = true;
       this.reportApiService.getAll().then(response => {
-        // Validar que la respuesta tenga datos
-        if (!response || !response.data || !Array.isArray(response.data)) {
-          throw new Error('Formato de respuesta inválido de la API');
+        // Validar que la respuesta tenga la estructura esperada
+        if (!response || typeof response !== 'object') {
+          throw new Error('Respuesta inválida del servidor');
+        }
+
+        // Verificar si response.data existe y es un array (puede ser vacío)
+        if (!response.hasOwnProperty('data') || !Array.isArray(response.data)) {
+          throw new Error('Formato de datos inválido del servidor');
+        }
+
+        // Si el array está vacío, es una respuesta válida, no un error
+        if (response.data.length === 0) {
+          console.log('No hay informes de verificación disponibles');
+          this.itemsArray = [];
+          return; // Salir sin mostrar error, la tabla mostrará el mensaje "No se encontraron registros"
         }
 
         // Mapear los datos de la API a la estructura esperada por la tabla
@@ -267,17 +279,42 @@ export default {
       }).catch(error => {
         console.error('Error al obtener los informes de verificación:', error);
         this.itemsArray = []; // Limpiar datos en caso de error
-        
-        let errorMessage = 'No se pudieron cargar los informes de verificación';
-        if (error.message) {
-          errorMessage += `: ${error.message}`;
+
+        // Determinar si es un error de servidor o de red
+        let errorMessage = '';
+        let severity = 'error';
+
+        if (error.response) {
+          // Error de respuesta del servidor (4xx, 5xx)
+          const status = error.response.status;
+          
+          if (status >= 500) {
+            errorMessage = 'Error interno del servidor. Por favor, contacte al administrador del sistema.';
+          } else if (status >= 400) {
+            errorMessage = 'Error en la solicitud. Verifique los permisos de acceso.';
+          } else {
+            errorMessage = `Error del servidor (${status}). Intente nuevamente más tarde.`;
+          }
+        } else if (error.request) {
+          // Error de red o conexión
+          errorMessage = 'No se pudo conectar con el servidor. Verifique su conexión a internet.';
+        } else if (error.message) {
+          // Error de configuración o procesamiento
+          if (error.message.includes('inválido') || error.message.includes('formato')) {
+            errorMessage = `Error en el formato de datos del servidor: ${error.message}`;
+            severity = 'warn';
+          } else {
+            errorMessage = `Error inesperado: ${error.message}`;
+          }
+        } else {
+          errorMessage = 'Error desconocido al cargar los informes de verificación.';
         }
         
         this.$toast.add({
-          severity: 'error',
-          summary: 'Error de carga',
+          severity: severity,
+          summary: severity === 'error' ? 'Error del servidor' : 'Problema de datos',
           detail: errorMessage,
-          life: 5000
+          life: 7000
         });
       }).finally(() => {
         this.loading = false;
