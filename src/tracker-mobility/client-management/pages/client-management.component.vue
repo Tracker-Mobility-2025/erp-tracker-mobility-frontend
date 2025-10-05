@@ -63,12 +63,14 @@ export default {
       let filtered = this.clientArray;
 
       // Filtrar por texto de búsqueda
-      if (this.search) {
-        const searchLower = this.search.toLowerCase().trim();
+      // Solo aplicar filtro si hay contenido real (no null, no undefined, no string vacío o solo espacios)
+      if (this.search && this.search.trim().length > 0) {
+        // Normalizar el término de búsqueda: quitar espacios extra y convertir a minúsculas
+        const searchLower = this.search.toLowerCase().trim().replace(/\s+/g, ' ');
         filtered = filtered.filter(client =>
-          client.RUC.toLowerCase().includes(searchLower) ||
-          client.companyName.toLowerCase().includes(searchLower) ||
-          client.status.toLowerCase().includes(searchLower)
+          (client.RUC && client.RUC.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchLower)) ||
+          (client.companyName && client.companyName.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchLower)) ||
+          (client.status && client.status.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchLower))
         );
       }
 

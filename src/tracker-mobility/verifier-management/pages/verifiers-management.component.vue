@@ -63,13 +63,15 @@ export default {
       let filtered = [...this.itemsArray];
 
       // Filtro por búsqueda global (nombre, apellido, email, teléfono)
-      if (this.globalFilterValue) {
-        const searchTerm = this.globalFilterValue.toLowerCase().trim();
+      // Solo aplicar filtro si hay contenido real (no null, no undefined, no string vacío o solo espacios)
+      if (this.globalFilterValue && this.globalFilterValue.trim().length > 0) {
+        // Normalizar el término de búsqueda: quitar espacios extra y convertir a minúsculas
+        const searchTerm = this.globalFilterValue.toLowerCase().trim().replace(/\s+/g, ' ');
         filtered = filtered.filter(verifier =>
-          verifier.name.toLowerCase().includes(searchTerm) ||
-          verifier.lastname.toLowerCase().includes(searchTerm) ||
-          verifier.email.toLowerCase().includes(searchTerm) ||
-          verifier.phone.toLowerCase().includes(searchTerm)
+          (verifier.name && verifier.name.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchTerm)) ||
+          (verifier.lastName && verifier.lastName.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchTerm)) ||
+          (verifier.email && verifier.email.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchTerm)) ||
+          (verifier.phoneNumber && verifier.phoneNumber.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchTerm))
         );
       }
 
@@ -144,7 +146,7 @@ export default {
     },
 
     onGlobalFilterChange(value) {
-      this.globalFilterValue = value;
+      this.globalFilterValue = value || '';
     },
 
     getStatusItemsArray(status) {

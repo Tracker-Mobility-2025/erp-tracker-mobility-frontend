@@ -53,12 +53,13 @@ export default {
       // Filtro por búsqueda global (nombre de cliente, código reporte, código orden, empresa)
       // Solo aplicar filtro si hay contenido real (no null, no undefined, no string vacío o solo espacios)
       if (this.globalFilterValue && this.globalFilterValue.trim().length > 0) {
-        const searchTerm = this.globalFilterValue.toLowerCase().trim();
+        // Normalizar el término de búsqueda: quitar espacios extra y convertir a minúsculas
+        const searchTerm = this.globalFilterValue.toLowerCase().trim().replace(/\s+/g, ' ');
         filtered = filtered.filter(report =>
-          (report.clientName && report.clientName.toLowerCase().includes(searchTerm)) ||
-          (report.reportCode && report.reportCode.toLowerCase().includes(searchTerm)) ||
-          (report.orderCode && report.orderCode.toLowerCase().includes(searchTerm)) ||
-          (report.companyName && report.companyName.toLowerCase().includes(searchTerm))
+          (report.clientName && report.clientName.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchTerm)) ||
+          (report.reportCode && report.reportCode.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchTerm)) ||
+          (report.orderCode && report.orderCode.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchTerm)) ||
+          (report.companyName && report.companyName.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchTerm))
         );
       }
 

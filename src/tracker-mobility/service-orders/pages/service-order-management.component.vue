@@ -59,20 +59,23 @@ export default {
       let filtered = [...this.itemsArray];
 
       // Filtro por búsqueda global (código de orden, solicitante, verificador)
-      if (this.globalFilterValue) {
-        const searchTerm = this.globalFilterValue.toLowerCase().trim();
+      // Solo aplicar filtro si hay contenido real (no null, no undefined, no string vacío o solo espacios)
+      if (this.globalFilterValue && this.globalFilterValue.trim().length > 0) {
+        // Normalizar el término de búsqueda: quitar espacios extra y convertir a minúsculas
+        const searchTerm = this.globalFilterValue.toLowerCase().trim().replace(/\s+/g, ' ');
         filtered = filtered.filter(order => {
           // Buscar en código de orden
-          const orderCodeMatch = order.orderCode?.toLowerCase().includes(searchTerm);
+          const orderCodeMatch = order.orderCode && order.orderCode.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchTerm);
           
           // Buscar en nombre de la empresa solicitante
-          const companyMatch = order.applicantCompany?.companyName?.toLowerCase().includes(searchTerm);
+          const companyMatch = order.applicantCompany?.companyName && 
+            order.applicantCompany.companyName.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchTerm);
           
           // Buscar en nombre del verificador (si está asignado)
           let verifierMatch = false;
           if (order.homeVisitDetails?.verifierId) {
             const verifierName = this.getVerifierById(order.homeVisitDetails.verifierId);
-            verifierMatch = verifierName.toLowerCase().includes(searchTerm);
+            verifierMatch = verifierName.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchTerm);
           }
           
           return orderCodeMatch || companyMatch || verifierMatch;

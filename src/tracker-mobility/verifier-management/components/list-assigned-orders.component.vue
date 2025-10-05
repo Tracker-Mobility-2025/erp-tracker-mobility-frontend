@@ -29,10 +29,11 @@ export default {
     filteredOrders() {
       return this.items.filter((order) => {
         // Filtro por texto - buscar en código de orden y dirección
-        const matchesSearch = !this.search || 
-            (order.orderCode && order.orderCode.toLowerCase().includes(this.search.toLowerCase())) ||
+        // Solo aplicar filtro si hay contenido real (no null, no undefined, no string vacío o solo espacios)
+        const matchesSearch = !this.search || this.search.trim().length === 0 || 
+            (order.orderCode && order.orderCode.toLowerCase().trim().replace(/\s+/g, ' ').includes(this.search.toLowerCase().trim().replace(/\s+/g, ' '))) ||
             (order.client && order.client.dwelling && order.client.dwelling.homeAddress && 
-             order.client.dwelling.homeAddress.toLowerCase().includes(this.search.toLowerCase()));
+             order.client.dwelling.homeAddress.toLowerCase().trim().replace(/\s+/g, ' ').includes(this.search.toLowerCase().trim().replace(/\s+/g, ' ')));
 
         // Filtro por estado
         const matchesStatus = this.selectedStatus === "Todos" || order.status === this.selectedStatus;

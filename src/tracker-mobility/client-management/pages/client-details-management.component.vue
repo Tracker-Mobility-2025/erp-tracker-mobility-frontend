@@ -69,13 +69,15 @@ export default {
       let filtered = [...this.employeeArray];
 
       // Filtro por búsqueda global (nombre, apellido, email, teléfono)
-      if (this.globalFilterValue) {
-        const searchTerm = this.globalFilterValue.toLowerCase().trim();
+      // Solo aplicar filtro si hay contenido real (no null, no undefined, no string vacío o solo espacios)
+      if (this.globalFilterValue && this.globalFilterValue.trim().length > 0) {
+        // Normalizar el término de búsqueda: quitar espacios extra y convertir a minúsculas
+        const searchTerm = this.globalFilterValue.toLowerCase().trim().replace(/\s+/g, ' ');
         filtered = filtered.filter(employee =>
-          employee.name.toLowerCase().includes(searchTerm) ||
-          employee.lastName.toLowerCase().includes(searchTerm) ||
-          employee.email.toLowerCase().includes(searchTerm) ||
-          employee.phoneNumber.toLowerCase().includes(searchTerm)
+          (employee.name && employee.name.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchTerm)) ||
+          (employee.lastName && employee.lastName.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchTerm)) ||
+          (employee.email && employee.email.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchTerm)) ||
+          (employee.phoneNumber && employee.phoneNumber.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchTerm))
         );
       }
 
