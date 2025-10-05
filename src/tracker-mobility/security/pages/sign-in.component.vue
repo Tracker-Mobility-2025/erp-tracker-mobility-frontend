@@ -1,5 +1,8 @@
 <script>
 
+import {useAuthenticationStore} from "../services/authentication.store.js";
+import {SignInRequest} from "../models/sign-in.request.js";
+
 export default {
   name: 'sign-in',
   data() {
@@ -14,6 +17,17 @@ export default {
 
   methods: {
     onSignIn() {
+
+      /* Para autenticación real */
+      let authenticationStore = useAuthenticationStore();
+      /* Crear el objeto SignInRequest */
+      let signInRequest = new SignInRequest(this.username, this.password);
+
+
+      /* Llamar al método signIn del store */
+      authenticationStore.signIn(signInRequest, this.$router);
+
+
       // Validación básica
       if (!this.username || !this.password) {
         this.$toast.add({
