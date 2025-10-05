@@ -51,7 +51,7 @@ const router = createRouter({
                     component: ServiceOrderManagementComponent,
                     meta: {
                         title: 'Ordenes de servicio',
-                        roles: ['ADMIN', 'SUPERVISOR', 'VERIFIER']
+                        //roles: ['ADMIN', 'SUPERVISOR', 'VERIFIER']
                     }
                 },
                 {
@@ -60,7 +60,7 @@ const router = createRouter({
                     component: OrderDetailManagementComponent,
                     meta: {
                         title: 'Detalles de la orden',
-                        roles: ['ADMIN', 'SUPERVISOR', 'VERIFIER']
+                        //roles: ['ADMIN', 'SUPERVISOR', 'VERIFIER']
                     }
                 },
                 //========================================================
@@ -74,7 +74,7 @@ const router = createRouter({
                     component: VerifiersManagementComponent,
                     meta: {
                         title: 'Verificadores',
-                        roles: ['ADMIN'] // Solo administradores
+                        //roles: ['ADMIN'] // Solo administradores
                     }
                 },
                 {
@@ -83,7 +83,7 @@ const router = createRouter({
                     component: VerifiersDetailsManagementComponent,
                     meta: {
                         title: 'Detalles del verificador',
-                        roles: ['ADMIN'] // Solo administradores
+                        //roles: ['ADMIN'] // Solo administradores
                     }
                 },
                 //========================================================
@@ -97,7 +97,7 @@ const router = createRouter({
                     component: VerificationReportsManagementComponent,
                     meta: {
                         title: 'Reportes de verificación',
-                        roles: ['ADMIN', 'SUPERVISOR', 'VERIFIER']
+                        //roles: ['ADMIN', 'SUPERVISOR', 'VERIFIER']
                     }
                 },
                 {
@@ -106,7 +106,7 @@ const router = createRouter({
                     component: DetailsHomeVerificationReportComponent,
                     meta: {
                         title: 'Detalles del reporte de verificación',
-                        roles: ['ADMIN', 'SUPERVISOR', 'VERIFIER']
+                        //roles: ['ADMIN', 'SUPERVISOR', 'VERIFIER']
                     }
                 },
                 //========================================================
@@ -120,7 +120,7 @@ const router = createRouter({
                     component: DashboardManagementComponent,
                     meta: {
                         title: 'Dashboard',
-                        roles: ['ADMIN', 'SUPERVISOR', 'VERIFIER']
+                        //roles: ['ADMIN', 'SUPERVISOR', 'VERIFIER']
                     }
                 },
 
@@ -137,7 +137,7 @@ const router = createRouter({
                     component: ClientManagementComponent,
                     meta: {
                         title: 'Clientes',
-                        roles: ['ADMIN', 'SUPERVISOR'] // Solo admin y supervisores
+                        //roles: ['ADMIN', 'SUPERVISOR'] // Solo admin y supervisores
                     }
                 },
                 {
@@ -146,7 +146,7 @@ const router = createRouter({
                     component: ClientDetailsManagementComponent,
                     meta: {
                         title: 'Detalle del cliente',
-                        roles: ['ADMIN', 'SUPERVISOR'] // Solo admin y supervisores
+                        //roles: ['ADMIN', 'SUPERVISOR'] // Solo admin y supervisores
                     }
                 }
 
