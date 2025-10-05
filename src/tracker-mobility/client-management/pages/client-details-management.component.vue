@@ -116,8 +116,38 @@ export default {
     },
 
     onDeleteSelectedItems(selectedItems) {
-      // Lógica para manejar la eliminación de ítems seleccionados
-      console.log('Eliminar ítems seleccionados:', selectedItems);
+      if (!selectedItems || selectedItems.length === 0) {
+        this.$toast.add({
+          severity: 'warn',
+          summary: 'Advertencia',
+          detail: 'No hay items seleccionados para eliminar',
+          life: 3000
+        });
+        return;
+      }
+
+      // Obtener los nombres de los colaboradores seleccionados para mostrar en la confirmación
+      const selectedItemNames = this.employeeArray
+        .filter(employee => selectedItems.includes(employee.id))
+        .map(employee => `${employee.name} ${employee.lastName}`)
+        .join(', ');
+
+      // Confirmar eliminación múltiple
+      this.$confirm.require({
+        message: `¿Está seguro de eliminar los siguientes ${selectedItems.length} colaborador(es): ${selectedItemNames}?`,
+        header: 'Confirmar eliminación múltiple',
+        icon: 'pi pi-exclamation-triangle',
+        rejectClass: 'p-button-secondary p-button-outlined',
+        rejectLabel: 'Cancelar',
+        acceptLabel: 'Eliminar Todos',
+        acceptClass: 'p-button-danger',
+        accept: () => {
+          this.deleteMultipleItems(selectedItems);
+        },
+        reject: () => {
+          console.log('Eliminación múltiple cancelada');
+        }
+      });
     },
 
     onDeleteItem(item) {
@@ -134,8 +164,6 @@ export default {
         acceptClass: 'p-button-danger',
         accept: () => {
           this.delete(item.id);
-          this.$confirm.close(); // Cierra el diálogo manualmente
-
         },
         reject: () => {
           console.log('Eliminación cancelada');
@@ -284,6 +312,9 @@ export default {
           detail: 'El colaborador ha sido eliminado exitosamente',
           life: 4000
         });
+        
+        // Cerrar el diálogo de confirmación
+        this.$confirm.close();
       }).catch(error => {
         console.error('Error al eliminar colaborador en backend:', error);
         
@@ -294,9 +325,78 @@ export default {
           detail: 'No se pudo eliminar el colaborador',
           life: 4000
         });
+        
+        // Cerrar el diálogo de confirmación
+        this.$confirm.close();
       }).finally(() => {
         this.loading = false;
       });
+    },
+
+    // Eliminar múltiples items (colaboradores)
+    async deleteMultipleItems(selectedItemIds) {
+      this.loading = true;
+      
+      try {
+        const deletePromises = selectedItemIds.map(itemId => 
+          this.employeeClientTrackerApiService.delete(itemId)
+        );
+
+        const results = await Promise.allSettled(deletePromises);
+        
+        let successCount = 0;
+        let errorCount = 0;
+        
+        results.forEach((result, index) => {
+          const itemId = selectedItemIds[index];
+          
+          if (result.status === 'fulfilled') {
+            // Eliminar del array local
+            this.employeeArray = this.employeeArray.filter(emp => emp.id !== itemId);
+            successCount++;
+          } else {
+            console.error(`Error eliminando colaborador ${itemId}:`, result.reason);
+            errorCount++;
+          }
+        });
+
+        // Mostrar mensaje según los resultados
+        if (successCount > 0 && errorCount === 0) {
+          this.$toast.add({
+            severity: 'success',
+            summary: 'Eliminación exitosa',
+            detail: `${successCount} colaborador(es) eliminado(s) exitosamente`,
+            life: 4000
+          });
+        } else if (successCount > 0 && errorCount > 0) {
+          this.$toast.add({
+            severity: 'warn',
+            summary: 'Eliminación parcial',
+            detail: `${successCount} colaborador(es) eliminado(s), ${errorCount} falló(s)`,
+            life: 4000
+          });
+        } else {
+          this.$toast.add({
+            severity: 'error',
+            summary: 'Error en eliminación',
+            detail: `No se pudo eliminar ningún colaborador`,
+            life: 4000
+          });
+        }
+
+      } catch (error) {
+        console.error('Error en eliminación múltiple:', error);
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error inesperado durante la eliminación múltiple',
+          life: 4000
+        });
+      } finally {
+        this.loading = false;
+        // Cerrar el diálogo de confirmación
+        this.$confirm.close();
+      }
     },
 
     getEmployeesByClientId() {

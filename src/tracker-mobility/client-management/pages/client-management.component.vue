@@ -164,7 +164,7 @@ export default {
       
       // Confirmar eliminación con el usuario
       this.$confirm.require({
-        message: `¿Está seguro de eliminar el cliente ${client.companyName}?`,
+        message: `¿Está seguro de eliminar el cliente ${client.executiveName}?`,
         header: 'Confirmación',
         icon: 'pi pi-exclamation-triangle',
         rejectClass: 'p-button-secondary p-button-outlined',
