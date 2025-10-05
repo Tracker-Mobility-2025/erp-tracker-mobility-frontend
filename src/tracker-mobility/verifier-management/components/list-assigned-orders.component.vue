@@ -126,10 +126,6 @@ export default {
 
 <template>
   <div class="w-full flex-1 flex-column gap-3">
-    <h3 class="text-xlg font-bold mb-3 flex align-items-center gap-2">
-      <i class="pi pi-clipboard-list text-blue-500"></i>
-      Órdenes asignadas
-    </h3>
 
     <!-- Filtros -->
     <div class="flex w-full gap-2 mb-4 flex-wrap">

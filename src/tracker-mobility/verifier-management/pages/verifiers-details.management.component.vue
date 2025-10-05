@@ -35,10 +35,15 @@ export default {
       // Servicio de verificador
       verifierApiServices: null,
       
-      // Estados de carga
-      isLoading: true,
-      hasError: false,
-      errorMessage: '',
+      // Estados de carga para datos del verificador
+      isLoadingVerifier: true,
+      hasVerifierError: false,
+      verifierErrorMessage: '',
+      
+      // Estados de carga para órdenes asignadas
+      isLoadingOrders: true,
+      hasOrdersError: false,
+      ordersErrorMessage: '',
       
       // Progreso de carga
       loadingStep: 0,
@@ -146,14 +151,21 @@ export default {
       }, 4000);
     },
 
-    retryLoading() {
+    retryLoadingVerifier() {
       const verifierId = this.$route.query.id;
-      this.hasError = false;
-      this.isLoading = true;
+      this.hasVerifierError = false;
+      this.isLoadingVerifier = true;
       this.loadingStep = 0;
       
       this.simulateLoadingProgress();
       this.getVerifierById(verifierId);
+    },
+
+    retryLoadingOrders() {
+      const verifierId = this.$route.query.id;
+      this.hasOrdersError = false;
+      this.isLoadingOrders = true;
+      
       this.getAssignedOrdersByVerifierId(verifierId);
     },
 
@@ -169,12 +181,13 @@ export default {
           this.item.status = "INACTIVO";
         }
 
+        this.isLoadingVerifier = false;
         console.log('Verificador recuperado:', this.item);
       }).catch(error => {
         console.error('Error al recuperar verificador:', error);
-        this.hasError = true;
-        this.isLoading = false;
-        this.errorMessage = 'No se pudo cargar la información del verificador. Intente nuevamente.';
+        this.hasVerifierError = true;
+        this.isLoadingVerifier = false;
+        this.verifierErrorMessage = 'No se pudo cargar la información del verificador. Intente nuevamente.';
       });
     },
 
@@ -187,16 +200,14 @@ export default {
         
         // Completar todos los pasos y finalizar carga
         this.loadingStep = this.loadingSteps.length;
+        this.isLoadingOrders = false;
         
-        setTimeout(() => {
-          this.isLoading = false;
-          console.log('Órdenes asignadas recuperadas:', this.assignedOrders);
-        }, 300);
+        console.log('Órdenes asignadas recuperadas:', this.assignedOrders);
       }).catch(error => {
         console.error('Error al recuperar órdenes asignadas:', error);
-        this.hasError = true;
-        this.isLoading = false;
-        this.errorMessage = 'No se pudieron cargar las órdenes asignadas. Intente nuevamente.';
+        this.hasOrdersError = true;
+        this.isLoadingOrders = false;
+        this.ordersErrorMessage = 'No se pudieron cargar las órdenes asignadas. Intente nuevamente.';
       });
     }
 
@@ -209,7 +220,8 @@ export default {
     const verifierId = this.$route.query.id;
 
     if (verifierId) {
-      this.isLoading = true;
+      this.isLoadingVerifier = true;
+      this.isLoadingOrders = true;
       this.loadingStep = 0;
       
       // Simular progreso de carga
@@ -218,9 +230,10 @@ export default {
       this.getVerifierById(verifierId);
       this.getAssignedOrdersByVerifierId(verifierId);
     } else {
-      this.hasError = true;
-      this.isLoading = false;
-      this.errorMessage = 'ID de verificador no válido.';
+      this.hasVerifierError = true;
+      this.isLoadingVerifier = false;
+      this.isLoadingOrders = false;
+      this.verifierErrorMessage = 'ID de verificador no válido.';
     }
   }
 }
@@ -249,8 +262,8 @@ export default {
       </span>
     </div>
 
-    <!-- Estado de carga minimalista -->
-    <div v-if="isLoading" class="loading-container">
+    <!-- Estado de carga para datos del verificador -->
+    <div v-if="isLoadingVerifier" class="loading-container">
       <div class="loading-content">
         <!-- Spinner elegante -->
         <pv-progress-spinner 
@@ -268,16 +281,16 @@ export default {
       </div>
     </div>
 
-    <!-- Estado de error -->
-    <div v-else-if="hasError" class="flex justify-content-center align-items-center" style="min-height: 50vh;">
+    <!-- Estado de error para datos del verificador -->
+    <div v-else-if="hasVerifierError" class="flex justify-content-center align-items-center" style="min-height: 50vh;">
       <div class="text-center">
         <i class="pi pi-exclamation-triangle text-6xl text-orange-500 mb-3"></i>
         <h3 class="text-xl text-gray-700">Error al cargar verificador</h3>
-        <p class="text-gray-500 mb-4">{{ errorMessage }}</p>
+        <p class="text-gray-500 mb-4">{{ verifierErrorMessage }}</p>
         <pv-button 
           label="Reintentar" 
           icon="pi pi-refresh" 
-          @click="retryLoading"
+          @click="retryLoadingVerifier"
           class="p-button-outlined"
         />
       </div>
@@ -294,11 +307,48 @@ export default {
           @cancel-edit="OnCancelEdit"
       />
 
-      <!-- Lista de ordenes asignadas al verificador -->
-      <list-assigned-orders
-          :items="assignedOrders"
-          @remove-order="confirmRemoveOrder"
-      />
+      <!-- Sección de órdenes asignadas con manejo de errores independiente -->
+      <div class="w-full flex-1 flex-column gap-3">
+        <h3 class="text-xlg font-bold mb-3 flex align-items-center gap-2">
+          <i class="pi pi-clipboard-list text-blue-500"></i>
+          Órdenes asignadas
+        </h3>
+
+        <!-- Estado de carga para órdenes -->
+        <div v-if="isLoadingOrders" class="flex justify-content-center align-items-center py-6">
+          <div class="text-center">
+            <pv-progress-spinner 
+              size="32" 
+              stroke-width="4" 
+              animation-duration="1.2s" 
+              class="mb-3"
+            />
+            <p class="text-gray-600">Cargando órdenes asignadas...</p>
+          </div>
+        </div>
+
+        <!-- Estado de error para órdenes -->
+        <div v-else-if="hasOrdersError" class="flex justify-content-center align-items-center py-6">
+          <div class="text-center">
+            <i class="pi pi-exclamation-triangle text-4xl text-orange-500 mb-3"></i>
+            <h4 class="text-lg text-gray-700">Error al cargar órdenes</h4>
+            <p class="text-gray-500 mb-4">{{ ordersErrorMessage }}</p>
+            <pv-button 
+              label="Reintentar" 
+              icon="pi pi-refresh" 
+              @click="retryLoadingOrders"
+              class="p-button-outlined p-button-sm"
+            />
+          </div>
+        </div>
+
+        <!-- Lista de ordenes asignadas al verificador -->
+        <list-assigned-orders
+            v-else
+            :items="assignedOrders"
+            @remove-order="confirmRemoveOrder"
+        />
+      </div>
     </div>
 
   </div>
