@@ -49,13 +49,19 @@ const router = createRouter({
                     path: 'admin/service-orders',
                     name: 'service-orders',
                     component: ServiceOrderManagementComponent,
-                    meta: {title: 'Ordenes de servicio'}
+                    meta: {
+                        title: 'Ordenes de servicio',
+                        roles: ['ADMIN', 'SUPERVISOR', 'VERIFIER']
+                    }
                 },
                 {
                     path: 'admin/order-details',
                     name: 'order-details',
                     component: OrderDetailManagementComponent,
-                    meta: {title: 'Detalles de la orden'}
+                    meta: {
+                        title: 'Detalles de la orden',
+                        roles: ['ADMIN', 'SUPERVISOR', 'VERIFIER']
+                    }
                 },
                 //========================================================
 
@@ -66,13 +72,19 @@ const router = createRouter({
                     path: 'admin/verifiers',
                     name: 'verifiers',
                     component: VerifiersManagementComponent,
-                    meta: {title: 'Verificadores'}
+                    meta: {
+                        title: 'Verificadores',
+                        roles: ['ADMIN'] // Solo administradores
+                    }
                 },
                 {
                     path: 'admin/verifier-details',
                     name: 'verifier-details',
                     component: VerifiersDetailsManagementComponent,
-                    meta: {title: 'Detalles del verificador'}
+                    meta: {
+                        title: 'Detalles del verificador',
+                        roles: ['ADMIN'] // Solo administradores
+                    }
                 },
                 //========================================================
 
@@ -82,14 +94,20 @@ const router = createRouter({
                 {
                     path: 'admin/verification-reports',
                     name: 'verification-reports',
-                    component: VerificationReportsManagementComponent
-                    , meta: {title: 'Reportes de verificación'}
+                    component: VerificationReportsManagementComponent,
+                    meta: {
+                        title: 'Reportes de verificación',
+                        roles: ['ADMIN', 'SUPERVISOR', 'VERIFIER']
+                    }
                 },
                 {
                     path: 'admin/verification-reports-details',
                     name: 'verification-reports-details',
                     component: DetailsHomeVerificationReportComponent,
-                    meta: {title: 'Detalles del reporte de verificación'}
+                    meta: {
+                        title: 'Detalles del reporte de verificación',
+                        roles: ['ADMIN', 'SUPERVISOR', 'VERIFIER']
+                    }
                 },
                 //========================================================
 
@@ -100,7 +118,10 @@ const router = createRouter({
                     path: 'admin/dashboard',
                     name: 'dashboard',
                     component: DashboardManagementComponent,
-                    meta: {title: 'Dashboard'}
+                    meta: {
+                        title: 'Dashboard',
+                        roles: ['ADMIN', 'SUPERVISOR', 'VERIFIER']
+                    }
                 },
 
 
@@ -114,13 +135,19 @@ const router = createRouter({
                     path: 'admin/clients',
                     name: 'clients',
                     component: ClientManagementComponent,
-                    meta: {title: 'Clientes'}
+                    meta: {
+                        title: 'Clientes',
+                        roles: ['ADMIN', 'SUPERVISOR'] // Solo admin y supervisores
+                    }
                 },
                 {
                     path: 'admin/client-detail',
                     name: 'client-detail',
                     component: ClientDetailsManagementComponent,
-                    meta: {title: 'Detalle del cliente'}
+                    meta: {
+                        title: 'Detalle del cliente',
+                        roles: ['ADMIN', 'SUPERVISOR'] // Solo admin y supervisores
+                    }
                 }
 
                 //========================================================

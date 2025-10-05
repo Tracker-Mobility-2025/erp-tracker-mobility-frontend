@@ -42,6 +42,29 @@ export const authenticationGuard = (to, from, next) => {
             return next({ name: 'sign-in' });
         }
 
+        // ⭐ VERIFICACIÓN DE ROLES - NUEVA FUNCIONALIDAD
+        if (to.meta && to.meta.roles && to.meta.roles.length > 0) {
+            const userRole = store.currentRole;
+            console.log('[GUARD] Verificando roles. Usuario:', userRole, 'Requeridos:', to.meta.roles);
+            
+            if (!to.meta.roles.includes(userRole)) {
+                console.warn('[GUARD] Acceso denegado por rol insuficiente');
+                
+                // Crear mensaje de error personalizado
+                const errorMessage = `Necesitas ser ${to.meta.roles.join(' o ')} para acceder a esta sección`;
+                
+                // Redirigir al dashboard con mensaje de error
+                return next({ 
+                    name: 'dashboard', 
+                    query: { 
+                        error: 'access-denied',
+                        message: errorMessage
+                    }
+                });
+            }
+        }
+
+        console.log('[GUARD] Acceso permitido');
         next();
     } catch (error) {
         console.error('[GUARD] Error accessing authentication store:', error);
