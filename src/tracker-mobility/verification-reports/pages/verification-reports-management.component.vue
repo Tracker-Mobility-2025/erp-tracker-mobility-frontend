@@ -51,7 +51,8 @@ export default {
       let filtered = [...this.itemsArray]; // Copia del array original para filtrar sin mutar el original
 
       // Filtro por búsqueda global (nombre de cliente, código reporte, código orden, empresa)
-      if (this.globalFilterValue) {
+      // Solo aplicar filtro si hay contenido real (no null, no undefined, no string vacío o solo espacios)
+      if (this.globalFilterValue && this.globalFilterValue.trim().length > 0) {
         const searchTerm = this.globalFilterValue.toLowerCase().trim();
         filtered = filtered.filter(report =>
           (report.clientName && report.clientName.toLowerCase().includes(searchTerm)) ||
@@ -137,7 +138,7 @@ export default {
     },
 
     onGlobalFilterChange(value) {
-      this.globalFilterValue = value;
+      this.globalFilterValue = value || '';
     },
 
     getStatusSeverity(status) {

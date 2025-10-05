@@ -5,6 +5,7 @@ import VerifierCreateAndEdit from "../components/verifier-create-and-edit.compon
 import {Verifier} from "../models/verifiers.entity.js";
 import {VerifierApiService} from "../services/verifier-api.service.js";
 import {CreateVerifier} from "../models/create-verifier.entity.js";
+import {useAuthenticationStore} from "../../security/services/authentication.store.js";
 
 export default {
   name: 'verifiers-management',
@@ -357,7 +358,8 @@ export default {
   },
 
   created() {
-    this.adminId = 1; // Simular ID de admin
+    const authStore = useAuthenticationStore();
+    this.adminId = authStore.currentUserId; // Obtener el ID del usuario autenticado
     this.verifierManagementApiServices = new VerifierApiService('/verifiers');
     this.getAllVerifiersByAdminId(this.adminId); // Usar ID de admin simulado 1
   }
