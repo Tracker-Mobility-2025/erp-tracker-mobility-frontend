@@ -10,73 +10,111 @@ export default {
       username: '',
       password: '',
       rememberSession: false,
-      isAuthenticated: false
+      isAuthenticated: false,
+      isLoading: false,
 
+      // Toast messages constants
+      toastMessages: {
+        requiredFields: {
+          severity: 'warn',
+          summary: 'Campos requeridos',
+          detail: 'Por favor, complete todos los campos.'
+        },
+        loginSuccess: {
+          severity: 'success',
+          summary: 'Inicio de sesión exitoso',
+          detail: (username) => `Bienvenido de nuevo, ${username}!`
+        },
+        loginError: {
+          severity: 'error',
+          summary: 'Error de inicio de sesión',
+          detail: 'Credenciales incorrectas. Por favor, verifique su usuario y contraseña.',
+          life: 5000
+        },
+        forgotPassword: {
+          severity: 'info',
+          summary: 'Recuperación de contraseña',
+          detail: 'Funcionalidad en desarrollo.'
+        }
+      }
     };
   },
 
   methods: {
-    onSignIn() {
-
-      /* Para autenticación real */
-      let authenticationStore = useAuthenticationStore();
-      /* Crear el objeto SignInRequest */
-      let signInRequest = new SignInRequest(this.username, this.password);
-
-
-      /* Llamar al método signIn del store */
-      authenticationStore.signIn(signInRequest, this.$router);
-
-
-      // Validación básica
-      if (!this.username || !this.password) {
-        this.$toast.add({
-          severity: 'warn',
-          summary: 'Campos requeridos',
-          detail: 'Por favor, complete todos los campos.',
-          life: 3000
-        });
-        return;
-      }
-
-      /* Importaciones necesarias
-      let authenticationStore = useAuthenticationStore();
-      let signInRequest = new SignInRequest(this.username, this.password);
-
-      authenticationStore.signIn(signInRequest, this.$router);
-
-      if(!authenticationStore.signedIn) {
-        this.$toast.add({
-          severity: 'error',
-          summary: 'Error de inicio de sesión',
-          detail: 'Por favor, verifique sus credenciales.',
-          life: 3000
-        });
-      } else {
-        this.$toast.add({
-          severity: 'success',
-          summary: 'Inicio de sesión exitoso',
-          detail: 'Bienvenido de nuevo!',
-          life: 3000
-        });
-      }
-
-      console.log("Respuesta de Inicio de sesión: ",signInRequest);
-      */
-
-      /* enrutar a order*/
-      this.$router.push({ name: 'service-orders' });
-
+    /**
+     * Generic toast method
+     * @param {string} severity - Toast type: 'success', 'error', 'warn', 'info'
+     * @param {string} summary - Toast title
+     * @param {string} detail - Toast message
+     * @param {number} life - Duration in milliseconds (default: 3000)
+     */
+    showToast(severity, summary, detail, life = 3000) {
+      this.$toast.add({
+        severity,
+        summary,
+        detail,
+        life
+      });
     },
+
+    /**
+     * Show toast using predefined message object
+     * @param {Object} messageObj - Message object with severity, summary, detail, life
+     * @param {*} dynamicData - Data to pass to detail function if it's a function
+     */
+    showToastFromMessage(messageObj, dynamicData = null) {
+      const detail = typeof messageObj.detail === 'function' 
+        ? messageObj.detail(dynamicData) 
+        : messageObj.detail;
+      
+      this.showToast(
+        messageObj.severity,
+        messageObj.summary,
+        detail,
+        messageObj.life
+      );
+    },
+
+    async onSignIn() {
+      try {
+        console.log('🔐 [LOGIN] Iniciando proceso de login...');
+        
+        // Validación básica
+        if (!this.username || !this.password) {
+          console.warn('⚠️ [LOGIN] Campos requeridos faltantes');
+          this.showToastFromMessage(this.toastMessages.requiredFields);
+          return;
+        }
+
+        // Activar estado de carga
+        this.isLoading = true;
+        console.log('⏳ [LOGIN] Estado de carga activado');
+
+        const signInRequest = new SignInRequest(this.username, this.password);
+        console.log('📝 [LOGIN] Request creado:', { username: this.username });
+
+        console.log('🏪 [LOGIN] Ejecutando signIn...');
+        const authStore = useAuthenticationStore();
+        await authStore.signIn(signInRequest, this.$router);
+        
+        console.log('✅ [LOGIN] Login exitoso');
+        // Mostrar toast de éxito
+        this.showToastFromMessage(this.toastMessages.loginSuccess, this.username);
+        
+      } catch (error) {
+        console.error('Error durante el login:', error);
+        this.showToastFromMessage(this.toastMessages.loginError);
+      } finally {
+        // Desactivar estado de carga
+        this.isLoading = false;
+      }
+    },
+
+
 
     onForgotPassword() {
       // Lógica para manejar el olvido de la contraseña
-      this.$toast.add({
-        severity: 'info',
-        summary: 'Recuperación de contraseña',
-        detail: 'Funcionalidad en desarrollo.',
-        life: 3000
-      });
+      this.showToastFromMessage(this.toastMessages.forgotPassword);
     }
 
   }
@@ -103,17 +141,18 @@ export default {
         <form @submit.prevent="onSignIn" class="content-form">
           <div class="p-fluid">
 
-            <!-- Campo de entrada para el correo electrónico -->
+            <!-- Campo de entrada para el nombre de usuario -->
             <div class="field mb-4">
-              <label for="username" class="">Correo electrónico</label>
+              <label for="username" class="">Nombre de usuario</label>
               <pv-icon-field>
                 <pv-input-icon class="pi pi-user"></pv-input-icon>
                 <pv-input-text
                     id="username"
                     v-model="username"
                     :class="['w-full', 'input-color-custom', {'p-invalid': !username}]"
-                    autocomplete="email"
-                    placeholder="Ingrese su correo electrónico"
+                    autocomplete="username"
+                    placeholder="Ingrese su nombre de usuario"
+                    :disabled="isLoading"
                 />
               </pv-icon-field>
             </div>
@@ -134,6 +173,7 @@ export default {
                     :feedback="false"
                     toggle-mask
                     placeholder="Ingrese su contraseña"
+                    :disabled="isLoading"
                 />
               </pv-icon-field>
             </div>
@@ -163,8 +203,12 @@ export default {
               <div class="justify-center">
 
                 <pv-button type="submit"
-                           class="w-full text-black font-bold border border-red-900 p-button-primary" >
-                  Iniciar sesión</pv-button>
+                           class="w-full text-black font-bold border border-red-900 p-button-primary"
+                           :loading="isLoading"
+                           :disabled="isLoading" >
+                  <span v-if="!isLoading">Iniciar sesión</span>
+                  <span v-else>Iniciando sesión...</span>
+                </pv-button>
               </div>
             </div>
 
@@ -187,7 +231,7 @@ export default {
 
 </template>
 
-<style scoped>
+<style>
 
 
 </style>

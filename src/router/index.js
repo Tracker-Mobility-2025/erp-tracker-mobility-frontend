@@ -26,6 +26,7 @@ import DashboardManagementComponent from "../tracker-mobility/dashboard/pages/da
 import ClientManagementComponent from "../tracker-mobility/client-management/pages/client-management.component.vue";
 import ClientDetailsManagementComponent
     from "../tracker-mobility/client-management/pages/client-details-management.component.vue";
+import {authenticationGuard} from "../tracker-mobility/security/services/authentication.guard.js";
 
 
 
@@ -34,11 +35,7 @@ import ClientDetailsManagementComponent
 const router = createRouter({
     history: createWebHistory(),
     routes: [
-        //ruta por defecto para redirigir a la página de inicio home-elixir line
-        {path: '/:pathMatch(.*)*', redirect: '/tracker-mobility/sign-in'},
         {path: '/tracker-mobility/sign-in' , name: 'sign-in', component: SignInComponent, meta: { title:'Login'}},
-
-
 
         // =====================================================================================
 
@@ -180,15 +177,17 @@ const router = createRouter({
         },
         */
 
+        // Ruta catch-all DEBE estar al final para no interceptar otras rutas
+        {path: '/:pathMatch(.*)*', redirect: '/tracker-mobility/sign-in'}
+
     ]
 });
 
 
-//router.beforeEach(authenticationGuard); //Descomentar esta línea para activar el guard de autenticación global
+// Añadir el guardia de autenticación a las rutas protegidas del enrutador Vue Router
+router.beforeEach(authenticationGuard);
 
-//Se implementó un guard global para cambiar el título de la página según la meta-etiqueta 'title' definida en cada ruta
-
-
+// Cambiar el título del documento según la meta-etiqueta 'title' de la ruta
 router.beforeEach((to, from, next) => {
     let baseTitle = 'Tracker Mobility';
     document.title = `${baseTitle} | ${to.meta['title']}`;

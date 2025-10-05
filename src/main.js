@@ -100,12 +100,12 @@ import {createPinia} from "pinia";
 //create app instance
 const app=createApp(App)
 
-// Use Router
-app.use(router);
-
-// Use Pinia
+// Use Pinia BEFORE Router to ensure stores are available for guards
 const pinia = createPinia();
 app.use(pinia);
+
+// Use Router
+app.use(router);
 
 
 // Use PrimeVue - Configurado para modo claro forzado

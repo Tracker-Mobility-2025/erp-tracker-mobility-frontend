@@ -22,9 +22,6 @@ export default {
     onSignIn() {
       this.router.push({name: "sign-in"});
     },
-    onSignUp() {
-      this.router.push({name: "sign-up"});
-    },
     onSignOut() {
       this.authenticationStore.signOut(this.router);
     }
@@ -39,7 +36,6 @@ export default {
     </div>
     <div v-else>
       <pv-button text @click="onSignIn">Sign In</pv-button>
-      <pv-button text @click="onSignUp">Sign Up</pv-button>
     </div>
   </div>
 </template>

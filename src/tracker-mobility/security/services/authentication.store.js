@@ -1,6 +1,6 @@
 import {AuthenticationService} from "./authentication.service.js";
-import {defineStore} from "pinia";
 import {SignInResponse} from "../models/sign-in.response.js";
+import {defineStore} from "pinia";
 
 const authenticationService = new AuthenticationService();
 /**
@@ -8,12 +8,8 @@ const authenticationService = new AuthenticationService();
  * @summary
  * Represents the authentication store
  */
-export const useAuthenticationStore = defineStore({
-
-    id: 'authentication',
-
-    state: () => ({ signedIn: false, id: 0, username: '', role: '' }),
-
+export const useAuthenticationStore = defineStore('authentication', {
+    state: () => ({ signedIn: false, userId: 0, username: '', role: '' }),
     getters: {
         /**
          * Is signed in
@@ -24,9 +20,9 @@ export const useAuthenticationStore = defineStore({
         /**
          * Current user id
          * @param state - The state of the store
-         * @returns {number} - The current user id
+         * @returns {string} - The current user id
          */
-        currentUserId: (state) => state['id'],
+        currentUserId: (state) => state['userId'],
         /**
          * Current username
          * @param state - The state of the store
@@ -53,40 +49,43 @@ export const useAuthenticationStore = defineStore({
          * This method calls the sign-in API.
          * @param signInRequest {SignInRequest} - The sign-in request
          * @param router - The router
+         * @returns {Promise} - Promise that resolves on success or rejects on error
          */
         async signIn(signInRequest, router) {
+            try {
+                const response = await authenticationService.signIn(signInRequest);
 
-            authenticationService.signIn(signInRequest)
-                .then(response => {
-                    let signInResponse = new SignInResponse(
-                        response.data.id,
-                        response.data.username, 
-                        response.data.token, 
-                        response.data.role
-                    );
+                const signInResponse = new SignInResponse(
+                    response.data.userId,
+                    response.data.username,
+                    response.data.token,
+                    response.data.role
+                );
 
-                    this.signedIn = true;
-                    this.id = signInResponse.id;
-                    this.username = signInResponse.username;
-                    this.role = signInResponse.role;
+                this.signedIn = true;
+                this.userId = signInResponse.userId;
+                this.username = signInResponse.username;
+                this.role = signInResponse.role;
 
-                    localStorage.setItem('token', signInResponse.token);
-                    localStorage.setItem('userId', signInResponse.id);
-                    localStorage.setItem('username', signInResponse.username);
-                    localStorage.setItem('role', signInResponse.role);
+                localStorage.setItem('token', signInResponse.token);
+                localStorage.setItem('userId', signInResponse.userId);
+                localStorage.setItem('username', signInResponse.username);
+                localStorage.setItem('role', signInResponse.role);
 
-                    console.log("✔ Login completo:", signInResponse);
+                console.log("✔ Login completo:", signInResponse);
 
-                    // Redirigir al dashboard directamente tras login exitoso
-                    router.push(`/tracker-mobility/${signInResponse.id}/dashboard`);
-                    console.log("Redirigiendo al DashBoard");
-                })
-                .catch(error => {
-                    this.signedIn = false;
-
-                    console.log(error);
-                    router.push({name: 'sign-in'});
-                });
+                // Redirigir al dashboard directamente tras login exitoso
+                router.push(`/tracker-mobility/admin/service-orders`);
+                console.log("Redirigiendo al DashBoard");
+                
+                return signInResponse;
+            } catch (error) {
+                this.signedIn = false;
+                console.error("❌ Error durante el login:", error);
+                
+                // Propagar el error al componente
+                throw error;
+            }
         },
         /*
          * Sign up
@@ -120,7 +119,7 @@ export const useAuthenticationStore = defineStore({
          */
         async signOut(router) {
             this.signedIn = false;
-            this.id = 0;
+            this.userId = 0;
             this.username = '';
             this.role = '';
             localStorage.removeItem('token');
@@ -139,7 +138,7 @@ export const useAuthenticationStore = defineStore({
 
             if (token && userId && username) {
                 this.signedIn = true;
-                this.id = parseInt(userId);
+                this.userId = parseInt(userId);
                 this.username = username;
                 this.role = role || '';
                 console.log('[INIT] Sesión restaurada:', this.username);
@@ -147,8 +146,5 @@ export const useAuthenticationStore = defineStore({
                 console.warn('[INIT] No hay datos válidos en localStorage');
             }
         }
-
-
-
     }
 })

@@ -8,15 +8,7 @@ import {useAuthenticationStore} from "./authentication.store.js";
  * @returns {*}
  */
 export const authenticationGuard = (to, from, next) => {
-
-    const store = useAuthenticationStore();
-
     console.log('[GUARD] Navegando a:', to.fullPath);
-
-    if (!store.isSignedIn && localStorage.getItem('token')) {
-        console.log('[GUARD] Restaurando sesión desde localStorage...');
-        store.initialize();
-    }
 
     /**
      * Check if the route is public
@@ -27,13 +19,33 @@ export const authenticationGuard = (to, from, next) => {
      */
     const isPublic = to.path.startsWith('/tracker-mobility/sign-in');
 
-    /** If the route is not public and the user is not signed in, redirect to sign-in
-     * Otherwise, continue to the route
-     */
-    if (!isPublic && !store.isSignedIn) {
-        console.warn('[GUARD] Acceso denegado. Redirigiendo a login');
-        return next({ name: 'sign-in' });
+    // If it's a public route, allow access immediately
+    if (isPublic) {
+        console.log('[GUARD] Ruta pública, permitiendo acceso');
+        return next();
     }
 
-    next();
+    try {
+        const store = useAuthenticationStore();
+        
+        // Try to restore session from localStorage if not signed in
+        if (!store.isSignedIn && localStorage.getItem('token')) {
+            console.log('[GUARD] Restaurando sesión desde localStorage...');
+            store.initialize();
+        }
+
+        /** If the route is not public and the user is not signed in, redirect to sign-in
+         * Otherwise, continue to the route
+         */
+        if (!store.isSignedIn) {
+            console.warn('[GUARD] Acceso denegado. Redirigiendo a login');
+            return next({ name: 'sign-in' });
+        }
+
+        next();
+    } catch (error) {
+        console.error('[GUARD] Error accessing authentication store:', error);
+        // If there's an error with the store, redirect to login as fallback
+        return next({ name: 'sign-in' });
+    }
 };
