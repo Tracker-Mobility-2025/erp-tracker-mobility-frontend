@@ -196,7 +196,7 @@ export default {
     return {
 
       // Servicio para manejar reportes de verificación
-      reportApiService: new ReportApiService('/reports'),
+      reportDetailsApiService: new ReportApiService('/reports'),
 
       // item de reporte de verificación
       item: null,
@@ -365,7 +365,7 @@ export default {
       // Simular progreso de carga
       this.simulateLoadingProgress();
       
-      this.reportApiService.getById(reportId)
+      this.reportDetailsApiService.getById(reportId)
           .then(response => {
             this.item = response.data;
             console.log('Reporte de verificación obtenido:', this.item);
@@ -420,7 +420,7 @@ export default {
   },
 
   created() {
-    this.reportApiService = new ReportApiService('/reports');
+    this.reportDetailsApiService = new ReportApiService('/reports');
 
     // Obtener ID desde params o query
     const reportId = this.$route.params.id || this.$route.query.id;

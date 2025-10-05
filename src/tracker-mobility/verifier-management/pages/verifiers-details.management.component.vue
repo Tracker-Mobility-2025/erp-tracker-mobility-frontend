@@ -16,7 +16,7 @@ export default {
     return {
 
       // Servicio de Order
-      orderRequestApi: new OrderRequestApi('/orders'),
+      orderVerifierDetailRequestApi: new OrderRequestApi('/orders'),
 
       // Objeto para actualizar orden
       updateOrder: null,
@@ -101,7 +101,7 @@ export default {
 
       console.log('Datos para actualizar la orden:', this.updateOrder + ' para la orden ID: ' + order.id);
 
-      this.orderRequestApi.updateOrderById(order.id, this.updateOrder).then(response => {
+      this.orderVerifierDetailRequestApi.updateOrderById(order.id, this.updateOrder).then(response => {
         console.log('Orden actualizada:', response.data);
         this.$toast.add({severity:'success', summary: 'Éxito', detail: 'Orden removida del verificador correctamente', life: 3000});
 

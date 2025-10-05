@@ -197,6 +197,54 @@ export default {
       }
     },
 
+    // Función modular para manejar errores de servidor
+    handleServerError(error, context = 'datos') {
+      console.error(`Error al cargar ${context}:`, error);
+
+      // Determinar si mostrar toast basado en el tipo de error
+      let errorMessage = '';
+      let showToast = false;
+
+      if (error.response) {
+        // Error de respuesta del servidor (4xx, 5xx)
+        const status = error.response.status;
+        showToast = true;
+        
+        if (status >= 500) {
+          errorMessage = `Error interno del servidor al cargar ${context}. Por favor, contacte al administrador.`;
+        } else if (status >= 400) {
+          errorMessage = `Error en la solicitud de ${context}. Verifique los permisos de acceso.`;
+        } else {
+          errorMessage = `Error del servidor (${status}) al cargar ${context}.`;
+        }
+      } else if (error.request) {
+        // Error de red o conexión
+        showToast = true;
+        errorMessage = `No se pudo conectar con el servidor para cargar ${context}. Verifique su conexión a internet.`;
+      } else if (error.message && (error.message.includes('inválido') || error.message.includes('formato'))) {
+        // Error de formato de datos del servidor
+        showToast = true;
+        errorMessage = `Error en el formato de datos del servidor: ${error.message}`;
+      }
+      
+      if (showToast) {
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Error del servidor',
+          detail: errorMessage,
+          life: 7000
+        });
+      }
+    },
+
+    // Función modular para validar respuesta del servidor
+    validateServerResponse(response, context = 'datos') {
+      if (!response || !response.hasOwnProperty('data') || !Array.isArray(response.data)) {
+        throw new Error(`Formato de ${context} inválido del servidor`);
+      }
+      return true;
+    },
+
     deleteOrder(orderId) {
 
       this.loading = true;
@@ -219,11 +267,15 @@ export default {
     getAllOrders() {
       this.loading = true;
       this.orderRequestApi.getAll().then(response => {
-        this.itemsArray = response.data;
+        // Validar respuesta usando función modular
+        this.validateServerResponse(response, 'órdenes');
 
+        this.itemsArray = response.data;
+        console.log('Órdenes de servicio cargadas:', this.itemsArray);
 
       }).catch(error => {
-        console.error('Error al cargar las órdenes:', error);
+        this.itemsArray = []; // Limpiar datos en caso de error
+        this.handleServerError(error, 'las órdenes');
       }).finally(() => {
         this.loading = false;
       });
@@ -233,14 +285,19 @@ export default {
     getAllVerifiers() {
       this.loading = true;
       this.verifierApi.getAll().then(response => {
-          this.verifiersArray = response.data;
-        })
-        .catch(error => {
-          console.error('Error al cargar los verificadores:', error);
-        })
-        .finally(() => {
-          this.loading = false;
-        });
+        // Validar respuesta usando función modular
+        this.validateServerResponse(response, 'verificadores');
+
+        this.verifiersArray = response.data;
+        console.log('Verificadores cargados:', this.verifiersArray);
+      })
+      .catch(error => {
+        this.verifiersArray = []; // Limpiar datos en caso de error
+        this.handleServerError(error, 'los verificadores');
+      })
+      .finally(() => {
+        this.loading = false;
+      });
     }
 
   },
@@ -258,8 +315,7 @@ export default {
 </script>
 
 <template>
-
-
+  <pv-toast />
 
   <div class="h-full overflow-hidden flex flex-column p-4">
     <!-- Header con título + descripción y resúmenes -->

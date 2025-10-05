@@ -18,7 +18,7 @@ export default {
       item: null, // Verificador actual para edición o creación
 
       // Servicio de verificador
-      verifierApiServices: null,
+      verifierManagementApiServices: null,
 
       itemsArray: [],
 
@@ -100,7 +100,7 @@ export default {
     onDeleteItem(item) {
       console.log('Eliminar verificador:', item);
       
-      this.verifierApiServices.delete(item.id).then(response => {
+      this.verifierManagementApiServices.delete(item.id).then(response => {
         // Eliminar del array local
         const index = this.itemsArray.findIndex(verifier => verifier.id === item.id);
         if (index > -1) {
@@ -188,7 +188,7 @@ export default {
 
       console.log('Creando verificador:', this.createItem);
 
-      this.verifierApiServices.create(this.createItem).then(response => {
+      this.verifierManagementApiServices.create(this.createItem).then(response => {
 
         let newItem = new Verifier(response.data);
 
@@ -218,13 +218,61 @@ export default {
 
     },
 
+    // Función modular para manejar errores de servidor
+    handleServerError(error, context = 'datos') {
+      console.error(`Error al cargar ${context}:`, error);
+
+      // Determinar si mostrar toast basado en el tipo de error
+      let errorMessage = '';
+      let showToast = false;
+
+      if (error.response) {
+        // Error de respuesta del servidor (4xx, 5xx)
+        const status = error.response.status;
+        showToast = true;
+        
+        if (status >= 500) {
+          errorMessage = `Error interno del servidor al cargar ${context}. Por favor, contacte al administrador.`;
+        } else if (status >= 400) {
+          errorMessage = `Error en la solicitud de ${context}. Verifique los permisos de acceso.`;
+        } else {
+          errorMessage = `Error del servidor (${status}) al cargar ${context}.`;
+        }
+      } else if (error.request) {
+        // Error de red o conexión
+        showToast = true;
+        errorMessage = `No se pudo conectar con el servidor para cargar ${context}. Verifique su conexión a internet.`;
+      } else if (error.message && (error.message.includes('inválido') || error.message.includes('formato'))) {
+        // Error de formato de datos del servidor
+        showToast = true;
+        errorMessage = `Error en el formato de datos del servidor: ${error.message}`;
+      }
+      
+      if (showToast) {
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Error del servidor',
+          detail: errorMessage,
+          life: 7000
+        });
+      }
+    },
+
+    // Función modular para validar respuesta del servidor
+    validateServerResponse(response, context = 'datos') {
+      if (!response || !response.hasOwnProperty('data') || !Array.isArray(response.data)) {
+        throw new Error(`Formato de ${context} inválido del servidor`);
+      }
+      return true;
+    },
+
     deleteSelectedItems(){
       const totalItems = this.selectedItems.length;
       let deletedCount = 0;
       let errorCount = 0;
 
       this.selectedItems.forEach((variable) => {
-        this.verifierApiServices.delete(variable.id).then(response => {
+        this.verifierManagementApiServices.delete(variable.id).then(response => {
 
           this.itemsArray = this.itemsArray.filter(item => item.id !== variable.id);
           deletedCount++;
@@ -279,7 +327,10 @@ export default {
       this.loading = true;
       console.log('Obteniendo verificadores para adminId:', adminId);
 
-      this.verifierApiServices.getAllByAdminId(adminId).then(response => {
+      this.verifierManagementApiServices.getAllByAdminId(adminId).then(response => {
+        // Validar respuesta usando función modular
+        this.validateServerResponse(response, 'verificadores');
+
         this.itemsArray = response.data.map(resource  => new Verifier(resource));
 
         // Parsear status de inglés a español
@@ -292,9 +343,11 @@ export default {
           return verifier;
         });
 
-        this.loading = false;
+        console.log('Verificadores cargados:', this.itemsArray);
       }).catch(error => {
-        console.error('Error al obtener verificadores:', error);
+        this.itemsArray = []; // Limpiar datos en caso de error
+        this.handleServerError(error, 'los verificadores');
+      }).finally(() => {
         this.loading = false;
       });
 
@@ -305,7 +358,7 @@ export default {
 
   created() {
     this.adminId = 1; // Simular ID de admin
-    this.verifierApiServices = new VerifierApiService('/verifiers');
+    this.verifierManagementApiServices = new VerifierApiService('/verifiers');
     this.getAllVerifiersByAdminId(this.adminId); // Usar ID de admin simulado 1
   }
 
@@ -314,6 +367,7 @@ export default {
 </script>
 
 <template>
+  <pv-toast />
 
   <div class="h-full overflow-hidden flex flex-column p-4">
     <!-- Header con título + descripción y resúmenes -->
