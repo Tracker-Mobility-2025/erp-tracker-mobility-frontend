@@ -30,8 +30,6 @@ import {authenticationGuard} from "../tracker-mobility/security/services/authent
 
 
 
-
-
 const router = createRouter({
     history: createWebHistory(),
     routes: [
@@ -40,7 +38,13 @@ const router = createRouter({
         // =====================================================================================
 
         {
-            path: '/tracker-mobility', name: 'tracker-mobility', component: LayoutTrackerMobilityComponent, meta: {title: 'Tracker Mobility'},
+            path: '/tracker-mobility', 
+            name: 'tracker-mobility', 
+            component: LayoutTrackerMobilityComponent, 
+            meta: {
+                title: 'Tracker Mobility',
+                roles: ['ADMIN'] // 🔒 Solo ADMIN puede acceder a TODA esta sección
+            },
             children: [
 
                 // Rutas de administración de órdenes de servicio
@@ -161,8 +165,14 @@ const router = createRouter({
 
 
         // ============== Rutas del formulario de solicitud de visita domiciliaria ==============
-        {path: '/tracker-mobility/service-request', name: 'service-request', component: ManagementRequestsHomeVisitOrdersComponent, meta: {title: 'Solicitar visita domiciliaria'},
-
+        {
+            path: '/tracker-mobility/service-request', 
+            name: 'service-request', 
+            component: ManagementRequestsHomeVisitOrdersComponent, 
+            meta: {
+                title: 'Solicitar visita domiciliaria',
+                roles: ['COMPANY_EMPLOYEE'] // 🔒 Solo empleados de empresa pueden acceder
+            },
             children: [
                 {path: 'petitioner-data', name: 'petitioner-data', component: RequestServiceBusinessFormComponent, meta: {title: 'Solicitante'}},
                 {path: 'customer-data', name: 'customer-data', component: CustomerDataFormComponent, meta: {title: 'Cliente'}},
