@@ -103,7 +103,19 @@ export default {
         
       } catch (error) {
         console.error('Error durante el login:', error);
-        this.showToastFromMessage(this.toastMessages.loginError);
+        
+        // ⚠️ Verificar si es un error de rol no autorizado
+        if (error.message && error.message.includes('rol') && error.message.includes('no tiene permisos')) {
+          this.showToast(
+            'error',
+            'Rol No Autorizado',
+            error.message,
+            7000 // Mensaje más largo, más tiempo de visualización
+          );
+        } else {
+          // Error genérico de login (credenciales incorrectas, etc.)
+          this.showToastFromMessage(this.toastMessages.loginError);
+        }
       } finally {
         // Desactivar estado de carga
         this.isLoading = false;
@@ -117,6 +129,34 @@ export default {
       this.showToastFromMessage(this.toastMessages.forgotPassword);
     }
 
+  },
+
+  mounted() {
+    // 🔒 Mostrar mensaje si viene de acceso denegado
+    if (this.$route.query.error === 'access-denied') {
+      this.showToast(
+        'warn',
+        'Acceso Denegado',
+        this.$route.query.message || 'No tienes permisos para acceder a esa sección',
+        5000
+      );
+      
+      // Limpiar query parameters para no mostrar el mensaje repetidamente
+      this.$router.replace({ name: 'sign-in' });
+    }
+    
+    // ⚠️ Mostrar mensaje si el rol no está autorizado
+    if (this.$route.query.error === 'unauthorized-role') {
+      this.showToast(
+        'error',
+        'Rol No Autorizado',
+        this.$route.query.message || 'Su rol no tiene permisos para acceder al sistema',
+        6000
+      );
+      
+      // Limpiar query parameters
+      this.$router.replace({ name: 'sign-in' });
+    }
   }
 }
 
