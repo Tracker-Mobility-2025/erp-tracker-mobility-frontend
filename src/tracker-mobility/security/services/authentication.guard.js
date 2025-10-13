@@ -34,34 +34,64 @@ export const authenticationGuard = (to, from, next) => {
             store.initialize();
         }
 
+        // ⚠️ Verificar que solo usuarios con roles autorizados puedan acceder al sistema
+        if (store.isSignedIn) {
+            const authorizedRoles = ['ADMIN', 'COMPANY_EMPLOYEE'];
+            if (!authorizedRoles.includes(store.currentRole)) {
+                console.error(`❌ [GUARD] Rol no autorizado detectado: ${store.currentRole}`);
+                // Cerrar sesión y redirigir
+                store.signOut({ push: () => {} }); // Mock router para signOut
+                return next({ 
+                    name: 'sign-in', 
+                    query: { 
+                        error: 'unauthorized-role',
+                        message: 'Su rol no tiene permisos para acceder al sistema'
+                    }
+                });
+            }
+        }
+
         /** If the route is not public and the user is not signed in, redirect to sign-in
          * Otherwise, continue to the route
          */
         if (!store.isSignedIn) {
             console.warn('[GUARD] Acceso denegado. Redirigiendo a login');
+            // Guardar la ruta de origen para redirección posterior
+            localStorage.setItem('redirectAfterLogin', to.fullPath);
             return next({ name: 'sign-in' });
         }
 
-        // ⭐ VERIFICACIÓN DE ROLES - NUEVA FUNCIONALIDAD
-        if (to.meta && to.meta.roles && to.meta.roles.length > 0) {
+        // ⭐ VERIFICACIÓN DE ROLES - Incluyendo rutas padre
+        const hasRequiredRole = () => {
             const userRole = store.currentRole;
-            console.log('[GUARD] Verificando roles. Usuario:', userRole, 'Requeridos:', to.meta.roles);
+            console.log('[GUARD] Verificando roles para usuario:', userRole);
             
-            if (!to.meta.roles.includes(userRole)) {
-                console.warn('[GUARD] Acceso denegado por rol insuficiente');
-                
-                // Crear mensaje de error personalizado
-                const errorMessage = `Necesitas ser ${to.meta.roles.join(' o ')} para acceder a esta sección`;
-                
-                // Redirigir al dashboard con mensaje de error
-                return next({ 
-                    name: 'dashboard', 
-                    query: { 
-                        error: 'access-denied',
-                        message: errorMessage
+            // Verificar todas las rutas coincidentes (incluyendo rutas padre)
+            for (let matchedRoute of to.matched) {
+                if (matchedRoute.meta?.roles && matchedRoute.meta.roles.length > 0) {
+                    console.log('[GUARD] Ruta requiere roles:', matchedRoute.meta.roles);
+                    if (!matchedRoute.meta.roles.includes(userRole)) {
+                        console.warn('[GUARD] Acceso denegado - Rol insuficiente');
+                        return false;
                     }
-                });
+                }
             }
+            
+            return true;
+        };
+
+        if (!hasRequiredRole()) {
+            // Crear mensaje de error genérico
+            const errorMessage = 'No tienes permisos suficientes para acceder a esta sección';
+            
+            // Redirigir al login con mensaje de error
+            return next({ 
+                name: 'sign-in', 
+                query: { 
+                    error: 'access-denied',
+                    message: errorMessage
+                }
+            });
         }
 
         console.log('[GUARD] Acceso permitido');
