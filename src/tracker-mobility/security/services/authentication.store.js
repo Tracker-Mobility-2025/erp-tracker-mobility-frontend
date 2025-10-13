@@ -74,9 +74,13 @@ export const useAuthenticationStore = defineStore('authentication', {
 
                 console.log("✔ Login completo:", signInResponse);
 
-                // Redirigir al dashboard directamente tras login exitoso
-                router.push(`/tracker-mobility/admin/service-orders`);
-                console.log("Redirigiendo al DashBoard");
+                // 🎯 Redirección inteligente basada en rol
+                const redirectResult = this.redirectAfterLogin(router, signInResponse.role);
+                
+                // Si hubo error de rol no autorizado, propagar el error
+                if (redirectResult && redirectResult.error) {
+                    throw new Error(redirectResult.message);
+                }
                 
                 return signInResponse;
             } catch (error) {
@@ -145,6 +149,97 @@ export const useAuthenticationStore = defineStore('authentication', {
             } else {
                 console.warn('[INIT] No hay datos válidos en localStorage');
             }
+        },
+
+        /**
+         * Redirection logic based on user role after successful login
+         * @param router - Vue Router instance
+         * @param userRole - User's role from authentication response
+         * @returns {Object|null} - Error object if role not authorized, null if success
+         */
+        redirectAfterLogin(router, userRole) {
+            console.log(`🎯 [REDIRECT] Procesando redirección para rol: ${userRole}`);
+            
+            // Verificar si hay una ruta guardada de origen
+            const redirectPath = localStorage.getItem('redirectAfterLogin');
+            
+            // Definir rutas por defecto según rol
+            const defaultRoutesByRole = {
+                'ADMIN': '/tracker-mobility/admin/dashboard',
+                'COMPANY_EMPLOYEE': '/tracker-mobility/service-request/petitioner-data'
+            };
+            
+            // ⚠️ Verificar que el rol está autorizado para hacer login
+            if (!['ADMIN', 'COMPANY_EMPLOYEE'].includes(userRole)) {
+                console.error(`❌ [REDIRECT] Rol no autorizado: ${userRole}`);
+                
+                // Limpiar datos de autenticación
+                this.signedIn = false;
+                this.userId = 0;
+                this.username = '';
+                this.role = '';
+                localStorage.removeItem('token');
+                localStorage.removeItem('userId');
+                localStorage.removeItem('username');
+                localStorage.removeItem('role');
+                localStorage.removeItem('redirectAfterLogin');
+                
+                // Retornar error para que sea manejado en el componente
+                return {
+                    error: true,
+                    type: 'unauthorized-role',
+                    message: `Su rol "${userRole}" no tiene permisos para acceder al sistema. Solo usuarios ADMIN y COMPANY_EMPLOYEE pueden ingresar.`
+                };
+            }
+            
+            if (redirectPath) {
+                console.log(`🔄 [REDIRECT] Ruta de origen encontrada: ${redirectPath}`);
+                
+                // Verificar si la ruta de origen es accesible para el rol actual
+                if (this.isRouteAccessibleForRole(redirectPath, userRole)) {
+                    console.log(`✅ [REDIRECT] Redirigiendo a ruta de origen: ${redirectPath}`);
+                    localStorage.removeItem('redirectAfterLogin');
+                    router.push(redirectPath);
+                } else {
+                    console.warn(`⚠️ [REDIRECT] Ruta de origen no accesible para rol ${userRole}, usando ruta por defecto`);
+                    localStorage.removeItem('redirectAfterLogin');
+                    router.push(defaultRoutesByRole[userRole]);
+                }
+            } else {
+                // No hay ruta de origen, ir a ruta por defecto
+                const defaultRoute = defaultRoutesByRole[userRole];
+                console.log(`🏠 [REDIRECT] Redirigiendo a ruta por defecto: ${defaultRoute}`);
+                router.push(defaultRoute);
+            }
+            
+            // Retornar null indica éxito
+            return null;
+        },
+
+        /**
+         * Check if a route is accessible for a specific role
+         * @param routePath - The route path to check
+         * @param userRole - The user's role
+         * @returns {boolean} - True if accessible, false otherwise
+         */
+        isRouteAccessibleForRole(routePath, userRole) {
+            // Rutas de ADMIN (requieren rol ADMIN)
+            if (routePath.startsWith('/tracker-mobility/admin/')) {
+                return userRole === 'ADMIN';
+            }
+            
+            // Rutas de solicitud de servicio (requieren rol COMPANY_EMPLOYEE)
+            if (routePath.startsWith('/tracker-mobility/service-request/')) {
+                return userRole === 'COMPANY_EMPLOYEE';
+            }
+            
+            // Rutas públicas
+            if (routePath.startsWith('/tracker-mobility/sign-in')) {
+                return true;
+            }
+            
+            // Por defecto, denegar acceso
+            return false;
         }
     }
 })
