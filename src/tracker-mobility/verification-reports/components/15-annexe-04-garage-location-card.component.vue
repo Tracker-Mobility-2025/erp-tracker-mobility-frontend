@@ -41,7 +41,7 @@ export default {
     <template #header>
       <h3 class="text-lg font-bold flex align-items-center gap-2 text-white p-3 m-0">
         <i class="pi pi-car text-white"></i>
-        {{ item?.title || 'ANEXO 04: Ubicación de la cochera' }}
+        {{ item?.title || 'ANEXO 04: Registro fotográfico de la cochera' }}
       </h3>
     </template>
     <template #content>

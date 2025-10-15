@@ -32,9 +32,8 @@ export default {
     },
 
     openInGoogleMaps() {
-      // Lógica para abrir ubicación en Google Maps
-      console.log('Abrir en Google Maps');
-      // Ejemplo: window.open('https://maps.google.com/?q=ubicacion', '_blank');
+      // Lógica para abrir imagen en Google Maps (para mapas)
+      console.log('Ver recibo en detalle');
     }
   }
 
@@ -46,8 +45,8 @@ export default {
   <pv-card class="w-full">
     <template #header>
       <h3 class="text-lg font-bold flex align-items-center gap-2 text-white p-3 m-0">
-        <i class="pi pi-map text-white"></i>
-        {{ item?.title || 'ANEXO 06: Ubicación del domicilio' }}
+        <i class="pi pi-file text-white"></i>
+        {{ item?.title || 'ANEXO 06: Recibos de servicios' }}
       </h3>
     </template>
     <template #content>
@@ -82,12 +81,6 @@ export default {
                     v-tooltip="'Descargar imagen'"
                     @click="downloadImage(image)"
                   />
-                  <pv-button 
-                    icon="pi pi-map-marker" 
-                    class="p-button-sm p-button-text p-button-secondary"
-                    v-tooltip="'Abrir en Google Maps'"
-                    @click="openInGoogleMaps()"
-                  />
                 </div>
                 <p v-if="image.description" class="text-sm text-center text-color mt-1 m-0">
                   {{ image.description }}
@@ -96,8 +89,8 @@ export default {
             </div>
           </div>
           <div v-else class="text-center p-4">
-            <i class="pi pi-map text-4xl text-color-secondary mb-3"></i>
-            <p class="text-color-secondary m-0">No hay ubicación disponible</p>
+            <i class="pi pi-file text-4xl text-color-secondary mb-3"></i>
+            <p class="text-color-secondary m-0">No hay recibos disponibles</p>
           </div>
         </div>
       </div>

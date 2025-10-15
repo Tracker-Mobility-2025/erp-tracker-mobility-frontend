@@ -50,8 +50,8 @@ export default {
   <pv-card class="w-full">
     <template #header>
       <h3 class="text-lg font-bold flex align-items-center gap-2 text-white p-3 m-0">
-        <i class="pi pi-user text-white"></i>
-        {{ item?.title || 'ANEXO 03: Registro fotográfico del candidato' }}
+        <i class="pi pi-id-card text-white"></i>
+        {{ item?.title || 'ANEXO 03: Documentos de identidad del candidato' }}
       </h3>
     </template>
     <template #content>

@@ -7,16 +7,6 @@ export default {
     item: {
       type: Object,
       required: false,
-      default: () => ({
-        title: 'ANEXO 01: Registro fotográfico del domicilio',
-        images: [
-          {
-            src: 'https://via.placeholder.com/300x200/4f46e5/ffffff?text=Domicilio+Principal',
-            alt: 'Registro fotográfico del domicilio',
-            description: 'Vista frontal del domicilio'
-          }
-        ]
-      })
     },
   },
 

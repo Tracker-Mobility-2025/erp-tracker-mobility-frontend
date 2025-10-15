@@ -43,12 +43,12 @@ export default {
 
   methods: {
     // ============================================================================
-    // 🚪 MÉTODOS DE CIERRE DE SESIÓN CON NOTIFICACIONES MODULARES
+    // MÉTODOS DE CIERRE DE SESIÓN CON NOTIFICACIONES MODULARES
     // ============================================================================
     
     async logout() {
       try {
-        console.log('🚪 [LOGOUT] Iniciando proceso de cierre de sesión...');
+        console.log('[LOGOUT] Iniciando proceso de cierre de sesión...');
         
         // Activar estado de carga para el botón
         this.isLoggingOut = true;
@@ -70,10 +70,10 @@ export default {
         // Ejecutar el signOut del store que limpia localStorage y redirige
         await authStore.signOut(this.$router);
         
-        console.log('✅ [LOGOUT] Cierre de sesión completado exitosamente');
+        console.log('[LOGOUT] Cierre de sesión completado exitosamente');
         
       } catch (error) {
-        console.error('❌ [LOGOUT] Error durante el cierre de sesión:', error);
+        console.error('[LOGOUT] Error durante el cierre de sesión:', error);
         
         // Mostrar toast de error usando el mixin
         this.showToast({
@@ -99,7 +99,7 @@ export default {
     confirmLogout() {
       // Evitar múltiples confirmaciones si ya está en proceso
       if (this.isLoggingOut) {
-        console.log('🔄 [LOGOUT] Ya hay un proceso de logout en curso');
+        console.log('[LOGOUT] Ya hay un proceso de logout en curso');
         return;
       }
 
@@ -114,7 +114,7 @@ export default {
           this.logout();
         },
         reject: () => {
-          console.log('🔄 [LOGOUT] Cierre de sesión cancelado por el usuario');
+          console.log('[LOGOUT] Cierre de sesión cancelado por el usuario');
         }
       });
     }

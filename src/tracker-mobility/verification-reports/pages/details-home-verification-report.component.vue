@@ -53,9 +53,11 @@ export default {
     // Mapear datos de detalles de visita
     visitDetails() {
       return {
-        verifier: this.item?.order?.homeVisitDetails?.verifierName || 'No especificado',
+        verifier: this.item?.order?.homeVisitDetails?.verifierName || 
+                 `Verificador ID: ${this.item?.order?.homeVisitDetails?.verifierId}` || 'No especificado',
         googleMapsLink: this.item?.order?.client?.location?.mapLocation || '#',
-        verificationDate: this.formatDate(this.item?.order?.homeVisitDetails?.visitDate) || 'No especificada'
+        verificationDate: this.formatDate(this.item?.order?.homeVisitDetails?.visitDate) || 'No especificada',
+        verificationTime: this.item?.order?.homeVisitDetails?.visitTime || 'No especificada'
       };
     },
 
@@ -189,6 +191,97 @@ export default {
           };
         }) || []
       };
+    },
+
+    // ANEXO 01: Registro fotográfico del domicilio
+    annexe01Data() {
+      const documents = this.item?.order?.client?.documents;
+      return {
+        title: 'ANEXO 01: Registro fotográfico del domicilio',
+        images: documents?.filter(doc => doc.type === 'FOTO_FACHADA_VIVIENDA')?.map(doc => ({
+          src: doc.url,
+          alt: `Registro fotográfico del domicilio`,
+          description: this.getDocumentDescription(doc.type),
+          type: doc.type
+        })) || []
+      };
+    },
+
+    // ANEXO 02: Registro fotográfico de alrededores
+    annexe02Data() {
+      const documents = this.item?.order?.client?.documents;
+      return {
+        title: 'ANEXO 02: Registro fotográfico de alrededores del domicilio',
+        images: documents?.filter(doc => doc.type === 'FOTO_ALREDEDORES_VIVIENDA')?.map(doc => ({
+          src: doc.url,
+          alt: `Registro fotográfico de alrededores`,
+          description: this.getDocumentDescription(doc.type),
+          type: doc.type
+        })) || []
+      };
+    },
+
+    // ANEXO 03: Documentos de identidad del candidato
+    annexe03Data() {
+      const documents = this.item?.order?.client?.documents;
+      return {
+        title: 'ANEXO 03: Documentos de identidad del candidato',
+        images: documents?.filter(doc => 
+          doc.type === 'DNI' || 
+          doc.type === 'CARNET_EXTRANJERIA' || 
+          doc.type === 'PTP'
+        )?.map(doc => ({
+          src: doc.url,
+          alt: 'Documento de identidad del candidato',
+          description: this.getDocumentDescription(doc.type),
+          type: doc.type
+        })) || []
+      };
+    },
+
+    // ANEXO 04: Registro fotográfico de la cochera
+    annexe04Data() {
+      const documents = this.item?.order?.client?.documents;
+      return {
+        title: 'ANEXO 04: Registro fotográfico de la cochera',
+        images: documents?.filter(doc => doc.type === 'FOTO_COCHERA')?.map(doc => ({
+          src: doc.url,
+          alt: 'Registro fotográfico de la cochera',
+          description: this.getDocumentDescription(doc.type),
+          type: doc.type
+        })) || []
+      };
+    },
+
+    // ANEXO 05: Registro fotográfico de habitaciones
+    annexe05Data() {
+      const documents = this.item?.order?.client?.documents;
+      return {
+        title: 'ANEXO 05: Registro fotográfico de las habitaciones del domicilio',
+        images: documents?.filter(doc => doc.type === 'FOTO_HABITACIONES')?.map(doc => ({
+          src: doc.url,
+          alt: 'Registro fotográfico de habitaciones',
+          description: this.getDocumentDescription(doc.type),
+          type: doc.type
+        })) || []
+      };
+    },
+
+    // ANEXO 06: Recibos de servicios
+    annexe06Data() {
+      const documents = this.item?.order?.client?.documents;
+      return {
+        title: 'ANEXO 06: Recibos de servicios',
+        images: documents?.filter(doc => 
+          doc.type === 'RECIBO_AGUA' || 
+          doc.type === 'RECIBO_LUZ'
+        )?.map(doc => ({
+          src: doc.url,
+          alt: 'Recibo de servicios',
+          description: this.getDocumentDescription(doc.type),
+          type: doc.type
+        })) || []
+      };
     }
   },
 
@@ -213,101 +306,29 @@ export default {
       ],
 
       statusOptions: ['Pendiente', 'En Proceso', 'Completado', 'Cancelado'],
-      
-      annexe01Data: {
-        title: 'ANEXO 01: Registro fotográfico del domicilio',
-        images: [
-          {
-            src: 'https://via.placeholder.com/400x300/4f46e5/ffffff?text=Domicilio+Principal',
-            alt: 'Registro fotográfico del domicilio',
-            description: 'Vista frontal del domicilio'
-          }
-        ]
-      },
-      
-      annexe02Data: {
-        title: 'ANEXO 02: Registro fotográfico de alrededores del domicilio',
-        images: [
-          {
-            src: 'https://via.placeholder.com/400x300/059669/ffffff?text=Alrededores+1',
-            alt: 'Registro fotográfico de alrededores - Vista 1',
-            description: 'Vista lateral izquierda del domicilio'
-          },
-          {
-            src: 'https://via.placeholder.com/400x300/059669/ffffff?text=Alrededores+2',
-            alt: 'Registro fotográfico de alrededores - Vista 2',
-            description: 'Vista frontal de los alrededores'
-          },
-          {
-            src: 'https://via.placeholder.com/400x300/059669/ffffff?text=Alrededores+3',
-            alt: 'Registro fotográfico de alrededores - Vista 3',
-            description: 'Vista lateral derecha del domicilio'
-          }
-        ]
-      },
-      
-      annexe03Data: {
-        title: 'ANEXO 03: Registro fotográfico del candidato',
-        images: [
-          {
-            src: 'https://via.placeholder.com/400x300/dc2626/ffffff?text=Foto+Candidato',
-            alt: 'Fotografía del candidato',
-            description: 'Foto del candidato en el domicilio'
-          },
-          {
-            src: 'https://via.placeholder.com/400x300/dc2626/ffffff?text=Documento+1',
-            alt: 'Documento de identidad del candidato - Parte 1',
-            description: 'Documento de identidad - Anverso'
-          },
-          {
-            src: 'https://via.placeholder.com/400x300/dc2626/ffffff?text=Documento+2',
-            alt: 'Documento de identidad del candidato - Parte 2',
-            description: 'Documento de identidad - Reverso'
-          }
-        ]
-      },
-      
-      annexe04Data: {
-        title: 'ANEXO 04: Ubicación de la cochera',
-        images: [
-          {
-            src: 'https://via.placeholder.com/400x300/f59e0b/ffffff?text=Ubicación+Cochera',
-            alt: 'Ubicación de la cochera',
-            description: 'Vista de la cochera y motocicletas'
-          }
-        ]
-      },
-      
-      annexe05Data: {
-        title: 'ANEXO 05: Registro fotográfico de las habitaciones del domicilio',
-        images: [
-          {
-            src: 'https://via.placeholder.com/400x300/8b5cf6/ffffff?text=Habitación+1',
-            alt: 'Registro fotográfico de habitación - Cocina',
-            description: 'Vista de la cocina del domicilio'
-          },
-          {
-            src: 'https://via.placeholder.com/400x300/8b5cf6/ffffff?text=Habitación+2',
-            alt: 'Registro fotográfico de habitación - Sala',
-            description: 'Vista de la sala del domicilio'
-          }
-        ]
-      },
-      
-      annexe06Data: {
-        title: 'ANEXO 06: Ubicación del domicilio',
-        images: [
-          {
-            src: 'https://via.placeholder.com/400x300/10b981/ffffff?text=Mapa+Ubicación',
-            alt: 'Ubicación del domicilio en mapa',
-            description: 'Mapa con la ubicación exacta del domicilio'
-          }
-        ]
-      }
+
     }
   },
 
+
+
   methods : {
+
+    // Función para obtener descripción amigable del tipo de documento
+    getDocumentDescription(docType) {
+      const descriptions = {
+        'DNI': 'Documento Nacional de Identidad',
+        'CARNET_EXTRANJERIA': 'Carnet de Extranjería',
+        'PTP': 'Permiso Temporal de Permanencia',
+        'RECIBO_AGUA': 'Recibo de Servicio de Agua',
+        'RECIBO_LUZ': 'Recibo de Servicio de Luz',
+        'FOTO_FACHADA_VIVIENDA': 'Fotografía de la fachada de la vivienda',
+        'FOTO_ALREDEDORES_VIVIENDA': 'Fotografía de los alrededores de la vivienda',
+        'FOTO_HABITACIONES': 'Fotografía de las habitaciones',
+        'FOTO_COCHERA': 'Fotografía de la cochera'
+      };
+      return descriptions[docType] || `Documento tipo: ${docType}`;
+    },
 
     // Función para formatear fechas en formato dd/mm/aaaa
     formatDate(dateString) {
@@ -357,32 +378,31 @@ export default {
       // Lógica para descargar o imprimir el reporte en PDF
     },
 
-
+    // Función para obtener el reporte de verificación por ID
     getVerificationReportById(reportId) {
       this.loading = true;
       this.loadingStep = 0;
       
       // Simular progreso de carga
       this.simulateLoadingProgress();
-      
-      this.reportDetailsApiService.getById(reportId)
-          .then(response => {
-            this.item = response.data;
-            console.log('Reporte de verificación obtenido:', this.item);
-            
-            // Completar todos los pasos
-            this.loadingStep = this.loadingSteps.length;
-            
-            // Mostrar mensaje de éxito después de un breve delay
-            setTimeout(() => {
-              this.$toast.add({
-                severity: 'success',
-                summary: 'Datos cargados',
-                detail: 'Reporte de verificación cargado correctamente',
-                life: 3000
-              });
-            }, 300);
-          })
+
+      this.reportDetailsApiService.getById(reportId).then(response => {
+        this.item = response.data;
+        console.log('Reporte de verificación obtenido:', this.item);
+
+        // Completar todos los pasos
+        this.loadingStep = this.loadingSteps.length;
+
+        // Mostrar mensaje de éxito después de un breve delay
+        setTimeout(() => {
+          this.$toast.add({
+            severity: 'success',
+            summary: 'Datos cargados',
+            detail: 'Reporte de verificación cargado correctamente',
+            life: 3000
+          });
+        }, 300);
+      })
           .catch(error => {
             console.error('Error al obtener el reporte de verificación:', error);
             
@@ -594,16 +614,16 @@ export default {
       <!-- Duodécima sección: ANEXO 02 - Registro fotográfico de alrededores -->
       <Annexe02SurroundingsCard :item="annexe02Data" />
       
-      <!-- Decimotercera sección: ANEXO 03 - Registro fotográfico del candidato -->
+      <!-- Decimotercera sección: ANEXO 03 - Documentos de identidad del candidato -->
       <Annexe03CandidateCard :item="annexe03Data" />
       
-      <!-- Decimocuarta sección: ANEXO 04 - Ubicación de la cochera -->
+      <!-- Decimocuarta sección: ANEXO 04 - Registro fotográfico de la cochera -->
       <Annexe04GarageLocationCard :item="annexe04Data" />
       
       <!-- Decimoquinta sección: ANEXO 05 - Registro fotográfico de habitaciones -->
       <Annexe05RoomsCard :item="annexe05Data" />
       
-      <!-- Decimosexta sección: ANEXO 06 - Ubicación del domicilio -->
+      <!-- Decimosexta sección: ANEXO 06 - Recibos de servicios -->
       <Annexe06DomicileLocationCard :item="annexe06Data" />
     </div>
     
