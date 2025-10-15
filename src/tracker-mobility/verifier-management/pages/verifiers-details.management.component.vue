@@ -243,7 +243,7 @@ export default {
 <template>
 
   <!-- dialogo de confirmación -->
-  <pv-confirm-dialog />
+
 
   <!-- Detalles de la orden de servicio (se divide en cards tipo grid)-->
   <div class="order-container flex flex-column p-4 h-full w-full overflow-auto " >

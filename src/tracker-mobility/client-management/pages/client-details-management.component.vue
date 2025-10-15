@@ -447,7 +447,7 @@ export default {
 
 <template>
   <!-- Dialogo de confirmación -->
-  <pv-confirm-dialog />
+
 
   <div class="h-full overflow-hidden flex flex-column p-4">
 

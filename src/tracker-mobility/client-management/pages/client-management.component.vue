@@ -356,7 +356,7 @@ export default {
 <template>
 
   <!-- Dialogo de confirmación -->
-  <pv-confirm-dialog />
+
 
   <div class="h-full overflow-hidden flex flex-column p-4">
     <!-- Header con título + descripción y resúmenes -->

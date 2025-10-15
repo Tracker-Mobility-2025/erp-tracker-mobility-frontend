@@ -1,14 +1,20 @@
 <script>
+import { useAuthenticationStore } from '../../tracker-mobility/security/services/authentication.store.js';
+import { NotificationMixin } from '../../shared/utils/notification.utils.js';
 
 export default {
 
   name: 'Sidebar-tracker-mobility',
+  
+  // 🔧 Usar el mixin para notificaciones
+  mixins: [NotificationMixin],
 
 
   data() {
     return {
       drawer: true,
-      visible: true
+      visible: true,
+      isLoggingOut: false
     };
   },
 
@@ -23,13 +29,94 @@ export default {
         { label: 'Reportes', icon: 'pi pi-fw pi-chart-bar', to: `/tracker-mobility/admin/verification-reports` },
         { label: 'Clientes', icon: 'pi pi-fw pi-user', to: `/tracker-mobility/admin/clients` },
       ];
+    },
+
+    currentUser() {
+      const authStore = useAuthenticationStore();
+      return {
+        username: authStore.currentUsername,
+        role: authStore.currentRole,
+        isSignedIn: authStore.isSignedIn
+      };
     }
   },
 
   methods: {
-    logout() {
-      // Implementar lógica de cierre de sesión
-      this.$router.push('/login');
+    // ============================================================================
+    // 🚪 MÉTODOS DE CIERRE DE SESIÓN CON NOTIFICACIONES MODULARES
+    // ============================================================================
+    
+    async logout() {
+      try {
+        console.log('🚪 [LOGOUT] Iniciando proceso de cierre de sesión...');
+        
+        // Activar estado de carga para el botón
+        this.isLoggingOut = true;
+        
+        // Mostrar toast informativo usando el mixin
+        this.showToast({
+          severity: 'info',
+          summary: 'Cerrando sesión',
+          detail: 'Hasta pronto. Redirigiendo al login...',
+          life: 2000
+        });
+
+        // Obtener el store de autenticación
+        const authStore = useAuthenticationStore();
+        
+        // Esperar un momento para que el usuario vea el mensaje
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Ejecutar el signOut del store que limpia localStorage y redirige
+        await authStore.signOut(this.$router);
+        
+        console.log('✅ [LOGOUT] Cierre de sesión completado exitosamente');
+        
+      } catch (error) {
+        console.error('❌ [LOGOUT] Error durante el cierre de sesión:', error);
+        
+        // Mostrar toast de error usando el mixin
+        this.showToast({
+          severity: 'error',
+          summary: 'Error al cerrar sesión',
+          detail: 'Ocurrió un problema. Intente nuevamente.',
+          life: 5000
+        });
+        
+        // Como fallback, limpiar manualmente y redirigir
+        localStorage.clear();
+        this.$router.push({ name: 'sign-in' });
+        
+      } finally {
+        // Desactivar estado de carga
+        this.isLoggingOut = false;
+      }
+    },
+
+    /**
+     * Método para confirmar el cierre de sesión usando el mixin de confirmación
+     */
+    confirmLogout() {
+      // Evitar múltiples confirmaciones si ya está en proceso
+      if (this.isLoggingOut) {
+        console.log('🔄 [LOGOUT] Ya hay un proceso de logout en curso');
+        return;
+      }
+
+      this.showConfirm({
+        message: '¿Está seguro que desea cerrar sesión?',
+        header: 'Confirmar cierre de sesión',
+        icon: 'pi pi-sign-out',
+        acceptLabel: 'Sí, cerrar sesión',
+        rejectLabel: 'Cancelar',
+        acceptClass: 'p-button-danger p-button-text',
+        accept: () => {
+          this.logout();
+        },
+        reject: () => {
+          console.log('🔄 [LOGOUT] Cierre de sesión cancelado por el usuario');
+        }
+      });
     }
   },
 
@@ -76,12 +163,26 @@ export default {
 
       <!-- Footer del sidebar -->
       <div class="sidebar-footer">
+        <!-- Información del usuario -->
+        <div class="user-info" v-if="currentUser.isSignedIn">
+          <div class="user-avatar">
+            <i class="pi pi-user"></i>
+          </div>
+          <div class="user-details">
+            <div class="user-name">{{ currentUser.username }}</div>
+            <div class="user-role">{{ currentUser.role }}</div>
+          </div>
+        </div>
+        
+        <!-- Botón de cierre de sesión -->
         <button
           class="sidebar-logout-btn"
-          @click="logout"
+          @click="confirmLogout"
+          :disabled="isLoggingOut"
         >
-          <i class="pi pi-sign-out"></i>
-          <span>Cerrar Sesión</span>
+          <i :class="isLoggingOut ? 'pi pi-spin pi-spinner' : 'pi pi-sign-out'"></i>
+          <span v-if="!isLoggingOut">Cerrar Sesión</span>
+          <span v-else>Cerrando...</span>
         </button>
       </div>
     </aside>
@@ -200,18 +301,72 @@ export default {
 }
 
 .sidebar-footer {
-  padding: 1.5rem 1rem;
-  border-top: 1px solid #ffffff;
+  padding: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
   background: var(--color-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
+/* Información del usuario */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.user-details {
+  flex: 1;
+  min-width: 0; /* Para truncar texto si es necesario */
+}
+
+.user-name {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-role {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.75rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Botón de cierre de sesión */
 .sidebar-logout-btn {
   width: 100%;
   padding: 0.75rem 1rem;
   background: transparent;
   border: 2px solid #ef4444;
   color: #ef4444;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   border-radius: 0.375rem;
   cursor: pointer;
@@ -220,14 +375,39 @@ export default {
   justify-content: center;
   gap: 0.5rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
 
-.sidebar-logout-btn:hover {
+.sidebar-logout-btn:hover:not(:disabled) {
   background: rgba(239, 68, 68, 0.15);
   border-color: #f87171;
   color: #f87171;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.sidebar-logout-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.sidebar-logout-btn:disabled:hover {
+  background: transparent;
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+/* Animación del spinner */
+.pi-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* Responsive design */
@@ -249,6 +429,24 @@ export default {
   .brand-title {
     font-size: 1.1rem;
   }
+  
+  .user-info {
+    padding: 0.5rem;
+  }
+  
+  .user-avatar {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+  
+  .user-name {
+    font-size: 0.85rem;
+  }
+  
+  .user-role {
+    font-size: 0.7rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -258,6 +456,21 @@ export default {
   
   .brand-title {
     font-size: 1rem;
+  }
+  
+  .user-info {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  
+  .user-avatar {
+    align-self: center;
+  }
+  
+  .sidebar-logout-btn {
+    font-size: 0.8rem;
+    padding: 0.6rem 0.8rem;
   }
 }
 </style>

@@ -21,6 +21,7 @@ export default {
 <template>
   <router-view></router-view>
   <pv-toast />
+  <pv-confirm-dialog />
 </template>
 
 

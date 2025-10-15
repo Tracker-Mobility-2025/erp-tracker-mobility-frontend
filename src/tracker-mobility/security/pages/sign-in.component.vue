@@ -2,87 +2,37 @@
 
 import {useAuthenticationStore} from "../services/authentication.store.js";
 import {SignInRequest} from "../models/sign-in.request.js";
+import { NotificationMixin } from "../../../shared/utils/notification.utils.js";
 
 export default {
   name: 'sign-in',
+  
+  // 🔧 Usar el mixin para notificaciones modulares
+  mixins: [NotificationMixin],
   data() {
     return {
       username: '',
       password: '',
       rememberSession: false,
       isAuthenticated: false,
-      isLoading: false,
-
-      // Toast messages constants
-      toastMessages: {
-        requiredFields: {
-          severity: 'warn',
-          summary: 'Campos requeridos',
-          detail: 'Por favor, complete todos los campos.'
-        },
-        loginSuccess: {
-          severity: 'success',
-          summary: 'Inicio de sesión exitoso',
-          detail: (username) => `Bienvenido de nuevo, ${username}!`
-        },
-        loginError: {
-          severity: 'error',
-          summary: 'Error de inicio de sesión',
-          detail: 'Credenciales incorrectas. Por favor, verifique su usuario y contraseña.',
-          life: 5000
-        },
-        forgotPassword: {
-          severity: 'info',
-          summary: 'Recuperación de contraseña',
-          detail: 'Funcionalidad en desarrollo.'
-        }
-      }
+      isLoading: false
     };
   },
 
   methods: {
-    /**
-     * Generic toast method
-     * @param {string} severity - Toast type: 'success', 'error', 'warn', 'info'
-     * @param {string} summary - Toast title
-     * @param {string} detail - Toast message
-     * @param {number} life - Duration in milliseconds (default: 3000)
-     */
-    showToast(severity, summary, detail, life = 3000) {
-      this.$toast.add({
-        severity,
-        summary,
-        detail,
-        life
-      });
-    },
-
-    /**
-     * Show toast using predefined message object
-     * @param {Object} messageObj - Message object with severity, summary, detail, life
-     * @param {*} dynamicData - Data to pass to detail function if it's a function
-     */
-    showToastFromMessage(messageObj, dynamicData = null) {
-      const detail = typeof messageObj.detail === 'function' 
-        ? messageObj.detail(dynamicData) 
-        : messageObj.detail;
-      
-      this.showToast(
-        messageObj.severity,
-        messageObj.summary,
-        detail,
-        messageObj.life
-      );
-    },
-
     async onSignIn() {
       try {
         console.log('🔐 [LOGIN] Iniciando proceso de login...');
         
-        // Validación básica
+        // Validación básica usando el mixin modular
         if (!this.username || !this.password) {
           console.warn('⚠️ [LOGIN] Campos requeridos faltantes');
-          this.showToastFromMessage(this.toastMessages.requiredFields);
+          this.showToast({
+            severity: 'warn',
+            summary: 'Campos requeridos',
+            detail: 'Por favor, complete todos los campos.',
+            life: 4000
+          });
           return;
         }
 
@@ -98,23 +48,34 @@ export default {
         await authStore.signIn(signInRequest, this.$router);
         
         console.log('✅ [LOGIN] Login exitoso');
-        // Mostrar toast de éxito
-        this.showToastFromMessage(this.toastMessages.loginSuccess, this.username);
+        
+        // Mostrar toast de éxito usando el mixin modular
+        this.showToast({
+          severity: 'success',
+          summary: 'Inicio de sesión exitoso',
+          detail: `¡Bienvenido de nuevo, ${this.username}!`,
+          life: 3000
+        });
         
       } catch (error) {
         console.error('Error durante el login:', error);
         
         // ⚠️ Verificar si es un error de rol no autorizado
         if (error.message && error.message.includes('rol') && error.message.includes('no tiene permisos')) {
-          this.showToast(
-            'error',
-            'Rol No Autorizado',
-            error.message,
-            7000 // Mensaje más largo, más tiempo de visualización
-          );
+          this.showToast({
+            severity: 'error',
+            summary: 'Rol No Autorizado',
+            detail: error.message,
+            life: 7000
+          });
         } else {
-          // Error genérico de login (credenciales incorrectas, etc.)
-          this.showToastFromMessage(this.toastMessages.loginError);
+          // Error genérico de login usando el mixin modular
+          this.showToast({
+            severity: 'error',
+            summary: 'Error de inicio de sesión',
+            detail: 'Credenciales incorrectas. Por favor, verifique su usuario y contraseña.',
+            life: 5000
+          });
         }
       } finally {
         // Desactivar estado de carga
@@ -122,11 +83,14 @@ export default {
       }
     },
 
-
-
     onForgotPassword() {
-      // Lógica para manejar el olvido de la contraseña
-      this.showToastFromMessage(this.toastMessages.forgotPassword);
+      // Mostrar toast informativo usando el mixin modular
+      this.showToast({
+        severity: 'info',
+        summary: 'Recuperación de contraseña',
+        detail: 'Funcionalidad en desarrollo.',
+        life: 3000
+      });
     }
 
   },
@@ -134,12 +98,12 @@ export default {
   mounted() {
     // 🔒 Mostrar mensaje si viene de acceso denegado
     if (this.$route.query.error === 'access-denied') {
-      this.showToast(
-        'warn',
-        'Acceso Denegado',
-        this.$route.query.message || 'No tienes permisos para acceder a esa sección',
-        5000
-      );
+      this.showToast({
+        severity: 'warn',
+        summary: 'Acceso Denegado',
+        detail: this.$route.query.message || 'No tienes permisos para acceder a esa sección',
+        life: 5000
+      });
       
       // Limpiar query parameters para no mostrar el mensaje repetidamente
       this.$router.replace({ name: 'sign-in' });
@@ -147,12 +111,12 @@ export default {
     
     // ⚠️ Mostrar mensaje si el rol no está autorizado
     if (this.$route.query.error === 'unauthorized-role') {
-      this.showToast(
-        'error',
-        'Rol No Autorizado',
-        this.$route.query.message || 'Su rol no tiene permisos para acceder al sistema',
-        6000
-      );
+      this.showToast({
+        severity: 'error',
+        summary: 'Rol No Autorizado',
+        detail: this.$route.query.message || 'Su rol no tiene permisos para acceder al sistema',
+        life: 6000
+      });
       
       // Limpiar query parameters
       this.$router.replace({ name: 'sign-in' });

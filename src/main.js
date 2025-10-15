@@ -128,7 +128,6 @@ app.use(PrimeVue, {
 app.component('pv-button', Button)
     .component('pv-card', Card)
     .component('pv-column', Column)
-    .component('pv-confirm-dialog', ConfirmDialog)
     .component('pv-checkbox', Checkbox)
     .component('pv-data-table', DataTable)
     .component('pv-dialog', Dialog)
@@ -167,12 +166,12 @@ app.component('pv-button', Button)
     .component('pv-calendar', Calendar)
     .component('pv-input-textarea', Textarea)
     .component('pv-input-switch', InputSwitch)
-    .component('pv-confirm-dialog', ConfirmDialog)
     .component('pv-chips', Chips)
     .component('pv-file-upload', FileUpload)
     .component('pv-progress-spinner', ProgressSpinner)
     .component('pv-input-mask', InputMask )
     .component('pv-chip', Chip)
-    .component('pv-paginator', Paginator);
+    .component('pv-paginator', Paginator)
+    .component('pv-confirm-dialog', ConfirmDialog);
 
 app.mount('#app')
