@@ -7,15 +7,15 @@ export default {
   
   components: {
     FileUploader
-
   },
 
-  inject: ['serviceRequest'],
+  inject: ['client'],
 
   data () {
     return {
       touched: {},
       showValidation: false,
+      addressToastTimeout: null, // Para debounce del toast de dirección
 
       customerContent: {
         title: 'Datos del cliente',
@@ -52,104 +52,105 @@ export default {
   computed: {
     // ---- Validaciones básicas
     isPhoneValid(){
-      const phone = this.serviceRequest.clientData.numeroContacto;
+      const phone = this.client.phoneNumber;
       if (!phone) return false;
-      const phoneStr = String(phone).replace(/\s/g, '');
-      // Perú: 9 + 8 dígitos
+      const phoneStr = String(phone).replace(/[\s-]/g, ''); // Quitar espacios y guiones
+      // Perú: 9 + 8 dígitos = 9 total
       return /^9\d{8}$/.test(phoneStr);
     },
 
     isDocValid(){
-      const { tipoDocumento, numeroDocumento } = this.serviceRequest.clientData;
-      if (!tipoDocumento || !numeroDocumento) return false;
-      const num = String(numeroDocumento).replace(/\s/g, '');
-      if (tipoDocumento === 'DNI') return /^\d{8}$/.test(num);
-      if (tipoDocumento === 'CE')  return /^\d{9,12}$/.test(num);
-      if (tipoDocumento === 'PTP') return /^\d{9,12}$/.test(num);
+      const { documentType, documentNumber } = this.client;
+      if (!documentType || !documentNumber) return false;
+      const num = String(documentNumber).replace(/\s/g, '');
+      if (documentType === 'DNI') return /^\d{8}$/.test(num);
+      if (documentType === 'CE')  return /^\d{9,12}$/.test(num);
+      if (documentType === 'PTP') return /^\d{9,12}$/.test(num);
       return false;
     },
 
     fieldErrors(){
       const errors = {};
-      const client = this.serviceRequest.clientData;
-      const address = this.serviceRequest.addressData;
 
-      // ----- Cliente
-      if (this.touched.nombresCompletos || this.showValidation) {
-        if (!client.nombresCompletos || client.nombresCompletos.trim().length < 2) {
-          errors.nombresCompletos = 'Ingresa nombres válidos';
+      // ----- Datos del cliente
+      if (this.touched.name || this.showValidation) {
+        if (!this.client.name || this.client.name.trim().length < 2) {
+          errors.name = 'Ingresa nombres válidos';
         }
       }
 
-      if (this.touched.apellidosCompletos || this.showValidation) {
-        if (!client.apellidosCompletos || client.apellidosCompletos.trim().length < 2) {
-          errors.apellidosCompletos = 'Ingresa apellidos válidos';
+      if (this.touched.lastName || this.showValidation) {
+        if (!this.client.lastName || this.client.lastName.trim().length < 2) {
+          errors.lastName = 'Ingresa apellidos válidos';
         }
       }
 
-      if (this.touched.tipoDocumento || this.showValidation) {
-        if (!client.tipoDocumento) errors.tipoDocumento = 'Selecciona un tipo de documento';
+      if (this.touched.documentType || this.showValidation) {
+        if (!this.client.documentType) errors.documentType = 'Selecciona un tipo de documento';
       }
 
-      if (this.touched.numeroDocumento || this.showValidation) {
-        if (!client.numeroDocumento) {
-          errors.numeroDocumento = 'El número de documento es obligatorio';
+      if (this.touched.documentNumber || this.showValidation) {
+        if (!this.client.documentNumber) {
+          errors.documentNumber = 'El número de documento es obligatorio';
         } else if (!this.isDocValid) {
-          errors.numeroDocumento = 'Número de documento inválido para el tipo seleccionado';
+          errors.documentNumber = 'Número de documento inválido para el tipo seleccionado';
         }
       }
 
-      if (this.touched.numeroContacto || this.showValidation) {
-        if (!client.numeroContacto) {
-          errors.numeroContacto = 'El número de contacto es obligatorio';
+      if (this.touched.phoneNumber || this.showValidation) {
+        if (!this.client.phoneNumber) {
+          errors.phoneNumber = 'El número de contacto es obligatorio';
         } else if (!this.isPhoneValid) {
-          errors.numeroContacto = 'El número debe iniciar con 9 y tener 9 dígitos';
+          errors.phoneNumber = 'El número debe iniciar con 9 y tener 9 dígitos';
         }
       }
 
       // ----- Domicilio
-      if (this.touched.departamento || this.showValidation) {
-        if (!address.departamento || address.departamento.trim().length < 2) {
-          errors.departamento = 'Ingresa un departamento';
+      if (this.touched.department || this.showValidation) {
+        if (!this.client.department || this.client.department.trim().length < 2) {
+          errors.department = 'Ingresa un departamento';
         }
       }
-      if (this.touched.provincia || this.showValidation) {
-        if (!address.provincia || address.provincia.trim().length < 2) {
-          errors.provincia = 'Ingresa una provincia';
+      if (this.touched.province || this.showValidation) {
+        if (!this.client.province || this.client.province.trim().length < 2) {
+          errors.province = 'Ingresa una provincia';
         }
       }
-      if (this.touched.distrito || this.showValidation) {
-        if (!address.distrito || address.distrito.trim().length < 2) {
-          errors.distrito = 'Ingresa un distrito';
+      if (this.touched.district || this.showValidation) {
+        if (!this.client.district || this.client.district.trim().length < 2) {
+          errors.district = 'Ingresa un distrito';
         }
       }
-      if (this.touched.direccionCompleta || this.showValidation) {
-        if (!address.direccionCompleta || address.direccionCompleta.trim().length < 5) {
-          errors.direccionCompleta = 'Ingresa una dirección válida';
+      if (this.touched.homeAddress || this.showValidation) {
+        if (!this.client.homeAddress || this.client.homeAddress.trim().length < 5) {
+          errors.homeAddress = 'Ingresa una dirección válida';
+        } else if (this.client.homeAddress.length > 300) {
+          errors.homeAddress = `Dirección muy larga (${this.client.homeAddress.length}/300 caracteres)`;
         }
       }
-      if (this.touched.ubicacionGoogleMaps || this.showValidation) {
-        if (!address.ubicacionGoogleMaps || address.ubicacionGoogleMaps.trim().length < 5) {
-          errors.ubicacionGoogleMaps = 'Pega la URL de Google Maps';
+      if (this.touched.mapLocation || this.showValidation) {
+        if (!this.client.mapLocation || this.client.mapLocation.trim().length < 5) {
+          errors.mapLocation = 'Pega la URL de Google Maps';
         } else {
           // validación de URL + dominios de Google Maps
           let urlObj = null;
-          try { urlObj = new URL(address.ubicacionGoogleMaps); } catch(e){ /* noop */ }
+          try { urlObj = new URL(this.client.mapLocation); } catch(e){ /* noop */ }
           const validHost = urlObj && (
               urlObj.hostname.endsWith('google.com') ||
               urlObj.hostname.endsWith('goo.gl') ||
               urlObj.hostname.endsWith('maps.app.goo.gl')
           );
           if (!urlObj || !/^https?:$/.test(urlObj.protocol) || !validHost) {
-            errors.ubicacionGoogleMaps = 'Ingresa una URL válida de Google Maps (http/https)';
+            errors.mapLocation = 'Ingresa una URL válida de Google Maps (http/https)';
           }
         }
       }
 
-      // Validación para foto de fachada
-      if (this.touched.fotografiaDomicilio || this.showValidation) {
-        if (!address.fotografiaDomicilio) {
-          errors.fotografiaDomicilio = 'La fotografía de la fachada es obligatoria';
+      // Validación para foto de fachada - usando documents array
+      if (this.touched.facadePhoto || this.showValidation) {
+        const facadePhoto = this.client.documents.find(doc => doc.type === 'FOTO_FACHADA_VIVIENDA');
+        if (!facadePhoto) {
+          errors.facadePhoto = 'La fotografía de la fachada es obligatoria';
         }
       }
 
@@ -157,21 +158,20 @@ export default {
     },
 
     isFormValid(){
-      const client = this.serviceRequest.clientData;
-      const address = this.serviceRequest.addressData;
+      const facadePhoto = this.client.documents.find(doc => doc.type === 'FOTO_FACHADA_VIVIENDA');
 
       const basicOk =
-          client.nombresCompletos &&
-          client.apellidosCompletos &&
-          client.tipoDocumento &&
-          client.numeroDocumento &&
-          client.numeroContacto &&
-          address.departamento &&
-          address.provincia &&
-          address.distrito &&
-          address.direccionCompleta &&
-          address.ubicacionGoogleMaps &&
-          address.fotografiaDomicilio;
+          this.client.name &&
+          this.client.lastName &&
+          this.client.documentType &&
+          this.client.documentNumber &&
+          this.client.phoneNumber &&
+          this.client.department &&
+          this.client.province &&
+          this.client.district &&
+          this.client.homeAddress &&
+          this.client.mapLocation &&
+          facadePhoto;
 
       return Boolean(
           basicOk &&
@@ -184,10 +184,75 @@ export default {
 
   watch: {
     // El componente ImageUploader maneja automáticamente la gestión de memoria
+    
+    // Watcher para validar dirección en tiempo real
+    'client.homeAddress': {
+      handler(newValue) {
+        if (newValue && newValue.length > 300) {
+          // Debounce para evitar múltiples toasts
+          clearTimeout(this.addressToastTimeout);
+          this.addressToastTimeout = setTimeout(() => {
+            this.showToast('warn', 'Dirección muy larga', 
+              `La dirección tiene ${newValue.length} caracteres. El máximo permitido es 300 caracteres.`);
+          }, 1000); // 1 segundo de debounce
+        }
+      },
+      immediate: false
+    }
+  },
+
+  mounted() {
+    // Ejecutar limpieza de tipos antiguos
+    this.cleanOldDocumentTypes();
+  },
+
+  beforeUnmount() {
+    // Limpiar timeout para evitar memory leaks
+    if (this.addressToastTimeout) {
+      clearTimeout(this.addressToastTimeout);
+    }
   },
 
   methods: {
-    onFieldBlur(fieldName){ this.touched[fieldName] = true; },
+    // Método para limpiar tipos de documento antiguos
+    cleanOldDocumentTypes() {
+      const oldTypes = ['FACADE_PHOTO', 'SERVICE_RECEIPT', 'IDENTITY_DOCUMENT'];
+      
+      this.client.documents = this.client.documents.filter(doc => {
+        return !oldTypes.includes(doc.type);
+      });
+    },
+
+    onFieldBlur(fieldName){ 
+      this.touched[fieldName] = true; 
+      
+      // Validación especial para dirección con toast
+      if (fieldName === 'homeAddress' && this.client.homeAddress && this.client.homeAddress.length > 300) {
+        this.showToast('warn', 'Dirección muy larga', 
+          `La dirección tiene ${this.client.homeAddress.length} caracteres. El máximo permitido es 300 caracteres.`);
+      }
+    },
+
+    /**
+     * Método modular para mostrar toasts
+     * @param {string} severity - Tipo: 'success', 'info', 'warn', 'error'
+     * @param {string} summary - Título del toast
+     * @param {string} detail - Mensaje detallado
+     * @param {number} life - Duración en milisegundos (opcional, default: 5000)
+     */
+    showToast(severity, summary, detail, life = 5000) {
+      if (this.$toast) {
+        this.$toast.add({
+          severity,
+          summary,
+          detail,
+          life
+        });
+      } else {
+        // Fallback para desarrollo/debugging
+        console.warn(`[TOAST ${severity.toUpperCase()}] ${summary}: ${detail}`);
+      }
+    },
 
     // Métodos para el FileUploader
     handleFileValidationError(errors) {
@@ -199,13 +264,31 @@ export default {
     },
 
     onFileSelected(file) {
-      console.log('Archivo seleccionado:', file.name)
-      this.touched.fotografiaDomicilio = true
+      // Agregar o actualizar la foto de fachada en el array de documentos
+      const existingIndex = this.client.documents.findIndex(doc => doc.type === 'FOTO_FACHADA_VIVIENDA');
+      const facadeDocument = {
+        type: 'FOTO_FACHADA_VIVIENDA',
+        file: file,
+        url: null
+      };
+      
+      if (existingIndex >= 0) {
+        this.client.documents[existingIndex] = facadeDocument;
+      } else {
+        this.client.documents.push(facadeDocument);
+      }
+      
+      this.touched.facadePhoto = true
     },
 
     onFileRemoved() {
-      console.log('Archivo eliminado')
-      this.touched.fotografiaDomicilio = true
+      // Remover la foto de fachada del array de documentos
+      const existingIndex = this.client.documents.findIndex(doc => doc.type === 'FOTO_FACHADA_VIVIENDA');
+      if (existingIndex >= 0) {
+        this.client.documents.splice(existingIndex, 1);
+      }
+      
+      this.touched.facadePhoto = true
     },
 
     // ---- Foco en el primer error
@@ -213,17 +296,17 @@ export default {
       const first = Object.keys(this.fieldErrors)[0];
       if (!first) return;
       const idMap = {
-        nombresCompletos: 'nombres',
-        apellidosCompletos: 'apellidos',
-        tipoDocumento: 'tipo-doc',
-        numeroDocumento: 'num-doc',
-        numeroContacto: 'telefono',
-        departamento: 'departamento',
-        provincia: 'provincia',
-        distrito: 'distrito',
-        direccionCompleta: 'direccion',
-        ubicacionGoogleMaps: 'maps',
-        fotografiaDomicilio: 'image-uploader-fachada'
+        name: 'nombres',
+        lastName: 'apellidos',
+        documentType: 'tipo-doc',
+        documentNumber: 'num-doc',
+        phoneNumber: 'telefono',
+        department: 'departamento',
+        province: 'provincia',
+        district: 'distrito',
+        homeAddress: 'direccion',
+        mapLocation: 'maps',
+        facadePhoto: 'image-uploader-fachada'
       };
       this.$nextTick(() => {
         const el = document.getElementById(idMap[first] || 'nombres');
@@ -237,30 +320,8 @@ export default {
         this.focusFirstError();
         return;
       }
+      
       this.$router.push({ name: 'documentation-upload' } );
-    },
-  },
-
-  created(){
-    // Inicializar estructuras
-    if (!this.serviceRequest.clientData) {
-      this.serviceRequest.clientData = {
-        nombresCompletos: '',
-        apellidosCompletos: '',
-        tipoDocumento: null,
-        numeroDocumento: '',
-        numeroContacto: ''
-      };
-    }
-    if (!this.serviceRequest.addressData) {
-      this.serviceRequest.addressData = {
-        departamento: '',
-        provincia: '',
-        distrito: '',
-        direccionCompleta: '',
-        ubicacionGoogleMaps: '',
-        fotografiaDomicilio: null
-      };
     }
   }
 };
@@ -288,18 +349,18 @@ export default {
           </label>
           <pv-input-text
               id="nombres"
-              v-model="serviceRequest.clientData.nombresCompletos"
+              v-model="client.name"
               placeholder="Ana María"
               class="w-full"
-              :aria-invalid="!!fieldErrors.nombresCompletos"
-              :aria-describedby="fieldErrors.nombresCompletos ? 'err-nombres' : null"
-              @blur="onFieldBlur('nombresCompletos')"
+              :aria-invalid="!!fieldErrors.name"
+              :aria-describedby="fieldErrors.name ? 'err-nombres' : null"
+              @blur="onFieldBlur('name')"
           />
           <small
-              v-if="(touched.nombresCompletos || showValidation) && fieldErrors.nombresCompletos"
+              v-if="(touched.name || showValidation) && fieldErrors.name"
               id="err-nombres"
               class="text-red-500"
-          >{{ fieldErrors.nombresCompletos }}</small>
+          >{{ fieldErrors.name }}</small>
         </div>
 
         <!-- Apellidos -->
@@ -309,18 +370,18 @@ export default {
           </label>
           <pv-input-text
               id="apellidos"
-              v-model="serviceRequest.clientData.apellidosCompletos"
+              v-model="client.lastName"
               placeholder="López Fernández"
               class="w-full"
-              :aria-invalid="!!fieldErrors.apellidosCompletos"
-              :aria-describedby="fieldErrors.apellidosCompletos ? 'err-apellidos' : null"
-              @blur="onFieldBlur('apellidosCompletos')"
+              :aria-invalid="!!fieldErrors.lastName"
+              :aria-describedby="fieldErrors.lastName ? 'err-apellidos' : null"
+              @blur="onFieldBlur('lastName')"
           />
           <small
-              v-if="(touched.apellidosCompletos || showValidation) && fieldErrors.apellidosCompletos"
+              v-if="(touched.lastName || showValidation) && fieldErrors.lastName"
               id="err-apellidos"
               class="text-red-500"
-          >{{ fieldErrors.apellidosCompletos }}</small>
+          >{{ fieldErrors.lastName }}</small>
         </div>
 
         <!-- Tipo doc -->
@@ -330,15 +391,15 @@ export default {
           </label>
           <pv-dropdown
               id="tipo-doc"
-              v-model="serviceRequest.clientData.tipoDocumento"
+              v-model="client.documentType"
               :options="tiposDocumento"
               optionLabel="label"
               optionValue="value"
               placeholder="Selecciona"
               class="w-full text-black-alpha-10"
-              @blur="onFieldBlur('tipoDocumento')"
+              @blur="onFieldBlur('documentType')"
           />
-          <small v-if="(touched.tipoDocumento || showValidation) && fieldErrors.tipoDocumento" class="text-red-500">{{ fieldErrors.tipoDocumento }}</small>
+          <small v-if="(touched.documentType || showValidation) && fieldErrors.documentType" class="text-red-500">{{ fieldErrors.documentType }}</small>
         </div>
 
         <!-- N° doc -->
@@ -350,19 +411,19 @@ export default {
             <pv-input-icon class="pi pi-id-card" />
             <pv-input-text
                 id="num-doc"
-                v-model="serviceRequest.clientData.numeroDocumento"
+                v-model="client.documentNumber"
                 placeholder="12345678"
                 class="w-full"
-                :aria-invalid="!!fieldErrors.numeroDocumento"
-                :aria-describedby="fieldErrors.numeroDocumento ? 'err-numdoc' : null"
-                @blur="onFieldBlur('numeroDocumento')"
+                :aria-invalid="!!fieldErrors.documentNumber"
+                :aria-describedby="fieldErrors.documentNumber ? 'err-numdoc' : null"
+                @blur="onFieldBlur('documentNumber')"
             />
           </pv-icon-field>
           <small
-              v-if="(touched.numeroDocumento || showValidation) && fieldErrors.numeroDocumento"
+              v-if="(touched.documentNumber || showValidation) && fieldErrors.documentNumber"
               id="err-numdoc"
               class="text-red-500"
-          >{{ fieldErrors.numeroDocumento }}</small>
+          >{{ fieldErrors.documentNumber }}</small>
         </div>
 
         <!-- Teléfono (InputMask en lugar de InputNumber) -->
@@ -374,20 +435,20 @@ export default {
             <pv-input-icon class="pi pi-phone" />
             <pv-input-mask
                 id="telefono"
-                v-model="serviceRequest.clientData.numeroContacto"
+                v-model="client.phoneNumber"
                 mask="999 999 999"
                 placeholder="999 888 777"
                 class="w-full"
-                :aria-invalid="!!fieldErrors.numeroContacto"
-                :aria-describedby="fieldErrors.numeroContacto ? 'err-telefono' : null"
-                @blur="onFieldBlur('numeroContacto')"
+                :aria-invalid="!!fieldErrors.phoneNumber"
+                :aria-describedby="fieldErrors.phoneNumber ? 'err-telefono' : null"
+                @blur="onFieldBlur('phoneNumber')"
             />
           </pv-icon-field>
           <small
-              v-if="(touched.numeroContacto || showValidation) && fieldErrors.numeroContacto"
+              v-if="(touched.phoneNumber || showValidation) && fieldErrors.phoneNumber"
               id="err-telefono"
               class="text-red-500"
-          >{{ fieldErrors.numeroContacto }}</small>
+          >{{ fieldErrors.phoneNumber }}</small>
         </div>
 
         <!-- ====== Título: Datos de domicilio ====== -->
@@ -405,18 +466,18 @@ export default {
           </label>
           <pv-input-text
               id="departamento"
-              v-model="serviceRequest.addressData.departamento"
+              v-model="client.department"
               placeholder="Ingresa tu departamento"
               class="w-full"
-              :aria-invalid="!!fieldErrors.departamento"
-              :aria-describedby="fieldErrors.departamento ? 'err-departamento' : null"
-              @blur="onFieldBlur('departamento')"
+              :aria-invalid="!!fieldErrors.department"
+              :aria-describedby="fieldErrors.department ? 'err-departamento' : null"
+              @blur="onFieldBlur('department')"
           />
           <small
-              v-if="(touched.departamento || showValidation) && fieldErrors.departamento"
+              v-if="(touched.department || showValidation) && fieldErrors.department"
               id="err-departamento"
               class="text-red-500"
-          >{{ fieldErrors.departamento }}</small>
+          >{{ fieldErrors.department }}</small>
         </div>
 
         <!-- Provincia -->
@@ -426,18 +487,18 @@ export default {
           </label>
           <pv-input-text
               id="provincia"
-              v-model="serviceRequest.addressData.provincia"
+              v-model="client.province"
               placeholder="Ingresa tu provincia"
               class="w-full"
-              :aria-invalid="!!fieldErrors.provincia"
-              :aria-describedby="fieldErrors.provincia ? 'err-provincia' : null"
-              @blur="onFieldBlur('provincia')"
+              :aria-invalid="!!fieldErrors.province"
+              :aria-describedby="fieldErrors.province ? 'err-provincia' : null"
+              @blur="onFieldBlur('province')"
           />
           <small
-              v-if="(touched.provincia || showValidation) && fieldErrors.provincia"
+              v-if="(touched.province || showValidation) && fieldErrors.province"
               id="err-provincia"
               class="text-red-500"
-          >{{ fieldErrors.provincia }}</small>
+          >{{ fieldErrors.province }}</small>
         </div>
 
         <!-- Distrito -->
@@ -447,42 +508,46 @@ export default {
           </label>
           <pv-input-text
               id="distrito"
-              v-model="serviceRequest.addressData.distrito"
+              v-model="client.district"
               placeholder="Ingresa tu distrito"
               class="w-full"
-              :aria-invalid="!!fieldErrors.distrito"
-              :aria-describedby="fieldErrors.distrito ? 'err-distrito' : null"
-              @blur="onFieldBlur('distrito')"
+              :aria-invalid="!!fieldErrors.district"
+              :aria-describedby="fieldErrors.district ? 'err-distrito' : null"
+              @blur="onFieldBlur('district')"
           />
           <small
-              v-if="(touched.distrito || showValidation) && fieldErrors.distrito"
+              v-if="(touched.district || showValidation) && fieldErrors.district"
               id="err-distrito"
               class="text-red-500"
-          >{{ fieldErrors.distrito }}</small>
+          >{{ fieldErrors.district }}</small>
         </div>
 
         <!-- Dirección completa -->
         <div class="field col-12 md:col-6">
           <label for="direccion" class="font-medium">
             {{ addressContent.direccionCompleta }} <span class="text-red-500">*</span>
+            <span class="text-xs text-gray-500 ml-2">
+              ({{ client.homeAddress ? client.homeAddress.length : 0 }}/300)
+            </span>
           </label>
           <pv-icon-field iconPosition="left" class="w-full">
             <pv-input-icon class="pi pi-map-marker" />
             <pv-input-text
                 id="direccion"
-                v-model="serviceRequest.addressData.direccionCompleta"
+                v-model="client.homeAddress"
                 placeholder="Av. tu dirección 123"
                 class="w-full"
-                :aria-invalid="!!fieldErrors.direccionCompleta"
-                :aria-describedby="fieldErrors.direccionCompleta ? 'err-direccion' : null"
-                @blur="onFieldBlur('direccionCompleta')"
+                maxlength="300"
+                :aria-invalid="!!fieldErrors.homeAddress"
+                :aria-describedby="fieldErrors.homeAddress ? 'err-direccion' : null"
+                @blur="onFieldBlur('homeAddress')"
             />
           </pv-icon-field>
           <small
-              v-if="(touched.direccionCompleta || showValidation) && fieldErrors.direccionCompleta"
+              v-if="(touched.homeAddress || showValidation) && fieldErrors.homeAddress"
               id="err-direccion"
               class="text-red-500"
-          >{{ fieldErrors.direccionCompleta }}</small>
+          >{{ fieldErrors.homeAddress }}</small>
         </div>
 
         <!-- Ubicación por Google Maps (URL) -->
@@ -494,25 +559,25 @@ export default {
             <pv-input-icon class="pi pi-link" />
             <pv-input-text
                 id="maps"
-                v-model="serviceRequest.addressData.ubicacionGoogleMaps"
+                v-model="client.mapLocation"
                 placeholder="https://maps.google.com/..."
                 class="w-full"
-                :aria-invalid="!!fieldErrors.ubicacionGoogleMaps"
-                :aria-describedby="fieldErrors.ubicacionGoogleMaps ? 'err-maps' : null"
-                @blur="onFieldBlur('ubicacionGoogleMaps')"
+                :aria-invalid="!!fieldErrors.mapLocation"
+                :aria-describedby="fieldErrors.mapLocation ? 'err-maps' : null"
+                @blur="onFieldBlur('mapLocation')"
             />
           </pv-icon-field>
           <small
-              v-if="(touched.ubicacionGoogleMaps || showValidation) && fieldErrors.ubicacionGoogleMaps"
+              v-if="(touched.mapLocation || showValidation) && fieldErrors.mapLocation"
               id="err-maps"
               class="text-red-500"
-          >{{ fieldErrors.ubicacionGoogleMaps }}</small>
+          >{{ fieldErrors.mapLocation }}</small>
         </div>
 
         <!-- Foto de fachada usando ImageUploader -->
         <div class="field col-12">
           <file-uploader
-              v-model="serviceRequest.addressData.fotografiaDomicilio"
+              :model-value="client.documents.find(doc => doc.type === 'FOTO_FACHADA_VIVIENDA')?.file || null"
               input-id="file-uploader-fachada"
               file-type="any"
               :label="addressContent.fotoFachada"
@@ -532,9 +597,9 @@ export default {
               @validation-error="handleFileValidationError"
           />
           <small 
-            v-if="(touched.fotografiaDomicilio || showValidation) && fieldErrors.fotografiaDomicilio"
+            v-if="(touched.facadePhoto || showValidation) && fieldErrors.facadePhoto"
             class="text-red-500"
-          >{{ fieldErrors.fotografiaDomicilio }}</small>
+          >{{ fieldErrors.facadePhoto }}</small>
         </div>
 
 

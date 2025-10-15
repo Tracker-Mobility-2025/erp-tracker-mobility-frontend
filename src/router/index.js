@@ -12,8 +12,6 @@ import VerifiersDetailsManagementComponent
     from "../tracker-mobility/verifier-management/pages/verifiers-details.management.component.vue";
 import ManagementRequestsHomeVisitOrdersComponent
     from "../client-tracker-mobility/order-request/pages/management-requests-home-visit-orders.component.vue";
-import RequestServiceBusinessFormComponent
-    from "../client-tracker-mobility/order-request/components/1-request-service-business-form.component.vue";
 import CustomerDataFormComponent
     from "../client-tracker-mobility/order-request/components/2-customer-data-form.component.vue";
 import SupportDocsAndLandlordFormComponent
@@ -43,7 +41,7 @@ const router = createRouter({
             component: LayoutTrackerMobilityComponent, 
             meta: {
                 title: 'Tracker Mobility',
-                roles: ['ADMIN'] // 🔒 Solo ADMIN puede acceder a TODA esta sección
+                roles: ['ADMIN'] // Solo ADMIN puede acceder a TODA esta sección
             },
             children: [
 
@@ -55,7 +53,6 @@ const router = createRouter({
                     component: ServiceOrderManagementComponent,
                     meta: {
                         title: 'Ordenes de servicio',
-                        //roles: ['ADMIN', 'SUPERVISOR', 'VERIFIER']
                     }
                 },
                 {
@@ -64,7 +61,6 @@ const router = createRouter({
                     component: OrderDetailManagementComponent,
                     meta: {
                         title: 'Detalles de la orden',
-                        //roles: ['ADMIN', 'SUPERVISOR', 'VERIFIER']
                     }
                 },
                 //========================================================
@@ -78,7 +74,6 @@ const router = createRouter({
                     component: VerifiersManagementComponent,
                     meta: {
                         title: 'Verificadores',
-                        //roles: ['ADMIN'] // Solo administradores
                     }
                 },
                 {
@@ -87,7 +82,6 @@ const router = createRouter({
                     component: VerifiersDetailsManagementComponent,
                     meta: {
                         title: 'Detalles del verificador',
-                        //roles: ['ADMIN'] // Solo administradores
                     }
                 },
                 //========================================================
@@ -101,7 +95,6 @@ const router = createRouter({
                     component: VerificationReportsManagementComponent,
                     meta: {
                         title: 'Reportes de verificación',
-                        //roles: ['ADMIN', 'SUPERVISOR', 'VERIFIER']
                     }
                 },
                 {
@@ -110,7 +103,6 @@ const router = createRouter({
                     component: DetailsHomeVerificationReportComponent,
                     meta: {
                         title: 'Detalles del reporte de verificación',
-                        //roles: ['ADMIN', 'SUPERVISOR', 'VERIFIER']
                     }
                 },
                 //========================================================
@@ -124,7 +116,6 @@ const router = createRouter({
                     component: DashboardManagementComponent,
                     meta: {
                         title: 'Dashboard',
-                        //roles: ['ADMIN', 'SUPERVISOR', 'VERIFIER']
                     }
                 },
 
@@ -141,7 +132,6 @@ const router = createRouter({
                     component: ClientManagementComponent,
                     meta: {
                         title: 'Clientes',
-                        //roles: ['ADMIN', 'SUPERVISOR'] // Solo admin y supervisores
                     }
                 },
                 {
@@ -150,7 +140,6 @@ const router = createRouter({
                     component: ClientDetailsManagementComponent,
                     meta: {
                         title: 'Detalle del cliente',
-                        //roles: ['ADMIN', 'SUPERVISOR'] // Solo admin y supervisores
                     }
                 }
 
@@ -171,15 +160,15 @@ const router = createRouter({
             component: ManagementRequestsHomeVisitOrdersComponent, 
             meta: {
                 title: 'Solicitar visita domiciliaria',
-                roles: ['COMPANY_EMPLOYEE'] // 🔒 Solo empleados de empresa pueden acceder
+                roles: ['COMPANY_EMPLOYEE'] // Solo empleados de empresa pueden acceder
             },
             children: [
-                {path: 'petitioner-data', name: 'petitioner-data', component: RequestServiceBusinessFormComponent, meta: {title: 'Solicitante'}},
                 {path: 'customer-data', name: 'customer-data', component: CustomerDataFormComponent, meta: {title: 'Cliente'}},
                 {path: 'documentation-upload', name: 'documentation-upload', component: SupportDocsAndLandlordFormComponent, meta: {title: 'Documentación'}},
                 {path: 'visit-request/confirmation', name: 'confirmation', component: ResumenServiceOrderComponent, meta: {title: 'Confirmación'}},
             ]
         },
+
 
 
 

@@ -1,17 +1,17 @@
 <script>
 
 import FileUploader from "../../../shared/components/file-uploader.component.vue";
-import {OrderService} from "../services/service-request-api.service.js";
+import {OrderServiceRequest} from "../services/service-request-api.service.js";
+import {OrderResponse} from "../models/order-response.entity.js";
 
 export default {
   name: 'support-docs-and-landlord-form',
   
   components: {
     FileUploader
-
   },
   
-  inject: ['serviceRequest'],
+  inject: ['client', 'applicantCompany'],
 
   data () {
     return {
@@ -24,8 +24,15 @@ export default {
       validationErrors: [],
 
       // Servicio para crear la solicitud
-      orderService: null,
+      orderServiceRequest: null,
 
+      // Estado de la solicitud (antes estaba en serviceRequest)
+      isRequestCreated: false,
+      orderResponse: null,
+
+      // Diálogos de confirmación
+      showCancelDialog: false,
+      showSubmitDialog: false,
 
       supportDocsContent: {
         title: 'Documentación de respaldo',
@@ -53,41 +60,89 @@ export default {
   },
 
   computed: {
-    // --- Flag cómodo
+    // --- Flag cómodo - ahora usa el modelo Client
     isTenant(){
-      return !!this.serviceRequest?.supportDocs?.esInquilino;
+      return !!this.client?.isTenant;
+    },
+
+    // Computed properties con getter/setter para manejar archivos
+    serviceReceiptFile: {
+      get() {
+        const doc = this.client.documents.find(doc => doc.type === 'RECIBO_AGUA' || doc.type === 'RECIBO_LUZ');
+        return doc?.file || null;
+      },
+      set(file) {
+        const existingIndex = this.client.documents.findIndex(doc => doc.type === 'RECIBO_AGUA' || doc.type === 'RECIBO_LUZ');
+        if (file) {
+          const document = { type: 'RECIBO_AGUA', file: file, url: null }; // Usar RECIBO_AGUA por defecto
+          if (existingIndex >= 0) {
+            this.client.documents[existingIndex] = document;
+          } else {
+            this.client.documents.push(document);
+          }
+        } else if (existingIndex >= 0) {
+          this.client.documents.splice(existingIndex, 1);
+        }
+      }
+    },
+
+    identityDocFile: {
+      get() {
+        const doc = this.client.documents.find(doc => doc.type === 'DNI' || doc.type === 'CARNET_EXTRANJERIA' || doc.type === 'PTP');
+        return doc?.file || null;
+      },
+      set(file) {
+        const existingIndex = this.client.documents.findIndex(doc => doc.type === 'DNI' || doc.type === 'CARNET_EXTRANJERIA' || doc.type === 'PTP');
+        if (file) {
+          const document = { type: 'DNI', file: file, url: null }; // Usar DNI por defecto
+          if (existingIndex >= 0) {
+            this.client.documents[existingIndex] = document;
+          } else {
+            this.client.documents.push(document);
+          }
+        } else if (existingIndex >= 0) {
+          this.client.documents.splice(existingIndex, 1);
+        }
+      }
+    },
+
+    // Computed properties para acceder a los documentos completos
+    serviceReceiptDoc(){
+      return this.client.documents.find(doc => doc.type === 'RECIBO_AGUA' || doc.type === 'RECIBO_LUZ');
+    },
+
+    identityDoc(){
+      return this.client.documents.find(doc => doc.type === 'DNI' || doc.type === 'CARNET_EXTRANJERIA' || doc.type === 'PTP');
     },
 
     // ======= VALIDACIONES
     isLandlordPhoneValid(){
-      const phone = this.serviceRequest.landlordData.numeroContacto;
+      const phone = this.client.landlordPhoneNumber;
       if (!phone) return false;
-      const compact = String(phone).replace(/\s/g, '');
-      return /^9\d{8}$/.test(compact); // Perú
+      const compact = String(phone).replace(/[\s-]/g, ''); // Quitar espacios y guiones
+      return /^9\d{8}$/.test(compact); // Perú: 9 + 8 dígitos = 9 total
     },
 
     fieldErrors(){
       const e = {};
-      const docs = this.serviceRequest.supportDocs;
-      const landlord = this.serviceRequest.landlordData;
 
       // --- Documentación de respaldo (siempre obligatoria)
       if (this.touched.reciboServicio || this.showValidation) {
-        if (!docs.reciboServicio) e.reciboServicio = 'El archivo es obligatorio';
+        if (!this.serviceReceiptDoc) e.reciboServicio = 'El archivo es obligatorio';
       }
       if (this.touched.documentoIdentidad || this.showValidation) {
-        if (!docs.documentoIdentidad) e.documentoIdentidad = 'El archivo es obligatorio';
+        if (!this.identityDoc) e.documentoIdentidad = 'El archivo es obligatorio';
       }
 
       // --- Datos del arrendador (SOLO si es inquilino)
       if (this.isTenant) {
         if (this.touched.nombres || this.showValidation) {
-          if (!landlord.nombres || landlord.nombres.trim().length < 2) {
+          if (!this.client.landlordName || this.client.landlordName.trim().length < 2) {
             e.nombres = 'Ingresa nombres válidos';
           }
         }
         if (this.touched.numeroContacto || this.showValidation) {
-          if (!landlord.numeroContacto) {
+          if (!this.client.landlordPhoneNumber) {
             e.numeroContacto = 'El número de contacto es obligatorio';
           } else if (!this.isLandlordPhoneValid) {
             e.numeroContacto = 'Debe iniciar con 9 y tener 9 dígitos';
@@ -99,14 +154,11 @@ export default {
     },
 
     isFormValid(){
-      const docs = this.serviceRequest.supportDocs;
-      const landlord = this.serviceRequest.landlordData;
-
-      const docsOk = docs.reciboServicio && docs.documentoIdentidad;
+      const docsOk = this.serviceReceiptDoc && this.identityDoc;
 
       // Si NO es inquilino, no exigimos arrendador
       const landlordOk = !this.isTenant
-          || (landlord.nombres && landlord.numeroContacto && this.isLandlordPhoneValid);
+          || (this.client.landlordName && this.client.landlordPhoneNumber && this.isLandlordPhoneValid);
 
       return Boolean(
           docsOk &&
@@ -118,9 +170,10 @@ export default {
 
   watch: {
     // Al desactivar "Es inquilino" limpiamos y desmarcamos touched de arrendador
-    'serviceRequest.supportDocs.esInquilino'(val){
+    'client.isTenant'(val){
       if (!val) {
-        this.serviceRequest.landlordData = { nombres: '', numeroContacto: '' };
+        this.client.landlordName = '';
+        this.client.landlordPhoneNumber = '';
         this.touched.nombres = false;
         this.touched.numeroContacto = false;
       }
@@ -130,25 +183,39 @@ export default {
   methods: {
     onFieldBlur(field){ this.touched[field] = true; },
 
-    // Métodos para FileUploader
+    /**
+     * Método modular para mostrar toasts
+     * @param {string} severity - Tipo: 'success', 'info', 'warn', 'error'
+     * @param {string} summary - Título del toast
+     * @param {string} detail - Mensaje detallado
+     * @param {number} life - Duración en milisegundos (opcional, default: 5000)
+     */
+    showToast(severity, summary, detail, life = 5000) {
+      if (this.$toast) {
+        this.$toast.add({
+          severity,
+          summary,
+          detail,
+          life
+        });
+      } else {
+        // Fallback para desarrollo/debugging
+        console.warn(`[TOAST ${severity.toUpperCase()}] ${summary}: ${detail}`);
+      }
+    },
+
+    // Métodos para FileUploader - simplificados ya que los computed properties manejan la lógica
     onFileSelected(file, fieldKey) {
-      console.log(`Archivo seleccionado para ${fieldKey}:`, file.name)
       this.touched[fieldKey] = true
     },
 
     onFileRemoved(fieldKey) {
-      console.log(`Archivo eliminado de ${fieldKey}`)
       this.touched[fieldKey] = true
     },
 
     handleFileValidationError(errors, fieldKey) {
       errors.forEach(error => {
-        console.warn(`Error en ${fieldKey}:`, error.message)
-        this.$toast?.add({
-          severity: 'warn', 
-          summary: 'Error de archivo', 
-          detail: error.message
-        })
+        this.showToast('warn', 'Error de archivo', error.message);
       })
     },
 
@@ -176,7 +243,32 @@ export default {
       });
     },
 
-    onCancel(){ this.$router.push('/'); },
+    onCancel() { 
+      this.showCancelDialog = true;
+    },
+
+    confirmCancel() {
+      // Limpiar datos del localStorage
+      localStorage.removeItem('client');
+      localStorage.removeItem('applicantCompany');
+      localStorage.removeItem('orderCreated');
+      localStorage.removeItem('orderNumber');
+      localStorage.removeItem('orderData');
+      
+      // Resetear los providers inyectados solo si no se ha creado una solicitud exitosa
+      if (!this.isRequestCreated) {
+        this.resetProvidersForNewRequest();
+      }
+      
+      this.showCancelDialog = false;
+      // Redirigir a la primera vista del formulario
+      this.$router.push({ name: 'customer-data' });
+    },
+
+    cancelCancel() {
+      this.showCancelDialog = false;
+    },
+
     onBack(){ this.$router.back(); },
 
     async onSubmit(){
@@ -188,135 +280,147 @@ export default {
         return; 
       }
       
-      // Crear la solicitud y navegar al resumen solo si es exitoso
+      // Mostrar diálogo de confirmación
+      this.showSubmitDialog = true;
+    },
+
+    async confirmSubmit() {
+      this.showSubmitDialog = false;
+      
+      // Crear la solicitud directamente con los datos del cliente
       const success = await this.createRequest();
 
       if (success) {
+        // Navegar al resumen con los datos de la orden creada usando provide/inject
         this.$router.push({ name: 'confirmation' });
       }
     },
 
-    validateAllFields() {
-      const errors = [];
+    cancelSubmit() {
+      this.showSubmitDialog = false;
+    },
+
+
+    // Método para limpiar tipos de documento antiguos
+    cleanOldDocumentTypes() {
+      // Eliminar documentos con tipos antiguos
+      const oldTypes = ['FACADE_PHOTO', 'SERVICE_RECEIPT', 'IDENTITY_DOCUMENT'];
       
-      // Validar datos del solicitante
-      if (!this.serviceRequest.petitionerData) {
-        errors.push('Faltan datos del solicitante');
-      } else {
-        const petitioner = this.serviceRequest.petitionerData;
-        if (!petitioner.ruc) errors.push('RUC del solicitante es requerido');
-        if (!petitioner.razonSocial) errors.push('Razón social es requerida');
-        if (!petitioner.nombreEjecutivo) errors.push('Nombre del ejecutivo es requerido');
-        if (!petitioner.correoCorporativo) errors.push('Correo corporativo es requerido');
-        if (!petitioner.numeroContacto) errors.push('Número de contacto del solicitante es requerido');
-      }
-      
-      // Validar datos del cliente
-      if (!this.serviceRequest.clientData) {
-        errors.push('Faltan datos del cliente');
-      } else {
-        const client = this.serviceRequest.clientData;
-        if (!client.nombresCompletos) errors.push('Nombres del cliente son requeridos');
-        if (!client.apellidosCompletos) errors.push('Apellidos del cliente son requeridos');
-        if (!client.numeroContacto) errors.push('Número de contacto del cliente es requerido');
-        if (!client.tipoDocumento) errors.push('Tipo de documento es requerido');
-        if (!client.numeroDocumento) errors.push('Número de documento es requerido');
-      }
-      
-      // Validar datos de dirección
-      if (!this.serviceRequest.addressData) {
-        errors.push('Faltan datos de dirección');
-      } else {
-        const address = this.serviceRequest.addressData;
-        if (!address.direccionCompleta) errors.push('Dirección completa es requerida');
-        if (!address.distrito) errors.push('Distrito es requerido');
-        if (!address.provincia) errors.push('Provincia es requerida');
-        if (!address.departamento) errors.push('Departamento es requerido');
-      }
-      
-      // Validar documentación de respaldo
-      if (!this.serviceRequest.supportDocs) {
-        errors.push('Faltan documentos de respaldo');
-      } else {
-        const docs = this.serviceRequest.supportDocs;
-        if (!docs.reciboServicio) errors.push('Recibo de servicio es requerido');
-        if (!docs.documentoIdentidad) errors.push('Documento de identidad es requerido');
-        
-        // Si es inquilino, validar datos del arrendador
-        if (docs.esInquilino) {
-          if (!this.serviceRequest.landlordData?.nombres) {
-            errors.push('Nombre del arrendador es requerido');
-          }
-          if (!this.serviceRequest.landlordData?.numeroContacto) {
-            errors.push('Teléfono del arrendador es requerido');
-          }
-        }
-      }
-      
-      this.validationErrors = errors;
-      this.hasValidationErrors = errors.length > 0;
-      
-      return errors.length === 0;
+      this.client.documents = this.client.documents.filter(doc => {
+        return !oldTypes.includes(doc.type);
+      });
     },
 
     async createRequest() {
-      this.orderService = new OrderService('/orders');
-
-      // Validar todos los campos antes de enviar
-      if (!this.validateAllFields()) {
-        this.$toast?.add({
-          severity: 'error',
-          summary: 'Error de validación',
-          detail: 'Por favor corrige los errores antes de enviar la solicitud.'
-        });
-        this.focusFirstError();
-        return false;
-      }
-
-      this.isCreatingRequest = true;
-
       try {
-        // El servicio ahora transforma automáticamente los datos al formato del backend
-        const response = await this.orderService.create(this.serviceRequest);
+        // Validar que tenemos los datos necesarios
+        if (!this.applicantCompany || !this.applicantCompany.applicantCompanyId) {
+          throw new Error('Datos de empresa solicitante no disponibles');
+        }
+
+        if (!this.client || !this.client.name) {
+          throw new Error('Datos del cliente no disponibles');
+        }
+
+        const validDocuments = this.client.documents.filter(doc => doc.file && doc.file.name);
         
-        console.log('✅ Solicitud creada con éxito:', response.data);
+        if (validDocuments.length === 0) {
+          throw new Error('No hay archivos válidos para enviar');
+        }
+
+        // Verificar que no haya tipos de documento antiguos
+        const oldTypes = ['FACADE_PHOTO', 'SERVICE_RECEIPT', 'IDENTITY_DOCUMENT'];
+        const hasOldTypes = this.client.documents.some(doc => oldTypes.includes(doc.type));
         
-        // Marcar como exitosa y almacenar información de respuesta
-        this.serviceRequest.isRequestCreated = true;
-        this.serviceRequest.orderNumber = response.data?.orderCode || response.data?.id || `ORD-${Date.now()}`;
+        if (hasOldTypes) {
+          throw new Error('Error interno: tipos de documento obsoletos detectados');
+        }
+
+        // Activar estado de carga
+        this.isCreatingRequest = true;
+
+        // Realizar la petición HTTP
+        const response = await this.orderServiceRequest.create(this.applicantCompany, this.client);
+
+        // Actualizar el estado de éxito con el modelo completo
+        this.isRequestCreated = true;
+        this.orderResponse = response.data; // Ya es una instancia de OrderResponse
         
-        this.$toast?.add({
-          severity: 'success',
-          summary: '¡Éxito!',
-          detail: `Orden de visita creada exitosamente. Código: ${this.serviceRequest.orderNumber}`,
-          life: 5000
-        });
+        // Actualizar la orderResponse en el componente padre
+        // Buscar el componente padre que tiene la propiedad orderResponse
+        let parent = this.$parent;
+        let maxDepth = 5; // Limitar la búsqueda para evitar bucles infinitos
+        let currentDepth = 0;
         
-        return true;
-        
-      } catch (error) {
-        console.error('❌ Error al crear la solicitud:', error);
-        
-        // Mostrar mensaje de error más específico
-        let errorDetail = 'Hubo un problema al crear la solicitud. Por favor intenta nuevamente.';
-        
-        if (error.message.includes('servidor')) {
-          errorDetail = 'Error del servidor. Por favor intenta más tarde.';
-        } else if (error.message.includes('conexión')) {
-          errorDetail = 'Problema de conexión. Verifica tu internet e intenta nuevamente.';
+        while (parent && !('orderResponse' in parent) && currentDepth < maxDepth) {
+          parent = parent.$parent;
+          currentDepth++;
         }
         
-        this.$toast?.add({
-          severity: 'error',
-          summary: 'Error al crear solicitud',
-          detail: errorDetail,
-          life: 8000
-        });
+        if (parent && ('orderResponse' in parent)) {
+          parent.orderResponse = this.orderResponse;
+        }
         
+        // Guardar datos en localStorage como fallback
+        localStorage.setItem('orderCreated', 'true');
+        localStorage.setItem('orderNumber', this.orderResponse.orderCode);
+        localStorage.setItem('orderData', JSON.stringify(this.orderResponse));
+        
+        // Mostrar toast de éxito
+        this.showToast('success', 'Solicitud Creada', 
+          `Solicitud creada exitosamente. Código: ${this.orderResponse.orderCode}`);
+
+        // NO resetear providers aquí - se hará en el componente de resumen al finalizar
+        // this.resetProvidersForNewRequest();
+
+        return true;
+
+      } catch (error) {
+        console.error('Error al crear la solicitud:', error);
+
+        this.showToast('error', 'Error', 
+          error.response?.data?.message || 'Ocurrió un error al crear la solicitud. Intenta nuevamente.');
+
         return false;
-        
       } finally {
+        // Desactivar estado de carga
         this.isCreatingRequest = false;
+      }
+    },
+
+    // Método para resetear los providers después de enviar la solicitud
+    resetProvidersForNewRequest() {
+      // Buscar el componente padre que provee los datos
+      let parent = this.$parent;
+      let maxDepth = 10;
+      let currentDepth = 0;
+      
+      while (parent && currentDepth < maxDepth) {
+        // Buscar el componente que tiene las instancias de client y applicantCompany
+        if (parent.client && parent.applicantCompany && 
+            typeof parent.client === 'object' && 
+            typeof parent.applicantCompany === 'object') {
+          
+          // Crear nuevas instancias para la próxima solicitud
+          setTimeout(() => {
+            // Importar las clases para reinicializar
+            import('../models/client.entity.js').then(({ Client }) => {
+              parent.client = new Client();
+            });
+            
+            import('../models/applicant-company.entity.js').then(({ ApplicantCompany }) => {
+              parent.applicantCompany = new ApplicantCompany({});
+            });
+            
+            // Limpiar también orderResponse si existe (excepto la actual que se mostrará en el resumen)
+            // No limpiamos parent.orderResponse aquí porque se necesita para el resumen
+            
+          }, 100); // Pequeño delay pour asegurar que la navegación se complete primero
+          
+          break;
+        }
+        parent = parent.$parent;
+        currentDepth++;
       }
     },
 
@@ -324,19 +428,18 @@ export default {
 
   },
 
-  created(){
-    if (!this.serviceRequest.supportDocs) {
-      this.serviceRequest.supportDocs = { reciboServicio: null, documentoIdentidad: null, esInquilino: false };
-    }
-
-    if (!this.serviceRequest.landlordData) {
-      this.serviceRequest.landlordData = { nombres: '', numeroContacto: '' };
-    }
+  created() {
+    // Inicializar el servicio de solicitudes
+    this.orderServiceRequest = new OrderServiceRequest('/orders');
+    
+    // 🧹 Limpiar documentos con tipos antiguos que puedan estar en memoria
+    this.cleanOldDocumentTypes();
   }
 };
 </script>
 
 <template>
+  <pv-dialog></pv-dialog>
   <div class="page-container">
     <div class="form-wrapper p-4">
       <form class="grid formgrid p-fluid" @submit.prevent="onSubmit" @keydown.enter.prevent>
@@ -352,7 +455,7 @@ export default {
         <!-- Recibo de servicio -->
         <div class="field col-12 md:col-6">
           <FileUploader
-            v-model="serviceRequest.supportDocs.reciboServicio"
+            v-model="serviceReceiptFile"
             input-id="file-uploader-recibo"
             file-type="any"
             :label="supportDocsContent.reciboServicio"
@@ -383,7 +486,7 @@ export default {
         <!-- Documento de identidad -->
         <div class="field col-12 md:col-6">
           <file-uploader
-            v-model="serviceRequest.supportDocs.documentoIdentidad"
+            v-model="identityDocFile"
             input-id="file-uploader-identidad"
             file-type="any"
             :label="supportDocsContent.documentoIdentidad"
@@ -415,7 +518,7 @@ export default {
           <div class="flex align-items-center gap-3">
             <pv-input-switch
                 inputId="es-inquilino"
-                v-model="serviceRequest.supportDocs.esInquilino"
+                v-model="client.isTenant"
             />
             <label for="es-inquilino" class="font-medium">{{ supportDocsContent.esInquilino }}</label>
           </div>
@@ -439,7 +542,7 @@ export default {
             </label>
             <pv-input-text
                 id="land-nombres"
-                v-model="serviceRequest.landlordData.nombres"
+                v-model="client.landlordName"
                 :placeholder="landlordContent.nombresPlaceholder"
                 class="w-full"
                 :aria-required="true"
@@ -461,7 +564,7 @@ export default {
               <pv-input-icon class="pi pi-phone" />
               <pv-input-mask
                   id="land-telefono"
-                  v-model="serviceRequest.landlordData.numeroContacto"
+                  v-model="client.landlordPhoneNumber"
                   mask="999 999 999"
                   :placeholder="landlordContent.telefonoPlaceholder"
                   class="w-full"
@@ -506,6 +609,76 @@ export default {
       </form>
     </div>
   </div>
+
+  <!-- Dialog de confirmación para cancelar -->
+  <pv-dialog 
+    v-model:visible="showCancelDialog" 
+    modal 
+    :closable="false"
+    :style="{ width: '400px' }"
+    header="Confirmar cancelación"
+  >
+    <div class="flex flex-column gap-3">
+      <div class="flex align-items-center gap-2">
+        <i class="pi pi-exclamation-triangle text-orange-500 text-2xl"></i>
+        <span>¿Está seguro que desea cancelar la solicitud?</span>
+      </div>
+      <p class="text-gray-600 text-sm m-0">
+        Se perderán todos los datos ingresados y regresará al inicio del formulario.
+      </p>
+    </div>
+    
+    <template #footer>
+      <div class="flex justify-content-end gap-2">
+        <pv-button 
+          label="No, continuar" 
+          severity="secondary" 
+          outlined 
+          @click="cancelCancel"
+        />
+        <pv-button 
+          label="Sí, cancelar" 
+          severity="danger" 
+          @click="confirmCancel"
+        />
+      </div>
+    </template>
+  </pv-dialog>
+
+  <!-- Dialog de confirmación para enviar -->
+  <pv-dialog 
+    v-model:visible="showSubmitDialog" 
+    modal 
+    :closable="false"
+    :style="{ width: '400px' }"
+    header="Confirmar envío"
+  >
+    <div class="flex flex-column gap-3">
+      <div class="flex align-items-center gap-2">
+        <i class="pi pi-check-circle text-green-500 text-2xl"></i>
+        <span>¿Está seguro que desea enviar la solicitud?</span>
+      </div>
+      <p class="text-gray-600 text-sm m-0">
+        Una vez enviada, se creará la orden de servicio y se procesará la solicitud.
+      </p>
+    </div>
+    
+    <template #footer>
+      <div class="flex justify-content-end gap-2">
+        <pv-button 
+          label="Cancelar" 
+          severity="secondary" 
+          outlined 
+          @click="cancelSubmit"
+        />
+        <pv-button 
+          label="Enviar solicitud" 
+          severity="success" 
+          @click="confirmSubmit"
+        />
+      </div>
+    </template>
+  </pv-dialog>
 </template>
 
 <style scoped>

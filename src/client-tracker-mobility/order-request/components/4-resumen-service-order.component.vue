@@ -1,15 +1,22 @@
 <script>
+import { OrderResponse } from "../models/order-response.entity.js";
 
 export default {
   name: 'resumen-service-order',
   
-  inject: ['serviceRequest'],
+  inject: ['client', 'applicantCompany'],
+  
+  props: {
+    orderResponseProp: {
+      type: Object,
+      default: null
+    }
+  },
   
   components: {},
 
   data() {
     return {
-      
       content: {
         title: '¡Solicitud enviada de manera exitosa!',
         orderLabel: 'Orden de servicio:',
@@ -37,66 +44,127 @@ export default {
   computed: {
     // Verificar si la solicitud fue creada exitosamente
     isRequestCreated() {
-      return this.serviceRequest?.isRequestCreated || false;
+      // Obtener del localStorage o de query params del router
+      return this.$route.query.success === 'true' || 
+             localStorage.getItem('orderCreated') === 'true';
+    },
+
+    // Obtener los datos completos de la orden creada (prioridad: parent > prop > localStorage)
+    orderData() {
+      // Buscar orderResponse en el componente padre
+      let parent = this.$parent;
+      let maxDepth = 5; // Limitar la búsqueda para evitar bucles infinitos
+      let currentDepth = 0;
+      
+      while (parent && !('orderResponse' in parent) && currentDepth < maxDepth) {
+        parent = parent.$parent;
+        currentDepth++;
+      }
+      
+      if (parent && parent.orderResponse) {
+        return parent.orderResponse;
+      }
+      
+      // Luego la prop orderResponseProp si está disponible
+      if (this.orderResponseProp) {
+        return this.orderResponseProp;
+      }
+      
+      // Fallback a localStorage
+      try {
+        const savedData = localStorage.getItem('orderData');
+        if (savedData) {
+          const parsedData = JSON.parse(savedData);
+          return new OrderResponse(parsedData);
+        }
+      } catch (error) {
+        console.warn('Error al parsear orderData del localStorage:', error);
+      }
+      return null;
     },
 
     orderNumber() {
-      return this.serviceRequest?.orderNumber || 'ORD-XXXX-XXX';
+      // Priorizar datos del modelo, luego localStorage o query params
+      return this.orderData?.orderCode || 
+             this.$route.query.orderNumber || 
+             localStorage.getItem('orderNumber') || 
+             'ORD-XXXX-XXX';
     },
 
+    // Fecha de solicitud formateada con manejo robusto de zona horaria
+    requestDate() {
+      // Priorizar el método del modelo si está disponible
+      if (this.orderData?.formattedRequestDate) {
+        return this.orderData.formattedRequestDate;
+      }
+      
+      // Fallback: formatear manualmente con manejo de zona horaria
+      const rawDate = this.orderData?.requestDate || 
+                      this.$route.query.requestDate || 
+                      localStorage.getItem('requestDate');
+      
+      if (!rawDate) return 'No especificado';
+      
+      return this.formatDateWithTimezone(rawDate);
+    },
+
+    // Datos del solicitante usando datos reales del applicantCompany (prioridad: orderData > inject)
     petitionerData() {
-      return this.serviceRequest?.petitionerData || {};
+      const company = this.orderData?.applicantCompany || this.applicantCompany;
+      return {
+        razonSocial: company?.companyName || 'No especificado',
+        nombreEjecutivo: company?.executiveName || 'No especificado',
+        correoCorporativo: company?.corporateEmail || 'No especificado'
+      };
     },
 
-    customerData() {
-      return this.serviceRequest?.clientData || {};
+    // Foto de fachada desde el modelo Client (prioridad: orderData > inject)
+    facadePhoto() {
+      const client = this.orderData?.client || this.client;
+      return client.documents?.find(doc => doc.type === 'FOTO_FACHADA_VIVIENDA') ||
+             client.documents?.find(doc => doc.type === 'FACADE_PHOTO');
     },
-
-    addressData() {
-      return this.serviceRequest?.addressData || {};
-    },
-
-    supportDocs() {
-      return this.serviceRequest?.supportDocs || [];
-    },
-
-    landlordData() {
-      return this.serviceRequest?.landlordData || {};
-    },
-
 
     customerFullName() {
-      const customer = this.customerData;
-      return `${customer.nombresCompletos || ''} ${customer.apellidosCompletos || ''}`.trim();
+      const client = this.orderData?.client || this.client;
+      return `${client.name || ''} ${client.lastName || ''}`.trim();
     },
 
     fullAddress() {
-      const address = this.addressData;
+      const client = this.orderData?.client || this.client;
+      
+      // Si tenemos orderData, usar la dirección completa del modelo
+      if (this.orderData?.client) {
+        return this.orderData.clientAddress || '';
+      }
+      
+      // Fallback para el client inyectado
       const parts = [
-        address.direccionCompleta,
-        address.distrito,
-        address.provincia,
-        address.departamento
+        client.homeAddress,
+        client.district,
+        client.province,
+        client.department
       ].filter(Boolean);
       
       return parts.join(', ');
     },
 
-    facadePhoto() {
-      return this.addressData?.fotografiaDomicilio;
+    customerPhoneNumber() {
+      const client = this.orderData?.client || this.client;
+      return client.phoneNumber || 'No especificado';
     },
 
     facadePhotoUrl() {
       if (!this.facadePhoto) return null;
       
       // Si es un File object, crear URL temporal
-      if (this.facadePhoto instanceof File) {
-        return URL.createObjectURL(this.facadePhoto);
+      if (this.facadePhoto.file instanceof File) {
+        return URL.createObjectURL(this.facadePhoto.file);
       }
       
-      // Si ya es una URL
-      if (typeof this.facadePhoto === 'string') {
-        return this.facadePhoto;
+      // Si ya es una URL en el documento
+      if (this.facadePhoto.url) {
+        return this.facadePhoto.url;
       }
       
       return null;
@@ -109,19 +177,125 @@ export default {
     },
 
     onFinish() {
-      // Redirigir al inicio
-      this.$router.push('/');
+      // Limpiar todos los datos del localStorage para permitir nuevo cliente
+      localStorage.removeItem('orderCreated');
+      localStorage.removeItem('orderNumber');
+      localStorage.removeItem('orderData');
+      localStorage.removeItem('client');
+      localStorage.removeItem('applicantCompany');
+      localStorage.removeItem('requestDate');
+      
+      // Mostrar mensaje de confirmación
+      this.$toast?.add({
+        severity: 'success',
+        summary: 'Proceso completado',
+        detail: 'Puede proceder a registrar un nuevo cliente',
+        life: 3000
+      });
+
+      this.resetInjectedData();
+      
+      // Redirigir a la primera vista del formulario para nuevo cliente
+      this.$router.push({ name: 'customer-data' });
+    },
+
+    resetInjectedData() {
+      // Resetear Client
+      this.client.lastName = "";
+      this.client.documentNumber = "";
+      this.client.landlordName = "";
+      this.client.name = "";
+      this.client.district = "";
+      this.client.province = "";
+      this.client.mapLocation = "";
+      this.client.department = "";
+      this.client.isTenant = false;
+      this.client.homeAddress = "";
+      this.client.documentType = "";
+      this.client.phoneNumber = "";
+      this.client.landlordPhoneNumber = "";
+      this.client.documents = [];
+
+      // Resetear ApplicantCompany
+      this.applicantCompany.applicantCompanyId = null;
+      this.applicantCompany.companyName = null;
+      this.applicantCompany.contactPhoneNumber = null;
+      this.applicantCompany.corporateEmail = null;
+      this.applicantCompany.executiveName = null;
+      this.applicantCompany.ruc = null;
+    },
+
+    // Método helper para formatear fechas con manejo correcto de zona horaria
+    formatDateWithTimezone(dateInput) {
+      if (!dateInput) return 'No especificado';
+      
+      try {
+        let date;
+        
+        // Manejar diferentes formatos de entrada
+        if (typeof dateInput === 'string') {
+          // Si la fecha no tiene información de zona horaria, asumir UTC-5 (Perú)
+          if (!dateInput.includes('T') && !dateInput.includes('Z') && 
+              !dateInput.includes('+') && !dateInput.includes('-', 10)) {
+            // Fecha simple (YYYY-MM-DD), agregar zona horaria de Perú
+            date = new Date(dateInput + 'T00:00:00-05:00');
+          } else {
+            date = new Date(dateInput);
+          }
+        } else {
+          date = new Date(dateInput);
+        }
+        
+        if (isNaN(date.getTime())) throw new Error('Fecha inválida');
+        
+        // Formatear para zona horaria de Perú
+        return date.toLocaleDateString('es-PE', {
+          year: 'numeric',
+          month: '2-digit', 
+          day: '2-digit',
+          timeZone: 'America/Lima'
+        });
+      } catch (error) {
+        console.warn('Error al formatear fecha:', error);
+        
+        // Último recurso: formateo básico
+        try {
+          const fallbackDate = new Date(dateInput);
+          if (!isNaN(fallbackDate.getTime())) {
+            // Convertir ISO string a formato dd/mm/yyyy
+            const isoString = fallbackDate.toISOString().split('T')[0];
+            const [year, month, day] = isoString.split('-');
+            return `${day}/${month}/${year}`;
+          }
+        } catch (e) {
+          // Si todo falla, devolver el valor original
+        }
+        
+        return dateInput.toString();
+      }
     }
   },
 
   beforeUnmount() {
     // Limpiar URL temporal si existe
-    if (this.facadePhotoUrl && this.facadePhoto instanceof File) {
+    if (this.facadePhotoUrl && this.facadePhoto?.file instanceof File) {
       URL.revokeObjectURL(this.facadePhotoUrl);
     }
   },
 
   created() {
+
+
+    
+    // Si hay orderResponse en el componente padre o como prop, no verificar localStorage
+    let parent = this.$parent;
+    while (parent && !('orderResponse' in parent)) {
+      parent = parent.$parent;
+    }
+    if ((parent && parent.orderResponse) || this.orderResponseProp) {
+      return;
+    }
+    
     // Verificar que la solicitud haya sido creada exitosamente
     if (!this.isRequestCreated) {
       // Si no hay solicitud creada, redirigir al inicio del flujo
@@ -131,7 +305,7 @@ export default {
         detail: 'Debe completar el proceso de solicitud antes de ver el resumen',
         life: 3000
       });
-      this.$router.push({ name: 'petitioner-data' });
+      this.$router.push({ name: 'customer-data' });
     }
   }
 };
@@ -150,10 +324,16 @@ export default {
         <h1 class="text-4xl font-bold m-0 pb-4" style="color: black">{{ content.title }}</h1>
 
         <!-- Orden de servicio -->
-        <div class="order-pill flex align-items-center gap-2">
-          <div>
-            <span class="block">Orden de servicio:</span>
-            <span class="order-pill-code block">{{ orderNumber }}</span>
+        <div class="order-info-container w-full">
+          <div class="order-pill flex align-items-center justify-content-between gap-3 mb-3 w-full">
+            <div>
+              <span class="block">Orden de servicio:</span>
+              <span class="order-pill-code block">{{ orderNumber }}</span>
+            </div>
+            <div class="text-right">
+              <span class="text-sm text-gray-600 block">Fecha de solicitud</span>
+              <span class="font-semibold text-blue-600">{{ requestDate }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -169,17 +349,26 @@ export default {
               <h2 class="text-lg m-0 font-bold" style="color: black">{{ content.applicantDataTitle }}</h2>
             </div>
             <div class="section-content border-1 border-gray-200 border-round-xl p-4">
-              <div class="flex flex-column mb-3">
-                <span class="text-sm  mb-1">{{ content.applicantLabels.socialReason }}</span>
-                <span class="font-semibold ">{{ petitionerData.razonSocial || 'No especificado' }}</span>
-              </div>
-              <div class="flex flex-column mb-3">
-                <span class="text-sm mb-1">{{ content.applicantLabels.executiveName }}</span>
-                <span class="font-semibold">{{ petitionerData.nombreEjecutivo || 'No especificado' }}</span>
-              </div>
-              <div class="flex flex-column">
-                <span class="text-sm mb-1">{{ content.applicantLabels.corporateEmail }}</span>
-                <span class="font-semibold">{{ petitionerData.correoCorporativo || 'No especificado' }}</span>
+              <div class="grid">
+                <!-- Primera columna -->
+                <div class="col-12 md:col-6">
+                  <div class="flex flex-column mb-3">
+                    <span class="text-sm mb-1">{{ content.applicantLabels.socialReason }}</span>
+                    <span class="font-semibold">{{ petitionerData.razonSocial || 'No especificado' }}</span>
+                  </div>
+                  <div class="flex flex-column">
+                    <span class="text-sm mb-1">{{ content.applicantLabels.executiveName }}</span>
+                    <span class="font-semibold">{{ petitionerData.nombreEjecutivo || 'No especificado' }}</span>
+                  </div>
+                </div>
+                
+                <!-- Segunda columna -->
+                <div class="col-12 md:col-6">
+                  <div class="flex flex-column">
+                    <span class="text-sm mb-1">{{ content.applicantLabels.corporateEmail }}</span>
+                    <span class="font-semibold">{{ petitionerData.correoCorporativo || 'No especificado' }}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -191,17 +380,29 @@ export default {
               <h2 class="text-lg m-0 font-bold" style="color: black">{{ content.customerDataTitle }}</h2>
             </div>
             <div class="section-content border-1 border-gray-200 border-round-xl p-4">
-              <div class="flex flex-column mb-3">
-                <span class="text-sm mb-1">{{ content.customerLabels.fullName }}</span>
-                <span class="font-semibold ">{{ customerFullName || 'No especificado' }}</span>
-              </div>
-              <div class="flex flex-column mb-3">
-                <span class="text-sm  mb-1">{{ content.customerLabels.contactNumber }}</span>
-                <span class="font-semibold ">{{ customerData.numeroContacto || 'No especificado' }}</span>
-              </div>
-              <div class="flex flex-column">
-                <span class="text-sm mb-1">{{ content.customerLabels.address }}</span>
-                <span class="font-semibold  word-break-all">{{ fullAddress || 'No especificado' }}</span>
+              <div class="grid">
+                <!-- Primera fila: dos columnas -->
+                <div class="col-12 md:col-6">
+                  <div class="flex flex-column mb-3">
+                    <span class="text-sm mb-1">{{ content.customerLabels.fullName }}</span>
+                    <span class="font-semibold">{{ customerFullName || 'No especificado' }}</span>
+                  </div>
+                </div>
+                
+                <div class="col-12 md:col-6">
+                  <div class="flex flex-column mb-3">
+                    <span class="text-sm mb-1">{{ content.customerLabels.contactNumber }}</span>
+                    <span class="font-semibold">{{ customerPhoneNumber }}</span>
+                  </div>
+                </div>
+                
+                <!-- Segunda fila: dirección completa en todo el ancho -->
+                <div class="col-12">
+                  <div class="flex flex-column">
+                    <span class="text-sm mb-1">{{ content.customerLabels.address }}</span>
+                    <span class="font-semibold word-break-all">{{ fullAddress || 'No especificado' }}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -280,6 +481,12 @@ export default {
 
 
 
+/* Contenedor de información de la orden */
+.order-info-container {
+  width: 100%;
+  margin: 0 auto;
+}
+
 /* Estilos solo para el pill */
 .order-pill{
   position: relative;
@@ -288,6 +495,19 @@ export default {
   border: 1px solid var(--color-border-cards);       /* azul */
   border-radius: 8px;
   padding: .5rem 1rem .5rem 1.75rem;
+  justify-content: center;
+}
+
+/* Tarjetas de información */
+.info-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.info-card:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
 }
 
 /* Oreja azul a la izquierda */

@@ -1,8 +1,10 @@
 <script>
 
-import {OrderServiceRequest} from "../models/order-service-request.entity.js";
 import ToolbarTrackerMobility from "../../../public/components/toolbar-tracker-mobility.component.vue";
 import RequestProgressBar from "../components/request-progress-bar.component.vue";
+import {CompanyEmployeesService} from "../services/company-employees-api.service.js";
+import {Client} from "../models/client.entity.js";
+import {ApplicantCompany} from "../models/applicant-company.entity.js";
 
 export default {
   name: 'management-requests-home-visit-orders',
@@ -10,13 +12,22 @@ export default {
 
   data(){
     return {
-      serviceRequest: new OrderServiceRequest(),
+      // Servicio para obtener la información de la empresa solicitante.
+      companyEmployeesService: new CompanyEmployeesService('/company-employees'),
+
+      // Instancia del modelo Client para manejar todos los datos del cliente
+      client: new Client(),
+      // Instancia del modelo ApplicantCompany para manejar todos los datos de la empresa solicitante
+      applicantCompany: new ApplicantCompany({}),
+      // Respuesta de la orden creada (se actualiza después de crear la solicitud)
+      orderResponse: null
     }
   },
 
   provide() {
     return {
-      serviceRequest: this.serviceRequest
+      client: this.client,
+      applicantCompany: this.applicantCompany,
     };
   },
 
@@ -24,7 +35,6 @@ export default {
 
     items() {
       return [
-        { label: 'Datos del solicitante', icon: 'mdi:office-building-outline', to: 'petitioner-data' },
         { label: 'Datos del cliente', icon: 'mdi:account-outline', to: 'customer-data' },
         { label: 'Documentación', icon: 'mdi:file-document-outline', to: 'documentation-upload' },
         { label: 'Confirmación', icon: 'mdi:check-circle-outline', to: 'confirmation' },
@@ -34,12 +44,26 @@ export default {
     currentStep() {
       const routeToStepMap = {
         'service-order-request-management': 1,
-        'petitioner-data': 1,
-        'customer-data': 2,
-        'documentation-upload': 3,
-        'confirmation': 4,
+        'customer-data': 1,
+        'documentation-upload': 2,
+        'confirmation': 3,
       };
       return routeToStepMap[this.$route.name] || 0;
+    },
+
+  },
+
+  methods: {
+
+    // retornar datos de la empresa solicitante y ejecutivo asignado
+    getApplicantCompanyAndEmployeeData(usernameEmployee) {
+      this.companyEmployeesService.getApplicantCompanyByUsernameEmployee(usernameEmployee).then(response => {
+
+        // ✅ Actualizar propiedades existentes en lugar de reemplazar el objeto
+        Object.assign(this.applicantCompany, response.data);
+      }).catch(error => {
+        console.error('Error al obtener los datos de la empresa solicitante y del empleado:', error);
+      })
     }
 
   },
@@ -47,16 +71,11 @@ export default {
   created() {
 
     // Navegar con router a /admin/order-details
-    this.$router.push({ name: 'petitioner-data'});
-
+    this.$router.push({ name: 'customer-data'});
 
     // Inicializar el objeto serviceRequest si es necesario
-    this.serviceRequest = new OrderServiceRequest();
-
-    console.log(this.serviceRequest);
-
-    console.log(this.currentStep);
-
+    this.companyEmployeesService = new CompanyEmployeesService('/company-employees');
+    this.getApplicantCompanyAndEmployeeData(localStorage.getItem('username'));
   }
 
 };

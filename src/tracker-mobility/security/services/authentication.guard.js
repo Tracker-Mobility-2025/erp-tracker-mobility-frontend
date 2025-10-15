@@ -34,7 +34,7 @@ export const authenticationGuard = (to, from, next) => {
             store.initialize();
         }
 
-        // ⚠️ Verificar que solo usuarios con roles autorizados puedan acceder al sistema
+        // Verificar que solo usuarios con roles autorizados puedan acceder al sistema
         if (store.isSignedIn) {
             const authorizedRoles = ['ADMIN', 'COMPANY_EMPLOYEE'];
             if (!authorizedRoles.includes(store.currentRole)) {
@@ -45,7 +45,7 @@ export const authenticationGuard = (to, from, next) => {
                     name: 'sign-in', 
                     query: { 
                         error: 'unauthorized-role',
-                        message: 'Su rol no tiene permisos para acceder al sistema'
+                        message: 'Usted no tiene permisos para acceder al sistema'
                     }
                 });
             }
