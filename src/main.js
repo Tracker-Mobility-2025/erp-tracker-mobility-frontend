@@ -30,6 +30,7 @@ import InputText from "primevue/inputtext";
 import InputNumber from "primevue/inputnumber";
 import Password from "primevue/password";
 import Menu from "primevue/menu";
+import Divider from "primevue/divider";
 import Rating from "primevue/rating";
 import Row from "primevue/row";
 import Drawer from "primevue/drawer";
@@ -142,6 +143,7 @@ app.component('pv-button', Button)
     .component('pv-input-number', InputNumber)
     .component('pv-password', Password)
     .component('pv-menu', Menu)
+    .component('pv-divider', Divider)
     .component('pv-rating', Rating)
     .component('pv-row', Row)
     .component('pv-drawer', Drawer)

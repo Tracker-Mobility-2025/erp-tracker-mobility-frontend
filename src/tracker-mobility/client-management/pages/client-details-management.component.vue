@@ -420,6 +420,7 @@ export default {
 
       this.clientTrackerApiService.getById(this.clientId).then(response => {
         this.item = new ClientTracker(response.data);
+        console.log('Cliente obtenido por ID:', response.data);
       }).catch(error => {
         console.error('Error al obtener el cliente por ID:', error);
       }).finally(() => {
@@ -458,8 +459,8 @@ export default {
       <div class="flex flex-column pb-1" >
         <h2 class="text-3xl font-bold mb-2">Gestión de colaboradores del cliente</h2>
         <p v-if="item">
-          <span class="font-bold text-primary-local ">{{ item.executiveName }}: </span> 
-          Contacto y credenciales de colaboradores
+          <span class="font-bold text-primary-local ">{{ item.companyName }}: </span>
+          Credenciales y contacto de colaboradores
         </p>
         <p v-else>Cargando información del cliente...</p>
       </div>

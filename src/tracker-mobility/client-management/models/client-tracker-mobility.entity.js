@@ -5,13 +5,13 @@ export class ClientTracker {
         {
             id = null,
             ruc = "",
-            executiveName = "",
+            companyName = "",
             status = "",
         } = {}
     ) {
         this.id = id;
         this.ruc = ruc;
-        this.executiveName = executiveName;
+        this.companyName = companyName;
         this.status = status;
     }
 

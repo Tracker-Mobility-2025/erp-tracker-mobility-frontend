@@ -326,6 +326,35 @@ input:disabled, textarea:disabled, select:disabled {
     background-color: var(--color-dark);
 }
 
+/* ========== CLASES PERSONALIZADAS PARA PRIMEFLEX ========== */
+/* Clases de background corporativo */
+.bg-primary-custom {
+    background-color: var(--color-primary) !important;
+}
+
+.bg-secondary-custom {
+    background-color: var(--color-border-cards) !important;
+}
+
+.bg-card-custom {
+    background-color: var(--color-card-background) !important;
+}
+
+/* Clases de borde corporativo */
+.border-primary-custom {
+    border-color: var(--color-primary) !important;
+}
+
+.border-cards-custom {
+    border-color: var(--color-border-cards) !important;
+}
+
+/* Clases de hover corporativo */
+.hover-primary:hover {
+    background-color: var(--color-hover) !important;
+    color: var(--color-white) !important;
+}
+
 /* Utilidades de visibilidad para estados */
 .hidden {
     display: none;
