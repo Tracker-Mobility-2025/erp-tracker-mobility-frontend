@@ -389,7 +389,7 @@ export default {
           <label for="tipo-doc" class="font-medium">
             {{ customerContent.tipoDocumento }} <span class="text-red-500">*</span>
           </label>
-          <pv-dropdown
+          <pv-select
               id="tipo-doc"
               v-model="client.documentType"
               :options="tiposDocumento"

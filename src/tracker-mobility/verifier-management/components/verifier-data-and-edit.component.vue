@@ -129,7 +129,7 @@ export default {
               <p class="font-semibold text-dark m-0">{{ item?.status }}</p>
             </div>
             <div v-else>
-              <pv-dropdown
+              <pv-select
                   v-model="editableItem.status"
                   :options="optionsStatus"
                   class="w-full"

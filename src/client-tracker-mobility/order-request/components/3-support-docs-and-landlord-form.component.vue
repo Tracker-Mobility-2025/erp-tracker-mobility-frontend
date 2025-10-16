@@ -715,7 +715,7 @@ export default {
 }
 
 /* Inputs */
-.p-inputtext, .p-inputmask, .p-dropdown, .p-multiselect, .p-inputtextarea {
+.p-inputtext, .p-inputmask, .p-dropdown, .p-select, .p-multiselect, .p-inputtextarea {
   background-color:transparent !important;
   color:#000 !important;
   border:1.5px solid var(--color-text-gray, #d1d5db) !important;

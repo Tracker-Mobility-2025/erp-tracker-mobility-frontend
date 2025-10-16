@@ -14,6 +14,7 @@ import "primeicons/primeicons.css";
 import ConfirmationService from "primevue/confirmationservice";
 import DialogService from "primevue/dialogservice";
 import ToastService from "primevue/toastservice";
+import Tooltip from "primevue/tooltip";
 import Button from "primevue/button";
 import Card from "primevue/card";
 import Column from "primevue/column";
@@ -21,7 +22,6 @@ import ConfirmDialog from "primevue/confirmdialog";
 import Checkbox from "primevue/checkbox";
 import DataTable from "primevue/datatable";
 import Dialog from "primevue/dialog";
-import Select from "primevue/select";
 import FileUpload from "primevue/fileupload";
 import FloatLabel from "primevue/floatlabel";
 import IconField from "primevue/iconfield";
@@ -46,7 +46,6 @@ import Toast from "primevue/toast";
 
 //importado de manera local de "router/index.js" creado y ubicado en src
 import router from "./router/index.js";
-import SelectButton from "primevue/selectbutton";
 import Tabs from "primevue/tabs";
 import DataView from "primevue/dataview";
 import {
@@ -55,7 +54,8 @@ import {
     AccordionHeader,
     AccordionPanel,
     AutoComplete,
-    Badge, Calendar, Chips, Dropdown, InputMask, InputSwitch, Paginator, ProgressBar, ProgressSpinner,
+    Badge, Chips, DatePicker, Dropdown, InputMask, InputSwitch, Message, Paginator, ProgressBar, ProgressSpinner,
+    Select,
     SplitButton,
     TabPanels
 } from "primevue";
@@ -123,6 +123,9 @@ app.use(PrimeVue, {
     .use(DialogService)
     .use(ToastService);
 
+// Use PrimeVue Directives
+app.directive('tooltip', Tooltip);
+
 
 // Use PrimeVue Components
 app.component('pv-button', Button)
@@ -131,8 +134,6 @@ app.component('pv-button', Button)
     .component('pv-checkbox', Checkbox)
     .component('pv-data-table', DataTable)
     .component('pv-dialog', Dialog)
-    .component('pv-select', Select)
-    .component('pv-select-button', SelectButton)
     .component('pv-file-upload', FileUpload)
     .component('pv-float-label', FloatLabel)
     .component('pv-icon-field', IconField)
@@ -162,15 +163,16 @@ app.component('pv-button', Button)
     .component('pv-split-button', SplitButton)
     .component('pv-auto-complete', AutoComplete)
     .component('pv-dropdown', Dropdown)
+    .component('pv-select', Select)
     .component('pv-progress-bar', ProgressBar)
-    .component('pv-calendar', Calendar)
+    .component('pv-calendar', DatePicker)
     .component('pv-input-textarea', Textarea)
     .component('pv-input-switch', InputSwitch)
     .component('pv-chips', Chips)
-    .component('pv-file-upload', FileUpload)
     .component('pv-progress-spinner', ProgressSpinner)
     .component('pv-input-mask', InputMask )
     .component('pv-chip', Chip)
+    .component('pv-message', Message)
     .component('pv-paginator', Paginator)
     .component('pv-confirm-dialog', ConfirmDialog);
 

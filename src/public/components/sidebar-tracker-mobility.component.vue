@@ -5,7 +5,7 @@ import { NotificationMixin } from '../../shared/utils/notification.utils.js';
 export default {
 
   name: 'Sidebar-tracker-mobility',
-  
+
   // 🔧 Usar el mixin para notificaciones
   mixins: [NotificationMixin],
 
@@ -130,6 +130,9 @@ export default {
 </script>
 
 <template>
+  <pv-toast />
+  <pv-confirm-dialog />
+
   <div class="sidebar-fixed">
     <aside class="sidebar-tracker">
       <!-- Header del sidebar -->

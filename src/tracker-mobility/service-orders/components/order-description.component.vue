@@ -11,6 +11,8 @@ export default {
     }
   },
 
+  emits: ['downloadDocument'],
+
   data() {
     return {
       showDocumentModal: false,

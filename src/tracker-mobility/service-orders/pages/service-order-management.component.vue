@@ -157,6 +157,12 @@ export default {
       });
     },
 
+    // Eliminar una orden individual
+    onDeleteItem(item) {
+      console.log('Eliminar orden individual:', item);
+      this.deleteOrder(item.id);
+    },
+
     // Navegar a la vista de detalles de la orden
     onViewItem(item) {
       console.log('Ver detalles de orden:', item);
@@ -392,7 +398,7 @@ export default {
       <template #filters="{ clearFilters }">
         <div class="flex align-items-center gap-2">
 
-          <pv-dropdown
+          <pv-select
             v-model="selectedStatus"
             :options="statusOptions"
             option-label="label"

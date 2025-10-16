@@ -227,7 +227,7 @@ export default {
             <label for="status" class="block text-900 font-medium mb-2">
               <i class="pi pi-info-circle mr-2"></i>Estado
             </label>
-            <pv-dropdown
+            <pv-select
                 id="status"
                 v-model="clientEntity.status"
                 :options="[

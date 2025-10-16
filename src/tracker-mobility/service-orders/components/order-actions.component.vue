@@ -354,7 +354,7 @@ export default {
             Seleccionar verificador *
             <span class="text-red-500">*</span>
           </label>
-          <pv-dropdown
+          <pv-select
               id="verifier"
               v-model="localHomeVisitDetails.verifierId"
               :options="verifiersListFormatted"
@@ -474,7 +474,7 @@ export default {
             <i class="pi pi-file text-primary"></i>
             Selecciona el documento
           </label>
-          <pv-dropdown
+          <pv-select
               id="documentType"
               v-model="currentObservation.documentType"
               :options="[
@@ -572,16 +572,16 @@ export default {
   box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.2) !important;
 }
 
-/* Estilos para dropdown inválido */
-:deep(.p-dropdown.p-invalid) {
+/* Estilos para select inválido */
+:deep(.p-select.p-invalid) {
   border-color: #ef4444 !important;
 }
 
-:deep(.p-dropdown.p-invalid:not(.p-disabled):hover) {
+:deep(.p-select.p-invalid:not(.p-disabled):hover) {
   border-color: #ef4444 !important;
 }
 
-:deep(.p-dropdown.p-invalid:not(.p-disabled).p-focus) {
+:deep(.p-select.p-invalid:not(.p-disabled).p-focus) {
   border-color: #ef4444 !important;
   box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.2) !important;
 }

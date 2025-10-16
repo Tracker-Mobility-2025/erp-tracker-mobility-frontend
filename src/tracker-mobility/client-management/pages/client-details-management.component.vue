@@ -516,7 +516,7 @@ export default {
       <!-- Filtro personalizado para el estado -->
       <template #filters="{ clearFilters }">
         <div class="flex align-items-center gap-2">
-          <pv-dropdown
+          <pv-select
               v-model="selectedStatus"
               :options="statusOptions"
               option-label="label"

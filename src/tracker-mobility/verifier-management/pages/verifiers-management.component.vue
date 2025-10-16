@@ -81,6 +81,11 @@ export default {
       }
 
       return filtered;
+    },
+
+    // Item actual para el diálogo de creación/edición
+    currentItem() {
+      return this.isEdit ? this.item : this.createItem;
     }
   },
 
@@ -131,6 +136,14 @@ export default {
       });
     },
 
+    onEditItem(item) {
+      console.log('Editar verificador:', item);
+      this.item = item;
+      this.isEdit = true;
+      this.submitted = false;
+      this.createAndEditDialogIsVisible = true;
+    },
+
     onViewItem(item) {
       console.log('Ver detalles de orden:', item);
 
@@ -168,21 +181,55 @@ export default {
     },
 
     onSaveRequested(item) {
-      this.createItem = new CreateVerifier(item);
-
-      console.log('Guardar verificador creado:', this.createItem);
-
       this.submitted = true;
 
-      this.create();
+      if (this.isEdit) {
+        // Actualizar verificador existente
+        const updatedItem = { ...this.item, ...item };
+        console.log('Actualizar verificador:', updatedItem);
+        this.update(updatedItem);
+      } else {
+        // Crear nuevo verificador
+        this.createItem = new CreateVerifier(item);
+        console.log('Guardar verificador creado:', this.createItem);
+        this.create();
+      }
 
       this.createAndEditDialogIsVisible = false;
       this.isEdit = false;
-
     },
 
-    update(){
+    update(updatedItem) {
+      console.log('Actualizando verificador:', updatedItem);
 
+      this.verifierManagementApiServices.update(updatedItem.id, updatedItem).then(response => {
+        // Actualizar el item en el array
+        const index = this.itemsArray.findIndex(verifier => verifier.id === updatedItem.id);
+        if (index > -1) {
+          this.itemsArray[index] = new Verifier(response.data);
+        }
+
+        console.log('Verificador actualizado:', response.data);
+
+        // Mostrar mensaje de éxito
+        this.$toast.add({
+          severity: 'success',
+          summary: 'Verificador actualizado',
+          detail: `El verificador ${updatedItem.name} ${updatedItem.lastName} ha sido actualizado exitosamente`,
+          life: 4000
+        });
+
+      }).catch(error => {
+        console.error('Error al actualizar verificador:', error);
+        
+        // Mostrar mensaje de error
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Error al actualizar verificador',
+          detail: 'No se pudo actualizar el verificador. Por favor, intente nuevamente.',
+          life: 4000
+        });
+      });
     },
 
     create() {
@@ -432,6 +479,7 @@ export default {
         @new-item-requested-manager="onNewItem"
         @delete-selected-items-requested-manager="onDeleteSelectedItems"
         @delete-item-requested-manager="onDeleteItem"
+        @edit-item-requested-manager="onEditItem"
         @view-item-requested-manager="onViewItem"
         @global-filter-change="onGlobalFilterChange"
         @clear-filters="onClearFilters"
@@ -440,7 +488,7 @@ export default {
       <!-- Filtro personalizado para el estado -->
       <template #filters="{ clearFilters }">
         <div class="flex align-items-center gap-2">
-          <pv-dropdown
+          <pv-select
               v-model="selectedStatus"
               :options="statusOptions"
               option-label="label"

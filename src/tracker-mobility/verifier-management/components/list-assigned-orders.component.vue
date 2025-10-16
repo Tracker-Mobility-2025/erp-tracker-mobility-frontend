@@ -139,7 +139,7 @@ export default {
         />
       </pv-icon-field>
 
-      <pv-dropdown
+      <pv-select
           v-model="selectedStatus"
           :options="statusOptions"
           option-label="label"

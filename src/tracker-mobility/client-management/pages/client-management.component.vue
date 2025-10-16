@@ -407,7 +407,7 @@ export default {
 
         <!-- Filtro por estado -->
         <div class="w-full md:w-auto" style="min-width: 200px">
-          <pv-dropdown
+          <pv-select
             v-model="selectStatus"
             :options="statusOptions"
             optionLabel="label"

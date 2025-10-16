@@ -50,30 +50,35 @@ export default {
   },
 
   computed: {
+    // Get the effective item data (prioritize prop over internal data)
+    effectiveItem() {
+      return this.item || this.reportData;
+    },
+
     // Mapear datos de detalles de visita
     visitDetails() {
       return {
-        verifier: this.item?.order?.homeVisitDetails?.verifierName || 
-                 `Verificador ID: ${this.item?.order?.homeVisitDetails?.verifierId}` || 'No especificado',
-        googleMapsLink: this.item?.order?.client?.location?.mapLocation || '#',
-        verificationDate: this.formatDate(this.item?.order?.homeVisitDetails?.visitDate) || 'No especificada',
-        verificationTime: this.item?.order?.homeVisitDetails?.visitTime || 'No especificada'
+        verifier: this.effectiveItem?.order?.homeVisitDetails?.verifierName || 
+                 `Verificador ID: ${this.effectiveItem?.order?.homeVisitDetails?.verifierId}` || 'No especificado',
+        googleMapsLink: this.effectiveItem?.order?.client?.location?.mapLocation || '#',
+        verificationDate: this.formatDate(this.effectiveItem?.order?.homeVisitDetails?.visitDate) || 'No especificada',
+        verificationTime: this.effectiveItem?.order?.homeVisitDetails?.visitTime || 'No especificada'
       };
     },
 
     // Mapear datos del solicitante
     applicantData() {
       return {
-        businessName: this.item?.order?.applicantCompany?.companyName || 'No especificado',
-        ruc: this.item?.order?.applicantCompany?.ruc || 'No especificado',
-        requestDate: this.formatDate(this.item?.order?.requestDate) || 'No especificada',
-        result: this.item?.finalResult || 'PENDIENTE'
+        businessName: this.effectiveItem?.order?.applicantCompany?.companyName || 'No especificado',
+        ruc: this.effectiveItem?.order?.applicantCompany?.ruc || 'No especificado',
+        requestDate: this.formatDate(this.effectiveItem?.order?.requestDate) || 'No especificada',
+        result: this.effectiveItem?.finalResult || 'PENDIENTE'
       };
     },
 
     // Mapear datos del cliente
     customerData() {
-      const client = this.item?.order?.client;
+      const client = this.effectiveItem?.order?.client;
       return {
         fullName: client ? `${client.name || ''} ${client.lastName || ''}`.trim() : 'No especificado',
         interviewee: client ? `${client.name || ''} ${client.lastName || ''}`.trim() : 'No especificado',
@@ -85,8 +90,8 @@ export default {
 
     // Mapear dirección del cliente
     customerAddress() {
-      const location = this.item?.order?.client?.location;
-      const dwelling = this.item?.order?.client?.dwelling;
+      const location = this.effectiveItem?.order?.client?.location;
+      const dwelling = this.effectiveItem?.order?.client?.dwelling;
       return {
         department: location?.department || 'No especificado',
         province: location?.province || 'No especificado',
@@ -97,7 +102,7 @@ export default {
 
     // Mapear detalles de residencia
     residenceDetails() {
-      const client = this.item?.order?.client;
+      const client = this.effectiveItem?.order?.client;
       const residence = client?.residence;
       const dwelling = client?.dwelling;
       const zone = client?.zone;
@@ -132,7 +137,7 @@ export default {
 
     // Mapear datos del arrendador
     landlordData() {
-      const landlord = this.item?.order?.client?.landlord;
+      const landlord = this.effectiveItem?.order?.client?.landlord;
       return {
         fullName: landlord?.fullName || 'No especificado',
         contactNumber: landlord?.phoneNumber || 'No especificado',
@@ -143,12 +148,12 @@ export default {
 
     // Mapear detalles de entrevista
     interviewDetails() {
-      const interview = this.item?.order?.client?.landlord?.interviewDetails;
-      const client = this.item?.order?.client;
+      const interview = this.effectiveItem?.order?.client?.landlord?.interviewDetails;
+      const client = this.effectiveItem?.order?.client;
       
       return {
         tenantName: interview?.clientNameAccordingToLandlord || (client ? `${client.name || ''} ${client.lastName || ''}`.trim() : 'No especificado'),
-        ownHouse: this.item?.order?.client?.landlord?.ownHome ? 'Sí' : 'No',
+        ownHouse: this.effectiveItem?.order?.client?.landlord?.ownHome ? 'Sí' : 'No',
         serviceClientPays: interview?.servicesPaidByClient?.join(', ') || 'No especificado',
         clientPaysPunctual: interview?.isTheClientPunctualWithPayments ? 'Sí' : (interview?.isTheClientPunctualWithPayments === false ? 'No' : 'No especificado'),
         clientRentalTime: interview?.time ? `${interview.time} ${interview.timeType || ''}` : 'No especificado',
@@ -159,21 +164,21 @@ export default {
     // Mapear observaciones
     observationsData() {
       return {
-        observations: this.item?.observations?.map(obs => obs.value) || []
+        observations: this.effectiveItem?.observations?.map(obs => obs.value) || []
       };
     },
 
     // Mapear resumen
     summaryData() {
       return {
-        summary: this.item?.summary || 'No disponible'
+        summary: this.effectiveItem?.summary || 'No disponible'
       };
     },
 
     // Mapear glosario
     glossaryData() {
       return {
-        glossaryItems: this.item?.glossary?.map(item => ({
+        glossaryItems: this.effectiveItem?.glossary?.map(item => ({
           term: item.value?.split(':')[0]?.trim() || 'Término',
           definition: item.value?.split(':')[1]?.trim() || item.value || 'Definición no disponible'
         })) || []
@@ -183,7 +188,7 @@ export default {
     // Mapear casuística
     casuistryData() {
       return {
-        casuistryItems: this.item?.casuistics?.map(item => {
+        casuistryItems: this.effectiveItem?.casuistics?.map(item => {
           const parts = item.value?.split(':');
           return {
             title: parts?.[0]?.trim() || 'Casuística',
@@ -195,7 +200,7 @@ export default {
 
     // ANEXO 01: Registro fotográfico del domicilio
     annexe01Data() {
-      const documents = this.item?.order?.client?.documents;
+      const documents = this.effectiveItem?.order?.client?.documents;
       return {
         title: 'ANEXO 01: Registro fotográfico del domicilio',
         images: documents?.filter(doc => doc.type === 'FOTO_FACHADA_VIVIENDA')?.map(doc => ({
@@ -209,7 +214,7 @@ export default {
 
     // ANEXO 02: Registro fotográfico de alrededores
     annexe02Data() {
-      const documents = this.item?.order?.client?.documents;
+      const documents = this.effectiveItem?.order?.client?.documents;
       return {
         title: 'ANEXO 02: Registro fotográfico de alrededores del domicilio',
         images: documents?.filter(doc => doc.type === 'FOTO_ALREDEDORES_VIVIENDA')?.map(doc => ({
@@ -223,7 +228,7 @@ export default {
 
     // ANEXO 03: Documentos de identidad del candidato
     annexe03Data() {
-      const documents = this.item?.order?.client?.documents;
+      const documents = this.effectiveItem?.order?.client?.documents;
       return {
         title: 'ANEXO 03: Documentos de identidad del candidato',
         images: documents?.filter(doc => 
@@ -241,7 +246,7 @@ export default {
 
     // ANEXO 04: Registro fotográfico de la cochera
     annexe04Data() {
-      const documents = this.item?.order?.client?.documents;
+      const documents = this.effectiveItem?.order?.client?.documents;
       return {
         title: 'ANEXO 04: Registro fotográfico de la cochera',
         images: documents?.filter(doc => doc.type === 'FOTO_COCHERA')?.map(doc => ({
@@ -255,7 +260,7 @@ export default {
 
     // ANEXO 05: Registro fotográfico de habitaciones
     annexe05Data() {
-      const documents = this.item?.order?.client?.documents;
+      const documents = this.effectiveItem?.order?.client?.documents;
       return {
         title: 'ANEXO 05: Registro fotográfico de las habitaciones del domicilio',
         images: documents?.filter(doc => doc.type === 'FOTO_HABITACIONES')?.map(doc => ({
@@ -269,7 +274,7 @@ export default {
 
     // ANEXO 06: Recibos de servicios
     annexe06Data() {
-      const documents = this.item?.order?.client?.documents;
+      const documents = this.effectiveItem?.order?.client?.documents;
       return {
         title: 'ANEXO 06: Recibos de servicios',
         images: documents?.filter(doc => 
@@ -292,7 +297,7 @@ export default {
       reportDetailsApiService: new ReportApiService('/reports'),
 
       // item de reporte de verificación
-      item: null,
+      reportData: null,
       
       // Estado de carga
       loading: false,
@@ -387,8 +392,8 @@ export default {
       this.simulateLoadingProgress();
 
       this.reportDetailsApiService.getById(reportId).then(response => {
-        this.item = response.data;
-        console.log('Reporte de verificación obtenido:', this.item);
+        this.reportData = response.data;
+        console.log('Reporte de verificación obtenido:', this.reportData);
 
         // Completar todos los pasos
         this.loadingStep = this.loadingSteps.length;
@@ -491,7 +496,7 @@ export default {
     </div>
     
     <!-- Contenido principal - solo se muestra cuando no está cargando y hay datos -->
-    <template v-else-if="item">
+    <template v-else-if="effectiveItem">
 
     <!-- Breadcrumb -->
     <div class="text-base">
@@ -511,12 +516,12 @@ export default {
     <div class="flex align-content-center justify-content-between  mt-4 mb-2">
       <!-- Izquierda -->
       <h2 class="text-2xl xl:font-bold font-extrabold text-gray-900">
-        Reporte:<span class="text-blue-700 xl:font-bold "> {{ item?.reportCode || 'Cargando...' }}</span>
+        Reporte:<span class="text-blue-700 xl:font-bold "> {{ effectiveItem?.reportCode || 'Cargando...' }}</span>
       </h2>
 
       <!-- Derecha -->
       <span class="font-medium text-gray-900">
-        Fecha de solicitud: {{ formatDate(item?.order?.requestDate) || 'Cargando...' }}
+        Fecha de solicitud: {{ formatDate(effectiveItem?.order?.requestDate) || 'Cargando...' }}
       </span>
     </div>
 
