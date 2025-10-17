@@ -3,12 +3,16 @@
 import DataManager from "../../../shared/components/data-manager.component.vue";
 import {OrderRequestApi} from "../services/order-request-api.service.js";
 import {VerifierApi} from "../services/verifier-api.service.js";
+import {NotificationMixin} from "../../../shared/utils/notification.utils.js";
 
 export default {
   name: "service-order-management",
   components: {
     DataManager
   },
+
+  // Usar el mixin para notificaciones
+  mixins: [NotificationMixin],
 
   data() {
     return {
@@ -324,7 +328,6 @@ export default {
 </script>
 
 <template>
-  <pv-toast />
 
   <div class="h-full overflow-hidden flex flex-column p-4">
     <!-- Header con título + descripción y resúmenes -->

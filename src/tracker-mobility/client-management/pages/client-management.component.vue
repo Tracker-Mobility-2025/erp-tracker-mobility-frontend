@@ -5,6 +5,7 @@ import {ClientTrackerApiService} from "../services/client-tracker-api.service.js
 import {ClientTracker} from "../models/client-tracker-mobility.entity.js";
 import {CreateClientTracker} from "../models/create-client-tracker-mobility.entity.js";
 
+
 export default {
   name:'client-management',
   components: {ClientCreateAndEdit},
@@ -164,7 +165,7 @@ export default {
       
       // Confirmar eliminación con el usuario
       this.$confirm.require({
-        message: `¿Está seguro de eliminar el cliente ${client.executiveName}?`,
+        message: `¿Está seguro de eliminar el cliente ${client.companyName}?`,
         header: 'Confirmación',
         icon: 'pi pi-exclamation-triangle',
         rejectClass: 'p-button-secondary p-button-outlined',
@@ -356,6 +357,8 @@ export default {
 <template>
 
   <!-- Dialogo de confirmación -->
+  <pv-confirm-dialog/>
+  <pv-toast/>
 
 
   <div class="h-full overflow-hidden flex flex-column p-4">
