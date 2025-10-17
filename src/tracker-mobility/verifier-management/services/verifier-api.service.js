@@ -1,6 +1,5 @@
-import axios from "axios";
+import http from "../../../shared/services/http-common.js";
 
-const http = axios.create({baseURL: "https://web-service-tracker-mobility-production.up.railway.app/api/v1"});
 
 
 export class VerifierApiService {

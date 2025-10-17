@@ -1,24 +1,6 @@
-import axios from "axios";
 import { OrderResponse } from "../models/order-response.entity.js";
 
-const http = axios.create({
-    baseURL: "https://web-service-tracker-mobility-production.up.railway.app/api/v1",
-    headers: {
-        "Content-Type": "application/json"
-    }
-});
-
-// 🔓 NOTA: API sin autenticación por el momento
-// 🔧 Para reactivar autenticación cuando la API esté lista, descomenta esto:
-/*
-http.interceptors.request.use(config => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
-*/
+import http from "../../../shared/services/http-common.js";
 
 export class OrderServiceRequest {
 
@@ -34,25 +16,24 @@ export class OrderServiceRequest {
      */
 
     create(applicantCompanyData, clientData) {
-        // 🔧 Crear FormData como lo hace el HTML que funciona
+        // Crear FormData para envío de archivos y datos
         const formData = new FormData();
         
-        // 🧹 Limpiar datos antes de enviar
+        // Limpiar y validar datos antes de enviar
         const cleanedClientData = {
             ...clientData,
-            // Limpiar número de teléfono (quitar espacios y guiones)
-            phoneNumber: clientData.phoneNumber ? clientData.phoneNumber.toString().replace(/[\s-]/g, '') : null,
-            // Limpiar teléfono del arrendador si existe
-            landlordPhoneNumber: clientData.landlordPhoneNumber ? clientData.landlordPhoneNumber.toString().replace(/[\s-]/g, '') : null,
+            // Limpiar números de teléfono (quitar espacios y guiones)
+            phoneNumber: clientData.phoneNumber?.toString().replace(/[\s-]/g, '') || null,
+            landlordPhoneNumber: clientData.landlordPhoneNumber?.toString().replace(/[\s-]/g, '') || null,
             // Truncar dirección a máximo 300 caracteres
-            homeAddress: clientData.homeAddress ? clientData.homeAddress.substring(0, 300) : null,
+            homeAddress: clientData.homeAddress?.substring(0, 300) || null,
             documents: clientData.documents.map(doc => ({
                 type: doc.type
-                // No incluir el archivo aquí, se envía por separado
+                // Archivo se envía por separado en FormData
             }))
         };
         
-        // Preparar los datos de la orden (sin archivos)
+        // Preparar datos de la orden
         const orderData = {
             applicantCompany: applicantCompanyData,
             client: cleanedClientData
@@ -61,26 +42,26 @@ export class OrderServiceRequest {
         // Añadir datos JSON como blob
         formData.append('order', new Blob([JSON.stringify(orderData)], { type: 'application/json' }));
         
-        // Añadir archivos
+        // Añadir archivos al FormData
         clientData.documents.forEach((doc, index) => {
-            if (doc.file && doc.file.name) {
+            if (doc.file?.name) {
                 formData.append('files', doc.file);
             } else {
                 console.warn(`⚠️ [SERVICE] Documento ${index + 1} (${doc.type}) sin archivo válido:`, doc);
             }
         });
         
-        // Enviar FormData (el Content-Type se establece automáticamente)
-        return http.post(this.resourceEndpoint, formData, {
-            headers: {
-                // No establecer Content-Type, axios lo hará automáticamente para FormData
-                'Content-Type': undefined
-            }
-        }).then(response => {
-            // Transformar la respuesta usando el modelo
-            response.data = new OrderResponse(response.data);
-            return response;
-        });
+        // Enviar FormData - http-common.js maneja automáticamente el Content-Type
+        return http.post(this.resourceEndpoint, formData)
+            .then(response => {
+                // Transformar respuesta usando el modelo
+                response.data = new OrderResponse(response.data);
+                return response;
+            })
+            .catch(error => {
+                console.error('❌ [SERVICE] Error al crear orden de servicio:', error);
+                throw error; // Re-lanzar para manejo en componente
+            });
     }
 
 
