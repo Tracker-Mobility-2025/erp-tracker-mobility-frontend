@@ -193,7 +193,7 @@ export default {
 
       console.log('Creando cliente:', newClient);
 
-      this.clientTrackerApiService.create(clientData).then(response => {
+      this.clientTrackerApiService.create(newClient).then(response => {
         console.log('Cliente creado en backend:', response.data);
         // Agregar al array local
         this.clientArray.push(new ClientTracker(response.data));
@@ -201,7 +201,7 @@ export default {
         this.$toast.add({
           severity: 'success',
           summary: 'Cliente creado',
-          detail: `El cliente ${clientData.executiveName} ha sido creado exitosamente`,
+          detail: `El cliente ${clientData.companyName} ha sido creado exitosamente`,
           life: 4000
         });
 
@@ -240,7 +240,7 @@ export default {
         this.$toast.add({
           severity: 'success',
           summary: 'Cliente actualizado',
-          detail: `El cliente ${clientData.executiveName} ha sido actualizado exitosamente`,
+          detail: `El cliente ${clientData.companyName} ha sido actualizado exitosamente`,
           life: 4000
         });
 

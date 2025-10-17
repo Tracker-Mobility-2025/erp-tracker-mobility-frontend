@@ -6,12 +6,12 @@ export class CreateClientTracker {
         {
             ruc = "",
             password = "",
-            executiveName = "",
+            companyName = "",
         } = {}
     ) {
         this.ruc = ruc;
         this.password = password;
-        this.executiveName = executiveName;
+        this.companyName = companyName;
     }
 
 }

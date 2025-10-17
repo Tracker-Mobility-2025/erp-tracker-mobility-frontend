@@ -69,7 +69,7 @@ export default {
 
     isFormValid() {
       const rucValid = this.clientEntity.ruc && this.isValidruc(this.clientEntity.ruc);
-      const executiveNameValid = this.clientEntity.companyName && this.isValidcompanyName(this.clientEntity.companyName);
+      const companyNameValid = this.clientEntity.companyName && this.isValidcompanyName(this.clientEntity.companyName);
       
       // Password validation logic:
       // - Creating new client: password is required
