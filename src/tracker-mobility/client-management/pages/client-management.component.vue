@@ -470,7 +470,7 @@ export default {
 
             <!-- Información del cliente -->
             <div class="mb-4">
-              <h4 class="text-lg font-bold text-900 mb-2 line-height-3">{{ client.executiveName }}</h4>
+              <h4 class="text-lg font-bold text-900 mb-2 line-height-3">{{ client.companyName }}</h4>
               <div class="flex flex-column gap-2">
                 <div class="flex align-items-center gap-2">
                   <i class="pi pi-id-card text-500"></i>

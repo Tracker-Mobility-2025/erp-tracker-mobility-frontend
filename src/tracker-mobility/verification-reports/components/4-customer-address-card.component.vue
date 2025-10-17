@@ -32,7 +32,7 @@ export default {
       <div class="formgrid grid">
         <!-- Fila 1: Departamento, Provincia, Distrito y un campo adicional (si se agrega en el futuro) -->
         <!-- Departamento -->
-        <div class="field col-12 md:col-3">
+        <div class="field col-12 md:col-4">
           <label class="font-semibold text-color-secondary flex align-items-center gap-2">
             <i class="pi pi-map text-primary"></i>
             Departamento:
@@ -43,7 +43,7 @@ export default {
         </div>
         
         <!-- Provincia -->
-        <div class="field col-12 md:col-3">
+        <div class="field col-12 md:col-4">
           <label class="font-semibold text-color-secondary flex align-items-center gap-2">
             <i class="pi pi-map text-primary"></i>
             Provincia:
@@ -54,7 +54,7 @@ export default {
         </div>
         
         <!-- Distrito -->
-        <div class="field col-12 md:col-3">
+        <div class="field col-12 md:col-4">
           <label class="font-semibold text-color-secondary flex align-items-center gap-2">
             <i class="pi pi-map text-primary"></i>
             Distrito:
@@ -65,7 +65,7 @@ export default {
         </div>
         
         <!-- Cuarta columna: Dirección completa -->
-        <div class="field col-12 md:col-3">
+        <div class="field col-12 md:col-12">
           <label class="font-semibold text-color-secondary flex align-items-center gap-2">
             <i class="pi pi-map-marker text-primary"></i>
             Dirección completa:

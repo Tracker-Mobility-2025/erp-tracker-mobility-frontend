@@ -72,7 +72,7 @@ export default {
         businessName: this.effectiveItem?.order?.applicantCompany?.companyName || 'No especificado',
         ruc: this.effectiveItem?.order?.applicantCompany?.ruc || 'No especificado',
         requestDate: this.formatDate(this.effectiveItem?.order?.requestDate) || 'No especificada',
-        result: this.effectiveItem?.finalResult || 'PENDIENTE'
+        executiveName: this.effectiveItem?.order?.applicantCompany?.executiveName || 'No especificado'
       };
     },
 
@@ -141,8 +141,8 @@ export default {
       return {
         fullName: landlord?.fullName || 'No especificado',
         contactNumber: landlord?.phoneNumber || 'No especificado',
-        documentNumber: 'No disponible en API',
-        documentType: 'No disponible en API'
+        documentNumber: 'No disponible',
+        documentType: 'No disponible'
       };
     },
 
@@ -556,21 +556,21 @@ export default {
     <!-- Tarjetas de información del reporte de verificación -->
     <div class="flex flex-column pb-4 gap-4 mt-4">
       <!-- Primera sección: Detalles de la visita -->
-      <VisitDetailsCard :item="visitDetails" />
+      <VisitDetailsCard :item="visitDetails" :result="effectiveItem?.finalResult || 'PENDIENTE'"/>
       
-      <!-- Segunda sección: Datos del solicitante y del cliente -->
+      <!-- Segunda sección: Datos del solicitante (ocupa todo el ancho) -->
+      <ApplicantDataCard :item="applicantData" />
+      
+      <!-- Tercera sección: Datos del cliente y Domicilio del cliente (lado a lado) -->
       <div class="grid">
-        <div class="col-12 lg:col-6">
-          <ApplicantDataCard :item="applicantData" />
-        </div>
-        
         <div class="col-12 lg:col-6">
           <CustomerDataCard :item="customerData" />
         </div>
+        
+        <div class="col-12 lg:col-6">
+          <CustomerAddressCard :item="customerAddress" />
+        </div>
       </div>
-      
-      <!-- Tercera sección: Domicilio del cliente -->
-      <CustomerAddressCard :item="customerAddress" />
       
       <!-- ============== SECCIÓN: Detalles de la entrevista con el cliente ============== -->
       <div class="section-separator">

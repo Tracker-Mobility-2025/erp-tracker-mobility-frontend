@@ -44,7 +44,7 @@ export default {
       
       <div class="formgrid grid">
         <!-- Nombre completo -->
-        <div class="field col-12 md:col-6">
+        <div class="field col-12 md:col-4">
           <label class="font-semibold text-color-secondary flex align-items-center gap-2">
             <i class="pi pi-user text-primary"></i>
             Nombre completo
@@ -55,7 +55,7 @@ export default {
         </div>
         
         <!-- Entrevistado -->
-        <div class="field col-12 md:col-6">
+        <div class="field col-12 md:col-4">
           <label class="font-semibold text-color-secondary flex align-items-center gap-2">
             <i class="pi pi-comments text-primary"></i>
             Entrevistado

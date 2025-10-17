@@ -13,6 +13,24 @@ export default {
         verificationDate: '10/09/2025'
       })
     },
+    // Resultado de la verificación (string)
+    result: {
+      type: String,
+      required: false,
+      default: 'Pendiente'
+    }
+  },
+
+  computed: {
+    resultClass() {
+      const result = this.result?.toLowerCase();
+      return {
+        'text-green-700 bg-green-100': result === 'conforme',
+        'text-yellow-700 bg-yellow-100': result === 'observado',
+        'text-red-700 bg-red-100': result === 'rechazado',
+        'text-blue-700 bg-blue-100': result === 'pendiente'
+      };
+    }
   },
 
   methods: {
@@ -37,9 +55,9 @@ export default {
     </template>
     <template #content>
       
-      <div class="formgrid grid">
+      <div class="formgrid grid w-full">
         <!-- Verificador -->
-        <div class="field col-12 md:col-4">
+        <div class="field col-12 md:col-3">
           <label class="font-semibold text-color-secondary flex align-items-center gap-2">
             <i class="pi pi-user text-primary"></i>
             Verificador
@@ -71,13 +89,28 @@ export default {
         </div>
         
         <!-- Fecha de verificación -->
-        <div class="field col-12 md:col-4">
+        <div class="field col-12 md:col-3 ">
           <label class="font-semibold text-color-secondary flex align-items-center gap-2">
             <i class="pi pi-calendar text-primary"></i>
             Fecha de verificación
           </label>
           <p class="font-semibold text-dark m-0">
             {{ item?.verificationDate || 'No especificado' }}
+          </p>
+        </div>
+        
+        <!-- Resultado -->
+        <div class="field col-12 md:col-2 ">
+          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <i class="pi pi-check-circle text-primary"></i>
+            Resultado
+          </label>
+          <p class="font-semibold text-dark m-0">
+            <span 
+              :class="[resultClass, 'px-2 py-1 border-round text-sm font-semibold']"
+            >
+              {{ result || 'No especificado' }}
+            </span>
           </p>
         </div>
       </div>
