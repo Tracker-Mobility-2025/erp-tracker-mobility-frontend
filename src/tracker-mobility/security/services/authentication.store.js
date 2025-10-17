@@ -188,7 +188,7 @@ export const useAuthenticationStore = defineStore('authentication', {
                 return {
                     error: true,
                     type: 'unauthorized-role',
-                    message: `Su rol "${userRole}" no tiene permisos para acceder al sistema. Solo usuarios ADMIN y COMPANY_EMPLOYEE pueden ingresar.`
+                    message: `Su rol no tiene permisos para acceder al sistema.`
                 };
             }
             

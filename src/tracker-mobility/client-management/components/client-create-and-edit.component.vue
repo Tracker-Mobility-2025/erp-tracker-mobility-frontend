@@ -25,7 +25,7 @@ export default {
       if (newValue && this.edit && this.item) {
         this.clientEntity = {
           ruc: this.item.ruc || '',
-          executiveName: this.item.executiveName || '',
+          companyName: this.item.companyName || '',
           password: '', // No cargar password existente por seguridad
           status: this.item.status || 'ACTIVE'
         };
@@ -69,7 +69,7 @@ export default {
 
     isFormValid() {
       const rucValid = this.clientEntity.ruc && this.isValidruc(this.clientEntity.ruc);
-      const executiveNameValid = this.clientEntity.executiveName && this.isValidexecutiveName(this.clientEntity.executiveName);
+      const executiveNameValid = this.clientEntity.companyName && this.isValidcompanyName(this.clientEntity.companyName);
       
       // Password validation logic:
       // - Creating new client: password is required
@@ -83,7 +83,7 @@ export default {
         passwordValid = !this.clientEntity.password || this.isValidPassword(this.clientEntity.password);
       }
       
-      return rucValid && executiveNameValid && passwordValid;
+      return rucValid && companyNameValid && passwordValid;
     },
 
     isValidruc(ruc) {
@@ -92,7 +92,7 @@ export default {
       return rucRegex.test(ruc);
     },
 
-    isValidexecutiveName(name) {
+    isValidcompanyName(name) {
       // Al menos 2 caracteres, permitir letras, números, espacios y algunos caracteres especiales
       const nameRegex = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\.\-&]{2,}$/;
       return nameRegex.test(name.trim());
@@ -107,7 +107,7 @@ export default {
     resetForm() {
       this.clientEntity = {
         ruc: '',
-        executiveName: '',
+        companyName: '',
         password: '',
         role: 'CLIENTE',
         status: 'ACTIVE'
@@ -170,23 +170,23 @@ export default {
         <!-- ======== Fila 2: Nombre de la empresa ======== -->
         <div class="col-12 px-2 pb-1">
           <div class="field">
-            <label for="executiveName" class="block text-900 font-medium mb-2">
+            <label for="companyName" class="block text-900 font-medium mb-2">
               <i class="pi pi-building mr-2"></i>Nombre de la empresa *
             </label>
             <pv-input-text
-                id="executiveName"
-                v-model="clientEntity.executiveName"
+                id="companyName"
+                v-model="clientEntity.companyName"
                 class="w-full"
                 size="small"
                 placeholder="Ingrese el nombre de la empresa"
-                :aria-invalid="submitted && (!clientEntity.executiveName || !isValidexecutiveName(clientEntity.executiveName))"
-                aria-describedby="executiveName-error"
-                :class="{ 'p-invalid': submitted && (!clientEntity.executiveName || !isValidexecutiveName(clientEntity.executiveName)) }"
+                :aria-invalid="submitted && (!clientEntity.companyName || !isValidcompanyName(clientEntity.companyName))"
+                aria-describedby="companyName-error"
+                :class="{ 'p-invalid': submitted && (!clientEntity.companyName || !isValidcompanyName(clientEntity.companyName)) }"
             />
-            <small v-if="submitted && !clientEntity.executiveName" class="p-error">
+            <small v-if="submitted && !clientEntity.companyName" class="p-error">
               El nombre de la empresa es requerido
             </small>
-            <small v-else-if="submitted && clientEntity.executiveName && !isValidexecutiveName(clientEntity.executiveName)"
+            <small v-else-if="submitted && clientEntity.companyName && !isValidcompanyName(clientEntity.companyName)"
                    class="p-error">
               El nombre debe tener al menos 2 caracteres y contener solo letras, números y caracteres básicos
             </small>

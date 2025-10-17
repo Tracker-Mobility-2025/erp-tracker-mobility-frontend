@@ -96,7 +96,7 @@ export default {
   },
 
   mounted() {
-    // 🔒 Mostrar mensaje si viene de acceso denegado
+    // Mostrar mensaje si viene de acceso denegado
     if (this.$route.query.error === 'access-denied') {
       this.showToast({
         severity: 'warn',
@@ -109,7 +109,7 @@ export default {
       this.$router.replace({ name: 'sign-in' });
     }
     
-    // ⚠️ Mostrar mensaje si el rol no está autorizado
+    // Mostrar mensaje si el rol no está autorizado
     if (this.$route.query.error === 'unauthorized-role') {
       this.showToast({
         severity: 'error',
