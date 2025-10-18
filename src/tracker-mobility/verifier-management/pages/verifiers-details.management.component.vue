@@ -243,6 +243,8 @@ export default {
 <template>
 
   <!-- dialogo de confirmación -->
+  <pv-confirm-dialog/>
+  <pv-toast/>
 
 
   <!-- Detalles de la orden de servicio (se divide en cards tipo grid)-->

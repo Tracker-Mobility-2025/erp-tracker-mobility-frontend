@@ -69,7 +69,7 @@ export default {
         // Normalizar el término de búsqueda: quitar espacios extra y convertir a minúsculas
         const searchLower = this.search.toLowerCase().trim().replace(/\s+/g, ' ');
         filtered = filtered.filter(client =>
-          (client.RUC && client.RUC.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchLower)) ||
+          (client.ruc && client.ruc.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchLower)) ||
           (client.companyName && client.companyName.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchLower)) ||
           (client.status && client.status.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchLower))
         );
