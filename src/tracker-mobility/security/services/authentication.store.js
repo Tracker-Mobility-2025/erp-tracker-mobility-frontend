@@ -74,7 +74,7 @@ export const useAuthenticationStore = defineStore('authentication', {
 
                 console.log("✔ Login completo:", signInResponse);
 
-                // 🎯 Redirección inteligente basada en rol
+                // Redirección inteligente basada en rol
                 const redirectResult = this.redirectAfterLogin(router, signInResponse.role);
                 
                 // Si hubo error de rol no autorizado, propagar el error
@@ -85,7 +85,7 @@ export const useAuthenticationStore = defineStore('authentication', {
                 return signInResponse;
             } catch (error) {
                 this.signedIn = false;
-                console.error("❌ Error durante el login:", error);
+                console.error("Error durante el login:", error);
                 
                 // Propagar el error al componente
                 throw error;

@@ -171,38 +171,6 @@ const router = createRouter({
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        /*
-        {path: '/elixir-line/sign-up', name: 'sign-up', component: SignUpComponent, meta: { title: 'Sign Up'}},
-
-
-        //ruta para la página de inicio home-elixir line
-        {
-            path: '/elixir-line/:id', name: 'ElixirLineHome', component: LayoutElixirLineComponent,
-            children:[
-                {path: 'vinicultor/winemaking', name: 'WinemakingProcess', component: TabsWinemakingViewComponent,     meta: { title: 'Winemaking' }},
-                {path:'vinicultor/supplies', name: 'SuppliesManagement', component: SupplyManagement, meta: { title: 'Supplies' }},
-                {path: 'vinicultor/profile/settings', name: 'ProfileSettings', component: ProfileViewsConfigurationComponent, meta: { title: 'Profile Settings'}},
-
-            ], meta: { title: 'Wine Batches' },
-
-        },
-        */
-
         // Ruta catch-all DEBE estar al final para no interceptar otras rutas
         {path: '/:pathMatch(.*)*', redirect: '/tracker-mobility/sign-in'}
 

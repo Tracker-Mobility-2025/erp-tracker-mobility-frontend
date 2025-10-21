@@ -38,7 +38,7 @@ export const authenticationGuard = (to, from, next) => {
         if (store.isSignedIn) {
             const authorizedRoles = ['ADMIN', 'COMPANY_EMPLOYEE'];
             if (!authorizedRoles.includes(store.currentRole)) {
-                console.error(`❌ [GUARD] Rol no autorizado detectado: ${store.currentRole}`);
+                console.error(`[GUARD] Rol no autorizado detectado: ${store.currentRole}`);
                 // Cerrar sesión y redirigir
                 store.signOut({ push: () => {} }); // Mock router para signOut
                 return next({ 
