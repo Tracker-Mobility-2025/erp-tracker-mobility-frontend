@@ -1,5 +1,7 @@
 <script>
 
+import {useAuthenticationStore} from "../../tracker-mobility/security/services/authentication.store.js";
+
 export default {
 
   name: 'Sidebar-tracker-mobility',
@@ -14,18 +16,35 @@ export default {
   computed: {
     items() {
       return [
-        { label: 'Dashboard', icon: 'pi pi-fw pi-chart-line', to: `/tracker-mobility/admin/dashboard` },
-        { label: 'Ordenes', icon: 'pi pi-fw pi-file-edit', to: `/tracker-mobility/admin/service-orders` },
-        { label: 'Verificadores', icon: 'pi pi-fw pi-users', to: `/tracker-mobility/admin/verifiers` },
-        { label: 'Reportes', icon: 'pi pi-fw pi-chart-bar', to: `/tracker-mobility/admin/verification-reports` },
-        { label: 'Clientes', icon: 'pi pi-fw pi-user', to: `/tracker-mobility/admin/clients` },
+        { role: 'COMPANY_EMPLOYEE', label: 'Nueva Orden', icon: 'pi pi-fw pi-plus-circle', to: `/tracker-mobility/applicant-company/management-request-form` },
+        { role: 'COMPANY_EMPLOYEE', label: 'Mis Órdenes', icon: 'pi pi-fw pi-file-edit', to: `/tracker-mobility/applicant-company/my-service-orders` },
+        { role: 'ADMIN', label: 'Dashboard', icon: 'pi pi-fw pi-chart-line', to: `/tracker-mobility/admin/dashboard` },
+        { role: 'ADMIN', label: 'Órdenes', icon: 'pi pi-fw pi-file-edit', to: `/tracker-mobility/admin/service-orders` },
+        { role: 'ADMIN', label: 'Verificadores', icon: 'pi pi-fw pi-users', to: `/tracker-mobility/admin/verifiers` },
+        { role: 'ADMIN', label: 'Reportes', icon: 'pi pi-fw pi-chart-bar', to: `/tracker-mobility/admin/verification-reports` },
+        { role: 'ADMIN', label: 'Clientes', icon: 'pi pi-fw pi-user', to: `/tracker-mobility/admin/clients` },
       ];
+    },
+
+    currentUser() {
+      const authStore = useAuthenticationStore();
+      return {
+        username: authStore.currentUsername,
+        role: authStore.currentRole,
+        isSignedIn: authStore.isSignedIn
+      };
+    },
+
+    filteredItems() {
+      if (!this.currentUser.isSignedIn) return [];
+      return this.items.filter(i => i.role === this.currentUser.role);
     }
   },
 
   created() {
     console.log('Sidebar creado de manera exitosa');
   }
+
 
 }
 
@@ -47,7 +66,7 @@ export default {
         <nav class="sidebar-nav">
           <ul class="sidebar-menu">
             <li
-              v-for="item in items"
+              v-for="item in filteredItems"
               :key="item.label"
               class="sidebar-item"
             >

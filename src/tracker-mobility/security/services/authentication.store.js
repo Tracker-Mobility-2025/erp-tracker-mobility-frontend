@@ -166,7 +166,7 @@ export const useAuthenticationStore = defineStore('authentication', {
             // Definir rutas por defecto según rol
             const defaultRoutesByRole = {
                 'ADMIN': '/tracker-mobility/admin/dashboard',
-                'COMPANY_EMPLOYEE': '/tracker-mobility/service-request/customer-data'
+                'COMPANY_EMPLOYEE': '/tracker-mobility/applicant-company/management-request-form'
             };
             
             // ⚠️ Verificar que el rol está autorizado para hacer login

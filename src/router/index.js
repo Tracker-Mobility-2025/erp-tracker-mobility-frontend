@@ -10,14 +10,6 @@ import SignInComponent from "../tracker-mobility/security/pages/sign-in.componen
 import LayoutTrackerMobilityComponent from "../public/pages/layout-tracker-mobility.component.vue";
 import VerifiersDetailsManagementComponent
     from "../tracker-mobility/verifier-management/pages/verifiers-details.management.component.vue";
-import ManagementRequestsHomeVisitOrdersComponent
-    from "../client-tracker-mobility/order-request/pages/management-requests-home-visit-orders.component.vue";
-import CustomerDataFormComponent
-    from "../client-tracker-mobility/order-request/components/2-customer-data-form.component.vue";
-import SupportDocsAndLandlordFormComponent
-    from "../client-tracker-mobility/order-request/components/3-support-docs-and-landlord-form.component.vue";
-import ResumenServiceOrderComponent
-    from "../client-tracker-mobility/order-request/components/4-resumen-service-order.component.vue";
 import DetailsHomeVerificationReportComponent
     from "../tracker-mobility/verification-reports/pages/details-home-verification-report.component.vue";
 import DashboardManagementComponent from "../tracker-mobility/dashboard/pages/dashboard-management.component.vue";
@@ -25,6 +17,10 @@ import ClientManagementComponent from "../tracker-mobility/client-management/pag
 import ClientDetailsManagementComponent
     from "../tracker-mobility/client-management/pages/client-details-management.component.vue";
 import {authenticationGuard} from "../tracker-mobility/security/services/authentication.guard.js";
+import ManagementRequestOrderComponent
+    from "../client-tracker-mobility/order-request/pages/management-request-order.component.vue";
+import ManagementRequestFormComponent
+    from "../client-tracker-mobility/order-request/pages/management-request-form.component.vue";
 
 
 
@@ -41,18 +37,41 @@ const router = createRouter({
             component: LayoutTrackerMobilityComponent, 
             meta: {
                 title: 'Tracker Mobility',
-                roles: ['ADMIN'] // Solo ADMIN puede acceder a TODA esta sección
+                roles: ['ADMIN', 'COMPANY_EMPLOYEE'] // Ambos roles pueden acceder al layout
             },
             children: [
 
-                // Rutas de administración de órdenes de servicio
+                // Ruta por defecto al entrar en /tracker-mobility (redirige según el rol)
+                {
+                    path: '',
+                    redirect: () => {
+                        // Esta redirección se maneja en el guard de autenticación
+                        return { name: 'dashboard' };
+                    }
+                },
+
+                // ============== Rutas de ADMIN ==============
                 //========================================================
+
+                // Dashboard
+                {
+                    path: 'admin/dashboard',
+                    name: 'dashboard',
+                    component: DashboardManagementComponent,
+                    meta: {
+                        title: 'Dashboard',
+                        roles: ['ADMIN']
+                    }
+                },
+
+                // Órdenes de servicio
                 {
                     path: 'admin/service-orders',
                     name: 'service-orders',
                     component: ServiceOrderManagementComponent,
                     meta: {
                         title: 'Ordenes de servicio',
+                        roles: ['ADMIN']
                     }
                 },
                 {
@@ -61,19 +80,18 @@ const router = createRouter({
                     component: OrderDetailManagementComponent,
                     meta: {
                         title: 'Detalles de la orden',
+                        roles: ['ADMIN']
                     }
                 },
-                //========================================================
 
-
-                // Rutas de administración de verificadores
-                //========================================================
+                // Verificadores
                 {
                     path: 'admin/verifiers',
                     name: 'verifiers',
                     component: VerifiersManagementComponent,
                     meta: {
                         title: 'Verificadores',
+                        roles: ['ADMIN']
                     }
                 },
                 {
@@ -82,19 +100,18 @@ const router = createRouter({
                     component: VerifiersDetailsManagementComponent,
                     meta: {
                         title: 'Detalles del verificador',
+                        roles: ['ADMIN']
                     }
                 },
-                //========================================================
 
-
-                // Rutas de administración de reportes de verificación
-                //========================================================
+                // Reportes de verificación
                 {
                     path: 'admin/verification-reports',
                     name: 'verification-reports',
                     component: VerificationReportsManagementComponent,
                     meta: {
                         title: 'Reportes de verificación',
+                        roles: ['ADMIN']
                     }
                 },
                 {
@@ -103,35 +120,18 @@ const router = createRouter({
                     component: DetailsHomeVerificationReportComponent,
                     meta: {
                         title: 'Detalles del reporte de verificación',
-                    }
-                },
-                //========================================================
-
-
-                // Rutas de dashboard (por implementar)
-                //========================================================
-                {
-                    path: 'admin/dashboard',
-                    name: 'dashboard',
-                    component: DashboardManagementComponent,
-                    meta: {
-                        title: 'Dashboard',
+                        roles: ['ADMIN']
                     }
                 },
 
-
-                //========================================================
-
-
-
-                // Rutas de administración de clientes (por implementar)
-                //========================================================
+                // Clientes
                 {
                     path: 'admin/clients',
                     name: 'clients',
                     component: ClientManagementComponent,
                     meta: {
                         title: 'Clientes',
+                        roles: ['ADMIN']
                     }
                 },
                 {
@@ -140,33 +140,42 @@ const router = createRouter({
                     component: ClientDetailsManagementComponent,
                     meta: {
                         title: 'Detalle del cliente',
+                        roles: ['ADMIN']
+                    }
+                },
+
+                //========================================================
+
+
+                // ============== Rutas de COMPANY_EMPLOYEE ==============
+                //========================================================
+
+                // Solicitar nueva orden de visita domiciliaria
+                {
+                    path: 'applicant-company/management-request-form',
+                    name: 'management-requests-form',
+                    component: ManagementRequestFormComponent,
+                    meta: {
+                        title: 'Solicitud de visita domiciliaria',
+                        roles: ['COMPANY_EMPLOYEE']
+                    }
+                },
+
+                // Mis órdenes
+                {
+                    path: 'applicant-company/my-service-orders',
+                    name: 'my-service-orders',
+                    component: ManagementRequestOrderComponent,
+                    meta: {
+                        title: 'Mis Órdenes',
+                        roles: ['COMPANY_EMPLOYEE']
                     }
                 }
 
                 //========================================================
 
-
             ]
 
-        },
-
-
-
-
-        // ============== Rutas del formulario de solicitud de visita domiciliaria ==============
-        {
-            path: '/tracker-mobility/service-request', 
-            name: 'service-request', 
-            component: ManagementRequestsHomeVisitOrdersComponent, 
-            meta: {
-                title: 'Solicitar visita domiciliaria',
-                roles: ['COMPANY_EMPLOYEE'] // Solo empleados de empresa pueden acceder
-            },
-            children: [
-                {path: 'customer-data', name: 'customer-data', component: CustomerDataFormComponent, meta: {title: 'Cliente'}},
-                {path: 'documentation-upload', name: 'documentation-upload', component: SupportDocsAndLandlordFormComponent, meta: {title: 'Documentación'}},
-                {path: 'visit-request/confirmation', name: 'confirmation', component: ResumenServiceOrderComponent, meta: {title: 'Confirmación'}},
-            ]
         },
 
 
