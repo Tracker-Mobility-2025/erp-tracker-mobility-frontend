@@ -195,8 +195,8 @@ export default {
 
       this.resetInjectedData();
       
-      // Redirigir a la primera vista del formulario para nuevo cliente
-      this.$router.push({ name: 'customer-data' });
+      // Emitir evento al padre para que maneje el reinicio
+      this.$emit('finish');
     },
 
     resetInjectedData() {

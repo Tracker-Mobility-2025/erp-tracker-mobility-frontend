@@ -248,28 +248,22 @@ export default {
     },
 
     confirmCancel() {
-      // Limpiar datos del localStorage
-      localStorage.removeItem('client');
-      localStorage.removeItem('applicantCompany');
-      localStorage.removeItem('orderCreated');
-      localStorage.removeItem('orderNumber');
-      localStorage.removeItem('orderData');
-      
-      // Resetear los providers inyectados solo si no se ha creado una solicitud exitosa
-      if (!this.isRequestCreated) {
-        this.resetProvidersForNewRequest();
-      }
-      
+      // Cerrar el diálogo
       this.showCancelDialog = false;
-      // Redirigir a la primera vista del formulario
-      this.$router.push({ name: 'customer-data' });
+      
+      // Emitir evento al componente padre para que maneje la cancelación
+      // El padre se encargará de limpiar los datos y volver al paso inicial
+      this.$emit('cancel');
     },
 
     cancelCancel() {
       this.showCancelDialog = false;
     },
 
-    onBack(){ this.$router.back(); },
+    onBack() {
+      // Emitir evento para que el componente padre maneje la navegación
+      this.$emit('back');
+    },
 
     async onSubmit(){
       this.showValidation = true;
@@ -290,9 +284,9 @@ export default {
       // Crear la solicitud directamente con los datos del cliente
       const success = await this.createRequest();
 
-      if (success) {
-        // Navegar al resumen con los datos de la orden creada usando provide/inject
-        this.$router.push({ name: 'confirmation' });
+      if (success && this.orderResponse) {
+        // Emitir evento al componente padre con los datos de la orden creada
+        this.$emit('complete', this.orderResponse);
       }
     },
 
@@ -346,32 +340,9 @@ export default {
         this.isRequestCreated = true;
         this.orderResponse = response.data; // Ya es una instancia de OrderResponse
         
-        // Actualizar la orderResponse en el componente padre
-        // Buscar el componente padre que tiene la propiedad orderResponse
-        let parent = this.$parent;
-        let maxDepth = 5; // Limitar la búsqueda para evitar bucles infinitos
-        let currentDepth = 0;
-        
-        while (parent && !('orderResponse' in parent) && currentDepth < maxDepth) {
-          parent = parent.$parent;
-          currentDepth++;
-        }
-        
-        if (parent && ('orderResponse' in parent)) {
-          parent.orderResponse = this.orderResponse;
-        }
-        
-        // Guardar datos en localStorage como fallback
-        localStorage.setItem('orderCreated', 'true');
-        localStorage.setItem('orderNumber', this.orderResponse.orderCode);
-        localStorage.setItem('orderData', JSON.stringify(this.orderResponse));
-        
         // Mostrar toast de éxito
         this.showToast('success', 'Solicitud Creada', 
           `Solicitud creada exitosamente. Código: ${this.orderResponse.orderCode}`);
-
-        // NO resetear providers aquí - se hará en el componente de resumen al finalizar
-        // this.resetProvidersForNewRequest();
 
         return true;
 
@@ -389,43 +360,6 @@ export default {
     },
 
     // Método para resetear los providers después de enviar la solicitud
-    resetProvidersForNewRequest() {
-      // Buscar el componente padre que provee los datos
-      let parent = this.$parent;
-      let maxDepth = 10;
-      let currentDepth = 0;
-      
-      while (parent && currentDepth < maxDepth) {
-        // Buscar el componente que tiene las instancias de client y applicantCompany
-        if (parent.client && parent.applicantCompany && 
-            typeof parent.client === 'object' && 
-            typeof parent.applicantCompany === 'object') {
-          
-          // Crear nuevas instancias para la próxima solicitud
-          setTimeout(() => {
-            // Importar las clases para reinicializar
-            import('../models/client.entity.js').then(({ Client }) => {
-              parent.client = new Client();
-            });
-            
-            import('../models/applicant-company.entity.js').then(({ ApplicantCompany }) => {
-              parent.applicantCompany = new ApplicantCompany({});
-            });
-            
-            // Limpiar también orderResponse si existe (excepto la actual que se mostrará en el resumen)
-            // No limpiamos parent.orderResponse aquí porque se necesita para el resumen
-            
-          }, 100); // Pequeño delay pour asegurar que la navegación se complete primero
-          
-          break;
-        }
-        parent = parent.$parent;
-        currentDepth++;
-      }
-    },
-
-
-
   },
 
   created() {
@@ -440,15 +374,15 @@ export default {
 
 <template>
   <pv-dialog></pv-dialog>
-  <div class="page-container">
-    <div class="form-wrapper p-4">
-      <form class="grid formgrid p-fluid" @submit.prevent="onSubmit" @keydown.enter.prevent>
+  <div class="flex justify-content-center w-full">
+    <div class="form-wrapper p-3 w-full" style="max-width: 1200px;">
+      <form class="formgrid grid p-fluid compact-form" @submit.prevent="onSubmit" @keydown.enter.prevent>
 
         <!-- ===== Documentación de respaldo ===== -->
         <div class="col-12">
-          <div class="section-title">
-            <i class="pi pi-folder"></i>
-            <h2>{{ supportDocsContent.title }}</h2>
+          <div class="flex align-items-center gap-2 mb-2">
+            <i class="pi pi-folder text-lg text-primary-local"></i>
+            <h2 class="m-0 text-lg font-semibold text-primary-local">{{ supportDocsContent.title }}</h2>
           </div>
         </div>
 
@@ -478,8 +412,10 @@ export default {
             @file-removed="onReciboRemoved"
             @validation-error="onReciboValidationError"
           />
-          <small v-if="(touched.reciboServicio || showValidation) && fieldErrors.reciboServicio"
-                 class="text-red-500">{{ fieldErrors.reciboServicio }}</small>
+          <div class="error-container">
+            <small v-if="(touched.reciboServicio || showValidation) && fieldErrors.reciboServicio"
+                   class="error-message">{{ fieldErrors.reciboServicio }}</small>
+          </div>
         </div>
 
 
@@ -509,8 +445,10 @@ export default {
             @file-removed="onIdentidadRemoved"
             @validation-error="onIdentidadValidationError"
           />
-          <small v-if="(touched.documentoIdentidad || showValidation) && fieldErrors.documentoIdentidad"
-                 class="text-red-500">{{ fieldErrors.documentoIdentidad }}</small>
+          <div class="error-container">
+            <small v-if="(touched.documentoIdentidad || showValidation) && fieldErrors.documentoIdentidad"
+                   class="error-message">{{ fieldErrors.documentoIdentidad }}</small>
+          </div>
         </div>
 
         <!-- ¿Es inquilino? -->
@@ -520,84 +458,92 @@ export default {
                 inputId="es-inquilino"
                 v-model="client.isTenant"
             />
-            <label for="es-inquilino" class="font-medium">{{ supportDocsContent.esInquilino }}</label>
+            <label for="es-inquilino" class="font-medium text-color cursor-pointer text-sm">{{ supportDocsContent.esInquilino }}</label>
           </div>
         </div>
 
-        <div class="col-12"><hr class="divider" /></div>
+        <div class="col-12"><hr class="m-0 surface-border" /></div>
 
         <!-- ===== Datos del arrendador ===== -->
         <template v-if="isTenant">
           <div class="col-12">
-            <div class="section-title">
-              <i class="pi pi-building"></i>
-              <h2>{{ landlordContent.title }}</h2>
+            <div class="flex align-items-center gap-2 mb-2 mt-1">
+              <i class="pi pi-building text-lg text-primary-local"></i>
+              <h2 class="m-0 text-lg font-semibold text-primary-local">{{ landlordContent.title }}</h2>
             </div>
           </div>
 
           <!-- Nombres -->
           <div class="field col-12 md:col-6">
-            <label for="land-nombres" class="font-medium">
+            <label for="land-nombres" class="block mb-1 font-medium text-color text-sm">
               {{ landlordContent.nombres }} <span class="text-red-500">*</span>
             </label>
             <pv-input-text
                 id="land-nombres"
                 v-model="client.landlordName"
                 :placeholder="landlordContent.nombresPlaceholder"
-                class="w-full"
+                class="w-full input-compact"
                 :aria-required="true"
                 :aria-invalid="!!fieldErrors.nombres"
                 :aria-describedby="fieldErrors.nombres ? 'err-land-nombres' : null"
                 @blur="onFieldBlur('nombres')"
             />
-            <small v-if="(touched.nombres || showValidation) && fieldErrors.nombres" id="err-land-nombres" class="text-red-500">
-              {{ fieldErrors.nombres }}
-            </small>
+            <div class="error-container">
+              <small v-if="(touched.nombres || showValidation) && fieldErrors.nombres" id="err-land-nombres" class="error-message">
+                {{ fieldErrors.nombres }}
+              </small>
+            </div>
           </div>
 
           <!-- Teléfono -->
           <div class="field col-12 md:col-6">
-            <label for="land-telefono" class="font-medium">
+            <label for="land-telefono" class="block mb-1 font-medium text-color text-sm">
               {{ landlordContent.numeroContacto }} <span class="text-red-500">*</span>
             </label>
-            <pv-icon-field iconPosition="left" class="w-full">
+            <pv-icon-field class="w-full">
               <pv-input-icon class="pi pi-phone" />
               <pv-input-mask
                   id="land-telefono"
                   v-model="client.landlordPhoneNumber"
                   mask="999 999 999"
                   :placeholder="landlordContent.telefonoPlaceholder"
-                  class="w-full"
+                  class="w-full input-compact"
                   :aria-required="true"
                   :aria-invalid="!!fieldErrors.numeroContacto"
                   :aria-describedby="fieldErrors.numeroContacto ? 'err-land-telefono' : null"
                   @blur="onFieldBlur('numeroContacto')"
               />
             </pv-icon-field>
-            <small v-if="(touched.numeroContacto || showValidation) && fieldErrors.numeroContacto" id="err-land-telefono" class="text-red-500">
-              {{ fieldErrors.numeroContacto }}
-            </small>
+            <div class="error-container">
+              <small v-if="(touched.numeroContacto || showValidation) && fieldErrors.numeroContacto" id="err-land-telefono" class="error-message">
+                {{ fieldErrors.numeroContacto }}
+              </small>
+            </div>
           </div>
         </template>
 
         <!-- ===== Botones ===== -->
-        <div class="col-12 flex justify-content-between gap-2 mt-2">
+        <div class="col-12 flex justify-content-between align-items-center gap-2 mt-2">
           <!-- Botón Cancelar (lado izquierdo) -->
-          <div>
-            <pv-button class="pl-4 pr-4 button-cancel" :label="actionsContent.cancelar" severity="secondary" outlined @click="onCancel"/>
-          </div>
+          <pv-button 
+              class="px-4 py-2 button-cancel" 
+              :label="actionsContent.cancelar" 
+              severity="secondary" 
+              outlined 
+              @click="onCancel"
+          />
 
           <!-- Botones lado derecho -->
           <div class="flex gap-2">
             <pv-button 
-              class="pl-4 pr-4 button-back" 
+              class="px-4 py-2 button-back" 
               :label="actionsContent.regresar" 
               severity="secondary" 
               :disabled="isCreatingRequest"
               @click="onBack"
             />
             <pv-button 
-              class="pl-4 pr-4 button-submit" 
+              class="px-4 py-2 button-submit" 
               :label="isCreatingRequest ? 'Enviando...' : actionsContent.enviarSolicitud" 
               :icon="isCreatingRequest ? 'pi pi-spin pi-spinner' : 'pi pi-send'"
               type="submit" 
@@ -682,92 +628,113 @@ export default {
 </template>
 
 <style scoped>
-
-.page-container{
-  display:flex;
-  width:100%;
-  justify-content:center;
-  align-items:flex-start;
+.form-wrapper {
+  background: var(--color-white);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
 }
 
-.form-wrapper{
-  display:flex;
-  flex-direction:column;
-  width:100%;
-  max-width:1100px;
-  background:#fff;
-  border-radius:12px;
-  box-shadow:0 2px 8px rgba(0,0,0,.1);
+.compact-form {
+  row-gap: 0.5rem;
 }
 
-.formgrid{ row-gap:1rem; }
-.field{ margin-bottom:0; }
-
-.section-title{
-  display:flex; align-items:center; gap:.5rem;
-  margin:.25rem 0 1rem 0;
-}
-.section-title i{ font-size:1.25rem; color:#2E3DB4; }
-.section-title h2{ margin:0; font-size:1.35rem; font-weight:600; }
-
-.divider{
-  border:0; border-top:1px solid #E5E7EB; margin: .5rem 0 1rem 0;
+.formgrid {
+  row-gap: 0.5rem;
 }
 
-/* Inputs */
-.p-inputtext, .p-inputmask, .p-dropdown, .p-select, .p-multiselect, .p-inputtextarea {
-  background-color:transparent !important;
-  color:#000 !important;
-  border:1.5px solid var(--color-text-gray, #d1d5db) !important;
+.field {
+  margin-bottom: 0;
 }
 
-/* Estilo de los botones */
+/* Inputs más compactos */
+.input-compact {
+  font-size: 0.9rem;
+}
 
+/* Botón Cancelar */
 .button-cancel {
   background-color: transparent !important;
-  border: 1.5px solid var(--color-text-gray, #d1d5db) !important;
-  color: var(--color-text-gray, #6b7280) !important;
-  font-weight: 600 !important;
-  transition: background-color 0.3s, color 0.3s !important;
+  border-color: var(--color-muted) !important;
+  color: var(--color-text-gray) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  transition: all 0.3s ease !important;
 }
 
-.button-cancel:hover {
+.button-cancel:hover:not(:disabled) {
   background-color: var(--color-coral) !important;
-  border-color: var(--color-text-gray, #d1d5db) !important;
-  color: #000 !important;
+  border-color: var(--color-coral) !important;
+  color: var(--color-white) !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow) !important;
 }
 
-
+/* Botón Regresar */
 .button-back {
-  background-color: #6B7280;
-  border: 1.5px solid #6B7280;
-  color: #fff;
-  font-weight: 600;
-  transition: background-color 0.3s, color 0.3s;
+  background-color: var(--color-muted) !important;
+  border-color: var(--color-muted) !important;
+  color: var(--color-white) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  transition: all 0.3s ease !important;
 }
 
-
-.button-back:hover {
-  background-color: var(--color-border-cards) !important; /* Un tono más oscuro para el hover */
-  border-color: #4b5563 !important;
-  color: #fff !important;
+.button-back:hover:not(:disabled) {
+  background-color: var(--color-border-cards) !important;
+  border-color: var(--color-border-cards) !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow) !important;
 }
 
+/* Botón Submit */
 .button-submit {
-  background-color: var(--color-primary, #2E3DB4);
-  border: 1.5px solid var(--color-primary, #2E3DB4);
-  color: #fff;
-  font-weight: 600;
-  transition: background-color 0.3s, color 0.3s;
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--color-white) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  transition: all 0.3s ease !important;
 }
 
-.button-submit:hover {
-  background-color: #1a237e !important; /* Un tono más oscuro para el hover */
-  border-color: #1a237e !important;
-  color: #fff !important;
+.button-submit:hover:not(:disabled) {
+  background-color: var(--color-hover) !important;
+  border-color: var(--color-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow) !important;
 }
 
+.button-submit:disabled {
+  background-color: var(--color-disabled) !important;
+  border-color: var(--color-disabled) !important;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
 
+/* Asegurar que los iconos estén alineados correctamente */
+:deep(.p-icon-field .p-input-icon) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
+:deep(.p-icon-field .p-inputtext),
+:deep(.p-icon-field .p-inputmask) {
+  padding-left: 2.5rem;
+}
 
+/* Colores corporativos para texto */
+.text-primary-local {
+  color: var(--color-primary) !important;
+}
+
+/* Contenedor de errores con altura fija para evitar saltos */
+.error-container {
+  min-height: 1.1rem;
+  margin-top: 0.15rem;
+}
+
+.error-message {
+  display: block;
+  color: #DC2626 !important;
+  font-size: 0.8rem;
+  line-height: 1.1rem;
+  font-weight: 500;
+}
 </style>

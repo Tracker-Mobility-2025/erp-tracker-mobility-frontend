@@ -1,14 +1,13 @@
 <script>
-import {CompanyEmployeesService} from "../services/company-employees-api.service.js";
-import {Client} from "../models/client.entity.js";
-import {ApplicantCompany} from "../models/applicant-company.entity.js";
-
 export default {
   name: 'customer-data',
+  
   components: {},
+  
+  inject: ['client', 'applicantCompany'],
+  
   data() {
     return {
-
       customerContent: {
         title: 'Datos del cliente',
         nombresCompletos: 'Nombres completos',
@@ -25,16 +24,6 @@ export default {
         { label: 'PTP', value: 'PTP' },
         { label: 'Carnet de extranjería', value: 'CE' }
       ],
-
-      // Servicio para obtener la información de la empresa solicitante.
-      companyEmployeesService: new CompanyEmployeesService('/company-employees'),
-
-      // Instancia del modelo Client para manejar todos los datos del cliente
-      client: new Client(),
-      // Instancia del modelo ApplicantCompany para manejar todos los datos de la empresa solicitante
-      applicantCompany: new ApplicantCompany({}),
-      // Respuesta de la orden creada (se actualiza después de crear la solicitud)
-      orderResponse: null,
 
       // Control de validación
       touched: {
@@ -168,23 +157,20 @@ export default {
 </script>
 
 <template>
-
-  <div class="page-container">
-
-    <div class="form-wrapper p-4">
-
-      <form class="grid formgrid p-fluid" @submit.prevent="onNext" @keydown.enter.prevent>
+  <div class="flex justify-content-center w-full">
+    <div class="form-wrapper p-3 w-full" style="max-width: 1200px;">
+      <form class="formgrid grid p-fluid compact-form" @submit.prevent="onNext" @keydown.enter.prevent>
         <!-- ====== Título: Datos del cliente ====== -->
         <div class="col-12">
-          <div class="section-title">
-            <i class="pi pi-user"></i>
-            <h2>{{ customerContent.title }}</h2>
+          <div class="flex align-items-center gap-2 mb-2">
+            <i class="pi pi-user text-lg text-primary-local"></i>
+            <h2 class="m-0 text-lg font-semibold text-primary-local">{{ customerContent.title }}</h2>
           </div>
         </div>
 
         <!-- Nombres -->
         <div class="field col-12 md:col-6">
-          <label for="nombres" class="font-medium">
+          <label for="nombres" class="block mb-1 font-medium text-color text-sm">
             {{ customerContent.nombresCompletos }} <span class="text-red-500">*</span>
           </label>
           <pv-input-text
@@ -196,37 +182,41 @@ export default {
               :aria-describedby="fieldErrors.name ? 'err-nombres' : null"
               @blur="onFieldBlur('name')"
           />
-          <small
-              v-if="(touched.name || showValidation) && fieldErrors.name"
-              id="err-nombres"
-              class="text-red-500"
-          >{{ fieldErrors.name }}</small>
+          <div class="error-container">
+            <small
+                v-if="(touched.name || showValidation) && fieldErrors.name"
+                id="err-nombres"
+                class="error-message"
+            >{{ fieldErrors.name }}</small>
+          </div>
         </div>
 
         <!-- Apellidos -->
         <div class="field col-12 md:col-6">
-          <label for="apellidos" class="font-medium">
+          <label for="apellidos" class="block mb-1 font-medium text-color text-sm">
             {{ customerContent.apellidosCompletos }} <span class="text-red-500">*</span>
           </label>
           <pv-input-text
               id="apellidos"
               v-model="client.lastName"
               placeholder="López Fernández"
-              class="w-full"
+              class="w-full input-compact"
               :aria-invalid="!!fieldErrors.lastName"
               :aria-describedby="fieldErrors.lastName ? 'err-apellidos' : null"
               @blur="onFieldBlur('lastName')"
           />
-          <small
-              v-if="(touched.lastName || showValidation) && fieldErrors.lastName"
-              id="err-apellidos"
-              class="text-red-500"
-          >{{ fieldErrors.lastName }}</small>
+          <div class="error-container">
+            <small
+                v-if="(touched.lastName || showValidation) && fieldErrors.lastName"
+                id="err-apellidos"
+                class="error-message"
+            >{{ fieldErrors.lastName }}</small>
+          </div>
         </div>
 
         <!-- Tipo doc -->
         <div class="field col-12 md:col-6">
-          <label for="tipo-doc" class="font-medium">
+          <label for="tipo-doc" class="block mb-1 font-medium text-color text-sm">
             {{ customerContent.tipoDocumento }} <span class="text-red-500">*</span>
           </label>
           <pv-select
@@ -236,119 +226,158 @@ export default {
               optionLabel="label"
               optionValue="value"
               placeholder="Selecciona"
-              class="w-full text-black-alpha-10"
+              class="w-full"
               @blur="onFieldBlur('documentType')"
           />
-          <small v-if="(touched.documentType || showValidation) && fieldErrors.documentType" class="text-red-500">{{ fieldErrors.documentType }}</small>
+          <div class="error-container">
+            <small 
+                v-if="(touched.documentType || showValidation) && fieldErrors.documentType" 
+                class="error-message"
+            >{{ fieldErrors.documentType }}</small>
+          </div>
         </div>
 
         <!-- N° doc -->
         <div class="field col-12 md:col-6">
-          <label for="num-doc" class="font-medium">
+          <label for="num-doc" class="block mb-1 font-medium text-color text-sm">
             {{ customerContent.numeroDocumento }} <span class="text-red-500">*</span>
           </label>
-          <pv-icon-field iconPosition="left" class="w-full">
+          <pv-icon-field class="w-full">
             <pv-input-icon class="pi pi-id-card" />
             <pv-input-text
                 id="num-doc"
                 v-model="client.documentNumber"
                 placeholder="12345678"
-                class="w-full"
+                class="w-full input-compact"
                 :aria-invalid="!!fieldErrors.documentNumber"
                 :aria-describedby="fieldErrors.documentNumber ? 'err-numdoc' : null"
                 @blur="onFieldBlur('documentNumber')"
             />
           </pv-icon-field>
-          <small
-              v-if="(touched.documentNumber || showValidation) && fieldErrors.documentNumber"
-              id="err-numdoc"
-              class="text-red-500"
-          >{{ fieldErrors.documentNumber }}</small>
+          <div class="error-container">
+            <small
+                v-if="(touched.documentNumber || showValidation) && fieldErrors.documentNumber"
+                id="err-numdoc"
+                class="error-message"
+            >{{ fieldErrors.documentNumber }}</small>
+          </div>
         </div>
 
-        <!-- Teléfono (InputMask en lugar de InputNumber) -->
+        <!-- Teléfono -->
         <div class="field col-12 md:col-6">
-          <label for="telefono" class="font-medium">
+          <label for="telefono" class="block mb-1 font-medium text-color text-sm">
             {{ customerContent.numeroContacto }} <span class="text-red-500">*</span>
           </label>
-          <pv-icon-field iconPosition="left" class="w-full">
+          <pv-icon-field class="w-full">
             <pv-input-icon class="pi pi-phone" />
             <pv-input-mask
                 id="telefono"
                 v-model="client.phoneNumber"
                 mask="999 999 999"
                 placeholder="999 888 777"
-                class="w-full"
+                class="w-full input-compact"
                 :aria-invalid="!!fieldErrors.phoneNumber"
                 :aria-describedby="fieldErrors.phoneNumber ? 'err-telefono' : null"
                 @blur="onFieldBlur('phoneNumber')"
             />
           </pv-icon-field>
-          <small
-              v-if="(touched.phoneNumber || showValidation) && fieldErrors.phoneNumber"
-              id="err-telefono"
-              class="text-red-500"
-          >{{ fieldErrors.phoneNumber }}</small>
+          <div class="error-container">
+            <small
+                v-if="(touched.phoneNumber || showValidation) && fieldErrors.phoneNumber"
+                id="err-telefono"
+                class="error-message"
+            >{{ fieldErrors.phoneNumber }}</small>
+          </div>
         </div>
-
 
         <!-- Acciones -->
         <div class="col-12 flex justify-content-end gap-2 mt-2">
-          <pv-button class="pl-4 pr-4 button-submit" :label="customerContent.botonSiguiente" type="submit" :disabled="!isFormValid" />
+          <pv-button 
+              class="px-4 py-2 button-submit" 
+              :label="customerContent.botonSiguiente" 
+              type="submit" 
+              :disabled="!isFormValid" 
+          />
         </div>
       </form>
-
     </div>
   </div>
-
 </template>
 
 <style scoped>
-
-.page-container {
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  align-items: center;  /* Centrado vertical */
-  min-height: 100%;
+.form-wrapper {
+  background: var(--color-white);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
 }
 
-.form-wrapper{
-  display:flex;
-  flex-direction:column;
-  width: 80%;
-  max-width:80%;
-  background:#fff;
-  border-radius:12px;
-  box-shadow:0 2px 8px rgba(0,0,0,.1);
+.compact-form {
+  row-gap: 0.5rem;
 }
 
-.formgrid{ row-gap:1rem; }
-.field{ margin-bottom:0; }
-
-.section-title{
-  display:flex; align-items:center; gap:.5rem;
-  margin:.25rem 0 1rem 0;
+.formgrid {
+  row-gap: 0.5rem;
 }
-.section-title i{ font-size:1.25rem; color:#2E3DB4; }
 
-.section-title h2{ margin:0; font-size:1.35rem; font-weight:600; }
+.field {
+  margin-bottom: 0;
+}
 
+/* Inputs más compactos */
+.input-compact {
+  font-size: 0.9rem;
+}
 
 .button-submit {
-  background-color: var(--color-primary, #2E3DB4);
-  border: 1.5px solid var(--color-primary, #2E3DB4);
-  color: #fff;
-  font-weight: 600;
-  transition: background-color 0.3s, color 0.3s;
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--color-white) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  transition: all 0.3s ease !important;
 }
 
-.button-submit:hover {
-  background-color: #1a237e !important; /* Un tono más oscuro para el hover */
-  border-color: #1a237e !important;
-  color: #fff !important;
+.button-submit:hover:not(:disabled) {
+  background-color: var(--color-hover) !important;
+  border-color: var(--color-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow) !important;
 }
 
+.button-submit:disabled {
+  background-color: var(--color-disabled) !important;
+  border-color: var(--color-disabled) !important;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
 
+/* Asegurar que los iconos estén alineados correctamente */
+:deep(.p-icon-field .p-input-icon) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
+:deep(.p-icon-field .p-inputtext),
+:deep(.p-icon-field .p-inputmask) {
+  padding-left: 2.5rem;
+}
+
+/* Colores corporativos para texto */
+.text-primary-local {
+  color: var(--color-primary) !important;
+}
+
+/* Contenedor de errores con altura fija para evitar saltos */
+.error-container {
+  min-height: 1.1rem;
+  margin-top: 0.15rem;
+}
+
+.error-message {
+  display: block;
+  color: #DC2626 !important;
+  font-size: 0.8rem;
+  line-height: 1.1rem;
+  font-weight: 500;
+}
 </style>

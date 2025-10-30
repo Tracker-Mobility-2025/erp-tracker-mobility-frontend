@@ -16,7 +16,8 @@ export default {
   computed: {
     items() {
       return [
-        { role: 'COMPANY_EMPLOYEE', label: 'Nueva Orden', icon: 'pi pi-fw pi-plus-circle', to: `/tracker-mobility/applicant-company/management-request-form` },
+        { role: 'COMPANY_EMPLOYEE', label: 'Nueva Solicitud', icon: 'pi pi-fw pi-plus-circle', to:
+              `/tracker-mobility/applicant-company/management-request-form` },
         { role: 'COMPANY_EMPLOYEE', label: 'Mis Órdenes', icon: 'pi pi-fw pi-file-edit', to: `/tracker-mobility/applicant-company/my-service-orders` },
         { role: 'ADMIN', label: 'Dashboard', icon: 'pi pi-fw pi-chart-line', to: `/tracker-mobility/admin/dashboard` },
         { role: 'ADMIN', label: 'Órdenes', icon: 'pi pi-fw pi-file-edit', to: `/tracker-mobility/admin/service-orders` },

@@ -244,130 +244,140 @@ export default {
 </script>
 
 <template>
-  <div class="page-container">
-    <div class="form-wrapper p-4">
-      <form class="grid formgrid p-fluid" @submit.prevent="onNext" @keydown.enter.prevent>
+  <div class="flex justify-content-center w-full">
+    <div class="form-wrapper p-3 w-full" style="max-width: 1200px;">
+      <form class="formgrid grid p-fluid compact-form" @submit.prevent="onNext" @keydown.enter.prevent>
         <!-- ====== Título: Datos de domicilio ====== -->
         <div class="col-12">
-          <div class="section-title">
-            <i class="pi pi-home"></i>
-            <h2>{{ addressContent.title }}</h2>
+          <div class="flex align-items-center gap-2 mb-2">
+            <i class="pi pi-home text-lg text-primary-local"></i>
+            <h2 class="m-0 text-lg font-semibold text-primary-local">{{ addressContent.title }}</h2>
           </div>
         </div>
 
         <!-- Departamento -->
         <div class="field col-12 md:col-6">
-          <label for="departamento" class="font-medium">
+          <label for="departamento" class="block mb-1 font-medium text-color text-sm">
             {{ addressContent.departamento }} <span class="text-red-500">*</span>
           </label>
           <pv-input-text
               id="departamento"
               v-model="client.department"
               placeholder="Ingresa tu departamento"
-              class="w-full"
+              class="w-full input-compact"
               :aria-invalid="!!fieldErrors.department"
               :aria-describedby="fieldErrors.department ? 'err-departamento' : null"
               @blur="onFieldBlur('department')"
           />
-          <small
-              v-if="(touched.department || showValidation) && fieldErrors.department"
-              id="err-departamento"
-              class="text-red-500"
-          >{{ fieldErrors.department }}</small>
+          <div class="error-container">
+            <small
+                v-if="(touched.department || showValidation) && fieldErrors.department"
+                id="err-departamento"
+                class="error-message"
+            >{{ fieldErrors.department }}</small>
+          </div>
         </div>
 
         <!-- Provincia -->
         <div class="field col-12 md:col-6">
-          <label for="provincia" class="font-medium">
+          <label for="provincia" class="block mb-1 font-medium text-color text-sm">
             {{ addressContent.provincia }} <span class="text-red-500">*</span>
           </label>
           <pv-input-text
               id="provincia"
               v-model="client.province"
               placeholder="Ingresa tu provincia"
-              class="w-full"
+              class="w-full input-compact"
               :aria-invalid="!!fieldErrors.province"
               :aria-describedby="fieldErrors.province ? 'err-provincia' : null"
               @blur="onFieldBlur('province')"
           />
-          <small
-              v-if="(touched.province || showValidation) && fieldErrors.province"
-              id="err-provincia"
-              class="text-red-500"
-          >{{ fieldErrors.province }}</small>
+          <div class="error-container">
+            <small
+                v-if="(touched.province || showValidation) && fieldErrors.province"
+                id="err-provincia"
+                class="error-message"
+            >{{ fieldErrors.province }}</small>
+          </div>
         </div>
 
         <!-- Distrito -->
         <div class="field col-12 md:col-6">
-          <label for="distrito" class="font-medium">
+          <label for="distrito" class="block mb-1 font-medium text-color text-sm">
             {{ addressContent.distrito }} <span class="text-red-500">*</span>
           </label>
           <pv-input-text
               id="distrito"
               v-model="client.district"
               placeholder="Ingresa tu distrito"
-              class="w-full"
+              class="w-full input-compact"
               :aria-invalid="!!fieldErrors.district"
               :aria-describedby="fieldErrors.district ? 'err-distrito' : null"
               @blur="onFieldBlur('district')"
           />
-          <small
-              v-if="(touched.district || showValidation) && fieldErrors.district"
-              id="err-distrito"
-              class="text-red-500"
-          >{{ fieldErrors.district }}</small>
+          <div class="error-container">
+            <small
+                v-if="(touched.district || showValidation) && fieldErrors.district"
+                id="err-distrito"
+                class="error-message"
+            >{{ fieldErrors.district }}</small>
+          </div>
         </div>
 
         <!-- Dirección completa -->
         <div class="field col-12 md:col-6">
-          <label for="direccion" class="font-medium">
+          <label for="direccion" class="block mb-1 font-medium text-color text-sm">
             {{ addressContent.direccionCompleta }} <span class="text-red-500">*</span>
-            <span class="text-xs text-gray-500 ml-2">
+            <span class="text-xs text-500 ml-2">
               ({{ client.homeAddress ? client.homeAddress.length : 0 }}/300)
             </span>
           </label>
-          <pv-icon-field iconPosition="left" class="w-full">
+          <pv-icon-field class="w-full">
             <pv-input-icon class="pi pi-map-marker" />
             <pv-input-text
                 id="direccion"
                 v-model="client.homeAddress"
                 placeholder="Av. tu dirección 123"
-                class="w-full"
+                class="w-full input-compact"
                 maxlength="300"
                 :aria-invalid="!!fieldErrors.homeAddress"
                 :aria-describedby="fieldErrors.homeAddress ? 'err-direccion' : null"
                 @blur="onFieldBlur('homeAddress')"
             />
           </pv-icon-field>
-          <small
-              v-if="(touched.homeAddress || showValidation) && fieldErrors.homeAddress"
-              id="err-direccion"
-              class="text-red-500"
-          >{{ fieldErrors.homeAddress }}</small>
+          <div class="error-container">
+            <small
+                v-if="(touched.homeAddress || showValidation) && fieldErrors.homeAddress"
+                id="err-direccion"
+                class="error-message"
+            >{{ fieldErrors.homeAddress }}</small>
+          </div>
         </div>
 
         <!-- Ubicación por Google Maps (URL) -->
         <div class="field col-12">
-          <label for="maps" class="font-medium">
+          <label for="maps" class="block mb-1 font-medium text-color text-sm">
             {{ addressContent.ubicacionGoogleMaps }} <span class="text-red-500">*</span>
           </label>
-          <pv-icon-field iconPosition="left" class="w-full">
+          <pv-icon-field class="w-full">
             <pv-input-icon class="pi pi-link" />
             <pv-input-text
                 id="maps"
                 v-model="client.mapLocation"
                 placeholder="https://maps.google.com/..."
-                class="w-full"
+                class="w-full input-compact"
                 :aria-invalid="!!fieldErrors.mapLocation"
                 :aria-describedby="fieldErrors.mapLocation ? 'err-maps' : null"
                 @blur="onFieldBlur('mapLocation')"
             />
           </pv-icon-field>
-          <small
-              v-if="(touched.mapLocation || showValidation) && fieldErrors.mapLocation"
-              id="err-maps"
-              class="text-red-500"
-          >{{ fieldErrors.mapLocation }}</small>
+          <div class="error-container">
+            <small
+                v-if="(touched.mapLocation || showValidation) && fieldErrors.mapLocation"
+                id="err-maps"
+                class="error-message"
+            >{{ fieldErrors.mapLocation }}</small>
+          </div>
         </div>
 
         <!-- Foto de fachada usando FileUploader -->
@@ -392,23 +402,25 @@ export default {
               @file-removed="onFileRemoved"
               @validation-error="handleFileValidationError"
           />
-          <small
-              v-if="(touched.facadePhoto || showValidation) && fieldErrors.facadePhoto"
-              class="text-red-500"
-          >{{ fieldErrors.facadePhoto }}</small>
+          <div class="error-container">
+            <small
+                v-if="(touched.facadePhoto || showValidation) && fieldErrors.facadePhoto"
+                class="error-message"
+            >{{ fieldErrors.facadePhoto }}</small>
+          </div>
         </div>
 
         <!-- Acciones -->
         <div class="col-12 flex justify-content-end gap-2 mt-2">
           <pv-button
-            class="pl-4 pr-4 button-back"
+            class="px-4 py-2 button-back"
             :label="addressContent.botonRegresar"
             severity="secondary"
             type="button"
             @click="onBack"
           />
           <pv-button
-            class="pl-4 pr-4 button-submit"
+            class="px-4 py-2 button-submit"
             :label="addressContent.botonSiguiente"
             type="submit"
             :disabled="!isFormValid"
@@ -420,73 +432,94 @@ export default {
 </template>
 
 <style scoped>
-.page-container {
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  align-items: center;
-  min-height: 100%;
+.form-wrapper {
+  background: var(--color-white);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
 }
 
-.form-wrapper {
-  display: flex;
-  flex-direction: column;
-  width: 80%;
-  max-width: 80%;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .1);
+.compact-form {
+  row-gap: 0.5rem;
 }
 
 .formgrid {
-  row-gap: 1rem;
+  row-gap: 0.5rem;
 }
 
 .field {
   margin-bottom: 0;
 }
 
-.section-title {
-  display: flex;
-  align-items: center;
-  gap: .5rem;
-  margin: .25rem 0 1rem 0;
-}
-
-.section-title i {
-  font-size: 1.25rem;
-  color: #2E3DB4;
-}
-
-.section-title h2 {
-  margin: 0;
-  font-size: 1.35rem;
-  font-weight: 600;
+/* Inputs más compactos */
+.input-compact {
+  font-size: 0.9rem;
 }
 
 .button-back {
-  background-color: var(--color-border-cards, #6B7280);
-  border: 1.5px solid var(--color-border-cards, #6B7280);
-  color: #fff;
-  font-weight: 600;
-  transition: background-color 0.3s, color 0.3s;
+  background-color: var(--color-muted) !important;
+  border-color: var(--color-muted) !important;
+  color: var(--color-white) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  transition: all 0.3s ease !important;
 }
 
-.button-back:hover {
-  background-color: #4b5563 !important;
-  border-color: #4b5563 !important;
-  color: #fff !important;
+.button-back:hover:not(:disabled) {
+  background-color: var(--color-border-cards) !important;
+  border-color: var(--color-border-cards) !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow) !important;
 }
 
 .button-submit {
-  background-color: #2E3DB4 !important;
-  color: #fff !important;
-  border: none !important;
-  font-weight: 600;
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--color-white) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  transition: all 0.3s ease !important;
+}
+
+.button-submit:hover:not(:disabled) {
+  background-color: var(--color-hover) !important;
+  border-color: var(--color-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow) !important;
 }
 
 .button-submit:disabled {
-  background-color: #9ca3af !important;
+  background-color: var(--color-disabled) !important;
+  border-color: var(--color-disabled) !important;
   cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Asegurar que los iconos estén alineados correctamente */
+:deep(.p-icon-field .p-input-icon) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:deep(.p-icon-field .p-inputtext),
+:deep(.p-icon-field .p-inputmask) {
+  padding-left: 2.5rem;
+}
+
+/* Colores corporativos para texto */
+.text-primary-local {
+  color: var(--color-primary) !important;
+}
+
+/* Contenedor de errores con altura fija para evitar saltos */
+.error-container {
+  min-height: 1.1rem;
+  margin-top: 0.15rem;
+}
+
+.error-message {
+  display: block;
+  color: #DC2626 !important;
+  font-size: 0.8rem;
+  line-height: 1.1rem;
+  font-weight: 500;
 }
 </style>
