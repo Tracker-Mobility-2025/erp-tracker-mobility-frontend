@@ -23,7 +23,7 @@ export default {
 
       columns: [
         { field: 'orderCode', header: 'Código de solicitud', sortable: true, style: 'width: 160px;' },
-        { field: 'requestDate', header: 'Fecha de solicitud', sortable: true, style: 'width: 150px;' },
+        { field: 'requestDate', header: 'Fecha de solicitud', sortable: true, template: 'requestDate', style: 'width: 150px;' },
         { field: 'status', header: 'Estado', sortable: true, template: 'status', style: 'width: 120px;' },
         { field: 'clientName', header: 'Cliente', sortable: true, template: 'clientName', style: 'width: 180px;' },
         { field: 'client.phoneNumber', header: 'Contacto', sortable: true, style: 'width: 140px;' }
@@ -186,6 +186,27 @@ export default {
           return 'success';
         default:
           return 'info';
+      }
+    },
+
+    // Formatear fecha a formato dd/mm/aaaa
+    formatDate(dateString) {
+      if (!dateString) return 'N/A';
+      
+      try {
+        const date = new Date(dateString);
+        
+        // Verificar si la fecha es válida
+        if (isNaN(date.getTime())) return 'Fecha inválida';
+        
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        
+        return `${day}/${month}/${year}`;
+      } catch (error) {
+        console.error('Error al formatear fecha:', error);
+        return 'Error';
       }
     },
 
@@ -372,6 +393,11 @@ export default {
               class="p-button-secondary flex-shrink-0 h-full"
           />
         </div>
+      </template>
+
+      <!-- Custom Request Date Column -->
+      <template #requestDate="{ data }">
+        <span>{{ formatDate(data.requestDate) }}</span>
       </template>
 
       <!-- Custom Status Column -->
