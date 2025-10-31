@@ -149,6 +149,11 @@ export class Client {
         this.residence = residence ? new Residence(residence) : null;
         this.zone = zone ? new Zone(zone) : null;
     }
+
+    // Retornar el nombre completo del cliente
+    getFullName() {
+        return `${this.name} ${this.lastName}`;
+    }
 }
 
 export class ApplicantCompany {
@@ -227,4 +232,6 @@ export class OrderService {
         this.observations = observations.map(o => new Observation(o));
         this.report = report ? new Report(report) : null;
     }
+
+
 }

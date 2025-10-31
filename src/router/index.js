@@ -21,6 +21,8 @@ import ManagementRequestOrderComponent
     from "../client-tracker-mobility/order-request/pages/management-request-order.component.vue";
 import ManagementRequestFormComponent
     from "../client-tracker-mobility/order-request/pages/management-request-form.component.vue";
+import VerificationRequestsManagementComponent
+    from "../client-tracker-mobility/request-management/pages/verification-requests-management.component.vue";
 
 
 
@@ -165,9 +167,9 @@ const router = createRouter({
                 {
                     path: 'applicant-company/my-service-orders',
                     name: 'my-service-orders',
-                    component: ManagementRequestOrderComponent,
+                    component: VerificationRequestsManagementComponent,
                     meta: {
-                        title: 'Mis Órdenes',
+                        title: 'Mis Solicitudes',
                         roles: ['COMPANY_EMPLOYEE']
                     }
                 }
