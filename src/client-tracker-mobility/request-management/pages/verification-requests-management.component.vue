@@ -54,58 +54,62 @@ export default {
 
 
     // Filtro combinado que aplica todos los filtros activos
+    // Filtros basados en las columnas visibles del DataTable:
+    // 1. Código de solicitud
+    // 2. Fecha de solicitud
+    // 3. Estado
+    // 4. Cliente (nombre completo)
+    // 5. Contacto (teléfono)
     filteredItemsArray() {
       let filtered = [...this.itemsArray];
 
-      // Filtro por búsqueda global (código de orden, solicitante, verificador)
-      // Solo aplicar filtro si hay contenido real (no null, no undefined, no string vacío o solo espacios)
+      // Filtro por búsqueda global - busca en todas las columnas visibles
       if (this.globalFilterValue && this.globalFilterValue.trim().length > 0) {
-        // Normalizar el término de búsqueda: quitar espacios extra y convertir a minúsculas
-        const searchTerm = this.globalFilterValue.toLowerCase().trim().replace(/\s+/g, ' ');
+        const searchTerm = this.globalFilterValue.toLowerCase().trim();
+        
         filtered = filtered.filter(order => {
-          // Buscar en código de orden
-          const orderCodeMatch = order.orderCode && order.orderCode.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchTerm);
+          // Helper para buscar de forma segura
+          const safeSearch = (value) => {
+            if (!value) return false;
+            return String(value).toLowerCase().trim().includes(searchTerm);
+          };
 
-          // Buscar en nombre de la empresa solicitante
-          const companyMatch = order.applicantCompany?.companyName &&
-              order.applicantCompany.companyName.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchTerm);
+          // 1. Buscar en Código de solicitud
+          const orderCodeMatch = safeSearch(order.orderCode);
 
-          // Buscar en nombre del cliente
-          const clientMatch = order.client && order.client.getFullName &&
-              order.client.getFullName().toLowerCase().trim().replace(/\s+/g, ' ').includes(searchTerm);
+          // 2. Buscar en Fecha de solicitud (formato dd/mm/aaaa)
+          const requestDateMatch = order.requestDate && safeSearch(this.formatDate(order.requestDate));
 
-          // Buscar en nombre del verificador (si está asignado)
-          let verifierMatch = false;
-          if (order.homeVisitDetails?.verifierId) {
-            const verifierName = this.getVerifierById(order.homeVisitDetails.verifierId);
-            verifierMatch = verifierName.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchTerm);
-          }
+          // 3. Buscar en Estado (normalizar guiones bajos)
+          const statusMatch = order.status && safeSearch(order.status.replace(/_/g, ' '));
 
-          return orderCodeMatch || companyMatch || clientMatch || verifierMatch;
+          // 4. Buscar en Cliente (nombre completo)
+          const clientNameMatch = order.client?.getFullName && safeSearch(order.client.getFullName());
+
+          // 5. Buscar en Contacto (teléfono del cliente)
+          const phoneMatch = safeSearch(order.client?.phoneNumber);
+
+          return orderCodeMatch || requestDateMatch || statusMatch || clientNameMatch || phoneMatch;
         });
       }
 
       // Filtro por estado seleccionado
       if (this.selectedStatus) {
-        filtered = filtered.filter(order => {
-          // Verificar si el estado coincide exactamente
-          return order.status === this.selectedStatus;
-        });
+        filtered = filtered.filter(order => order.status === this.selectedStatus);
       }
 
-      // Filtro por fecha seleccionada (fecha de visita programada)
+      // Filtro por fecha de solicitud (sin problemas de zona horaria)
       if (this.selectedDate) {
-        // Usar formato local para evitar problemas de zona horaria
-        const selectedDateStr = this.formatDateToLocal(this.selectedDate);
+        const selectedDateStr = this.formatDateForComparison(this.selectedDate);
 
         filtered = filtered.filter(order => {
-          if (order.homeVisitDetails?.visitDate) {
+          if (order.requestDate) {
             try {
-              // Parsear la fecha usando formato local para evitar diferencias de zona horaria
-              const visitDateStr = this.formatDateToLocal(new Date(order.homeVisitDetails.visitDate + 'T00:00:00'));
-              return visitDateStr === selectedDateStr;
+              // Usar el método parseLocalDate para evitar conversión de zona horaria
+              const requestDateStr = this.formatDateForComparison(order.requestDate);
+              return requestDateStr === selectedDateStr;
             } catch (error) {
-              console.warn('Error parsing visitDate:', order.homeVisitDetails.visitDate, error);
+              console.warn('Error parsing requestDate:', order.requestDate, error);
               return false;
             }
           }
@@ -189,15 +193,43 @@ export default {
       }
     },
 
-    // Formatear fecha a formato dd/mm/aaaa
+    // Parsear fecha string a objeto Date local (sin conversión de zona horaria)
+    parseLocalDate(dateString) {
+      if (!dateString) return null;
+      
+      try {
+        // Si es formato ISO (YYYY-MM-DD), parsear como fecha local
+        if (typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}/)) {
+          const [datePart] = dateString.split('T');
+          const [year, month, day] = datePart.split('-').map(Number);
+          // Crear fecha local sin conversión UTC
+          return new Date(year, month - 1, day);
+        }
+        
+        // Si ya es un objeto Date, retornarlo
+        if (dateString instanceof Date) {
+          return dateString;
+        }
+        
+        // Para otros formatos, intentar parsear normalmente
+        const date = new Date(dateString);
+        return isNaN(date.getTime()) ? null : date;
+      } catch (error) {
+        console.error('Error al parsear fecha:', error);
+        return null;
+      }
+    },
+
+    // Formatear fecha a formato dd/mm/aaaa para visualización
     formatDate(dateString) {
       if (!dateString) return 'N/A';
       
       try {
-        const date = new Date(dateString);
+        // Usar parseLocalDate para evitar problemas de zona horaria
+        const date = this.parseLocalDate(dateString);
         
         // Verificar si la fecha es válida
-        if (isNaN(date.getTime())) return 'Fecha inválida';
+        if (!date || isNaN(date.getTime())) return 'Fecha inválida';
         
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -207,6 +239,34 @@ export default {
       } catch (error) {
         console.error('Error al formatear fecha:', error);
         return 'Error';
+      }
+    },
+
+    // Formatear fecha para comparación (aaaa-mm-dd) sin conversión de zona horaria
+    formatDateForComparison(dateInput) {
+      if (!dateInput) return null;
+      
+      try {
+        let date;
+        
+        // Si es un objeto Date del calendar de PrimeVue
+        if (dateInput instanceof Date) {
+          date = dateInput;
+        } else {
+          // Si es un string, parsearlo como fecha local
+          date = this.parseLocalDate(dateInput);
+        }
+        
+        if (!date || isNaN(date.getTime())) return null;
+        
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        
+        return `${year}-${month}-${day}`;
+      } catch (error) {
+        console.error('Error al formatear fecha para comparación:', error);
+        return null;
       }
     },
 
@@ -357,7 +417,7 @@ export default {
         new-button-label="Nueva Orden"
         delete-button-label="Eliminar"
         export-button-label="Exportar"
-        search-placeholder="Busca por código de orden, cliente, solicitante, verificador..."
+        search-placeholder="Busca por código, fecha, estado, cliente o teléfono..."
         @delete-selected-items-requested-manager="onDeleteSelectedItems"
         @delete-item-requested-manager="onDeleteItem"
         @view-item-requested-manager="onViewItem"
@@ -368,6 +428,7 @@ export default {
       <template #filters="{ clearFilters }">
         <div class="flex align-items-center gap-2">
 
+          <!-- Filtro por estado -->
           <pv-select
               v-model="selectedStatus"
               :options="statusOptions"
@@ -376,16 +437,18 @@ export default {
               placeholder="Estado: Todos"
               class="flex-1 h-full"
           />
-          <!-- Filtro por fecha -->
+          
+          <!-- Filtro por fecha de solicitud -->
           <pv-calendar
-              id="visitDate"
+              id="requestDate"
               v-model="selectedDate"
-              placeholder="dd/mm/aaaa"
+              placeholder="Fecha de solicitud"
               dateFormat="dd/mm/yy"
               show-icon
               class="flex-1 h-full"
           />
-          <!-- Botón para limpiar filtros específicos -->
+          
+          <!-- Botón para limpiar filtros -->
           <pv-button
               label="Limpiar filtros"
               icon="pi pi-filter-slash"

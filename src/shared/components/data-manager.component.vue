@@ -76,7 +76,10 @@ export default {
     },
 
     onGlobalFilterChange() {
-      this.filters['global'].value = this.currentGlobalFilterValue || null;
+      // Solo aplicar filtro interno si no hay filtros personalizados del padre
+      if (!this.filteredItems) {
+        this.filters['global'].value = this.currentGlobalFilterValue || null;
+      }
     },
 
     clearFilters() {
@@ -205,14 +208,14 @@ export default {
         ref="dt"
         v-model:selection="selectedItems"
         :value="displayItems"
-        :filters="filters"
+        :filters="filteredItems ? null : filters"
         :loading="loading"
         :paginator="true"
         :rows="rows"
         :rows-per-page-options="rowsPerPageOptions"
         :scroll-height="'flex'"
         scrollable
-        :global-filter-fields="columns.map(col => col.field)"
+        :global-filter-fields="filteredItems ? [] : columns.map(col => col.field)"
         data-key="id"
         current-page-report-template="Mostrando {first} a {last} de {totalRecords} registros"
         paginator-template="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
