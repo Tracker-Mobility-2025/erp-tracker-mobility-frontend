@@ -98,7 +98,8 @@ export class VerificationRequest {
                     status = null,
                     requestDate = null,
                     client = null,
-                    applicantCompany = null
+                    applicantCompany = null,
+                    observations = null
                 } = {}) {
         this.id = id;
         this.orderCode = orderCode;
@@ -106,5 +107,6 @@ export class VerificationRequest {
         this.requestDate = requestDate;
         this.client = client ? new Client(client) : null;
         this.applicantCompany = applicantCompany ? new ApplicantCompany(applicantCompany) : null;
+        this.observations = observations;
     }
 }

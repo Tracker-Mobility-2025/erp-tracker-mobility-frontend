@@ -150,19 +150,13 @@ export default {
       this.deleteOrder(item.id);
     },
 
-    // Navegar a la vista de detalles de la orden
+    // Navegar a la vista de detalles de la solicitud
     onViewItem(item) {
-      console.log('Ver detalles de orden:', item);
-      // Implementar navegación a vista de detalles
-
-      // Navegar con router a /admin/order-details
+      console.log('Ver detalles de solicitud:', item);
       this.$router.push({
-        name: 'order-details',
+        name: 'verification-request-details',
         query: { id: item.id }
       });
-
-
-
     },
 
     // Limpia todos los filtros (global, estado, fecha)

@@ -12,5 +12,15 @@ export class VerificationRequestsApi {
         return http.get(`${this.resourceEndpoint}/corporateEmail/${employeeEmail}`);
     }
 
+    // Obtener solicitud de verificación por ID
+    getById(id) {
+        return http.get(`${this.resourceEndpoint}/${id}`);
+    }
+
+    // Actualizar solicitud de verificación
+    update(id, data) {
+        return http.put(`${this.resourceEndpoint}/${id}`, data);
+    }
+
 
 }

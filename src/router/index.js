@@ -23,6 +23,8 @@ import ManagementRequestFormComponent
     from "../client-tracker-mobility/order-request/pages/management-request-form.component.vue";
 import VerificationRequestsManagementComponent
     from "../client-tracker-mobility/request-management/pages/verification-requests-management.component.vue";
+import VerificationRequestDetailsComponent
+    from "../client-tracker-mobility/request-management/pages/verification-request-details.component.vue";
 
 
 
@@ -170,6 +172,17 @@ const router = createRouter({
                     component: VerificationRequestsManagementComponent,
                     meta: {
                         title: 'Mis Solicitudes',
+                        roles: ['COMPANY_EMPLOYEE']
+                    }
+                },
+
+                // Detalle de solicitud de verificación
+                {
+                    path: 'applicant-company/verification-request-details',
+                    name: 'verification-request-details',
+                    component: VerificationRequestDetailsComponent,
+                    meta: {
+                        title: 'Detalle de Solicitud',
                         roles: ['COMPANY_EMPLOYEE']
                     }
                 }
