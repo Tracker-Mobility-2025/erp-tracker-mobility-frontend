@@ -169,9 +169,9 @@ export default {
   </pv-card>
 
   <!-- Modal para visualizar documentos -->
-  <pv-dialog 
-    v-model:visible="showDocumentModal" 
-    :modal="true" 
+  <pv-dialog
+    v-model:visible="showDocumentModal"
+    :modal="true"
     :closable="true"
     :draggable="false"
     class="document-viewer-modal"
@@ -189,19 +189,19 @@ export default {
       <div v-if="isImageFile(selectedDocument.url)" class="image-viewer">
         <div class="image-controls mb-3 flex justify-content-between align-items-center">
           <div class="flex gap-2">
-            <pv-button 
-              icon="pi pi-minus" 
+            <pv-button
+              icon="pi pi-minus"
               class="p-button-sm p-button-outlined"
               @click="zoomOut"
               :disabled="imageZoom <= 0.5"
             />
-            <pv-button 
-              icon="pi pi-refresh" 
+            <pv-button
+              icon="pi pi-refresh"
               class="p-button-sm p-button-outlined"
               @click="resetZoom"
             />
-            <pv-button 
-              icon="pi pi-plus" 
+            <pv-button
+              icon="pi pi-plus"
               class="p-button-sm p-button-outlined"
               @click="zoomIn"
               :disabled="imageZoom >= 3"
@@ -209,31 +209,30 @@ export default {
           </div>
           <span class="text-sm text-color-secondary">{{ Math.round(imageZoom * 100) }}%</span>
         </div>
-        <div class="image-container" style="overflow: auto; max-height: 60vh; border: 1px solid var(--surface-border); border-radius: 6px;">
-          <img 
-            :src="selectedDocument.url" 
+        <div class="image-container" style="overflow: auto; max-height: 60vh; border: 1px solid #dee2e6; border-radius: 6px;">
+          <img
+            :src="selectedDocument.url"
             :alt="getDocumentLabel(selectedDocument.type)"
             :style="{ transform: `scale(${imageZoom})`, transformOrigin: 'top left', display: 'block' }"
-            class="max-w-full h-auto"
-            @error="handleImageError"
+            class="w-full"
           />
         </div>
       </div>
-      <div v-else class="text-center py-6">
-        <i :class="`pi ${getFileIcon(selectedDocument.url)} ${getFileColor(selectedDocument.url)} text-8xl mb-3`"></i>
-        <p class="text-color-secondary">Vista previa no disponible para este tipo de archivo</p>
+      <div v-else class="document-preview text-center py-5">
+        <i :class="`pi ${getFileIcon(selectedDocument.url)} ${getFileColor(selectedDocument.url)} text-6xl mb-3`"></i>
+        <p class="text-lg font-semibold mb-2">{{ selectedDocument.url?.split('/').pop() || 'Documento' }}</p>
+        <p class="text-color-secondary mb-3">Este tipo de archivo no se puede previsualizar</p>
+        <pv-button
+          icon="pi pi-download"
+          label="Descargar archivo"
+          @click="downloadDocument(selectedDocument)"
+        />
       </div>
     </div>
 
     <template #footer>
-      <pv-button 
-        icon="pi pi-download" 
-        label="Descargar"
-        class="p-button-outlined"
-        @click="downloadDocument(selectedDocument)"
-      />
-      <pv-button 
-        icon="pi pi-times" 
+      <pv-button
+        icon="pi pi-times"
         label="Cerrar"
         class="p-button-text"
         @click="closeModal"
@@ -243,26 +242,36 @@ export default {
 </template>
 
 <style scoped>
-:deep(.p-card-content) {
-  padding: 0.5rem;
+.card-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
 }
 
-.card-header {
-  background-color: #4A60D0 !important;
-  color: white !important;
+:deep(.p-card-content) {
+  padding: 1.5rem;
+}
+
+.document-viewer-content {
+  min-height: 200px;
 }
 
 :deep(.p-card .p-card-header) {
-  background-color: #4A60D0 !important;
-  color: white !important;
-  border-top-left-radius: var(--border-radius) !important;
-  border-top-right-radius: var(--border-radius) !important;
-  padding: 0 !important;
-  border-bottom: none !important;
+  background-color: #f8f9fa;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
 }
 
 :deep(.p-card) {
-  border-radius: var(--border-radius) !important;
-  overflow: hidden !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-top-left-radius: var(--border-radius) !important;
+  border-top-right-radius: var(--border-radius) !important;
+}
+
+@media (max-width: 768px) {
+  .card-header :deep(.p-button) {
+    flex: 1;
+  }
 }
 </style>
+

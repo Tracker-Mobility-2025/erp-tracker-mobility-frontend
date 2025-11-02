@@ -1,7 +1,6 @@
 <script>
 
 import {OrderService} from "../models/order-service.entity.js";
-import {VerifierApi} from "../services/verifier-api.service.js";
 import {OrderRequestApi} from "../services/order-request-api.service.js";
 
 export default {
@@ -53,9 +52,15 @@ export default {
 
       // Datos para la nueva observación
       currentObservation: {
-        documentType: 'Documento de identidad',
+        documentType: 'DOCUMENTO_IDENTIDAD',
         description: ''
-      }
+      },
+
+      // Opciones de tipos de documento para observaciones
+      documentTypeOptions: [
+        { label: 'Documento de identidad', value: 'DOCUMENTO_IDENTIDAD' },
+        { label: 'Recibo de servicio', value: 'RECIBO_SERVICIO' }
+      ]
     };
   },
 
@@ -75,6 +80,21 @@ export default {
       
       const { verifierId, visitDate, visitTime } = this.localHomeVisitDetails;
       return verifierId && visitDate && visitTime;
+    },
+
+    // Validación en tiempo real para observaciones
+    isObservationValid() {
+      if (!this.editingStates.observations) return true;
+
+      return this.currentObservation.documentType &&
+             this.currentObservation.description &&
+             this.currentObservation.description.trim() !== '';
+    },
+
+    // Obtener etiqueta del tipo de documento
+    getDocumentTypeLabel(value) {
+      const option = this.documentTypeOptions.find(opt => opt.value === value);
+      return option ? option.label : value;
     },
 
   },
@@ -278,11 +298,17 @@ export default {
 
     // Enviar observaciones de la orden de servicio
     submitOrderObservations() {
+      // Validar que se haya ingresado una descripción
+      if (!this.currentObservation.description || this.currentObservation.description.trim() === '') {
+        this.showToast('warn', 'Campo requerido', 'Debe ingresar una descripción para la observación.');
+        return;
+      }
+
       // Crear nueva observación con ID único
       const newObservation = {
         id: Date.now(), // ID temporal
         documentType: this.currentObservation.documentType,
-        description: this.currentObservation.description
+        description: this.currentObservation.description.trim()
       };
 
       // Añadir la nueva observación al array de observaciones
@@ -291,9 +317,12 @@ export default {
       }
       this.item.observations.push(newObservation);
 
+      // Mostrar mensaje de éxito
+      this.showToast('success', 'Observación agregada', 'La observación ha sido agregada correctamente.');
+
       // Limpiar el formulario de observación actual
       this.currentObservation = {
-        documentType: 'Documento de identidad',
+        documentType: 'DOCUMENTO_IDENTIDAD',
         description: ''
       };
 
@@ -349,9 +378,9 @@ export default {
       <template #content>
 
         <div class="field mb-3">
-          <label for="verifier" class="font-medium text-gray-700 flex align-items-center gap-2">
+          <label for="verifier" class="font-medium text-600 flex align-items-center gap-2">
             <i class="pi pi-user text-primary"></i>
-            Seleccionar verificador *
+            Seleccionar verificador
             <span class="text-red-500">*</span>
           </label>
           <pv-select
@@ -368,10 +397,10 @@ export default {
         </div>
 
         <div class="formgrid grid mb-4">
-          <div class="field col-6">
-            <label for="visitDate" class="font-medium text-gray-700 flex align-items-center gap-2">
+          <div class="field col-12 md:col-6">
+            <label for="visitDate" class="font-medium text-600 flex align-items-center gap-2">
               <i class="pi pi-calendar text-primary"></i>
-              Fecha de visita *
+              Fecha de visita
               <span class="text-red-500">*</span>
             </label>
             <pv-calendar
@@ -385,10 +414,10 @@ export default {
                 :disabled="!editingStates.verifier"
             />
           </div>
-          <div class="field col-6">
-            <label for="visitTime" class="font-medium text-gray-700 flex align-items-center gap-2">
+          <div class="field col-12 md:col-6">
+            <label for="visitTime" class="font-medium text-600 flex align-items-center gap-2">
               <i class="pi pi-clock text-primary"></i>
-              Hora de visita *
+              Hora de visita
               <span class="text-red-500">*</span>
             </label>
             <pv-calendar
@@ -445,13 +474,13 @@ export default {
       <template #content>
 
         <div class="field mb-3">
-          <label class="font-medium text-gray-700 flex align-items-center gap-2 mb-2">
+          <label class="font-medium text-600 flex align-items-center gap-2 mb-2">
             <i class="pi pi-info-circle text-primary"></i>
             Estado actual
           </label>
-          <div class="p-3 border-1 border-300 border-round bg-gray-50 flex align-items-center gap-2">
+          <div class="p-3 border-1 surface-border border-round surface-50 flex align-items-center gap-2">
             <i class="pi pi-circle-fill text-primary"></i>
-            <span class="font-semibold text-gray-800">
+            <span class="font-semibold text-900">
               {{ getStatusLabel(item.status) }}
             </span>
           </div>
@@ -470,38 +499,65 @@ export default {
       <template #content>
 
         <div class="field mb-3">
-          <label for="documentType" class="font-medium text-gray-700 flex align-items-center gap-2">
+          <label for="documentType" class="font-medium text-600 flex align-items-center gap-2">
             <i class="pi pi-file text-primary"></i>
             Selecciona el documento
+            <span class="text-red-500">*</span>
           </label>
           <pv-select
               id="documentType"
               v-model="currentObservation.documentType"
-              :options="[
-              { label: 'Documento de identidad', value: 'Documento de identidad' },
-              { label: 'Recibo de servicios', value: 'Recibo de servicios' }
-            ]"
+              :options="documentTypeOptions"
               optionLabel="label"
               optionValue="value"
-              placeholder="Documento de identidad"
+              placeholder="Seleccionar tipo de documento"
               class="w-full mt-1"
               :disabled="!editingStates.observations"
           />
         </div>
 
         <div class="field mb-4">
-          <label for="observations" class="font-bold text-primary flex align-items-center gap-2">
+          <label for="observations" class="font-medium text-600 flex align-items-center gap-2">
             <i class="pi pi-align-left text-primary"></i>
             Descripción
+            <span class="text-red-500">*</span>
           </label>
           <pv-textarea
               id="observations"
               v-model="currentObservation.description"
               :rows="3"
-              placeholder="Los datos del documento de identidad no coinciden con los datos del cliente"
+              placeholder="Detalla la observación aquí..."
               class="w-full mt-1"
+              :class="{ 'p-invalid': editingStates.observations && (!currentObservation.description || currentObservation.description.trim() === '') }"
               :disabled="!editingStates.observations"
           />
+        </div>
+
+        <!-- Lista de observaciones existentes -->
+        <div v-if="item.observations && item.observations.length > 0" class="field mb-4">
+          <label class="font-medium text-600 flex align-items-center gap-2 mb-2">
+            <i class="pi pi-list text-primary"></i>
+            Observaciones registradas ({{ item.observations.length }})
+          </label>
+          <div class="observations-list max-h-15rem overflow-y-auto" style="scrollbar-width: thin; scrollbar-color: #cbd5e1 #f1f5f9;">
+            <div
+              v-for="(observation, index) in item.observations"
+              :key="observation.id || index"
+              class="observation-item p-3 mb-2 border-1 border-300 border-round bg-blue-50 transition-all transition-duration-200 cursor-pointer"
+            >
+              <div class="flex align-items-start gap-2">
+                <i class="pi pi-file text-blue-600 mt-1"></i>
+                <div class="flex-1">
+                  <p class="font-semibold text-sm text-blue-800 m-0 mb-1">
+                    {{ getDocumentTypeLabel(observation.documentType) }}
+                  </p>
+                  <p class="text-sm text-600 m-0">
+                    {{ observation.description }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="flex gap-2 w-full">
@@ -520,6 +576,7 @@ export default {
                 label="Guardar"
                 icon="pi pi-save"
                 class="p-button-primary flex-1"
+                :disabled="!isObservationValid"
                 @click="submitOrderObservations"
             />
             <pv-button
@@ -537,32 +594,42 @@ export default {
 
 <style scoped>
 
-:deep(.p-card-content) {
-  padding: 0.5rem;
+/* Asegurar que la card mantenga sus bordes redondeados */
+:deep(.p-card) {
+  border-radius: 6px !important;
+  overflow: hidden !important;
 }
 
-/* Estilos para el header de las cards */
+/* Estilos personalizados para el header de las cards (no disponibles en PrimeFlex) */
 :deep(.p-card .p-card-header) {
   background-color: #4A60D0 !important;
   color: white !important;
-  border-top-left-radius: var(--border-radius) !important;
-  border-top-right-radius: var(--border-radius) !important;
+  border-top-left-radius: 6px !important;
+  border-top-right-radius: 6px !important;
   padding: 0 !important;
   border-bottom: none !important;
 }
 
-/* Asegurar que la card mantenga sus bordes redondeados */
-:deep(.p-card) {
-  border-radius: var(--border-radius) !important;
-  overflow: hidden !important;
+/* Scrollbar personalizada para lista de observaciones */
+.observations-list::-webkit-scrollbar {
+  width: 6px;
 }
 
-/* Estilos para campos requeridos */
-.text-red-500 {
-  color: #ef4444;
+.observations-list::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
 }
 
-/* Estilos para campos inválidos */
+.observations-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.observations-list::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Estilos para campos inválidos (validación) */
 :deep(.p-invalid) {
   border-color: #ef4444 !important;
 }
@@ -572,7 +639,6 @@ export default {
   box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.2) !important;
 }
 
-/* Estilos para select inválido */
 :deep(.p-select.p-invalid) {
   border-color: #ef4444 !important;
 }
@@ -586,7 +652,6 @@ export default {
   box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.2) !important;
 }
 
-/* Estilos para calendar inválido */
 :deep(.p-inputwrapper-invalid .p-inputtext) {
   border-color: #ef4444 !important;
 }

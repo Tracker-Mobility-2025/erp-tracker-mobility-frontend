@@ -3,10 +3,7 @@ export default {
   name: 'request-observations-details',
 
   props: {
-    observations: {
-      type: String,
-      default: null
-    }
+    observations: null
   }
 }
 </script>

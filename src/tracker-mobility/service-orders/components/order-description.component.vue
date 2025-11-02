@@ -493,40 +493,40 @@ export default {
         <div class="formgrid grid">
           <!-- Fila 1: RUC, Razón Social y Nombre de ejecutivo -->
           <div class="field col-12 md:col-4">
-            <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <label class="font-semibold text-600 flex align-items-center gap-2">
               <i class="pi pi-id-card text-primary"></i>
               Ruc
             </label>
-            <p class="font-semibold text-dark m-0">{{ item?.applicantCompany?.ruc || 'No disponible' }}</p>
+            <p class="font-semibold text-900 m-0">{{ item?.applicantCompany?.ruc || 'No disponible' }}</p>
           </div>
           <div class="field col-12 md:col-4">
-            <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <label class="font-semibold text-600 flex align-items-center gap-2">
               <i class="pi pi-building text-primary"></i>
               Razón social
             </label>
-            <p class=" font-semibold text-dark m-0">{{ item?.applicantCompany?.companyName || 'No disponible' }}</p>
+            <p class="font-semibold text-900 m-0">{{ item?.applicantCompany?.companyName || 'No disponible' }}</p>
           </div>
           <div class="field col-12 md:col-4">
-            <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <label class="font-semibold text-600 flex align-items-center gap-2">
               <i class="pi pi-user text-primary"></i>
               Nombre de ejecutivo
             </label>
-            <p class="font-semibold text-dark m-0">{{ item?.applicantCompany?.executiveName || 'No disponible' }}</p>
+            <p class="font-semibold text-900 m-0">{{ item?.applicantCompany?.executiveName || 'No disponible' }}</p>
           </div>
           <!-- Fila 2: Número de contacto y Correo corporativo -->
           <div class="field col-12 md:col-4">
-            <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <label class="font-semibold text-600 flex align-items-center gap-2">
               <i class="pi pi-phone text-primary"></i>
               Número de contacto
             </label>
-            <p class="font-semibold text-dark m-0">{{ item?.applicantCompany?.contactPhoneNumber || 'No disponible' }}</p>
+            <p class="font-semibold text-900 m-0">{{ item?.applicantCompany?.contactPhoneNumber || 'No disponible' }}</p>
           </div>
           <div class="field col-12 md:col-8">
-            <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <label class="font-semibold text-600 flex align-items-center gap-2">
               <i class="pi pi-envelope text-primary"></i>
               Correo corporativo
             </label>
-            <p class="font-semibold text-dark m-0">{{ item?.applicantCompany?.corporateEmail || 'No disponible' }}</p>
+            <p class="font-semibold text-900 m-0">{{ item?.applicantCompany?.corporateEmail || 'No disponible' }}</p>
           </div>
         </div>
       </template>
@@ -547,55 +547,55 @@ export default {
         <div class="formgrid grid">
           <!-- Fila 1: Nombres completos, Apellidos completos y Tipo de documento -->
           <div class="field col-12 md:col-4">
-            <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <label class="font-semibold text-600 flex align-items-center gap-2">
               <i class="pi pi-user text-primary"></i>
               Nombres completos
             </label>
-            <p class="font-semibold text-dark m-0">{{ item?.client?.name || 'No disponible' }}</p>
+            <p class="font-semibold text-900 m-0">{{ item?.client?.name || 'No disponible' }}</p>
           </div>
           <div class="field col-12 md:col-4">
-            <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <label class="font-semibold text-600 flex align-items-center gap-2">
               <i class="pi pi-users text-primary"></i>
               Apellidos completos
             </label>
-            <p class="font-semibold text-dark m-0">{{ item?.client?.lastName || 'No disponible' }}</p>
+            <p class="font-semibold text-900 m-0">{{ item?.client?.lastName || 'No disponible' }}</p>
           </div>
           <div class="field col-12 md:col-4">
-            <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <label class="font-semibold text-600 flex align-items-center gap-2">
               <i class="pi pi-credit-card text-primary"></i>
               Tipo de documento
             </label>
-            <p class="font-semibold text-dark m-0">{{ item?.client?.identityDocument?.documentType || 'No disponible' }}</p>
+            <p class="font-semibold text-900 m-0">{{ item?.client?.identityDocument?.documentType || 'No disponible' }}</p>
           </div>
           <!-- Fila 2: N° de documento, Número de contacto y Dirección de domicilio -->
           <div class="field col-12 md:col-4">
-            <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <label class="font-semibold text-600 flex align-items-center gap-2">
               <i class="pi pi-hashtag text-primary"></i>
               N° de documento de identidad
             </label>
-            <p class="font-semibold text-dark m-0">{{ item?.client?.identityDocument?.documentNumber || 'No disponible' }}</p>
+            <p class="font-semibold text-900 m-0">{{ item?.client?.identityDocument?.documentNumber || 'No disponible' }}</p>
           </div>
           <div class="field col-12 md:col-4">
-            <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <label class="font-semibold text-600 flex align-items-center gap-2">
               <i class="pi pi-phone text-primary"></i>
               Número de contacto
             </label>
-            <p class="font-semibold text-dark m-0">{{ item?.client?.phoneNumber || 'No disponible' }}</p>
+            <p class="font-semibold text-900 m-0">{{ item?.client?.phoneNumber || 'No disponible' }}</p>
           </div>
           <div class="field col-12 md:col-4">
-            <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <label class="font-semibold text-600 flex align-items-center gap-2">
               <i class="pi pi-home text-primary"></i>
               Dirección de domicilio
             </label>
-            <p class="font-semibold text-dark m-0">{{ item?.client?.dwelling?.homeAddress || 'No disponible' }}</p>
+            <p class="font-semibold text-900 m-0">{{ item?.client?.dwelling?.homeAddress || 'No disponible' }}</p>
           </div>
           <!-- Ubicación en Google Maps -->
           <div class="field col-12" v-if="item?.client?.location?.mapLocation">
-            <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <label class="font-semibold text-600 flex align-items-center gap-2">
               <i class="pi pi-map-marker text-primary"></i>
               Ubicación en google maps
             </label>
-            <p class="text-color m-0">
+            <p class="text-900 m-0">
               <a
                   :href="item.client.location.mapLocation"
                   target="_blank"
@@ -607,11 +607,11 @@ export default {
             </p>
           </div>
           <div class="field col-12" v-else>
-            <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <label class="font-semibold text-600 flex align-items-center gap-2">
               <i class="pi pi-map-marker text-primary"></i>
               Ubicación en google maps
             </label>
-            <p class="text-color m-0">No disponible</p>
+            <p class="text-900 m-0">No disponible</p>
           </div>
         </div>
       </template>
@@ -634,7 +634,7 @@ export default {
               :key="document.id"
               class="field col-12 md:col-4"
           >
-            <label class="font-semibold text-color-secondary flex align-items-center gap-2 mb-2">
+            <label class="font-semibold text-600 flex align-items-center gap-2 mb-2">
               <i :class="`pi ${getFileIcon(document.url)} ${getFileColor(document.url)}`"></i>
               {{ getDocumentLabel(document.type) }}
             </label>
@@ -651,7 +651,7 @@ export default {
               <!-- Mostrar icono para archivos no imagen -->
               <div v-else class="w-full flex flex-column align-items-center mb-3">
                 <i :class="`pi ${getFileIcon(document.url)} ${getFileColor(document.url)} text-6xl mb-2 transition-all transition-duration-200`"></i>
-                <span class="text-sm text-color-secondary font-medium uppercase">{{ getFileExtension(document.url) || 'Archivo' }}</span>
+                <span class="text-sm text-600 font-medium uppercase">{{ getFileExtension(document.url) || 'Archivo' }}</span>
               </div>
               <!-- Botones de acción -->
               <div class="flex flex-column gap-2 w-full">
@@ -676,8 +676,8 @@ export default {
 
         <!-- Mensaje cuando no hay documentos -->
         <div v-else class="text-center py-4">
-          <i class="pi pi-file-excel text-4xl text-color-secondary"></i>
-          <p class="text-color-secondary mt-2 mb-0">No hay documentos adjuntos disponibles</p>
+          <i class="pi pi-file-excel text-4xl text-600"></i>
+          <p class="text-600 mt-2 mb-0">No hay documentos adjuntos disponibles</p>
         </div>
       </template>
     </pv-card>
@@ -694,18 +694,18 @@ export default {
 
         <div class="formgrid grid">
           <div class="field col-12 md:col-4">
-            <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <label class="font-semibold text-600 flex align-items-center gap-2">
               <i class="pi pi-user text-primary"></i>
               Nombre completo
             </label>
-            <p class="font-semibold text-dark m-0">{{ item?.client?.landlord?.fullName || 'No disponible' }}</p>
+            <p class="font-semibold text-900 m-0">{{ item?.client?.landlord?.fullName || 'No disponible' }}</p>
           </div>
           <div class="field col-12 md:col-4">
-            <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <label class="font-semibold text-600 flex align-items-center gap-2">
               <i class="pi pi-phone text-primary"></i>
               Número de contacto
             </label>
-            <p class="font-semibold text-dark m-0">{{ item?.client?.landlord?.phoneNumber || 'No disponible' }}</p>
+            <p class="font-semibold text-900 m-0">{{ item?.client?.landlord?.phoneNumber || 'No disponible' }}</p>
           </div>
         </div>
       </template>
@@ -757,7 +757,7 @@ export default {
               title="Acercar"
             />
           </div>
-          <span class="text-sm text-color-secondary">{{ Math.round(imageZoom * 100) }}%</span>
+          <span class="text-sm text-600">{{ Math.round(imageZoom * 100) }}%</span>
         </div>
         <div class="image-container" style="overflow: auto; max-height: 60vh; border: 1px solid var(--surface-border); border-radius: 6px;">
           <img 
@@ -862,21 +862,22 @@ export default {
   padding: 0.5rem;
 }
 
+/* Asegurar que la card mantenga sus bordes redondeados */
+:deep(.p-card) {
+  border-radius: 6px !important;
+  overflow: hidden !important;
+}
+
 /* Estilos para el header de las cards */
 :deep(.p-card .p-card-header) {
   background-color: #4A60D0 !important;
   color: white !important;
-  border-top-left-radius: var(--border-radius) !important;
-  border-top-right-radius: var(--border-radius) !important;
+  border-top-left-radius: 6px !important;
+  border-top-right-radius: 6px !important;
   padding: 0 !important;
   border-bottom: none !important;
 }
 
-/* Asegurar que la card mantenga sus bordes redondeados */
-:deep(.p-card) {
-  border-radius: var(--border-radius) !important;
-  overflow: hidden !important;
-}
 
 /* Estilos para el modal de documentos */
 :deep(.document-viewer-modal .p-dialog-header) {

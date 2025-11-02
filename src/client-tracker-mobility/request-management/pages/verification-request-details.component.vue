@@ -225,22 +225,22 @@ export default {
     <!-- Contenido principal -->
     <div v-else-if="item" class="request-content flex flex-column gap-4">
 
+      <!-- Observaciones -->
+      <request-observations-details :observations="item.observations" />
+
       <!-- Datos del solicitante -->
       <request-applicant-details :applicant-company="item.applicantCompany" />
 
       <!-- Datos del cliente -->
       <request-client-details :client="item.client" />
 
-      <!-- Observaciones -->
-      <request-observations-details :observations="item.observations" />
-
       <!-- Documentos adjuntos -->
       <request-documents-details :documents="item.client?.documents" />
 
       <!-- Datos del arrendador -->
-      <request-landlord-details 
-        :landlord="item.client?.landlord" 
-        :is-tenant="item.client?.isTenant" 
+      <request-landlord-details
+        :landlord="item.client?.landlord"
+        :is-tenant="item.client?.isTenant"
       />
 
     </div>
