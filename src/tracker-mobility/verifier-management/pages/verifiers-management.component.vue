@@ -17,8 +17,10 @@ export default {
     return {
 
       // Servicio para obtener el admin por userId
-      adminApiService: new AdminApiService('/admins'),
+      adminApiService: null,
       adminItem: new Admin({}),
+
+      userId: null, // ID del usuario autenticado
 
       adminId: null, // ID del administrador actual (simulado)
       createItem: new CreateVerifier({}), // Nuevo verificador a crear
@@ -110,8 +112,8 @@ export default {
       this.createAndEditDialogIsVisible = true;
     },
 
-    onDeleteSelectedItems(selectedItems) {
-      this.selectedItems = selectedItems;
+    onDeleteSelectedItems(selectedItemsArray) {
+      this.selectedItems = selectedItemsArray;
       this.deleteSelectedItems();
     },
 
@@ -443,16 +445,25 @@ export default {
 
     },
 
-    getAdminByUserId(userId) {
-      this.adminApiService.getByUserId(userId).then(response => {
+    getAdminByUserId() {
+
+      console.log('====== Obtenemos los valores del admin por userId: ======', this.userId);
+
+      this.adminApiService.getByUserId(this.userId).then(response => {
 
         this.adminItem = new Admin(response.data);
         this.adminId = this.adminItem.id;
-        console.log('Administrador cargado por userId:', this.adminItem);
+        console.log('Admin obtenido por userId:', this.adminItem);
+
+        this.getAllVerifiers();
 
       }).catch(error => {
+
+        console.log('====== ERROR AL CARGAR ADMIN CON USERID ======', this.userId);
+
+
         this.handleServerError(error, 'el administrador');
-      });
+      })
     }
 
   },
@@ -461,16 +472,17 @@ export default {
     const authStore = useAuthenticationStore();
     this.userId = authStore.currentUserId; // Obtener el ID del usuario autenticado
 
-
+    console.log('====== USER ID ======', this.userId);
     this.adminApiService = new AdminApiService('/admins');
+    this.verifierManagementApiServices = new VerifierApiService('/verifiers');
+
     // Obtener el adminId basado en el userId
     this.getAdminByUserId(this.userId);
 
 
-    this.verifierManagementApiServices = new VerifierApiService('/verifiers');
     //this.getAllVerifiersByAdminId(this.adminId); // Usar ID de admin simulado 1
 
-    this.getAllVerifiers();
+    //this.getAllVerifiers();
   }
 
 };
