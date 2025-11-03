@@ -18,8 +18,8 @@ export default {
 <template>
   <pv-card class="w-full" v-if="isTenant">
     <template #header>
-      <div class="flex align-items-center gap-2 px-3 py-2 card-header">
-        <i class="pi pi-home"></i>
+      <div class="flex align-items-center gap-2 px-3 py-2" style="background-color: #4A60D0; color: white; border-top-left-radius: 6px; border-top-right-radius: 6px;">
+        <i class="pi pi-home" style="color: white;"></i>
         <span class="text-lg font-bold">Datos del arrendador</span>
       </div>
     </template>
@@ -49,22 +49,22 @@ export default {
   padding: 0.5rem;
 }
 
-.card-header {
-  background-color: #4A60D0 !important;
-  color: white !important;
+:deep(.p-card) {
+  border-radius: 6px !important;
+  overflow: hidden !important;
 }
 
 :deep(.p-card .p-card-header) {
   background-color: #4A60D0 !important;
   color: white !important;
-  border-top-left-radius: var(--border-radius) !important;
-  border-top-right-radius: var(--border-radius) !important;
+  border-top-left-radius: 6px !important;
+  border-top-right-radius: 6px !important;
   padding: 0 !important;
   border-bottom: none !important;
 }
 
-:deep(.p-card) {
-  border-radius: var(--border-radius) !important;
-  overflow: hidden !important;
+.card-header {
+  background-color: #4A60D0 !important;
+  color: white !important;
 }
 </style>

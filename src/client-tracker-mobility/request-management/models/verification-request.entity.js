@@ -69,6 +69,22 @@ export class Client {
     }
 }
 
+export class Observation {
+    constructor({
+                    id = null,
+                    orderId = null,
+                    observationType = null,
+                    description = null,
+                    status = null
+                } = {}) {
+        this.id = id;
+        this.orderId = orderId;
+        this.observationType = observationType;
+        this.description = description;
+        this.status = status;
+    }
+}
+
 export class ApplicantCompany {
     constructor({
                     applicantCompanyId = null,
@@ -99,7 +115,7 @@ export class VerificationRequest {
                     requestDate = null,
                     client = null,
                     applicantCompany = null,
-                    observations = null
+                    observations = []
                 } = {}) {
         this.id = id;
         this.orderCode = orderCode;
@@ -107,6 +123,6 @@ export class VerificationRequest {
         this.requestDate = requestDate;
         this.client = client ? new Client(client) : null;
         this.applicantCompany = applicantCompany ? new ApplicantCompany(applicantCompany) : null;
-        this.observations = observations;
+        this.observations = observations.map(o => new Observation(o));
     }
 }

@@ -322,14 +322,12 @@ export default {
 
       // Crear nueva observación
       const newObservation = {
-        orderId: this.item.id,
         observationType: this.currentObservation.observationType,
         description: this.currentObservation.description.trim(),
-        status: 'PENDIENTE' // Estado inicial por defecto
       };
 
       // Crear la observación en el backend
-      this.orderRequestApi.create(this.item.id, newObservation).then(response => {
+      this.observationApiService.create(this.item.id, newObservation).then(response => {
           // Agregar la nueva observación a la lista de observaciones del ítem
           if (!this.item.observations) {
             this.item.observations = [];

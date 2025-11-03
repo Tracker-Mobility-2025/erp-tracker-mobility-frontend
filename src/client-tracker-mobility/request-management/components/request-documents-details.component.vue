@@ -113,8 +113,8 @@ export default {
 <template>
   <pv-card class="w-full">
     <template #header>
-      <div class="flex align-items-center gap-2 px-3 py-2 card-header">
-        <i class="pi pi-paperclip"></i>
+      <div class="flex align-items-center gap-2 px-3 py-2" style="background-color: #4A60D0; color: white; border-top-left-radius: 6px; border-top-right-radius: 6px;">
+        <i class="pi pi-paperclip" style="color: white;"></i>
         <span class="text-lg font-bold">Documentos adjuntos</span>
       </div>
     </template>
@@ -242,31 +242,33 @@ export default {
 </template>
 
 <style scoped>
-.card-header {
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #dee2e6;
+:deep(.p-card) {
+  border-radius: 6px !important;
+  overflow: hidden !important;
+}
+
+:deep(.p-card .p-card-header) {
+  background-color: #4A60D0 !important;
+  color: white !important;
+  border-top-left-radius: 6px !important;
+  border-top-right-radius: 6px !important;
+  padding: 0 !important;
+  border-bottom: none !important;
 }
 
 :deep(.p-card-content) {
   padding: 1.5rem;
 }
 
+.card-header {
+  background-color: #4A60D0 !important;
+  color: white !important;
+}
+
 .document-viewer-content {
   min-height: 200px;
 }
 
-:deep(.p-card .p-card-header) {
-  background-color: #f8f9fa;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-}
-
-:deep(.p-card) {
-  border-radius: 12px !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-top-left-radius: var(--border-radius) !important;
-  border-top-right-radius: var(--border-radius) !important;
-}
 
 @media (max-width: 768px) {
   .card-header :deep(.p-button) {

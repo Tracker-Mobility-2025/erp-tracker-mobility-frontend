@@ -25,6 +25,7 @@ export default {
         { field: 'orderCode', header: 'Código de solicitud', sortable: true, style: 'width: 160px;' },
         { field: 'requestDate', header: 'Fecha de solicitud', sortable: true, template: 'requestDate', style: 'width: 150px;' },
         { field: 'status', header: 'Estado', sortable: true, template: 'status', style: 'width: 120px;' },
+        { field: 'observations', header: 'Obs. Pendientes', sortable: false, template: 'pendingObservations', style: 'width: 140px;' },
         { field: 'clientName', header: 'Cliente', sortable: true, template: 'clientName', style: 'width: 180px;' },
         { field: 'client.phoneNumber', header: 'Contacto', sortable: true, style: 'width: 140px;' }
       ],
@@ -185,6 +186,16 @@ export default {
         default:
           return 'info';
       }
+    },
+
+    // Contar observaciones pendientes de una solicitud
+    getPendingObservationsCount(item) {
+      if (!item || !item.observations || !Array.isArray(item.observations)) {
+        return 0;
+      }
+      const count = item.observations.filter(obs => obs.status === 'PENDIENTE').length;
+      console.log('Observaciones pendientes para item:', item.orderCode, '=', count);
+      return count;
     },
 
     // Parsear fecha string a objeto Date local (sin conversión de zona horaria)
@@ -464,6 +475,19 @@ export default {
             :severity="getStatusSeverity(data.status)"
             class="text-sm"
         />
+      </template>
+
+      <!-- Custom Pending Observations Column -->
+      <template #pendingObservations="{ data }">
+        <div class="flex align-items-center gap-2">
+          <pv-badge
+              :value="getPendingObservationsCount(data)"
+              :severity="getPendingObservationsCount(data) > 0 ? 'danger' : 'success'"
+          />
+          <span class="text-sm" :class="getPendingObservationsCount(data) > 0 ? 'text-red-600 font-semibold' : 'text-green-600'">
+            {{ getPendingObservationsCount(data) > 0 ? 'Pendientes' : 'Sin observaciones' }}
+          </span>
+        </div>
       </template>
 
       <!-- Custom Client Name Column -->
