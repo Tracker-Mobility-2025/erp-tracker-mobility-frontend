@@ -2,6 +2,7 @@
 
 import {OrderService} from "../models/order-service.entity.js";
 import {OrderRequestApi} from "../services/order-request-api.service.js";
+import {ObservationApiService} from "../services/observation-api.service.js";
 
 export default {
   name: 'order-actions',
@@ -31,6 +32,9 @@ export default {
       // Servicio de API para órdenes de servicio
       orderRequestApi: new OrderRequestApi('/orders'),
 
+      // Servicio de API para observaciones (si es necesario)
+      observationApiService: new ObservationApiService('/orders'),
+
       // Datos locales para evitar mutación directa del prop
       localHomeVisitDetails: {
         verifierId: null,
@@ -52,14 +56,21 @@ export default {
 
       // Datos para la nueva observación
       currentObservation: {
-        documentType: 'DOCUMENTO_IDENTIDAD',
+        observationType: null,
         description: ''
       },
 
-      // Opciones de tipos de documento para observaciones
-      documentTypeOptions: [
+      // Opciones de tipos de observación
+      observationTypeOptions: [
+        { label: '-- Seleccionar tipo --', value: null },
         { label: 'Documento de identidad', value: 'DOCUMENTO_IDENTIDAD' },
         { label: 'Recibo de servicio', value: 'RECIBO_SERVICIO' }
+      ],
+
+      // Opciones de estados de observación
+      observationStatusOptions: [
+        { label: 'Pendiente', value: 'PENDIENTE', severity: 'warning' },
+        { label: 'Resuelta', value: 'RESUELTA', severity: 'success' }
       ]
     };
   },
@@ -86,20 +97,25 @@ export default {
     isObservationValid() {
       if (!this.editingStates.observations) return true;
 
-      return this.currentObservation.documentType &&
+      return this.currentObservation.observationType &&
              this.currentObservation.description &&
              this.currentObservation.description.trim() !== '';
-    },
-
-    // Obtener etiqueta del tipo de documento
-    getDocumentTypeLabel(value) {
-      const option = this.documentTypeOptions.find(opt => opt.value === value);
-      return option ? option.label : value;
-    },
+    }
 
   },
 
   methods : {
+    // Obtener etiqueta del tipo de observación
+    getObservationTypeLabel(value) {
+      const option = this.observationTypeOptions.find(opt => opt.value === value);
+      return option ? option.label : value;
+    },
+
+    // Obtener información del estado de observación
+    getObservationStatusInfo(status) {
+      const option = this.observationStatusOptions.find(opt => opt.value === status);
+      return option || { label: status, severity: 'info' };
+    },
     // Inicializar datos locales desde el prop
     initializeLocalData() {
       if (this.item.homeVisitDetails) {
@@ -304,29 +320,37 @@ export default {
         return;
       }
 
-      // Crear nueva observación con ID único
+      // Crear nueva observación
       const newObservation = {
-        id: Date.now(), // ID temporal
-        documentType: this.currentObservation.documentType,
-        description: this.currentObservation.description.trim()
+        orderId: this.item.id,
+        observationType: this.currentObservation.observationType,
+        description: this.currentObservation.description.trim(),
+        status: 'PENDIENTE' // Estado inicial por defecto
       };
 
-      // Añadir la nueva observación al array de observaciones
-      if (!this.item.observations) {
-        this.item.observations = [];
-      }
-      this.item.observations.push(newObservation);
+      // Crear la observación en el backend
+      this.orderRequestApi.create(this.item.id, newObservation).then(response => {
+          // Agregar la nueva observación a la lista de observaciones del ítem
+          if (!this.item.observations) {
+            this.item.observations = [];
+          }
+          this.item.observations.push(response.data);
 
-      // Mostrar mensaje de éxito
-      this.showToast('success', 'Observación agregada', 'La observación ha sido agregada correctamente.');
+          // Mostrar mensaje de éxito
+          this.showToast('success', 'Observación agregada', 'La observación ha sido agregada correctamente.');
 
-      // Limpiar el formulario de observación actual
-      this.currentObservation = {
-        documentType: 'DOCUMENTO_IDENTIDAD',
-        description: ''
-      };
+          // Limpiar el formulario de observación actual
+          this.currentObservation = {
+            observationType: 'DOCUMENTO_IDENTIDAD',
+            description: ''
+          };
 
-      this.editingStates.observations = false;
+          this.editingStates.observations = false;
+      })
+        .catch(error => {
+          console.error('Error al crear la observación en el backend:', error);
+          this.showToast('error', 'Error', 'No se pudo agregar la observación. Intente nuevamente.');
+        });
     },
 
 
@@ -389,10 +413,11 @@ export default {
               :options="verifiersListFormatted"
               optionLabel="fullName"
               optionValue="id"
-              placeholder="Ingresar el nombre del verificador"
+              placeholder="-- Seleccionar verificador --"
               class="w-full mt-1"
               :class="{ 'p-invalid': editingStates.verifier && !localHomeVisitDetails.verifierId }"
               :disabled="!editingStates.verifier"
+              showClear
           />
         </div>
 
@@ -499,20 +524,22 @@ export default {
       <template #content>
 
         <div class="field mb-3">
-          <label for="documentType" class="font-medium text-600 flex align-items-center gap-2">
+          <label for="observationType" class="font-medium text-600 flex align-items-center gap-2">
             <i class="pi pi-file text-primary"></i>
-            Selecciona el documento
+            Tipo de observación
             <span class="text-red-500">*</span>
           </label>
           <pv-select
-              id="documentType"
-              v-model="currentObservation.documentType"
-              :options="documentTypeOptions"
+              id="observationType"
+              v-model="currentObservation.observationType"
+              :options="observationTypeOptions"
               optionLabel="label"
               optionValue="value"
-              placeholder="Seleccionar tipo de documento"
+              placeholder="-- Seleccionar tipo de observación --"
               class="w-full mt-1"
+              :class="{ 'p-invalid': editingStates.observations && !currentObservation.observationType }"
               :disabled="!editingStates.observations"
+              showClear
           />
         </div>
 
@@ -548,9 +575,17 @@ export default {
               <div class="flex align-items-start gap-2">
                 <i class="pi pi-file text-blue-600 mt-1"></i>
                 <div class="flex-1">
-                  <p class="font-semibold text-sm text-blue-800 m-0 mb-1">
-                    {{ getDocumentTypeLabel(observation.documentType) }}
-                  </p>
+                  <div class="flex align-items-center justify-content-between mb-1">
+                    <p class="font-semibold text-sm text-blue-800 m-0">
+                      {{ getObservationTypeLabel(observation.observationType) }}
+                    </p>
+                    <pv-tag
+                      v-if="observation.status"
+                      :value="getObservationStatusInfo(observation.status).label"
+                      :severity="getObservationStatusInfo(observation.status).severity"
+                      class="text-xs"
+                    />
+                  </div>
                   <p class="text-sm text-600 m-0">
                     {{ observation.description }}
                   </p>
@@ -608,6 +643,21 @@ export default {
   border-top-right-radius: 6px !important;
   padding: 0 !important;
   border-bottom: none !important;
+}
+
+/* Asegurar que el texto seleccionado en los dropdowns sea oscuro */
+:deep(.p-select .p-select-label) {
+  color: #1e293b !important;
+  font-weight: 500 !important;
+}
+
+:deep(.p-select .p-select-label.p-placeholder) {
+  color: #94a3b8 !important;
+  font-weight: 400 !important;
+}
+
+:deep(.p-select:not(.p-disabled) .p-select-label) {
+  color: #1e293b !important;
 }
 
 /* Scrollbar personalizada para lista de observaciones */

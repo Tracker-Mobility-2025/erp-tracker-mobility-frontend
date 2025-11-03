@@ -181,10 +181,18 @@ export class HomeVisitDetails {
 }
 
 export class Observation {
-    constructor({ id = null, documentType = null, description = null } = {}) {
+    constructor({
+        id = null,
+        orderId = null,
+        observationType = null,
+        description = null,
+        status = null
+    } = {}) {
         this.id = id;
-        this.documentType = documentType;
+        this.orderId = orderId;
+        this.observationType = observationType;
         this.description = description;
+        this.status = status;
     }
 }
 
