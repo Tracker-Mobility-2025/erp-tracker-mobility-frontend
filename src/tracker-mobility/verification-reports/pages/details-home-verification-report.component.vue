@@ -1,3 +1,4 @@
+
 <script>
 // Importar los componentes de tarjetas
 import VisitDetailsCard from '../components/1-visit-details-card.component.vue'
@@ -17,7 +18,11 @@ import Annexe03CandidateCard from '../components/14-annexe-03-candidate-card.com
 import Annexe04GarageLocationCard from '../components/15-annexe-04-garage-location-card.component.vue'
 import Annexe05RoomsCard from '../components/16-annexe-05-rooms-card.component.vue'
 import Annexe06DomicileLocationCard from '../components/17-annexe-06-domicile-location-card.component.vue'
+import EmailSendComponent from '../components/email-send.component.vue'
 import {ReportApiService} from "../services/reports-api.service.js";
+import {EmailApiService} from "../services/email-api.service.js";
+import {DownloadReportApiService} from "../services/download-report-api.service.js";
+import {Email} from "../models/email.entity.js";
 
 export default {
   name:'details-home-verification-report',
@@ -39,7 +44,8 @@ export default {
     Annexe03CandidateCard,
     Annexe04GarageLocationCard,
     Annexe05RoomsCard,
-    Annexe06DomicileLocationCard
+    Annexe06DomicileLocationCard,
+    EmailSendComponent
   },
 
   props: {
@@ -58,8 +64,8 @@ export default {
     // Mapear datos de detalles de visita
     visitDetails() {
       return {
-        verifier: this.effectiveItem?.order?.homeVisitDetails?.verifierName || 
-                 `Verificador ID: ${this.effectiveItem?.order?.homeVisitDetails?.verifierId}` || 'No especificado',
+        verifier: this.effectiveItem?.order?.homeVisitDetails?.verifierName ||
+            `Verificador ID: ${this.effectiveItem?.order?.homeVisitDetails?.verifierId}` || 'No especificado',
         googleMapsLink: this.effectiveItem?.order?.client?.location?.mapLocation || '#',
         verificationDate: this.formatDate(this.effectiveItem?.order?.homeVisitDetails?.visitDate) || 'No especificada',
         verificationTime: this.effectiveItem?.order?.homeVisitDetails?.visitTime || 'No especificada'
@@ -106,7 +112,7 @@ export default {
       const residence = client?.residence;
       const dwelling = client?.dwelling;
       const zone = client?.zone;
-      
+
       return {
         livesWith: residence?.livesWith || 'No especificado',
         resides: residence?.isResident ? 'Sí' : (residence?.isResident === false ? 'No' : 'No especificado'),
@@ -150,7 +156,7 @@ export default {
     interviewDetails() {
       const interview = this.effectiveItem?.order?.client?.landlord?.interviewDetails;
       const client = this.effectiveItem?.order?.client;
-      
+
       return {
         tenantName: interview?.clientNameAccordingToLandlord || (client ? `${client.name || ''} ${client.lastName || ''}`.trim() : 'No especificado'),
         ownHouse: this.effectiveItem?.order?.client?.landlord?.ownHome ? 'Sí' : 'No',
@@ -231,10 +237,10 @@ export default {
       const documents = this.effectiveItem?.order?.client?.documents;
       return {
         title: 'ANEXO 03: Documentos de identidad del candidato',
-        images: documents?.filter(doc => 
-          doc.type === 'DNI' || 
-          doc.type === 'CARNET_EXTRANJERIA' || 
-          doc.type === 'PTP'
+        images: documents?.filter(doc =>
+            doc.type === 'DNI' ||
+            doc.type === 'CARNET_EXTRANJERIA' ||
+            doc.type === 'PTP'
         )?.map(doc => ({
           src: doc.url,
           alt: 'Documento de identidad del candidato',
@@ -277,9 +283,9 @@ export default {
       const documents = this.effectiveItem?.order?.client?.documents;
       return {
         title: 'ANEXO 06: Recibos de servicios',
-        images: documents?.filter(doc => 
-          doc.type === 'RECIBO_AGUA' || 
-          doc.type === 'RECIBO_LUZ'
+        images: documents?.filter(doc =>
+            doc.type === 'RECIBO_AGUA' ||
+            doc.type === 'RECIBO_LUZ'
         )?.map(doc => ({
           src: doc.url,
           alt: 'Recibo de servicios',
@@ -296,12 +302,18 @@ export default {
       // Servicio para manejar reportes de verificación
       reportDetailsApiService: new ReportApiService('/reports'),
 
+      // Servicio para manejar envío de emails
+      emailApiService: new EmailApiService('/emails'),
+
+      // Servicio para manejar descarga de reportes en PDF
+      downloadReportApiService: new DownloadReportApiService('/reports'),
+
       // item de reporte de verificación
       reportData: null,
-      
+
       // Estado de carga
       loading: false,
-      
+
       // Progreso de carga
       loadingStep: 0,
       loadingSteps: [
@@ -311,6 +323,14 @@ export default {
       ],
 
       statusOptions: ['Pendiente', 'En Proceso', 'Completado', 'Cancelado'],
+
+      // Estado del diálogo de envío de correo
+      emailDialogVisible: false,
+      emailData: {
+        recipientEmail: '',
+        subject: '',
+        message: ''
+      },
 
     }
   },
@@ -338,11 +358,11 @@ export default {
     // Función para formatear fechas en formato dd/mm/aaaa
     formatDate(dateString) {
       if (!dateString) return '';
-      
+
       try {
         // Manejar diferentes formatos de fecha de entrada
         let dateToFormat;
-        
+
         if (dateString.includes('T')) {
           // Si tiene formato ISO con hora, extraer solo la fecha
           const datePart = dateString.split('T')[0];
@@ -357,15 +377,15 @@ export default {
           // Fallback para otros formatos
           dateToFormat = new Date(dateString);
         }
-        
+
         // Verificar que la fecha sea válida
         if (isNaN(dateToFormat.getTime())) return dateString;
-        
+
         // Formatear como dd/mm/aaaa usando los métodos locales
         const day = dateToFormat.getDate().toString().padStart(2, '0');
         const month = (dateToFormat.getMonth() + 1).toString().padStart(2, '0');
         const year = dateToFormat.getFullYear();
-        
+
         return `${day}/${month}/${year}`;
       } catch (error) {
         console.error('Error al formatear fecha:', error);
@@ -373,21 +393,249 @@ export default {
       }
     },
 
-    // Función para enviar el reporte de verificación por correo electrónico
+    // Función para abrir el diálogo de envío de correo electrónico
     onSendVerificationReportByEmail() {
-      // Lógica para enviar el reporte por correo electrónico
+      // Configurar datos predeterminados del email
+      const client = this.effectiveItem?.order?.client;
+      const clientName = client ? `${client.name || ''} ${client.lastName || ''}`.trim() : 'Cliente';
+      const reportCode = this.effectiveItem?.reportCode || 'N/A';
+      const applicantEmail = this.effectiveItem?.order?.applicantCompany?.email || '';
+
+      this.emailData = {
+        recipientEmail: applicantEmail,
+        subject: `Reporte de Verificación Domiciliaria - ${reportCode} - ${clientName}`,
+        message: `Estimado(a),\n\nAdjunto encontrará el reporte de verificación domiciliaria solicitado.\n\nCódigo de reporte: ${reportCode}\nCliente: ${clientName}\n\nSaludos cordiales.`
+      };
+
+      this.emailDialogVisible = true;
+    },
+
+    // Función para manejar el envío del correo desde el diálogo
+    onEmailSendRequested(emailEntity) {
+      // Validar que tenemos un reporte válido
+      if (!this.effectiveItem || !this.effectiveItem.id) {
+        this.$toast.add({
+          severity: 'warn',
+          summary: 'Reporte no disponible',
+          detail: 'No se puede enviar el correo porque el reporte no está cargado. Por favor, recargue la página e intente nuevamente.',
+          life: 4000
+        });
+        return;
+      }
+
+      // Crear objeto Email con todos los datos necesarios
+      const emailData = new Email({
+        from: 'noreply@trackermobility.com', // Email del sistema
+        to: emailEntity.recipientEmail,
+        subject: emailEntity.subject,
+        body: emailEntity.message || '',
+        reportId: this.effectiveItem.id
+      });
+
+      // Mostrar mensaje de progreso
+      this.$toast.add({
+        severity: 'info',
+        summary: 'Enviando correo',
+        detail: 'Estamos enviando el reporte. Esto puede tomar unos segundos.',
+        life: 3000
+      });
+
+      // Enviar el correo
+      this.emailApiService.sendEmail(emailData)
+          .then(response => {
+            console.log('Correo enviado exitosamente:', response.data);
+
+            this.$toast.add({
+              severity: 'success',
+              summary: 'Correo enviado exitosamente',
+              detail: `El reporte ha sido enviado a ${emailEntity.recipientEmail}. El destinatario recibirá el documento PDF adjunto.`,
+              life: 5000
+            });
+
+            this.emailDialogVisible = false;
+          })
+          .catch(error => {
+            console.error('Error al enviar el correo:', error);
+
+            // Procesar el error para mostrar un mensaje amigable
+            const errorMessage = this.getEmailErrorMessage(error);
+
+            this.$toast.add({
+              severity: 'error',
+              summary: 'No se pudo enviar el correo',
+              detail: errorMessage,
+              life: 6000
+            });
+          });
+    },
+
+    // Función para traducir errores técnicos a mensajes amigables
+    getEmailErrorMessage(error) {
+      // Obtener el mensaje de error del backend
+      const backendMessage = error.response?.data?.message || error.message || '';
+      const statusCode = error.response?.status;
+
+      // Errores específicos de Elastic Email o servicios de correo
+      if (backendMessage.includes('testing purposes') || backendMessage.includes('register your')) {
+        return 'El servicio de correo está en modo de prueba. Por favor, contacte al administrador del sistema para activar el envío a múltiples destinatarios.';
+      }
+
+      if (backendMessage.includes('Invalid email') || backendMessage.includes('invalid recipient')) {
+        return 'La dirección de correo del destinatario no es válida. Por favor, verifique el correo e intente nuevamente.';
+      }
+
+      if (backendMessage.includes('Authentication failed') || backendMessage.includes('API key')) {
+        return 'Error de autenticación con el servicio de correo. Por favor, contacte al administrador del sistema.';
+      }
+
+      if (backendMessage.includes('quota') || backendMessage.includes('limit exceeded')) {
+        return 'Se ha alcanzado el límite de correos enviados. Por favor, intente más tarde o contacte al administrador.';
+      }
+
+      if (backendMessage.includes('connection') || backendMessage.includes('timeout')) {
+        return 'No se pudo conectar con el servidor de correo. Por favor, verifique su conexión a internet e intente nuevamente.';
+      }
+
+      if (backendMessage.includes('attachment') || backendMessage.includes('file')) {
+        return 'Error al adjuntar el archivo PDF. Por favor, verifique que el reporte exista e intente nuevamente.';
+      }
+
+      // Errores por código de estado HTTP
+      switch (statusCode) {
+        case 400:
+          return 'Los datos del correo no son válidos. Por favor, verifique el destinatario y el contenido del mensaje.';
+        case 401:
+          return 'No tiene autorización para enviar correos. Por favor, contacte al administrador del sistema.';
+        case 403:
+          return 'No tiene permisos suficientes para enviar este correo. Contacte al administrador.';
+        case 404:
+          return 'No se encontró el reporte solicitado. Por favor, recargue la página e intente nuevamente.';
+        case 500:
+          return 'Error interno del servidor. Por favor, intente nuevamente en unos momentos.';
+        case 503:
+          return 'El servicio de correo no está disponible temporalmente. Por favor, intente más tarde.';
+        default:
+          break;
+      }
+
+      // Mensaje genérico si no se identifica el error
+      return 'No se pudo enviar el correo electrónico. Por favor, verifique los datos e intente nuevamente. Si el problema persiste, contacte al administrador.';
+    },
+
+    // Función para cancelar el envío de correo
+    onEmailCancelRequested() {
+      this.emailDialogVisible = false;
     },
 
     // Función para descargar o imprimir el reporte de verificación en formato PDF
     onDownloadOrPrintVerificationReport() {
-      // Lógica para descargar o imprimir el reporte en PDF
+      // Validar que tenemos un reporte válido
+      if (!this.effectiveItem || !this.effectiveItem.id) {
+        this.$toast.add({
+          severity: 'warn',
+          summary: 'Reporte no disponible',
+          detail: 'No se puede descargar el reporte porque no está cargado. Por favor, recargue la página e intente nuevamente.',
+          life: 4000
+        });
+        return;
+      }
+
+      // Mostrar mensaje de progreso
+      this.$toast.add({
+        severity: 'info',
+        summary: 'Generando reporte PDF',
+        detail: 'Estamos preparando el documento. Esto puede tomar unos segundos.',
+        life: 3000
+      });
+
+      // Obtener el ID del reporte
+      const reportId = this.effectiveItem.id;
+
+      // Llamar al servicio para generar el reporte
+      this.downloadReportApiService.downloadReport(reportId).then(response => {
+            console.log('Respuesta del servidor:', response.data);
+
+            // Verificar que la respuesta contenga la URL del reporte
+            if (response.data && response.data.reportUrl) {
+              const reportUrl = response.data.reportUrl;
+
+              // Abrir el PDF en una nueva pestaña
+              window.open(reportUrl, '_blank');
+
+              this.$toast.add({
+                severity: 'success',
+                summary: 'Reporte generado exitosamente',
+                detail: 'El documento PDF se abrirá en una nueva pestaña. Puede descargarlo o imprimirlo desde allí.',
+                life: 5000
+              });
+            } else {
+              // Si no hay URL en la respuesta
+              this.$toast.add({
+                severity: 'error',
+                summary: 'Error al generar el reporte',
+                detail: 'No se recibió la URL del documento. Por favor, intente nuevamente.',
+                life: 5000
+              });
+            }
+          })
+          .catch(error => {
+            console.error('Error al generar el reporte:', error);
+
+            // Procesar el error para mostrar un mensaje amigable
+            const errorMessage = this.getDownloadErrorMessage(error);
+
+            this.$toast.add({
+              severity: 'error',
+              summary: 'No se pudo generar el reporte',
+              detail: errorMessage,
+              life: 6000
+            });
+          });
+    },
+
+    // Función para traducir errores de descarga a mensajes amigables
+    getDownloadErrorMessage(error) {
+      const backendMessage = error.response?.data?.message || error.message || '';
+      const statusCode = error.response?.status;
+
+      // Errores específicos
+      if (backendMessage.includes('not found') || statusCode === 404) {
+        return 'El reporte solicitado no existe. Por favor, verifique que el reporte esté guardado correctamente.';
+      }
+
+      if (backendMessage.includes('template') || backendMessage.includes('generate')) {
+        return 'Error al generar el documento PDF. Por favor, verifique que todos los datos del reporte estén completos.';
+      }
+
+      if (backendMessage.includes('timeout')) {
+        return 'El tiempo de espera se agotó al generar el documento. Por favor, intente nuevamente.';
+      }
+
+      // Errores por código HTTP
+      switch (statusCode) {
+        case 400:
+          return 'Los datos del reporte no son válidos para generar el PDF. Por favor, verifique la información del reporte.';
+        case 401:
+          return 'No tiene autorización para descargar este reporte. Por favor, contacte al administrador.';
+        case 403:
+          return 'No tiene permisos suficientes para descargar este reporte. Contacte al administrador.';
+        case 500:
+          return 'Error interno del servidor al generar el PDF. Por favor, intente nuevamente en unos momentos.';
+        case 503:
+          return 'El servicio de generación de PDF no está disponible temporalmente. Por favor, intente más tarde.';
+        default:
+          break;
+      }
+
+      // Mensaje genérico
+      return 'No se pudo generar el reporte PDF. Por favor, intente nuevamente. Si el problema persiste, contacte al administrador.';
     },
 
     // Función para obtener el reporte de verificación por ID
     getVerificationReportById(reportId) {
       this.loading = true;
       this.loadingStep = 0;
-      
+
       // Simular progreso de carga
       this.simulateLoadingProgress();
 
@@ -410,7 +658,7 @@ export default {
       })
           .catch(error => {
             console.error('Error al obtener el reporte de verificación:', error);
-            
+
             // Mostrar mensaje de error
             this.$toast.add({
               severity: 'error',
@@ -418,7 +666,7 @@ export default {
               detail: 'No se pudo cargar el reporte de verificación',
               life: 5000
             });
-            
+
             // Navegar de vuelta a la lista si no se puede cargar
             this.$router.push({ name: 'verification-reports' });
           })
@@ -436,7 +684,7 @@ export default {
           clearInterval(progressInterval);
         }
       }, 800); // Cambiar paso cada 800ms
-      
+
       // Limpiar intervalo si la carga se completa antes
       setTimeout(() => {
         clearInterval(progressInterval);
@@ -449,19 +697,19 @@ export default {
 
     // Obtener ID desde params o query
     const reportId = this.$route.params.id || this.$route.query.id;
-    
+
     if (reportId) {
       this.getVerificationReportById(reportId);
     } else {
       console.warn('No se proporcionó un ID de reporte en los parámetros de la ruta.');
-      
+
       this.$toast.add({
         severity: 'warn',
         summary: 'Advertencia',
         detail: 'No se especificó un ID de reporte válido',
         life: 3000
       });
-      
+
       // Navegar de vuelta a la lista
       this.$router.push({ name: 'verification-reports' });
     }
@@ -475,18 +723,18 @@ export default {
 <template>
   <!-- Detalles de la orden de servicio (se divide en cards tipo grid)-->
   <div class="order-container flex flex-column p-4 h-full w-full overflow-auto ">
-  
+
     <!-- Indicador de carga minimalista -->
     <div v-if="loading" class="loading-container">
       <div class="loading-content">
         <!-- Spinner elegante -->
-        <pv-progress-spinner 
-          size="48" 
-          stroke-width="4" 
-          animation-duration="1.2s" 
-          class="loading-spinner"
+        <pv-progress-spinner
+            size="48"
+            stroke-width="4"
+            animation-duration="1.2s"
+            class="loading-spinner"
         />
-        
+
         <!-- Contenido textual simple -->
         <div class="loading-text">
           <h3 class="loading-title">Cargando reporte</h3>
@@ -494,160 +742,171 @@ export default {
         </div>
       </div>
     </div>
-    
+
     <!-- Contenido principal - solo se muestra cuando no está cargando y hay datos -->
     <template v-else-if="effectiveItem">
 
-    <!-- Breadcrumb -->
-    <div class="text-base">
-      <router-link
-          :to="{ name: 'verification-reports' }"
-          class="font-bold text-gray-900 no-underline hover:underline cursor-pointer"
-      >
-        Reportes de verificación
-      </router-link>
-      <span class="text-gray-500 font-bold"> / </span>
-      <span class="text-blue-700 font-bold hover:underline cursor-pointer">
+      <!-- Breadcrumb -->
+      <div class="text-base">
+        <router-link
+            :to="{ name: 'verification-reports' }"
+            class="font-bold text-gray-900 no-underline hover:underline cursor-pointer"
+        >
+          Reportes de verificación
+        </router-link>
+        <span class="text-gray-500 font-bold"> / </span>
+        <span class="text-blue-700 font-bold hover:underline cursor-pointer">
         detalle del reporte de verificación
       </span>
-    </div>
+      </div>
 
-    <!-- Número de orden a la izquierda y fecha de solicitud a la derecha -->
-    <div class="flex align-content-center justify-content-between  mt-4 mb-2">
-      <!-- Izquierda -->
-      <h2 class="text-2xl xl:font-bold font-extrabold text-gray-900">
-        Reporte:<span class="text-blue-700 xl:font-bold "> {{ effectiveItem?.reportCode || 'Cargando...' }}</span>
-      </h2>
+      <!-- Número de orden a la izquierda y fecha de solicitud a la derecha -->
+      <div class="flex align-content-center justify-content-between  mt-4 mb-2">
+        <!-- Izquierda -->
+        <h2 class="text-2xl xl:font-bold font-extrabold text-gray-900">
+          Reporte:<span class="text-blue-700 xl:font-bold "> {{ effectiveItem?.reportCode || 'Cargando...' }}</span>
+        </h2>
 
-      <!-- Derecha -->
-      <span class="font-medium text-gray-900">
+        <!-- Derecha -->
+        <span class="font-medium text-gray-900">
         Fecha de solicitud: {{ formatDate(effectiveItem?.order?.requestDate) || 'Cargando...' }}
       </span>
-    </div>
+      </div>
 
-    <!-- botones para imprimir, descargar o enviar por correo el reporte de verificación -->
-    <div class="flex align-content-center justify-content-end mb-2 gap-2">
-      <!-- Botón para enviar por correo -->
-      <pv-button
-          class="p-button-email p-button p-button-sm"
-          @click="onSendVerificationReportByEmail"
-      >
-        <i class="pi pi-envelope p-button-icon-left"></i>
-        <span class="p-button-label">Enviar por correo</span>
-      </pv-button>
-      <!-- Botón imprimir en PDF -->
-      <pv-button
-          class=" p-button-print p-button p-button-sm"
-          @click="onDownloadOrPrintVerificationReport"
-      >
-        <i class="pi pi-print p-button-icon-left"></i>
-        <span class="p-button-label">Imprimir PDF</span>
-      </pv-button>
-      <!-- Botón para descargar en PDF -->
-      <pv-button
-          class="p-button-download p-button p-button-sm"
-          @click="onDownloadOrPrintVerificationReport"
-      >
-        <i class="pi pi-download p-button-icon-left"></i>
-        <span class="p-button-label">Descargar PDF</span>
-      </pv-button>
-    </div>
+      <!-- botones para imprimir, descargar o enviar por correo el reporte de verificación -->
+      <div class="flex align-content-center justify-content-end mb-2 gap-2">
+        <!-- Botón para enviar por correo -->
+        <pv-button
+            class="p-button-email p-button p-button-sm"
+            @click="onSendVerificationReportByEmail"
+        >
+          <i class="pi pi-envelope p-button-icon-left"></i>
+          <span class="p-button-label">Enviar por correo</span>
+        </pv-button>
+        <!-- Botón imprimir en PDF -->
+        <pv-button
+            class=" p-button-print p-button p-button-sm"
+            @click="onDownloadOrPrintVerificationReport"
+        >
+          <i class="pi pi-print p-button-icon-left"></i>
+          <span class="p-button-label">Imprimir PDF</span>
+        </pv-button>
+        <!-- Botón para descargar en PDF -->
+        <pv-button
+            class="p-button-download p-button p-button-sm"
+            @click="onDownloadOrPrintVerificationReport"
+        >
+          <i class="pi pi-download p-button-icon-left"></i>
+          <span class="p-button-label">Descargar PDF</span>
+        </pv-button>
+      </div>
 
-    <!-- Tarjetas de información del reporte de verificación -->
-    <div class="flex flex-column pb-4 gap-4 mt-4">
-      <!-- Primera sección: Detalles de la visita -->
-      <VisitDetailsCard :item="visitDetails" :result="effectiveItem?.finalResult || 'PENDIENTE'"/>
-      
-      <!-- Segunda sección: Datos del solicitante (ocupa todo el ancho) -->
-      <ApplicantDataCard :item="applicantData" />
-      
-      <!-- Tercera sección: Datos del cliente y Domicilio del cliente (lado a lado) -->
-      <div class="grid">
-        <div class="col-12 lg:col-6">
-          <CustomerDataCard :item="customerData" />
+      <!-- Tarjetas de información del reporte de verificación -->
+      <div class="flex flex-column pb-4 gap-4 mt-4">
+        <!-- Primera sección: Detalles de la visita -->
+        <VisitDetailsCard :item="visitDetails" :result="effectiveItem?.finalResult || 'PENDIENTE'"/>
+
+        <!-- Segunda sección: Datos del solicitante (ocupa todo el ancho) -->
+        <ApplicantDataCard :item="applicantData" />
+
+        <!-- Tercera sección: Datos del cliente y Domicilio del cliente (lado a lado) -->
+        <div class="grid">
+          <div class="col-12 lg:col-6">
+            <CustomerDataCard :item="customerData" />
+          </div>
+
+          <div class="col-12 lg:col-6">
+            <CustomerAddressCard :item="customerAddress" />
+          </div>
         </div>
-        
-        <div class="col-12 lg:col-6">
-          <CustomerAddressCard :item="customerAddress" />
+
+        <!-- ============== SECCIÓN: Detalles de la entrevista con el cliente ============== -->
+        <div class="section-separator">
+          <h2 class="text-xl font-bold text-gray-800 py-2 border-bottom-1 surface-border mb-0">Detalles de la entrevista con el cliente</h2>
         </div>
+
+        <!-- Cuarta sección: Detalles de residencia -->
+        <ResidenceDetailsCard :item="residenceDetails" />
+
+        <!-- ============== SECCIÓN: Detalles de la entrevista con el arrendador ============== -->
+        <div class="section-separator">
+          <h2 class="text-xl font-bold text-gray-800 py-2 border-bottom-1 surface-border mb-0">Detalles de la entrevista con el arrendador</h2>
+        </div>
+
+        <!-- Quinta sección: Datos del arrendador -->
+        <LandlordDataCard :item="landlordData" />
+
+        <!-- Sexta sección: Detalles de la entrevista -->
+        <InterviewDetailsCard :item="interviewDetails" />
+
+        <!-- ============== SECCIÓN: Observaciones, resumen, glosario y casuística ============== -->
+        <div class="section-separator">
+          <h2 class="text-xl font-bold text-gray-800 py-2 border-bottom-1 surface-border mb-0">Observaciones, resumen, glosario y casuística</h2>
+        </div>
+
+        <!-- Séptima sección: Observaciones -->
+        <ObservationsCard :item="observationsData" />
+
+        <!-- Octava sección: Resumen -->
+        <ReportSummaryCard :item="summaryData" />
+
+        <!-- Novena sección: Glosario -->
+        <ReportGlossaryCard :item="glossaryData" />
+
+        <!-- Décima sección: Casuística -->
+        <CasuistryReportCard :item="casuistryData" />
+
+        <!-- ============== SECCIÓN: ANEXOS ============== -->
+        <div class="section-separator">
+          <h2 class="text-xl font-bold text-gray-800 py-2 border-bottom-1 surface-border mb-0">ANEXOS</h2>
+        </div>
+
+        <!-- Undécima sección: ANEXO 01 - Registro fotográfico del domicilio -->
+        <Annexe01DomicileCard :item="annexe01Data" />
+
+        <!-- Duodécima sección: ANEXO 02 - Registro fotográfico de alrededores -->
+        <Annexe02SurroundingsCard :item="annexe02Data" />
+
+        <!-- Decimotercera sección: ANEXO 03 - Documentos de identidad del candidato -->
+        <Annexe03CandidateCard :item="annexe03Data" />
+
+        <!-- Decimocuarta sección: ANEXO 04 - Registro fotográfico de la cochera -->
+        <Annexe04GarageLocationCard :item="annexe04Data" />
+
+        <!-- Decimoquinta sección: ANEXO 05 - Registro fotográfico de habitaciones -->
+        <Annexe05RoomsCard :item="annexe05Data" />
+
+        <!-- Decimosexta sección: ANEXO 06 - Recibos de servicios -->
+        <Annexe06DomicileLocationCard :item="annexe06Data" />
       </div>
-      
-      <!-- ============== SECCIÓN: Detalles de la entrevista con el cliente ============== -->
-      <div class="section-separator">
-        <h2 class="text-xl font-bold text-gray-800 py-2 border-bottom-1 surface-border mb-0">Detalles de la entrevista con el cliente</h2>
-      </div>
-      
-      <!-- Cuarta sección: Detalles de residencia -->
-      <ResidenceDetailsCard :item="residenceDetails" />
-      
-      <!-- ============== SECCIÓN: Detalles de la entrevista con el arrendador ============== -->
-      <div class="section-separator">
-        <h2 class="text-xl font-bold text-gray-800 py-2 border-bottom-1 surface-border mb-0">Detalles de la entrevista con el arrendador</h2>
-      </div>
-      
-      <!-- Quinta sección: Datos del arrendador -->
-      <LandlordDataCard :item="landlordData" />
-      
-      <!-- Sexta sección: Detalles de la entrevista -->
-      <InterviewDetailsCard :item="interviewDetails" />
-      
-      <!-- ============== SECCIÓN: Observaciones, resumen, glosario y casuística ============== -->
-      <div class="section-separator">
-        <h2 class="text-xl font-bold text-gray-800 py-2 border-bottom-1 surface-border mb-0">Observaciones, resumen, glosario y casuística</h2>
-      </div>
-      
-      <!-- Séptima sección: Observaciones -->
-      <ObservationsCard :item="observationsData" />
-      
-      <!-- Octava sección: Resumen -->
-      <ReportSummaryCard :item="summaryData" />
-      
-      <!-- Novena sección: Glosario -->
-      <ReportGlossaryCard :item="glossaryData" />
-      
-      <!-- Décima sección: Casuística -->
-      <CasuistryReportCard :item="casuistryData" />
-      
-      <!-- ============== SECCIÓN: ANEXOS ============== -->
-      <div class="section-separator">
-        <h2 class="text-xl font-bold text-gray-800 py-2 border-bottom-1 surface-border mb-0">ANEXOS</h2>
-      </div>
-      
-      <!-- Undécima sección: ANEXO 01 - Registro fotográfico del domicilio -->
-      <Annexe01DomicileCard :item="annexe01Data" />
-      
-      <!-- Duodécima sección: ANEXO 02 - Registro fotográfico de alrededores -->
-      <Annexe02SurroundingsCard :item="annexe02Data" />
-      
-      <!-- Decimotercera sección: ANEXO 03 - Documentos de identidad del candidato -->
-      <Annexe03CandidateCard :item="annexe03Data" />
-      
-      <!-- Decimocuarta sección: ANEXO 04 - Registro fotográfico de la cochera -->
-      <Annexe04GarageLocationCard :item="annexe04Data" />
-      
-      <!-- Decimoquinta sección: ANEXO 05 - Registro fotográfico de habitaciones -->
-      <Annexe05RoomsCard :item="annexe05Data" />
-      
-      <!-- Decimosexta sección: ANEXO 06 - Recibos de servicios -->
-      <Annexe06DomicileLocationCard :item="annexe06Data" />
-    </div>
-    
+
     </template>
-    
+
     <!-- Mensaje cuando no hay datos -->
     <div v-else class="flex justify-content-center align-items-center p-8">
       <div class="text-center">
         <i class="pi pi-exclamation-triangle text-6xl text-orange-500 mb-3"></i>
         <h3 class="text-xl text-gray-700">No se encontró el reporte de verificación</h3>
         <p class="text-gray-500 mb-4">El reporte solicitado no existe o no se pudo cargar.</p>
-        <pv-button 
-          label="Volver a la lista" 
-          icon="pi pi-arrow-left" 
-          @click="$router.push({ name: 'verification-reports' })"
-          class="p-button-outlined"
+        <pv-button
+            label="Volver a la lista"
+            icon="pi pi-arrow-left"
+            @click="$router.push({ name: 'verification-reports' })"
+            class="p-button-outlined"
         />
       </div>
     </div>
+
+    <!-- Diálogo para envío de correo electrónico -->
+    <email-send-component
+        :visible="emailDialogVisible"
+        :recipient-email="emailData.recipientEmail"
+        :subject="emailData.subject"
+        :message="emailData.message"
+        :report-code="effectiveItem?.reportCode || 'N/A'"
+        @save-requested="onEmailSendRequested"
+        @cancel-requested="onEmailCancelRequested"
+    />
 
   </div>
 
@@ -706,11 +965,11 @@ export default {
     min-height: 40vh;
     margin: 0.5rem 0;
   }
-  
+
   .loading-title {
     font-size: 1.125rem;
   }
-  
+
   .loading-subtitle {
     font-size: 0.8125rem;
   }

@@ -13,6 +13,10 @@ export class VerifierApiService {
         return http.get(`${this.resourceEndpoint}/admin/${adminId}`);
     }
 
+    getAll() {
+        return http.get(this.resourceEndpoint);
+    }
+
     getById(id) {
         return http.get(`${this.resourceEndpoint}/${id}`);
     }

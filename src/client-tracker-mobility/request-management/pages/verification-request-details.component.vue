@@ -1,5 +1,6 @@
 <script>
 import {VerificationRequestsApi} from "../services/verification-requests-api.service.js";
+import {DownloadReportApiService} from "../../../tracker-mobility/verification-reports/services/download-report-api.service.js";
 import {VerificationRequest} from "../models/verification-request.entity.js";
 import RequestApplicantDetails from "../components/request-applicant-details.component.vue";
 import RequestClientDetails from "../components/request-client-details.component.vue";
@@ -22,8 +23,9 @@ export default {
 
   data() {
     return {
-      // Servicio API
+      // Servicios API
       verificationRequestsApi: null,
+      downloadReportApiService: null,
 
       // Item de la solicitud
       item: null,
@@ -196,13 +198,6 @@ export default {
     cancelEditMode() {
       this.editModeEnabled = false;
       this.currentObservation = null;
-
-      this.$toast.add({
-        severity: 'info',
-        summary: 'Modo edición cancelado',
-        detail: 'Se ha cancelado el modo edición',
-        life: 3000
-      });
     },
 
     // Guardar cambios de subsanación
@@ -249,6 +244,108 @@ export default {
         detail: 'La lógica de guardado está pendiente de implementación',
         life: 3000
       });
+    },
+
+    // Descargar reporte de verificación en PDF
+    downloadReport() {
+      // Validar que tenemos una solicitud válida
+      if (!this.item || !this.item.id) {
+        this.$toast.add({
+          severity: 'warn',
+          summary: 'Solicitud no disponible',
+          detail: 'No se puede descargar el reporte porque la solicitud no está cargada. Por favor, recargue la página e intente nuevamente.',
+          life: 4000
+        });
+        return;
+      }
+
+      // Mostrar mensaje de progreso
+      this.$toast.add({
+        severity: 'info',
+        summary: 'Generando reporte PDF',
+        detail: 'Estamos preparando el documento. Esto puede tomar unos segundos.',
+        life: 3000
+      });
+
+      // Llamar al servicio para generar el reporte usando POST
+      this.downloadReportApiService.downloadReport(this.item.id)
+        .then(response => {
+          console.log('Respuesta del servidor:', response.data);
+
+          // Verificar que la respuesta contenga la URL del reporte
+          if (response.data && response.data.reportUrl) {
+            const reportUrl = response.data.reportUrl;
+
+            // Abrir el PDF en una nueva pestaña
+            window.open(reportUrl, '_blank');
+
+            this.$toast.add({
+              severity: 'success',
+              summary: 'Reporte generado exitosamente',
+              detail: 'El documento PDF se abrirá en una nueva pestaña. Puede descargarlo o imprimirlo desde allí.',
+              life: 5000
+            });
+          } else {
+            // Si no hay URL en la respuesta
+            this.$toast.add({
+              severity: 'error',
+              summary: 'Error al generar el reporte',
+              detail: 'No se recibió la URL del documento. Por favor, intente nuevamente.',
+              life: 5000
+            });
+          }
+        })
+        .catch(error => {
+          console.error('Error al generar el reporte:', error);
+
+          // Procesar el error para mostrar un mensaje amigable
+          const errorMessage = this.getDownloadErrorMessage(error);
+
+          this.$toast.add({
+            severity: 'error',
+            summary: 'No se pudo generar el reporte',
+            detail: errorMessage,
+            life: 6000
+          });
+        });
+    },
+
+    // Función para traducir errores de descarga a mensajes amigables
+    getDownloadErrorMessage(error) {
+      const backendMessage = error.response?.data?.message || error.message || '';
+      const statusCode = error.response?.status;
+
+      // Errores específicos
+      if (backendMessage.includes('not found') || statusCode === 404) {
+        return 'El reporte solicitado no existe. Por favor, verifique que la solicitud esté completada correctamente.';
+      }
+
+      if (backendMessage.includes('template') || backendMessage.includes('generate')) {
+        return 'Error al generar el documento PDF. Por favor, verifique que todos los datos de la solicitud estén completos.';
+      }
+
+      if (backendMessage.includes('timeout')) {
+        return 'El tiempo de espera se agotó al generar el documento. Por favor, intente nuevamente.';
+      }
+
+      // Errores por código HTTP
+      switch (statusCode) {
+        case 400:
+          return 'Los datos de la solicitud no son válidos para generar el PDF. Por favor, verifique la información.';
+        case 401:
+          return 'No tiene autorización para descargar este reporte. Por favor, contacte al administrador.';
+        case 403:
+          return 'No tiene permisos suficientes para descargar este reporte. Contacte al administrador.';
+        case 500:
+          return 'Error interno del servidor al generar el PDF. Por favor, intente nuevamente en unos momentos.';
+        case 503:
+          return 'El servicio de generación de PDF no está disponible temporalmente. Por favor, intente más tarde.';
+        default:
+          break;
+      }
+
+      // Mensaje genérico
+      return 'No se pudo generar el reporte PDF. Por favor, intente nuevamente. Si el problema persiste, contacte al administrador.';
     }
   },
 
@@ -257,6 +354,7 @@ export default {
     console.log(`Cargar detalles de la solicitud con ID: ${orderId}`);
 
     this.verificationRequestsApi = new VerificationRequestsApi('/orders');
+    this.downloadReportApiService = new DownloadReportApiService('/reports');
     this.getRequestDetailsByOrderId(orderId);
   }
 }
@@ -290,11 +388,20 @@ export default {
         <span class="font-medium text-gray-900">
           Fecha de solicitud: {{ formatDate(item.requestDate) }}
         </span>
-        <pv-tag 
-          :value="item.status" 
-          :severity="getStatusSeverity(item.status)"
-          class="text-sm"
-        />
+        <div class="flex align-items-center gap-2">
+          <pv-tag
+            :value="item.status"
+            :severity="getStatusSeverity(item.status)"
+            class="text-sm"
+          />
+          <pv-button
+            v-if="item.status === 'FINALIZADO'"
+            icon="pi pi-download"
+            label="Descargar reporte"
+            class="p-button-success p-button-sm"
+            @click="downloadReport"
+          />
+        </div>
       </div>
     </div>
 

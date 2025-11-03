@@ -9,7 +9,11 @@ export default {
     visible: Boolean,
     entityName: '',
     edit: Boolean,
-    size: 'default'
+    size: 'default',
+    customButtonLabel: {
+      type: String,
+      default: null
+    }
   },
 
   methods: {
@@ -27,7 +31,7 @@ export default {
     },
 
     getSubmitLabel() {
-      return this.edit ? 'Actualizar' : 'Crear';
+      return this.customButtonLabel || (this.edit ? 'Actualizar' : 'Crear');
     },
 
     getDialogStyle() {

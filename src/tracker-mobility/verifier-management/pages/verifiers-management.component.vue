@@ -403,6 +403,35 @@ export default {
 
     },
 
+    getAllVerifiers() {
+      this.loading = true;
+      console.log('Obteniendo todos los verificadores');
+
+      this.verifierManagementApiServices.getAll().then(response => {
+        // Validar respuesta usando función modular
+        this.validateServerResponse(response, 'verificadores');
+
+        this.itemsArray = response.data.map(resource  => new Verifier(resource));
+
+        // Parsear status de inglés a español
+        this.itemsArray = this.itemsArray.map(verifier => {
+          if (verifier.status === 'ACTIVE') {
+            verifier.status = 'ACTIVO';
+          } else if (verifier.status === 'INACTIVE') {
+            verifier.status = 'INACTIVO';
+          }
+          return verifier;
+        });
+
+        console.log('Verificadores cargados:', this.itemsArray);
+      }).catch(error => {
+        this.itemsArray = []; // Limpiar datos en caso de error
+        this.handleServerError(error, 'los verificadores');
+      }).finally(() => {
+        this.loading = false;
+      });
+
+    },
 
   },
 
@@ -411,6 +440,10 @@ export default {
     this.adminId = authStore.currentUserId; // Obtener el ID del usuario autenticado
     this.verifierManagementApiServices = new VerifierApiService('/verifiers');
     this.getAllVerifiersByAdminId(this.adminId); // Usar ID de admin simulado 1
+
+    this.getAllVerifiers();
+
+
   }
 
 };
