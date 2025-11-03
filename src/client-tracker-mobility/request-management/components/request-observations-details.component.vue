@@ -9,6 +9,8 @@ export default {
     }
   },
 
+  emits: ['subsanar-observation'],
+
   data() {
     return {
       // Opciones de tipos de observación para etiquetas legibles
@@ -46,17 +48,12 @@ export default {
       return this.statusConfig[status] || { severity: 'info', label: status, icon: 'pi-info-circle' };
     },
 
-    // TODO: Implementar la lógica para subsanar/resolver/levantar/corregir la observación
+    // Manejar subsanación de observación - Emitir evento al padre para habilitar modo edición
     handleSubsanarObservation(observation) {
       console.log('Subsanar observación:', observation);
 
-      // TODO: Implementar aquí la lógica de subsanación
-      // Opciones posibles:
-      // 1. Mostrar un diálogo de confirmación
-      // 2. Abrir un modal para subir documentos/evidencias
-      // 3. Emitir evento al componente padre: this.$emit('subsanar-observation', observation)
-      // 4. Hacer petición directa al API para cambiar estado a 'RESUELTA'
-      // 5. Redirigir a otra vista para completar el proceso
+      // Emitir evento al componente padre con la observación
+      this.$emit('subsanar-observation', observation);
     }
   }
 }

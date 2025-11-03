@@ -6,6 +6,10 @@ export default {
     documents: {
       type: Array,
       default: () => []
+    },
+    editMode: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -13,11 +17,49 @@ export default {
     return {
       showDocumentModal: false,
       selectedDocument: null,
-      imageZoom: 1
+      imageZoom: 1,
+      newDocuments: [],
+      selectedFiles: {}, // Archivos seleccionados para cada documento {documentId: File}
+      previewUrls: {} // URLs de preview para archivos seleccionados {documentId: url}
     };
   },
 
   methods: {
+    // Manejar selección de archivo para reemplazar un documento específico
+    handleFileSelect(event, document) {
+      const file = event.files[0];
+      if (file) {
+        // Guardar el archivo seleccionado
+        this.selectedFiles[document.id] = file;
+
+        // Crear URL de preview si es imagen
+        if (file.type.startsWith('image/')) {
+          this.previewUrls[document.id] = URL.createObjectURL(file);
+        }
+
+        console.log(`Archivo seleccionado para ${document.type}:`, file.name);
+      }
+    },
+
+    // Limpiar archivo seleccionado para un documento
+    clearSelectedFile(documentId) {
+      if (this.previewUrls[documentId]) {
+        URL.revokeObjectURL(this.previewUrls[documentId]);
+      }
+      delete this.selectedFiles[documentId];
+      delete this.previewUrls[documentId];
+    },
+
+    // Verificar si un documento tiene archivo seleccionado para reemplazo
+    hasSelectedFile(documentId) {
+      return !!this.selectedFiles[documentId];
+    },
+
+    // Obtener nombre del archivo seleccionado
+    getSelectedFileName(documentId) {
+      return this.selectedFiles[documentId]?.name || '';
+    },
+
     viewDocument(document) {
       this.selectedDocument = document;
       this.imageZoom = 1;
@@ -106,6 +148,13 @@ export default {
       }
       window.open(document.url, '_blank');
     }
+  },
+
+  beforeUnmount() {
+    // Limpiar todas las URLs de preview para evitar fugas de memoria
+    Object.values(this.previewUrls).forEach(url => {
+      URL.revokeObjectURL(url);
+    });
   }
 }
 </script>
@@ -113,12 +162,21 @@ export default {
 <template>
   <pv-card class="w-full">
     <template #header>
-      <div class="flex align-items-center gap-2 px-3 py-2" style="background-color: #4A60D0; color: white; border-top-left-radius: 6px; border-top-right-radius: 6px;">
+      <div class="flex align-items-center gap-2 px-3 py-2" :style="editMode ? 'background-color: #d97706; color: white; border-top-left-radius: 6px; border-top-right-radius: 6px;' : 'background-color: #4A60D0; color: white; border-top-left-radius: 6px; border-top-right-radius: 6px;'">
         <i class="pi pi-paperclip" style="color: white;"></i>
         <span class="text-lg font-bold">Documentos adjuntos</span>
+        <pv-badge v-if="editMode" value="EDITABLE" severity="warning" class="ml-auto" style="opacity: 0.85;" />
       </div>
     </template>
     <template #content>
+      <!-- Mensaje de modo edición -->
+      <pv-message v-if="editMode" severity="info" :closable="false" class="mb-3">
+        <div class="flex align-items-center gap-2">
+          <i class="pi pi-info-circle"></i>
+          <span>Puedes reemplazar cada documento individualmente seleccionando un nuevo archivo</span>
+        </div>
+      </pv-message>
+
       <div v-if="documents && documents.length > 0" class="formgrid grid">
         <div
             v-for="document in documents"
@@ -128,9 +186,22 @@ export default {
           <label class="font-semibold text-color-secondary flex align-items-center gap-2 mb-2">
             <i :class="`pi ${getFileIcon(document.url)} ${getFileColor(document.url)}`"></i>
             {{ getDocumentLabel(document.type) }}
+            <pv-tag v-if="hasSelectedFile(document.id) && editMode" value="Nuevo archivo" severity="success" class="ml-2" />
           </label>
-          <div class="flex flex-column align-items-center p-3 border-1 surface-border border-round hover:shadow-3 transition-all">
-            <div v-if="isImageFile(document.url)" class="w-full flex justify-content-center mb-3">
+          <div class="flex flex-column align-items-center p-3 border-1 surface-border border-round hover:shadow-3 transition-all" :class="{ 'border-primary': hasSelectedFile(document.id) && editMode }">
+
+            <!-- Preview del archivo actual o nuevo -->
+            <div v-if="hasSelectedFile(document.id) && previewUrls[document.id]" class="w-full flex justify-content-center mb-3">
+              <div class="relative">
+                <img
+                    :src="previewUrls[document.id]"
+                    :alt="getDocumentLabel(document.type)"
+                    class="w-full max-w-10rem h-6rem object-fit-cover border-round shadow-2"
+                />
+                <pv-badge value="NUEVO" severity="success" class="absolute" style="top: 5px; right: 5px;" />
+              </div>
+            </div>
+            <div v-else-if="isImageFile(document.url)" class="w-full flex justify-content-center mb-3">
               <img
                   :src="document.url"
                   :alt="getDocumentLabel(document.type)"
@@ -142,8 +213,44 @@ export default {
               <i :class="`pi ${getFileIcon(document.url)} ${getFileColor(document.url)} text-6xl mb-2`"></i>
               <span class="text-sm text-color-secondary font-medium uppercase">{{ getFileExtension(document.url) || 'Archivo' }}</span>
             </div>
+
+            <!-- Información del nuevo archivo seleccionado -->
+            <div v-if="hasSelectedFile(document.id) && editMode" class="w-full mb-2 p-2 bg-green-50 border-round">
+              <div class="flex align-items-center gap-2">
+                <i class="pi pi-check-circle text-green-600"></i>
+                <span class="text-sm text-green-800 font-medium">{{ getSelectedFileName(document.id) }}</span>
+              </div>
+            </div>
+
+            <!-- Botones de acción -->
             <div class="flex flex-column gap-2 w-full">
+              <!-- Selector de archivo en modo edición -->
+              <pv-file-upload
+                v-if="editMode"
+                mode="basic"
+                :name="`document-${document.id}`"
+                accept="image/*,application/pdf"
+                :maxFileSize="5000000"
+                :auto="true"
+                :chooseLabel="hasSelectedFile(document.id) ? 'Cambiar archivo' : 'Reemplazar documento'"
+                :chooseIcon="hasSelectedFile(document.id) ? 'pi pi-refresh' : 'pi pi-upload'"
+                class="w-full"
+                :class="{ 'p-button-success': hasSelectedFile(document.id) }"
+                @select="handleFileSelect($event, document)"
+              />
+
+              <!-- Botón para limpiar archivo seleccionado -->
               <pv-button
+                v-if="editMode && hasSelectedFile(document.id)"
+                icon="pi pi-times"
+                label="Cancelar reemplazo"
+                class="p-button-sm p-button-danger p-button-outlined w-full"
+                @click="clearSelectedFile(document.id)"
+              />
+
+              <!-- Botones estándar (ver y descargar) -->
+              <pv-button
+                  v-if="!editMode"
                   icon="pi pi-eye"
                   label="Ver"
                   class="p-button-sm p-button-primary w-full"
@@ -151,6 +258,7 @@ export default {
                   :disabled="!document.url"
               />
               <pv-button
+                  v-if="!editMode"
                   icon="pi pi-download"
                   label="Descargar"
                   class="p-button-sm p-button-outlined w-full"

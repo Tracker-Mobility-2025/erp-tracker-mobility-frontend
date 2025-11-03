@@ -39,7 +39,11 @@ export default {
         { icon: 'pi-file-o', label: 'Datos de la solicitud' },
         { icon: 'pi-users', label: 'Información del cliente' },
         { icon: 'pi-building', label: 'Datos del solicitante' }
-      ]
+      ],
+
+      // Estados de modo edición para subsanar observaciones
+      editModeEnabled: false,
+      currentObservation: null
     };
   },
 
@@ -141,6 +145,110 @@ export default {
         default:
           return 'info';
       }
+    },
+
+    // Manejar subsanación de observación - Habilitar modo edición
+    handleSubsanarObservation(observation) {
+      console.log('Habilitando modo edición para subsanar observación:', observation);
+
+      // Guardar la observación actual
+      this.currentObservation = observation;
+
+      // Habilitar modo edición
+      this.editModeEnabled = true;
+
+      // Mostrar mensaje informativo
+      this.$toast.add({
+        severity: 'info',
+        summary: 'Modo edición activado',
+        detail: `Puedes editar los campos necesarios para subsanar la observación: ${this.getObservationTypeLabel(observation.observationType)}`,
+        life: 5000
+      });
+
+      // Scroll a la sección correspondiente según el tipo de observación
+      this.$nextTick(() => {
+        if (observation.observationType === 'DOCUMENTO_IDENTIDAD') {
+          // Scroll a la sección de datos del cliente
+          const clientSection = document.querySelector('[data-section="client-details"]');
+          if (clientSection) {
+            clientSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        } else if (observation.observationType === 'RECIBO_SERVICIO') {
+          // Scroll a la sección de documentos
+          const documentsSection = document.querySelector('[data-section="documents-details"]');
+          if (documentsSection) {
+            documentsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      });
+    },
+
+    // Obtener etiqueta del tipo de observación
+    getObservationTypeLabel(type) {
+      const labels = {
+        'DOCUMENTO_IDENTIDAD': 'Documento de identidad',
+        'RECIBO_SERVICIO': 'Recibo de servicio'
+      };
+      return labels[type] || type;
+    },
+
+    // Cancelar modo edición
+    cancelEditMode() {
+      this.editModeEnabled = false;
+      this.currentObservation = null;
+
+      this.$toast.add({
+        severity: 'info',
+        summary: 'Modo edición cancelado',
+        detail: 'Se ha cancelado el modo edición',
+        life: 3000
+      });
+    },
+
+    // Guardar cambios de subsanación
+    async saveSubsanacion() {
+      console.log('Guardando cambios de subsanación...', this.currentObservation);
+
+      // Obtener componentes con datos editados
+      const clientComponent = this.$refs.clientDetailsComponent;
+      const documentsComponent = this.$refs.documentsDetailsComponent;
+
+      console.log('Datos del cliente editados:', clientComponent?.localClient);
+      console.log('Archivos seleccionados:', documentsComponent?.selectedFiles);
+
+      // TODO: Implementar lógica para subsanar la observación
+      // 1. Validar datos editados
+      // 2. Preparar estructura de datos según API (ver estructura en comentario abajo)
+      // 3. Enviar con FormData si hay archivos, o JSON si solo hay datos
+      // 4. Usar: await this.verificationRequestsApi.update(this.item.id, data)
+      // 5. Actualizar estado de la observación a 'RESUELTA'
+      // 6. Recargar datos: await this.getRequestDetailsByOrderId(this.item.id)
+      // 7. Desactivar modo edición y limpiar archivos
+
+      /* Estructura esperada por el backend PATCH /orders/{id}:
+      {
+        "client": {
+          "name": "María",
+          "lastName": "López",
+          "phoneNumber": "923456789",
+          "identityDocument": {
+            "documentType": "DNI",
+            "documentNumber": "12345678"
+          }
+        }
+      }
+
+      Para archivos usar FormData:
+      formData.append('order', new Blob([JSON.stringify(orderData)], { type: 'application/json' }));
+      formData.append('files', file);
+      */
+
+      this.$toast.add({
+        severity: 'info',
+        summary: 'Funcionalidad pendiente',
+        detail: 'La lógica de guardado está pendiente de implementación',
+        life: 3000
+      });
     }
   },
 
@@ -227,20 +335,64 @@ export default {
     <!-- Contenido principal -->
     <div v-else-if="item" class="request-content flex flex-column gap-4">
 
+      <!-- Banner de modo edición -->
+      <pv-message v-if="editModeEnabled" severity="warn" :closable="false">
+        <template #default>
+          <div class="flex flex-wrap justify-content-between align-items-center w-full gap-3">
+            <div class="flex align-items-center gap-2 flex-1">
+              <i class="pi pi-pencil text-xl"></i>
+              <div>
+                <strong>Modo edición activo</strong>
+                <p class="m-0 mt-1">Subsanando observación: {{ getObservationTypeLabel(currentObservation?.observationType) }}</p>
+              </div>
+            </div>
+            <div class="flex gap-2 flex-shrink-0">
+              <pv-button
+                label="Guardar cambios"
+                icon="pi pi-check"
+                class="p-button-success"
+                @click="saveSubsanacion"
+              />
+              <pv-button
+                label="Cancelar"
+                icon="pi pi-times"
+                class="p-button-secondary"
+                @click="cancelEditMode"
+              />
+            </div>
+          </div>
+        </template>
+      </pv-message>
+
       <!-- Observaciones -->
-      <request-observations-details :observations="item.observations" />
+      <request-observations-details
+        :observations="item.observations"
+        @subsanar-observation="handleSubsanarObservation"
+      />
 
       <!-- Datos del solicitante -->
       <request-applicant-details :applicant-company="item.applicantCompany" />
 
       <!-- Datos del cliente -->
-      <request-client-details :client="item.client" />
+      <div data-section="client-details">
+        <request-client-details
+          ref="clientDetailsComponent"
+          :client="item.client"
+          :edit-mode="editModeEnabled"
+        />
+      </div>
 
       <!-- Datos de domicilio -->
       <request-location-details :location="item.client?.location" />
 
       <!-- Documentos adjuntos -->
-      <request-documents-details :documents="item.client?.documents" />
+      <div data-section="documents-details">
+        <request-documents-details
+          ref="documentsDetailsComponent"
+          :documents="item.client?.documents"
+          :edit-mode="editModeEnabled"
+        />
+      </div>
 
       <!-- Datos del arrendador -->
       <request-landlord-details
@@ -285,6 +437,15 @@ export default {
   color: #6b7280;
   margin: 0;
   font-weight: 400;
+}
+
+/* Estilos para el banner de modo edición */
+:deep(.p-message .p-message-wrapper) {
+  width: 100%;
+}
+
+:deep(.p-message .p-message-wrapper .p-message-text) {
+  width: 100%;
 }
 
 @media (max-width: 768px) {

@@ -19,7 +19,7 @@ export class VerificationRequestsApi {
 
     // Actualizar solicitud de verificación
     update(id, data) {
-        return http.put(`${this.resourceEndpoint}/${id}`, data);
+        return http.patch(`${this.resourceEndpoint}/${id}`, data);
     }
 
 
