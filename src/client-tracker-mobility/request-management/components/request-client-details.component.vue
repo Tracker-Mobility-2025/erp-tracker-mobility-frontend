@@ -72,56 +72,6 @@ export default {
             />
           </p>
         </div>
-
-        <!-- Fila 3: Dirección completa -->
-        <div class="field col-12 md:col-4">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-map text-primary"></i>
-            Departamento
-          </label>
-          <p class="font-semibold text-dark m-0">{{ client?.location?.department || 'No disponible' }}</p>
-        </div>
-        <div class="field col-12 md:col-4">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-map text-primary"></i>
-            Provincia
-          </label>
-          <p class="font-semibold text-dark m-0">{{ client?.location?.province || 'No disponible' }}</p>
-        </div>
-        <div class="field col-12 md:col-4">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-map text-primary"></i>
-            Distrito
-          </label>
-          <p class="font-semibold text-dark m-0">{{ client?.location?.district || 'No disponible' }}</p>
-        </div>
-
-        <!-- Fila 4: Dirección de domicilio -->
-        <div class="field col-12">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-home text-primary"></i>
-            Dirección de domicilio
-          </label>
-          <p class="font-semibold text-dark m-0">{{ client?.location?.homeAddress || 'No disponible' }}</p>
-        </div>
-        
-        <!-- Ubicación en Google Maps -->
-        <div class="field col-12" v-if="client?.location?.mapLocation">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-map-marker text-primary"></i>
-            Ubicación en Google Maps
-          </label>
-          <p class="text-color m-0">
-            <a
-                :href="client.location.mapLocation"
-                target="_blank"
-                class="text-primary no-underline hover:underline flex align-items-center gap-2"
-            >
-              <i class="pi pi-external-link text-sm"></i>
-              {{ client.location.mapLocation }}
-            </a>
-          </p>
-        </div>
       </div>
     </template>
   </pv-card>

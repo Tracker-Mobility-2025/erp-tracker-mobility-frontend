@@ -3,6 +3,7 @@ import {VerificationRequestsApi} from "../services/verification-requests-api.ser
 import {VerificationRequest} from "../models/verification-request.entity.js";
 import RequestApplicantDetails from "../components/request-applicant-details.component.vue";
 import RequestClientDetails from "../components/request-client-details.component.vue";
+import RequestLocationDetails from "../components/request-location-details.component.vue";
 import RequestLandlordDetails from "../components/request-landlord-details.component.vue";
 import RequestDocumentsDetails from "../components/request-documents-details.component.vue";
 import RequestObservationsDetails from "../components/request-observations-details.component.vue";
@@ -13,6 +14,7 @@ export default {
   components: {
     RequestApplicantDetails,
     RequestClientDetails,
+    RequestLocationDetails,
     RequestLandlordDetails,
     RequestDocumentsDetails,
     RequestObservationsDetails
@@ -233,6 +235,9 @@ export default {
 
       <!-- Datos del cliente -->
       <request-client-details :client="item.client" />
+
+      <!-- Datos de domicilio -->
+      <request-location-details :location="item.client?.location" />
 
       <!-- Documentos adjuntos -->
       <request-documents-details :documents="item.client?.documents" />
