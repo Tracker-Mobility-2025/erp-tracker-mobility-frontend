@@ -7,6 +7,7 @@ import {VerifierApiService} from "../services/verifier-api.service.js";
 import {CreateVerifier} from "../models/create-verifier.entity.js";
 import {useAuthenticationStore} from "../../security/services/authentication.store.js";
 import {AdminApiService} from "../services/admin-api.service.js";
+import {Admin} from "../models/admin.entity.js";
 
 export default {
   name: 'verifiers-management',
@@ -17,6 +18,7 @@ export default {
 
       // Servicio para obtener el admin por userId
       adminApiService: new AdminApiService('/admins'),
+      adminItem: new Admin({}),
 
       adminId: null, // ID del administrador actual (simulado)
       createItem: new CreateVerifier({}), // Nuevo verificador a crear
@@ -91,6 +93,10 @@ export default {
     currentItem() {
       return this.isEdit ? this.item : this.createItem;
     }
+
+
+
+
   },
 
   methods: {
@@ -439,12 +445,11 @@ export default {
 
     getAdminByUserId(userId) {
       this.adminApiService.getByUserId(userId).then(response => {
-        if (response && response.data) {
-          this.adminId = response.data.id;
-          console.log('Admin ID obtenido:', this.adminId);
-        } else {
-          throw new Error('Formato de datos inválido al obtener admin por userId');
-        }
+
+        this.adminItem = new Admin(response.data);
+        this.adminId = this.adminItem.id;
+        console.log('Administrador cargado por userId:', this.adminItem);
+
       }).catch(error => {
         this.handleServerError(error, 'el administrador');
       });
@@ -456,6 +461,8 @@ export default {
     const authStore = useAuthenticationStore();
     this.userId = authStore.currentUserId; // Obtener el ID del usuario autenticado
 
+
+    this.adminApiService = new AdminApiService('/admins');
     // Obtener el adminId basado en el userId
     this.getAdminByUserId(this.userId);
 
@@ -464,8 +471,6 @@ export default {
     //this.getAllVerifiersByAdminId(this.adminId); // Usar ID de admin simulado 1
 
     this.getAllVerifiers();
-
-
   }
 
 };
