@@ -8,8 +8,6 @@ export class AdminApiService {
 
     // Retornar admin por userID
     getByUserId(id) {
-        return http.get(`${this.resourceEndpoint}/user/${id}`, { params: { userId: id } });
+        return http.get(`${this.resourceEndpoint}/user/${id}`);
     }
-
-
 }
