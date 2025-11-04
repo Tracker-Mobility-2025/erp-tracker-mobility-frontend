@@ -104,12 +104,38 @@ export default {
       this.simulateLoadingProgress();
       
       this.verificationRequestsApi.getById(orderId).then(response => {
+        console.log('=== DEBUGGING: DATOS RAW DEL BACKEND ===');
+        console.log('Response completo:', response);
+        console.log('Response.data:', JSON.stringify(response.data, null, 2));
+
         this.item = new VerificationRequest(response.data);
         this.loadingStep = this.loadingSteps.length;
         
         setTimeout(() => {
           this.isLoading = false;
-          console.log('Detalles de la solicitud obtenidos:', this.item);
+          console.log('=== DEBUGGING: DATOS DESPUÉS DE MAPEAR A ENTIDAD ===');
+          console.log('Item completo:', this.item);
+          console.log('Item JSON:', JSON.stringify(this.item, null, 2));
+          console.log('\n--- CLIENTE ---');
+          console.log('Client:', this.item.client);
+          console.log('Client JSON:', JSON.stringify(this.item.client, null, 2));
+          console.log('\n--- DOCUMENTO DE IDENTIDAD ---');
+          console.log('Identity Document:', this.item.client?.identityDocument);
+          console.log('\n--- UBICACIÓN ---');
+          console.log('Location:', this.item.client?.location);
+          console.log('Location JSON:', JSON.stringify(this.item.client?.location, null, 2));
+          console.log('homeAddress:', this.item.client?.location?.homeAddress);
+          console.log('\n--- ARRENDADOR ---');
+          console.log('Landlord:', this.item.client?.landlord);
+          console.log('\n--- DOCUMENTOS ---');
+          console.log('Documents:', this.item.client?.documents);
+          console.log('Documents count:', this.item.client?.documents?.length || 0);
+          console.log('\n--- EMPRESA SOLICITANTE ---');
+          console.log('Applicant Company:', this.item.applicantCompany);
+          console.log('\n--- OBSERVACIONES ---');
+          console.log('Observations:', this.item.observations);
+          console.log('Observations count:', this.item.observations?.length || 0);
+          console.log('=== FIN DEBUGGING ===\n');
         }, 300);
       })
       .catch(error => {

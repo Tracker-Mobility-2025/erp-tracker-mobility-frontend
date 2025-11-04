@@ -37,8 +37,7 @@ const router = createRouter({
 
         {
             path: '/tracker-mobility', 
-            name: 'tracker-mobility', 
-            component: LayoutTrackerMobilityComponent, 
+            component: LayoutTrackerMobilityComponent,
             meta: {
                 title: 'Tracker Mobility',
                 roles: ['ADMIN', 'COMPANY_EMPLOYEE'] // Ambos roles pueden acceder al layout
@@ -48,6 +47,7 @@ const router = createRouter({
                 // Ruta por defecto al entrar en /tracker-mobility (redirige según el rol)
                 {
                     path: '',
+                    name: 'tracker-mobility',
                     redirect: () => {
                         // Esta redirección se maneja en el guard de autenticación
                         return { name: 'dashboard' };

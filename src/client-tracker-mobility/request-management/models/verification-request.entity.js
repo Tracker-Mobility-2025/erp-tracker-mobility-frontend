@@ -1,16 +1,76 @@
-// ---------------------
-// SUBCLASES
-// ---------------------
+export class VerificationRequest {
+    constructor(
+        {
+            id = 0,
+            orderCode = "",
+            status = "",
+            requestDate = "",
+            client = null,
+            applicantCompany = null,
+            observations = []
+        } = {}
+    ) {
+        this.id = id;
+        this.orderCode = orderCode;
+        this.status = status;
+        this.requestDate = requestDate;
+        this.client = client ? new ClientDetails(client) : null;
+        this.applicantCompany = applicantCompany ? new ApplicantCompanyDetails(applicantCompany) : null;
+        this.observations = observations.map(obs => new Observation(obs));
+    }
+}
+
+export class ClientDetails {
+    constructor(
+        {
+            id = 0,
+            name = "",
+            lastName = "",
+            phoneNumber = "",
+            identityDocument = null,
+            isTenant = false,
+            documents = [],
+            landlord = null,
+            location = null
+        } = {}
+    ) {
+        this.id = id;
+        this.name = name;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+        this.identityDocument = identityDocument ? new IdentityDocument(identityDocument) : null;
+        this.isTenant = isTenant;
+        this.documents = documents.map(doc => new Document(doc));
+        this.landlord = landlord ? new Landlord(landlord) : null;
+        this.location = location ? new Location(location) : null;
+    }
+
+    // Método helper para obtener el nombre completo del cliente
+    getFullName() {
+        return `${this.name} ${this.lastName}`.trim();
+    }
+}
 
 export class IdentityDocument {
-    constructor({ documentNumber = null, documentType = null } = {}) {
+    constructor(
+        {
+            documentNumber = "",
+            documentType = ""
+        } = {}
+    ) {
         this.documentNumber = documentNumber;
         this.documentType = documentType;
     }
 }
 
 export class Document {
-    constructor({ id = null, url = null, type = null } = {}) {
+    constructor(
+        {
+            id = 0,
+            url = "",
+            type = ""
+        } = {}
+    ) {
         this.id = id;
         this.url = url;
         this.type = type;
@@ -18,20 +78,27 @@ export class Document {
 }
 
 export class Landlord {
-    constructor({ fullName = null, phoneNumber = null } = {}) {
+    constructor(
+        {
+            fullName = "",
+            phoneNumber = ""
+        } = {}
+    ) {
         this.fullName = fullName;
         this.phoneNumber = phoneNumber;
     }
 }
 
 export class Location {
-    constructor({
-                    department = null,
-                    province = null,
-                    district = null,
-                    homeAddress = null,
-                    mapLocation = null
-                } = {}) {
+    constructor(
+        {
+            department = "",
+            province = "",
+            district = "",
+            homeAddress = "",
+            mapLocation = ""
+        } = {}
+    ) {
         this.department = department;
         this.province = province;
         this.district = district;
@@ -40,60 +107,17 @@ export class Location {
     }
 }
 
-export class Client {
-    constructor({
-                    id = null,
-                    name = null,
-                    lastName = null,
-                    phoneNumber = null,
-                    identityDocument = null,
-                    isTenant = null,
-                    documents = [],
-                    landlord = null,
-                    location = null
-                } = {}) {
-        this.id = id;
-        this.name = name;
-        this.lastName = lastName;
-        this.phoneNumber = phoneNumber;
-        this.identityDocument = identityDocument ? new IdentityDocument(identityDocument) : null;
-        this.isTenant = isTenant;
-        this.documents = documents.map(d => new Document(d));
-        this.landlord = landlord ? new Landlord(landlord) : null;
-        this.location = location ? new Location(location) : null;
-    }
-
-    // Retornar el nombre completo del cliente
-    getFullName() {
-        return `${this.name} ${this.lastName}`;
-    }
-}
-
-export class Observation {
-    constructor({
-                    id = null,
-                    orderId = null,
-                    observationType = null,
-                    description = null,
-                    status = null
-                } = {}) {
-        this.id = id;
-        this.orderId = orderId;
-        this.observationType = observationType;
-        this.description = description;
-        this.status = status;
-    }
-}
-
-export class ApplicantCompany {
-    constructor({
-                    applicantCompanyId = null,
-                    companyName = null,
-                    executiveName = null,
-                    ruc = null,
-                    corporateEmail = null,
-                    contactPhoneNumber = null
-                } = {}) {
+export class ApplicantCompanyDetails {
+    constructor(
+        {
+            applicantCompanyId = 0,
+            companyName = "",
+            executiveName = "",
+            ruc = "",
+            corporateEmail = "",
+            contactPhoneNumber = ""
+        } = {}
+    ) {
         this.applicantCompanyId = applicantCompanyId;
         this.companyName = companyName;
         this.executiveName = executiveName;
@@ -103,26 +127,21 @@ export class ApplicantCompany {
     }
 }
 
-// ---------------------
-// CLASE PRINCIPAL
-// ---------------------
-
-export class VerificationRequest {
-    constructor({
-                    id = null,
-                    orderCode = null,
-                    status = null,
-                    requestDate = null,
-                    client = null,
-                    applicantCompany = null,
-                    observations = []
-                } = {}) {
+export class Observation {
+    constructor(
+        {
+            id = 0,
+            orderId = 0,
+            observationType = "",
+            description = "",
+            status = ""
+        } = {}
+    ) {
         this.id = id;
-        this.orderCode = orderCode;
+        this.orderId = orderId;
+        this.observationType = observationType;
+        this.description = description;
         this.status = status;
-        this.requestDate = requestDate;
-        this.client = client ? new Client(client) : null;
-        this.applicantCompany = applicantCompany ? new ApplicantCompany(applicantCompany) : null;
-        this.observations = observations.map(o => new Observation(o));
     }
 }
+

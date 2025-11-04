@@ -307,6 +307,10 @@ export default {
 
     async createRequest() {
       try {
+        console.log('\n%c╔══════════════════════════════════════════════════════════╗', 'color: #9C27B0; font-weight: bold');
+        console.log('%c║  🔍 COMPONENTE: Preparando datos para envío al backend  ║', 'color: #9C27B0; font-weight: bold');
+        console.log('%c╚══════════════════════════════════════════════════════════╝\n', 'color: #9C27B0; font-weight: bold');
+
         // Validar que tenemos los datos necesarios
         if (!this.applicantCompany || !this.applicantCompany.applicantCompanyId) {
           throw new Error('Datos de empresa solicitante no disponibles');
@@ -330,11 +334,30 @@ export default {
           throw new Error('Error interno: tipos de documento obsoletos detectados');
         }
 
+        console.log('%c✅ VALIDACIONES PREVIAS COMPLETADAS:', 'color: #4CAF50; font-weight: bold');
+        console.log('   ✓ Datos de empresa solicitante: OK');
+        console.log('   ✓ Datos del cliente: OK');
+        console.log('   ✓ Documentos válidos:', validDocuments.length);
+        console.log('   ✓ No hay tipos de documento obsoletos');
+
+        console.log('\n%c📊 RESUMEN DE DATOS A ENVIAR:', 'color: #FF9800; font-weight: bold');
+        console.log('   🏢 Empresa:', this.applicantCompany.companyName);
+        console.log('   👤 Cliente:', `${this.client.name} ${this.client.lastName}`);
+        console.log('   📄 Documentos:', this.client.documents.length);
+        console.log('   🏠 Es inquilino:', this.client.isTenant ? 'Sí' : 'No');
+
         // Activar estado de carga
         this.isCreatingRequest = true;
 
+        console.log('\n%c🚀 Llamando al servicio OrderServiceRequest.create()...', 'color: #2196F3; font-weight: bold');
+        console.log('─────────────────────────────────────────────────────────\n');
+
         // Realizar la petición HTTP
         const response = await this.orderServiceRequest.create(this.applicantCompany, this.client);
+
+        console.log('\n%c✅ RESPUESTA RECIBIDA EN COMPONENTE:', 'color: #4CAF50; font-weight: bold; font-size: 14px');
+        console.log('   📋 Código de orden:', response.data.orderCode);
+        console.log('   ✓ Solicitud creada exitosamente');
 
         // Actualizar el estado de éxito con el modelo completo
         this.isRequestCreated = true;
@@ -347,7 +370,8 @@ export default {
         return true;
 
       } catch (error) {
-        console.error('Error al crear la solicitud:', error);
+        console.log('\n%c❌ ERROR EN COMPONENTE:', 'color: #F44336; font-weight: bold; font-size: 14px');
+        console.error('   Detalles del error:', error);
 
         this.showToast('error', 'Error', 
           error.response?.data?.message || 'Ocurrió un error al crear la solicitud. Intenta nuevamente.');
@@ -356,6 +380,7 @@ export default {
       } finally {
         // Desactivar estado de carga
         this.isCreatingRequest = false;
+        console.log('\n%c═══════════════════════════════════════════════════════════\n', 'color: #9C27B0; font-weight: bold');
       }
     },
 

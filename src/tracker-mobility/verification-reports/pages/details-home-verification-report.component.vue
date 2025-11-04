@@ -23,6 +23,7 @@ import {ReportApiService} from "../services/reports-api.service.js";
 import {EmailApiService} from "../services/email-api.service.js";
 import {DownloadReportApiService} from "../services/download-report-api.service.js";
 import {Email} from "../models/email.entity.js";
+import {DownloadReport} from "../models/download-report.entity.js";
 
 export default {
   name:'details-home-verification-report',
@@ -299,6 +300,10 @@ export default {
   data() {
     return {
 
+      // Datos del reporte generado
+      downloadReport: new DownloadReport({}),
+
+
       // Servicio para manejar reportes de verificación
       reportDetailsApiService: new ReportApiService('/reports'),
 
@@ -551,32 +556,32 @@ export default {
       // Obtener el ID del reporte
       const reportId = this.effectiveItem.id;
 
-      // Llamar al servicio para generar el reporte
-      this.downloadReportApiService.downloadReport(reportId).then(response => {
+      // Llamar al servicio para generar el reporte y obtener la URL de descarga
+      this.downloadReportApiService.downloadReport(reportId)
+          .then(response => {
             console.log('Respuesta del servidor:', response.data);
 
-            // Verificar que la respuesta contenga la URL del reporte
-            if (response.data && response.data.reportUrl) {
-              const reportUrl = response.data.reportUrl;
+            // Crear instancia del modelo con los datos recibidos
+            this.downloadReport = new DownloadReport(response.data);
 
-              // Abrir el PDF en una nueva pestaña
-              window.open(reportUrl, '_blank');
-
-              this.$toast.add({
-                severity: 'success',
-                summary: 'Reporte generado exitosamente',
-                detail: 'El documento PDF se abrirá en una nueva pestaña. Puede descargarlo o imprimirlo desde allí.',
-                life: 5000
-              });
-            } else {
-              // Si no hay URL en la respuesta
-              this.$toast.add({
-                severity: 'error',
-                summary: 'Error al generar el reporte',
-                detail: 'No se recibió la URL del documento. Por favor, intente nuevamente.',
-                life: 5000
-              });
+            // Verificar que se recibió una URL válida
+            if (!this.downloadReport.reportUrl) {
+              throw new Error('El servidor no proporcionó una URL de descarga válida');
             }
+
+            // Abrir el PDF en una nueva pestaña del navegador
+            // Esto permite que el usuario pueda visualizar, descargar o imprimir el documento
+            window.open(this.downloadReport.reportUrl, '_blank');
+
+            // Mostrar mensaje de éxito
+            this.$toast.add({
+              severity: 'success',
+              summary: 'Reporte generado exitosamente',
+              detail: 'El documento PDF se ha abierto en una nueva pestaña. Puede descargarlo o imprimirlo desde allí.',
+              life: 5000
+            });
+
+            console.log('URL del reporte:', this.downloadReport.reportUrl);
           })
           .catch(error => {
             console.error('Error al generar el reporte:', error);
@@ -784,6 +789,7 @@ export default {
           <span class="p-button-label">Enviar por correo</span>
         </pv-button>
         <!-- Botón imprimir en PDF -->
+        <!--
         <pv-button
             class=" p-button-print p-button p-button-sm"
             @click="onDownloadOrPrintVerificationReport"
@@ -791,6 +797,8 @@ export default {
           <i class="pi pi-print p-button-icon-left"></i>
           <span class="p-button-label">Imprimir PDF</span>
         </pv-button>
+        -->
+        
         <!-- Botón para descargar en PDF -->
         <pv-button
             class="p-button-download p-button p-button-sm"
