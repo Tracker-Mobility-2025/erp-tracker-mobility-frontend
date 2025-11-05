@@ -387,40 +387,40 @@ export default {
       </div>
 
       <!-- Resumen de cantidad de órdenes -->
-      <div class="flex gap-3 flex-wrap">
+      <div class="flex gap-2 flex-nowrap">
         <!-- Total de órdenes -->
-        <div class="flex align-items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1 border-round border-1 border-blue-200">
-          <i class="pi pi-file-o text-blue-600"></i>
+        <div class="flex align-items-center gap-2 bg-blue-50 text-blue-700 px-2 py-1 border-round border-1 border-blue-200 flex-shrink-0">
+          <i class="pi pi-file-o text-blue-600 text-sm"></i>
           <span class="font-semibold text-sm">Total:</span>
-          <span class="font-bold">{{ itemsArray.length }}</span>
+          <span class="font-bold text-sm">{{ itemsArray.length }}</span>
         </div>
 
         <!-- Órdenes Finalizadas -->
-        <div class="flex align-items-center gap-2 bg-green-50 text-green-700 px-3 py-1 border-round border-1 border-green-200">
-          <i class="pi pi-check-circle text-green-600"></i>
+        <div class="flex align-items-center gap-2 bg-green-50 text-green-700 px-2 py-1 border-round border-1 border-green-200 flex-shrink-0">
+          <i class="pi pi-check-circle text-green-600 text-sm"></i>
           <span class="font-semibold text-sm">Finalizadas:</span>
-          <span class="font-bold">{{ itemsArray.filter(o => o.status === 'FINALIZADO').length }}</span>
+          <span class="font-bold text-sm">{{ itemsArray.filter(o => o.status === 'FINALIZADO').length }}</span>
         </div>
 
         <!-- Órdenes Pendientes -->
-        <div class="flex align-items-center gap-2 bg-orange-50 text-orange-700 px-3 py-1 border-round border-1 border-orange-200">
-          <i class="pi pi-clock text-orange-600"></i>
+        <div class="flex align-items-center gap-2 bg-orange-50 text-orange-700 px-2 py-1 border-round border-1 border-orange-200 flex-shrink-0">
+          <i class="pi pi-clock text-orange-600 text-sm"></i>
           <span class="font-semibold text-sm">Pendientes:</span>
-          <span class="font-bold">{{ itemsArray.filter(o => o.status === 'PENDIENTE').length }}</span>
+          <span class="font-bold text-sm">{{ itemsArray.filter(o => o.status === 'PENDIENTE').length }}</span>
         </div>
 
         <!-- Órdenes En Proceso -->
-        <div class="flex align-items-center gap-2 bg-cyan-50 text-cyan-700 px-3 py-1 border-round border-1 border-cyan-200">
-          <i class="pi pi-cog text-cyan-600"></i>
+        <div class="flex align-items-center gap-2 bg-cyan-50 text-cyan-700 px-2 py-1 border-round border-1 border-cyan-200 flex-shrink-0">
+          <i class="pi pi-cog text-cyan-600 text-sm"></i>
           <span class="font-semibold text-sm">En Proceso:</span>
-          <span class="font-bold">{{ itemsArray.filter(o => o.status === 'EN_PROCESO' || o.status === 'ASIGNADO').length }}</span>
+          <span class="font-bold text-sm">{{ itemsArray.filter(o => o.status === 'EN_PROCESO' || o.status === 'ASIGNADO').length }}</span>
         </div>
 
         <!-- Órdenes Observadas -->
-        <div class="flex align-items-center gap-2 bg-red-50 text-red-700 px-3 py-1 border-round border-1 border-red-200">
-          <i class="pi pi-exclamation-triangle text-red-600"></i>
+        <div class="flex align-items-center gap-2 bg-red-50 text-red-700 px-2 py-1 border-round border-1 border-red-200 flex-shrink-0">
+          <i class="pi pi-exclamation-triangle text-red-600 text-sm"></i>
           <span class="font-semibold text-sm">Observadas:</span>
-          <span class="font-bold">{{ itemsArray.filter(o => o.status === 'OBSERVADO').length }}</span>
+          <span class="font-bold text-sm">{{ itemsArray.filter(o => o.status === 'OBSERVADO').length }}</span>
         </div>
       </div>
     </div>
