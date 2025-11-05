@@ -228,40 +228,29 @@ export default {
       this.currentObservation = null;
     },
 
-    // Guardar cambios de subsanación
+    // Guardar cambios de subsanación (método principal orquestador)
     async saveSubsanacion() {
       try {
         console.log('Guardando cambios de subsanación...', this.currentObservation);
 
-        // Validar que existe una orden y una observación
-        if (!this.item || !this.item.id) {
+        // Validaciones iniciales
+        const validationError = this.validateSubsanacion();
+        if (validationError) {
           this.$toast.add({
             severity: 'error',
             summary: 'Error de validación',
-            detail: 'No se encontró la solicitud para actualizar',
+            detail: validationError,
             life: 3000
           });
           return;
         }
 
-        if (!this.currentObservation) {
-          this.$toast.add({
-            severity: 'error',
-            summary: 'Error de validación',
-            detail: 'No se encontró la observación a subsanar',
-            life: 3000
-          });
-          return;
-        }
-
-        // Obtener componentes con datos editados
         const clientComponent = this.$refs.clientDetailsComponent;
         const documentsComponent = this.$refs.documentsDetailsComponent;
 
         console.log('Datos del cliente editados:', clientComponent?.localClient);
         console.log('Archivos seleccionados:', documentsComponent?.selectedFiles);
 
-        // Mostrar mensaje de procesamiento
         this.$toast.add({
           severity: 'info',
           summary: 'Procesando subsanación',
@@ -269,101 +258,21 @@ export default {
           life: 2000
         });
 
-        // 1. Preparar estructura de datos para updateOrderDetails (PATCH)
-        const orderDetailsPayload = {
-          applicantCompany: {
-            applicantCompanyId: this.item.applicantCompany?.applicantCompanyId || 0,
-            companyName: this.item.applicantCompany?.companyName || '',
-            executiveName: this.item.applicantCompany?.executiveName || '',
-            ruc: this.item.applicantCompany?.ruc || '',
-            corporateEmail: this.item.applicantCompany?.corporateEmail || '',
-            contactPhoneNumber: this.item.applicantCompany?.contactPhoneNumber || ''
-          },
-          client: {
-            name: clientComponent?.localClient?.name || this.item.client?.name || '',
-            lastName: clientComponent?.localClient?.lastName || this.item.client?.lastName || '',
-            phoneNumber: clientComponent?.localClient?.phoneNumber || this.item.client?.phoneNumber || '',
-            isTenant: this.item.client?.isTenant || false,
-            landlord: this.item.client?.isTenant ? {
-              fullName: this.item.client?.landlord?.fullName || '',
-              phoneNumber: this.item.client?.landlord?.phoneNumber || ''
-            } : null,
-            location: {
-              department: this.item.client?.location?.department || '',
-              province: this.item.client?.location?.province || '',
-              district: this.item.client?.location?.district || '',
-              homeAddress: this.item.client?.location?.homeAddress || '',
-              mapLocation: this.item.client?.location?.mapLocation || ''
-            }
-          }
-        };
-
-        console.log('Payload para updateOrderDetails:', orderDetailsPayload);
-
-        // 2. Actualizar los datos de la orden con PATCH
+        // 1. Actualizar detalles de la orden (PATCH)
+        const orderDetailsPayload = this.buildOrderDetailsPayload(clientComponent);
         await this.requestObservationsApiService.updateOrderDetails(this.item.id, orderDetailsPayload);
-
         console.log('Datos de la orden actualizados exitosamente');
 
-        // 3. Actualizar documentos si hay archivos seleccionados
-        const selectedFiles = documentsComponent?.selectedFiles || {};
-        const documentsToUpdate = Object.keys(selectedFiles);
+        // 2. Actualizar documentos si existen archivos seleccionados
+        await this.updateDocumentsFromComponent(documentsComponent);
 
-        if (documentsToUpdate.length > 0) {
-          console.log(`Actualizando ${documentsToUpdate.length} documento(s)...`);
+        // 3. Actualizar la observación a RESUELTA
+        await this.updateObservationStatusToResolved();
 
-          for (const documentId of documentsToUpdate) {
-            const file = selectedFiles[documentId];
+        // 4. Limpiar selecciones de archivos
+        this.clearDocumentSelections(documentsComponent);
 
-            // Buscar el documento original para obtener su tipo
-            const originalDocument = this.item.client?.documents?.find(doc => doc.id === parseInt(documentId));
-
-            if (!originalDocument) {
-              console.warn(`No se encontró el documento con ID ${documentId}`);
-              continue;
-            }
-
-            // Crear FormData con el archivo y el tipo de documento
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('type', originalDocument.type);
-
-            console.log(`Actualizando documento ${documentId} (tipo: ${originalDocument.type})`);
-
-            // Actualizar el documento mediante PATCH
-            await this.requestObservationsApiService.updateDocument(this.item.id, documentId, formData);
-
-            console.log(`Documento ${documentId} actualizado exitosamente`);
-          }
-        }
-
-        // 4. Actualizar el estado de la observación a 'RESUELTA'
-        if (this.currentObservation.id) {
-          // Mantener todos los campos existentes y solo cambiar el status
-          const observationPayload = {
-            observationType: this.currentObservation.observationType,
-            description: this.currentObservation.description,
-            status: 'RESUELTA'
-          };
-
-          console.log('Actualizando observación:', observationPayload);
-
-          await this.requestObservationsApiService.updateObservation(
-            this.item.id,
-            this.currentObservation.id,
-            observationPayload
-          );
-
-          console.log('Observación actualizada a estado RESUELTA');
-        }
-
-        // 5. Limpiar archivos seleccionados en el componente de documentos
-        if (documentsComponent) {
-          documentsComponent.selectedFiles = {};
-          documentsComponent.previewUrls = {};
-        }
-
-        // 6. Mostrar mensaje de éxito
+        // 5. Mensaje de éxito y recarga
         this.$toast.add({
           severity: 'success',
           summary: 'Subsanación guardada',
@@ -371,32 +280,12 @@ export default {
           life: 5000
         });
 
-        // 7. Desactivar modo edición
         this.cancelEditMode();
-
-        // 8. Recargar los datos de la solicitud
         await this.getRequestDetailsByOrderId(this.item.id);
 
       } catch (error) {
         console.error('Error al guardar la subsanación:', error);
-
-        // Manejar errores específicos
-        let errorMessage = 'No se pudieron guardar los cambios. Por favor, intente nuevamente.';
-
-        if (error.response) {
-          const status = error.response.status;
-          const backendMessage = error.response.data?.message || '';
-
-          if (status === 400) {
-            errorMessage = 'Los datos ingresados no son válidos. Por favor, verifique la información.';
-          } else if (status === 404) {
-            errorMessage = 'No se encontró la solicitud o el documento a actualizar.';
-          } else if (status === 500) {
-            errorMessage = 'Error en el servidor. Por favor, contacte al administrador.';
-          } else if (backendMessage) {
-            errorMessage = backendMessage;
-          }
-        }
+        const errorMessage = this.getSubsanacionErrorMessage(error);
 
         this.$toast.add({
           severity: 'error',
@@ -406,6 +295,145 @@ export default {
         });
       }
     },
+
+    // =============================
+    // HELPERS: saveSubsanacion
+    // =============================
+
+    // Validar que existen los datos necesarios para guardar la subsanación
+    validateSubsanacion() {
+      if (!this.item || !this.item.id) {
+        return 'No se encontró la solicitud para actualizar';
+      }
+      if (!this.currentObservation) {
+        return 'No se encontró la observación a subsanar';
+      }
+      return null;
+    },
+
+    // Construir el payload para actualizar los detalles de la orden
+    buildOrderDetailsPayload(clientComponent) {
+      const payload = {
+        applicantCompany: {
+          applicantCompanyId: this.item.applicantCompany?.applicantCompanyId || 0,
+          companyName: this.item.applicantCompany?.companyName || '',
+          executiveName: this.item.applicantCompany?.executiveName || '',
+          ruc: this.item.applicantCompany?.ruc || '',
+          corporateEmail: this.item.applicantCompany?.corporateEmail || '',
+          contactPhoneNumber: this.item.applicantCompany?.contactPhoneNumber || ''
+        },
+        client: {
+          name: clientComponent?.localClient?.name || this.item.client?.name || '',
+          lastName: clientComponent?.localClient?.lastName || this.item.client?.lastName || '',
+          phoneNumber: clientComponent?.localClient?.phoneNumber || this.item.client?.phoneNumber || '',
+          isTenant: this.item.client?.isTenant || false,
+          landlord: this.item.client?.isTenant ? {
+            fullName: this.item.client?.landlord?.fullName || '',
+            phoneNumber: this.item.client?.landlord?.phoneNumber || ''
+          } : null,
+          location: {
+            department: this.item.client?.location?.department || '',
+            province: this.item.client?.location?.province || '',
+            district: this.item.client?.location?.district || '',
+            homeAddress: this.item.client?.location?.homeAddress || '',
+            mapLocation: this.item.client?.location?.mapLocation || ''
+          }
+        }
+      };
+
+      console.log('Payload para updateOrderDetails:', payload);
+      return payload;
+    },
+
+    // Actualizar documentos desde el componente de documentos
+    async updateDocumentsFromComponent(documentsComponent) {
+      const selectedFiles = documentsComponent?.selectedFiles || {};
+      const documentIds = Object.keys(selectedFiles);
+
+      if (documentIds.length === 0) {
+        console.log('No hay documentos para actualizar');
+        return;
+      }
+
+      console.log(`Actualizando ${documentIds.length} documento(s)...`);
+
+      for (const documentId of documentIds) {
+        const file = selectedFiles[documentId];
+        const originalDocument = this.item.client?.documents?.find(doc => doc.id === parseInt(documentId, 10));
+
+        if (!originalDocument) {
+          console.warn(`No se encontró el documento con ID ${documentId}`);
+          continue;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('type', originalDocument.type || '');
+
+        console.log(`Actualizando documento ${documentId} (tipo: ${originalDocument.type})`);
+        await this.requestObservationsApiService.updateDocument(this.item.id, documentId, formData);
+        console.log(`Documento ${documentId} actualizado exitosamente`);
+      }
+    },
+
+    // Actualizar el estado de la observación a RESUELTA
+    async updateObservationStatusToResolved() {
+      if (!this.currentObservation?.id) {
+        console.warn('No hay observación para actualizar');
+        return;
+      }
+
+      const observationPayload = {
+        observationType: this.currentObservation.observationType,
+        description: this.currentObservation.description,
+        status: 'RESUELTA'
+      };
+
+      console.log('Actualizando observación:', observationPayload);
+
+      await this.requestObservationsApiService.updateObservation(
+        this.item.id,
+        this.currentObservation.id,
+        observationPayload
+      );
+
+      console.log('Observación actualizada a estado RESUELTA');
+    },
+
+    // Limpiar archivos seleccionados en el componente de documentos
+    clearDocumentSelections(documentsComponent) {
+      if (!documentsComponent) return;
+
+      documentsComponent.selectedFiles = {};
+      documentsComponent.previewUrls = {};
+      console.log('Selecciones de archivos limpiadas');
+    },
+
+    // Obtener mensaje de error específico para subsanación
+    getSubsanacionErrorMessage(error) {
+      let errorMessage = 'No se pudieron guardar los cambios. Por favor, intente nuevamente.';
+
+      if (error.response) {
+        const status = error.response.status;
+        const backendMessage = error.response.data?.message || '';
+
+        if (status === 400) {
+          errorMessage = 'Los datos ingresados no son válidos. Por favor, verifique la información.';
+        } else if (status === 404) {
+          errorMessage = 'No se encontró la solicitud o el documento a actualizar.';
+        } else if (status === 500) {
+          errorMessage = 'Error en el servidor. Por favor, contacte al administrador.';
+        } else if (backendMessage) {
+          errorMessage = backendMessage;
+        }
+      }
+
+      return errorMessage;
+    },
+
+    // =============================
+    // FIN HELPERS: saveSubsanacion
+    // =============================
 
     // Descargar reporte de verificación en PDF
     downloadReport() {
