@@ -39,6 +39,7 @@ export default {
         { label: 'Pendiente', value: 'PENDIENTE' },
         { label: 'Asignado', value: 'ASIGNADO' },
         { label: 'En Proceso', value: 'EN_PROCESO' },
+        { label: 'Observado', value: 'OBSERVADO' },
         { label: 'Finalizado', value: 'FINALIZADO' }
       ],
       title: {
@@ -181,6 +182,8 @@ export default {
           return 'info';
         case 'EN_PROCESO':
           return 'info';
+        case 'OBSERVADO':
+          return 'danger';
         case 'FINALIZADO':
           return 'success';
         default:
@@ -335,6 +338,19 @@ export default {
         // Mapear los datos recibidos a entidades VerificationRequest
         this.itemsArray = response.data.map(item => new VerificationRequest(item));
 
+        // Ordenar por fecha de solicitud (más reciente primero)
+        this.itemsArray.sort((a, b) => {
+          const dateA = this.parseLocalDate(a.requestDate);
+          const dateB = this.parseLocalDate(b.requestDate);
+
+          // Si alguna fecha es null, mover al final
+          if (!dateA) return 1;
+          if (!dateB) return -1;
+
+          // Ordenar descendente (más reciente primero)
+          return dateB.getTime() - dateA.getTime();
+        });
+
         console.log('===== Solicitudes de Verificación del trabajador =====',this.itemsArray);
 
       }).catch(error => {
@@ -398,6 +414,13 @@ export default {
           <i class="pi pi-cog text-cyan-600"></i>
           <span class="font-semibold text-sm">En Proceso:</span>
           <span class="font-bold">{{ itemsArray.filter(o => o.status === 'EN_PROCESO' || o.status === 'ASIGNADO').length }}</span>
+        </div>
+
+        <!-- Órdenes Observadas -->
+        <div class="flex align-items-center gap-2 bg-red-50 text-red-700 px-3 py-1 border-round border-1 border-red-200">
+          <i class="pi pi-exclamation-triangle text-red-600"></i>
+          <span class="font-semibold text-sm">Observadas:</span>
+          <span class="font-bold">{{ itemsArray.filter(o => o.status === 'OBSERVADO').length }}</span>
         </div>
       </div>
     </div>

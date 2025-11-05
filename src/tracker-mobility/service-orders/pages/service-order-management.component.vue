@@ -46,6 +46,7 @@ export default {
         { label: 'Pendiente', value: 'PENDIENTE' },
         { label: 'Asignado', value: 'ASIGNADO' },
         { label: 'En Proceso', value: 'EN_PROCESO' },
+        { label: 'Observado', value: 'OBSERVADO' },
         { label: 'Finalizado', value: 'FINALIZADO' }
       ],
       title: {
@@ -203,6 +204,8 @@ export default {
           return 'info';
         case 'EN_PROCESO':
           return 'info';
+        case 'OBSERVADO':
+          return 'danger';
         case 'FINALIZADO':
           return 'success';
         default:
@@ -258,6 +261,33 @@ export default {
       return true;
     },
 
+    // Parsear fecha string a objeto Date local (sin conversión de zona horaria)
+    parseLocalDate(dateString) {
+      if (!dateString) return null;
+
+      try {
+        // Si es formato ISO (YYYY-MM-DD), parsear como fecha local
+        if (typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}/)) {
+          const [datePart] = dateString.split('T');
+          const [year, month, day] = datePart.split('-').map(Number);
+          // Crear fecha local sin conversión UTC
+          return new Date(year, month - 1, day);
+        }
+
+        // Si ya es un objeto Date, retornarlo
+        if (dateString instanceof Date) {
+          return dateString;
+        }
+
+        // Para otros formatos, intentar parsear normalmente
+        const date = new Date(dateString);
+        return isNaN(date.getTime()) ? null : date;
+      } catch (error) {
+        console.error('Error al parsear fecha:', error);
+        return null;
+      }
+    },
+
     deleteOrder(orderId) {
 
       this.loading = true;
@@ -284,6 +314,20 @@ export default {
         this.validateServerResponse(response, 'órdenes');
 
         this.itemsArray = response.data;
+
+        // Ordenar por fecha de solicitud (más reciente primero)
+        this.itemsArray.sort((a, b) => {
+          const dateA = this.parseLocalDate(a.requestDate);
+          const dateB = this.parseLocalDate(b.requestDate);
+
+          // Si alguna fecha es null, mover al final
+          if (!dateA) return 1;
+          if (!dateB) return -1;
+
+          // Ordenar descendente (más reciente primero)
+          return dateB.getTime() - dateA.getTime();
+        });
+
         console.log('Órdenes de servicio cargadas:', this.itemsArray);
 
       }).catch(error => {
@@ -366,6 +410,13 @@ export default {
           <i class="pi pi-cog text-cyan-600"></i>
           <span class="font-semibold text-sm">En Proceso:</span>
           <span class="font-bold">{{ itemsArray.filter(o => o.status === 'EN_PROCESO' || o.status === 'ASIGNADO').length }}</span>
+        </div>
+
+        <!-- Órdenes Observadas -->
+        <div class="flex align-items-center gap-2 bg-red-50 text-red-700 px-3 py-1 border-round border-1 border-red-200">
+          <i class="pi pi-exclamation-triangle text-red-600"></i>
+          <span class="font-semibold text-sm">Observadas:</span>
+          <span class="font-bold">{{ itemsArray.filter(o => o.status === 'OBSERVADO').length }}</span>
         </div>
       </div>
     </div>
