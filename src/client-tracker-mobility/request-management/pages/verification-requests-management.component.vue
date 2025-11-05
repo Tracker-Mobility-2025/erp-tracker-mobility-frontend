@@ -107,11 +107,9 @@ export default {
         filtered = filtered.filter(order => {
           if (order.requestDate) {
             try {
-              // Usar el método parseLocalDate para evitar conversión de zona horaria
               const requestDateStr = this.formatDateForComparison(order.requestDate);
               return requestDateStr === selectedDateStr;
             } catch (error) {
-              console.warn('Error parsing requestDate:', order.requestDate, error);
               return false;
             }
           }
@@ -148,13 +146,11 @@ export default {
 
     // Eliminar una orden individual
     onDeleteItem(item) {
-      console.log('Eliminar orden individual:', item);
       this.deleteOrder(item.id);
     },
 
     // Navegar a la vista de detalles de la solicitud
     onViewItem(item) {
-      console.log('Ver detalles de solicitud:', item);
       this.$router.push({
         name: 'verification-request-details',
         query: { id: item.id }
@@ -196,9 +192,7 @@ export default {
       if (!item || !item.observations || !Array.isArray(item.observations)) {
         return 0;
       }
-      const count = item.observations.filter(obs => obs.status === 'PENDIENTE').length;
-      console.log('Observaciones pendientes para item:', item.orderCode, '=', count);
-      return count;
+      return item.observations.filter(obs => obs.status === 'PENDIENTE').length;
     },
 
     // Parsear fecha string a objeto Date local (sin conversión de zona horaria)
@@ -223,7 +217,6 @@ export default {
         const date = new Date(dateString);
         return isNaN(date.getTime()) ? null : date;
       } catch (error) {
-        console.error('Error al parsear fecha:', error);
         return null;
       }
     },
@@ -245,7 +238,6 @@ export default {
         
         return `${day}/${month}/${year}`;
       } catch (error) {
-        console.error('Error al formatear fecha:', error);
         return 'Error';
       }
     },
@@ -273,7 +265,6 @@ export default {
         
         return `${year}-${month}-${day}`;
       } catch (error) {
-        console.error('Error al formatear fecha para comparación:', error);
         return null;
       }
     },
@@ -350,8 +341,6 @@ export default {
           // Ordenar descendente (más reciente primero)
           return dateB.getTime() - dateA.getTime();
         });
-
-        console.log('===== Solicitudes de Verificación del trabajador =====',this.itemsArray);
 
       }).catch(error => {
         this.handleServerError(error, 'solicitudes de verificación');

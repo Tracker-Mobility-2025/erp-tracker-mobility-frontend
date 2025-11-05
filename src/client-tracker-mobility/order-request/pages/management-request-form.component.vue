@@ -67,12 +67,11 @@ export default {
     getApplicantCompanyData(usernameEmployee) {
       this.companyEmployeesService.getApplicantCompanyByUsernameEmployee(usernameEmployee)
         .then(response => {
-          // Actualizar propiedades existentes en lugar de reemplazar el objeto
           Object.assign(this.applicantCompany, response.data);
-          console.log('Datos de la empresa solicitante obtenidos:', this.applicantCompany);
+          console.log('Datos de empresa solicitante cargados:', this.applicantCompany.companyName);
         })
         .catch(error => {
-          console.error('Error al obtener los datos de la empresa solicitante:', error);
+          console.error('Error al obtener datos de empresa:', error);
         });
     },
 
@@ -166,11 +165,7 @@ export default {
         localStorage.setItem('orderCreated', 'true');
       }
       
-      console.log('Formulario completado', {
-        client: this.client,
-        applicantCompany: this.applicantCompany,
-        orderResponse: this.orderResponse
-      });
+      console.log('Formulario completado - Código:', orderResponseData?.orderCode);
       
       // Avanzar al paso 4 (resumen)
       this.currentStep = 4;

@@ -71,7 +71,6 @@ export default {
         const date = new Date(dateString);
         return isNaN(date.getTime()) ? null : date;
       } catch (error) {
-        console.error('Error al parsear fecha:', error);
         return null;
       }
     },
@@ -90,15 +89,12 @@ export default {
         
         return `${day}/${month}/${year}`;
       } catch (error) {
-        console.error('Error al formatear fecha:', error);
         return 'Error';
       }
     },
 
     // Obtener detalles de la solicitud por ID
     getRequestDetailsByOrderId(orderId) {
-      console.log(`Obtener detalles de la solicitud con ID: `, orderId);
-      
       this.isLoading = true;
       this.hasError = false;
       this.loadingStep = 0;
@@ -106,38 +102,12 @@ export default {
       this.simulateLoadingProgress();
       
       this.verificationRequestsApi.getById(orderId).then(response => {
-        console.log('=== DEBUGGING: DATOS RAW DEL BACKEND ===');
-        console.log('Response completo:', response);
-        console.log('Response.data:', JSON.stringify(response.data, null, 2));
-
         this.item = new VerificationRequest(response.data);
         this.loadingStep = this.loadingSteps.length;
         
         setTimeout(() => {
           this.isLoading = false;
-          console.log('=== DEBUGGING: DATOS DESPUÉS DE MAPEAR A ENTIDAD ===');
-          console.log('Item completo:', this.item);
-          console.log('Item JSON:', JSON.stringify(this.item, null, 2));
-          console.log('\n--- CLIENTE ---');
-          console.log('Client:', this.item.client);
-          console.log('Client JSON:', JSON.stringify(this.item.client, null, 2));
-          console.log('\n--- DOCUMENTO DE IDENTIDAD ---');
-          console.log('Identity Document:', this.item.client?.identityDocument);
-          console.log('\n--- UBICACIÓN ---');
-          console.log('Location:', this.item.client?.location);
-          console.log('Location JSON:', JSON.stringify(this.item.client?.location, null, 2));
-          console.log('homeAddress:', this.item.client?.location?.homeAddress);
-          console.log('\n--- ARRENDADOR ---');
-          console.log('Landlord:', this.item.client?.landlord);
-          console.log('\n--- DOCUMENTOS ---');
-          console.log('Documents:', this.item.client?.documents);
-          console.log('Documents count:', this.item.client?.documents?.length || 0);
-          console.log('\n--- EMPRESA SOLICITANTE ---');
-          console.log('Applicant Company:', this.item.applicantCompany);
-          console.log('\n--- OBSERVACIONES ---');
-          console.log('Observations:', this.item.observations);
-          console.log('Observations count:', this.item.observations?.length || 0);
-          console.log('=== FIN DEBUGGING ===\n');
+          console.log('Solicitud cargada:', this.item.orderCode);
         }, 300);
       })
       .catch(error => {
@@ -179,8 +149,6 @@ export default {
 
     // Manejar subsanación de observación - Habilitar modo edición
     handleSubsanarObservation(observation) {
-      console.log('Habilitando modo edición para subsanar observación:', observation);
-
       // Guardar la observación actual
       this.currentObservation = observation;
 
@@ -231,8 +199,6 @@ export default {
     // Guardar cambios de subsanación (método principal orquestador)
     async saveSubsanacion() {
       try {
-        console.log('Guardando cambios de subsanación...', this.currentObservation);
-
         // Validaciones iniciales
         const validationError = this.validateSubsanacion();
         if (validationError) {
@@ -248,9 +214,6 @@ export default {
         const clientComponent = this.$refs.clientDetailsComponent;
         const documentsComponent = this.$refs.documentsDetailsComponent;
 
-        console.log('Datos del cliente editados:', clientComponent?.localClient);
-        console.log('Archivos seleccionados:', documentsComponent?.selectedFiles);
-
         this.$toast.add({
           severity: 'info',
           summary: 'Procesando subsanación',
@@ -261,7 +224,6 @@ export default {
         // 1. Actualizar detalles de la orden (PATCH)
         const orderDetailsPayload = this.buildOrderDetailsPayload(clientComponent);
         await this.requestObservationsApiService.updateOrderDetails(this.item.id, orderDetailsPayload);
-        console.log('Datos de la orden actualizados exitosamente');
 
         // 2. Actualizar documentos si existen archivos seleccionados
         await this.updateDocumentsFromComponent(documentsComponent);
@@ -341,7 +303,6 @@ export default {
         }
       };
 
-      console.log('Payload para updateOrderDetails:', payload);
       return payload;
     },
 
@@ -351,18 +312,14 @@ export default {
       const documentIds = Object.keys(selectedFiles);
 
       if (documentIds.length === 0) {
-        console.log('No hay documentos para actualizar');
         return;
       }
-
-      console.log(`Actualizando ${documentIds.length} documento(s)...`);
 
       for (const documentId of documentIds) {
         const file = selectedFiles[documentId];
         const originalDocument = this.item.client?.documents?.find(doc => doc.id === parseInt(documentId, 10));
 
         if (!originalDocument) {
-          console.warn(`No se encontró el documento con ID ${documentId}`);
           continue;
         }
 
@@ -370,16 +327,13 @@ export default {
         formData.append('file', file);
         formData.append('type', originalDocument.type || '');
 
-        console.log(`Actualizando documento ${documentId} (tipo: ${originalDocument.type})`);
         await this.requestObservationsApiService.updateDocument(this.item.id, documentId, formData);
-        console.log(`Documento ${documentId} actualizado exitosamente`);
       }
     },
 
     // Actualizar el estado de la observación a RESUELTA
     async updateObservationStatusToResolved() {
       if (!this.currentObservation?.id) {
-        console.warn('No hay observación para actualizar');
         return;
       }
 
@@ -389,15 +343,11 @@ export default {
         status: 'RESUELTA'
       };
 
-      console.log('Actualizando observación:', observationPayload);
-
       await this.requestObservationsApiService.updateObservation(
         this.item.id,
         this.currentObservation.id,
         observationPayload
       );
-
-      console.log('Observación actualizada a estado RESUELTA');
     },
 
     // Limpiar archivos seleccionados en el componente de documentos
@@ -406,7 +356,6 @@ export default {
 
       documentsComponent.selectedFiles = {};
       documentsComponent.previewUrls = {};
-      console.log('Selecciones de archivos limpiadas');
     },
 
     // Obtener mensaje de error específico para subsanación
@@ -459,8 +408,6 @@ export default {
       // Llamar al servicio para generar el reporte usando POST
       this.downloadReportApiService.downloadReport(this.item.id)
         .then(response => {
-          console.log('Respuesta del servidor:', response.data);
-
           // Verificar que la respuesta contenga la URL del reporte
           if (response.data && response.data.reportUrl) {
             const reportUrl = response.data.reportUrl;
@@ -540,7 +487,6 @@ export default {
 
   created() {
     const orderId = this.$route.query.id;
-    console.log(`Cargar detalles de la solicitud con ID: ${orderId}`);
 
     this.verificationRequestsApi = new VerificationRequestsApi('/orders');
     this.requestObservationsApiService = new RequestObservationsApiService('/orders');

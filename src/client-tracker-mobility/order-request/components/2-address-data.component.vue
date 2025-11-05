@@ -176,7 +176,6 @@ export default {
 
     handleFileValidationError(errors) {
       errors.forEach(error => {
-        console.warn('Error de archivo:', error.message)
         this.$toast?.add({severity:'warn', summary:'Error de archivo', detail: error.message})
       })
     },
