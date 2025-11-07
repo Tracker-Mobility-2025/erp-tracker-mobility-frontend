@@ -21,7 +21,15 @@ export default {
     </template>
     <template #content>
       <div class="formgrid grid">
-        <!-- Fila 1: RUC, Razón Social y Ejecutivo -->
+        <!-- Fila 1: Razón Social, RUC y Ejecutivo -->
+         <div class="field col-12 md:col-4">
+          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <i class="pi pi-building text-primary"></i>
+            Razón social
+          </label>
+          <p class="font-semibold text-dark m-0">{{ applicantCompany?.companyName || 'No disponible' }}</p>
+        </div>
+
         <div class="field col-12 md:col-4">
           <label class="font-semibold text-color-secondary flex align-items-center gap-2">
             <i class="pi pi-id-card text-primary"></i>
@@ -29,13 +37,7 @@ export default {
           </label>
           <p class="font-semibold text-dark m-0">{{ applicantCompany?.ruc || 'No disponible' }}</p>
         </div>
-        <div class="field col-12 md:col-4">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-building text-primary"></i>
-            Razón social
-          </label>
-          <p class="font-semibold text-dark m-0">{{ applicantCompany?.companyName || 'No disponible' }}</p>
-        </div>
+        
         <div class="field col-12 md:col-4">
           <label class="font-semibold text-color-secondary flex align-items-center gap-2">
             <i class="pi pi-user text-primary"></i>

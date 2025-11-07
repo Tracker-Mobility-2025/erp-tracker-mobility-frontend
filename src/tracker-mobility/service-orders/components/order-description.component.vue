@@ -22,6 +22,31 @@ export default {
     }
   },
 
+  computed: {
+    // Filtrar y mapear documentos según los tipos permitidos
+    filteredDocuments() {
+      if (!this.item?.client?.documents) return [];
+      
+      // Tipos de documentos permitidos
+      const allowedTypes = ['FOTO_FACHADA_VIVIENDA', 'RECIBO_AGUA', 'DNI'];
+      
+      // Mapeo de nombres
+      const typeMapping = {
+        'FOTO_FACHADA_VIVIENDA': 'FACHADA DE VIVIENDA',
+        'RECIBO_AGUA': 'RECIBO DE SERVICIO',
+        'DNI': 'DOCUMENTO DE IDENTIDAD'
+      };
+      
+      // Filtrar y transformar documentos
+      return this.item.client.documents
+        .filter(doc => allowedTypes.includes(doc.type))
+        .map(doc => ({
+          ...doc,
+          displayName: typeMapping[doc.type] || doc.type
+        }));
+    }
+  },
+
   methods: {
     async downloadDocument(type, document = null) {
       try {
@@ -406,12 +431,25 @@ export default {
       this.imageZoom = 1;
     },
 
-    getDocumentLabel(documentType) {
+    getDocumentLabel(documentTypeOrDocument) {
+      // Si se pasa un objeto documento con displayName, usarlo
+      if (typeof documentTypeOrDocument === 'object' && documentTypeOrDocument?.displayName) {
+        return documentTypeOrDocument.displayName;
+      }
+      
+      // Si es string, usar el tipo directamente
+      const documentType = typeof documentTypeOrDocument === 'string' 
+        ? documentTypeOrDocument 
+        : documentTypeOrDocument?.type;
+      
       const labels = {
         'identity': 'Documento de identidad',
         'receipt': 'Recibo de servicios (agua o luz)',
         'contract': 'Contrato de alquiler',
-        'other': 'Otro documento'
+        'other': 'Otro documento',
+        'FOTO_FACHADA_VIVIENDA': 'FACHADA DE VIVIENDA',
+        'RECIBO_AGUA': 'RECIBO DE SERVICIO',
+        'DNI': 'DOCUMENTO DE IDENTIDAD'
       };
       return labels[documentType] || documentType || 'Documento';
     },
@@ -491,7 +529,15 @@ export default {
       <template #content>
 
         <div class="formgrid grid">
-          <!-- Fila 1: RUC, Razón Social y Nombre de ejecutivo -->
+          <!-- Fila 1: Razón Social, RUC y Nombre de ejecutivo -->
+           <div class="field col-12 md:col-4">
+            <label class="font-semibold text-600 flex align-items-center gap-2">
+              <i class="pi pi-building text-primary"></i>
+              Razón social
+            </label>
+            <p class="font-semibold text-900 m-0">{{ item?.applicantCompany?.companyName || 'No disponible' }}</p>
+          </div>
+
           <div class="field col-12 md:col-4">
             <label class="font-semibold text-600 flex align-items-center gap-2">
               <i class="pi pi-id-card text-primary"></i>
@@ -499,13 +545,7 @@ export default {
             </label>
             <p class="font-semibold text-900 m-0">{{ item?.applicantCompany?.ruc || 'No disponible' }}</p>
           </div>
-          <div class="field col-12 md:col-4">
-            <label class="font-semibold text-600 flex align-items-center gap-2">
-              <i class="pi pi-building text-primary"></i>
-              Razón social
-            </label>
-            <p class="font-semibold text-900 m-0">{{ item?.applicantCompany?.companyName || 'No disponible' }}</p>
-          </div>
+          
           <div class="field col-12 md:col-4">
             <label class="font-semibold text-600 flex align-items-center gap-2">
               <i class="pi pi-user text-primary"></i>
@@ -627,16 +667,16 @@ export default {
       </template>
       <template #content>
 
-        <div v-if="item?.client?.documents && item.client.documents.length > 0" class="formgrid grid">
+        <div v-if="filteredDocuments && filteredDocuments.length > 0" class="formgrid grid">
           <!-- Mostrar documentos disponibles dinámicamente en 3 columnas -->
           <div
-              v-for="document in item.client.documents"
+              v-for="document in filteredDocuments"
               :key="document.id"
               class="field col-12 md:col-4"
           >
             <label class="font-semibold text-600 flex align-items-center gap-2 mb-2">
               <i :class="`pi ${getFileIcon(document.url)} ${getFileColor(document.url)}`"></i>
-              {{ getDocumentLabel(document.type) }}
+              {{ document.displayName }}
             </label>
             <div class="flex flex-column align-items-center p-3 border-1 surface-border border-round hover:shadow-3 transition-all transition-duration-200">
               <!-- Mostrar imagen si es un archivo de imagen -->
@@ -727,7 +767,7 @@ export default {
     <template #header>
       <div class="flex align-items-center gap-2">
         <i :class="`pi ${getFileIcon(selectedDocument?.url)} ${getFileColor(selectedDocument?.url)}`"></i>
-        <span class="font-semibold">{{ getDocumentLabel(selectedDocument?.type) }}</span>
+        <span class="font-semibold">{{ selectedDocument?.displayName || getDocumentLabel(selectedDocument?.type) }}</span>
       </div>
     </template>
 
@@ -762,7 +802,7 @@ export default {
         <div class="image-container" style="overflow: auto; max-height: 60vh; border: 1px solid var(--surface-border); border-radius: 6px;">
           <img 
             :src="selectedDocument.url" 
-            :alt="getDocumentLabel(selectedDocument.type)"
+            :alt="selectedDocument?.displayName || getDocumentLabel(selectedDocument.type)"
             :style="{ transform: `scale(${imageZoom})`, transformOrigin: 'top left', display: 'block' }"
             class="max-w-full h-auto"
             @error="handleImageError"
@@ -777,7 +817,7 @@ export default {
           <div class="flex flex-column align-items-center gap-4">
             <i :class="`pi ${getFileIcon(selectedDocument.url)} ${getFileColor(selectedDocument.url)} text-8xl`"></i>
             <div class="flex flex-column align-items-center gap-2">
-              <h4 class="m-0">{{ getDocumentLabel(selectedDocument.type) }}</h4>
+              <h4 class="m-0">{{ selectedDocument?.displayName || getDocumentLabel(selectedDocument.type) }}</h4>
               <span class="text-lg font-medium text-color-secondary uppercase">{{ getFileExtension(selectedDocument.url) }}</span>
               <p class="text-color-secondary m-0" v-if="!canShowContent(selectedDocument.url)">
                 Este tipo de archivo no se puede previsualizar

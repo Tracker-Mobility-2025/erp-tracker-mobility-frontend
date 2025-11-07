@@ -24,6 +24,31 @@ export default {
     };
   },
 
+  computed: {
+    // Filtrar y mapear documentos según los tipos permitidos
+    filteredDocuments() {
+      if (!this.documents || this.documents.length === 0) return [];
+      
+      // Tipos de documentos permitidos
+      const allowedTypes = ['FOTO_FACHADA_VIVIENDA', 'RECIBO_AGUA', 'DNI'];
+      
+      // Mapeo de nombres
+      const typeMapping = {
+        'FOTO_FACHADA_VIVIENDA': 'FACHADA DE VIVIENDA',
+        'RECIBO_AGUA': 'RECIBO DE SERVICIO',
+        'DNI': 'DOC. DE IDENTIDAD'
+      };
+      
+      // Filtrar y transformar documentos
+      return this.documents
+        .filter(doc => allowedTypes.includes(doc.type))
+        .map(doc => ({
+          ...doc,
+          displayName: typeMapping[doc.type] || doc.type
+        }));
+    }
+  },
+
   methods: {
     // Manejar selección de archivo para reemplazar un documento específico
     handleFileSelect(event, document) {
@@ -88,12 +113,25 @@ export default {
       this.imageZoom = 1;
     },
 
-    getDocumentLabel(documentType) {
+    getDocumentLabel(documentTypeOrDocument) {
+      // Si se pasa un objeto documento con displayName, usarlo
+      if (typeof documentTypeOrDocument === 'object' && documentTypeOrDocument?.displayName) {
+        return documentTypeOrDocument.displayName;
+      }
+      
+      // Si es string, usar el tipo directamente
+      const documentType = typeof documentTypeOrDocument === 'string' 
+        ? documentTypeOrDocument 
+        : documentTypeOrDocument?.type;
+      
       const labels = {
         'identity': 'Documento de identidad',
         'receipt': 'Recibo de servicios',
         'contract': 'Contrato de alquiler',
-        'other': 'Otro documento'
+        'other': 'Otro documento',
+        'FOTO_FACHADA_VIVIENDA': 'FACHADA DE VIVIENDA',
+        'RECIBO_AGUA': 'RECIBO DE SERVICIO',
+        'DNI': 'DOCUMENTO DE IDENTIDAD'
       };
       return labels[documentType] || documentType || 'Documento';
     },
@@ -177,15 +215,15 @@ export default {
         </div>
       </pv-message>
 
-      <div v-if="documents && documents.length > 0" class="formgrid grid">
+      <div v-if="filteredDocuments && filteredDocuments.length > 0" class="formgrid grid">
         <div
-            v-for="document in documents"
+            v-for="document in filteredDocuments"
             :key="document.id"
             class="field col-12 md:col-4"
         >
           <label class="font-semibold text-color-secondary flex align-items-center gap-2 mb-2">
             <i :class="`pi ${getFileIcon(document.url)} ${getFileColor(document.url)}`"></i>
-            {{ getDocumentLabel(document.type) }}
+            {{ document.displayName }}
             <pv-tag v-if="hasSelectedFile(document.id) && editMode" value="Nuevo archivo" severity="success" class="ml-2" />
           </label>
           <div class="flex flex-column align-items-center p-3 border-1 surface-border border-round hover:shadow-3 transition-all" :class="{ 'border-primary': hasSelectedFile(document.id) && editMode }">
@@ -195,7 +233,7 @@ export default {
               <div class="relative">
                 <img
                     :src="previewUrls[document.id]"
-                    :alt="getDocumentLabel(document.type)"
+                    :alt="document.displayName"
                     class="w-full max-w-10rem h-6rem object-fit-cover border-round shadow-2"
                 />
                 <pv-badge value="NUEVO" severity="success" class="absolute" style="top: 5px; right: 5px;" />
@@ -204,7 +242,7 @@ export default {
             <div v-else-if="isImageFile(document.url)" class="w-full flex justify-content-center mb-3">
               <img
                   :src="document.url"
-                  :alt="getDocumentLabel(document.type)"
+                  :alt="document.displayName"
                   class="w-full max-w-10rem h-6rem object-fit-cover border-round shadow-2"
                   @error="handleImageError"
               />
@@ -289,7 +327,7 @@ export default {
     <template #header>
       <div class="flex align-items-center gap-2">
         <i :class="`pi ${getFileIcon(selectedDocument?.url)} ${getFileColor(selectedDocument?.url)}`"></i>
-        <span class="font-semibold">{{ getDocumentLabel(selectedDocument?.type) }}</span>
+        <span class="font-semibold">{{ selectedDocument?.displayName || getDocumentLabel(selectedDocument?.type) }}</span>
       </div>
     </template>
 
@@ -320,7 +358,7 @@ export default {
         <div class="image-container" style="overflow: auto; max-height: 60vh; border: 1px solid #dee2e6; border-radius: 6px;">
           <img
             :src="selectedDocument.url"
-            :alt="getDocumentLabel(selectedDocument.type)"
+            :alt="selectedDocument?.displayName || getDocumentLabel(selectedDocument.type)"
             :style="{ transform: `scale(${imageZoom})`, transformOrigin: 'top left', display: 'block' }"
             class="w-full"
           />

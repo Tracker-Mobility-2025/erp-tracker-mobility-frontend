@@ -24,9 +24,12 @@ import {EmailApiService} from "../services/email-api.service.js";
 import {DownloadReportApiService} from "../services/download-report-api.service.js";
 import {Email} from "../models/email.entity.js";
 import {DownloadReport} from "../models/download-report.entity.js";
+import {NotificationMixin} from "../../../shared/utils/notification.utils.js";
 
 export default {
   name:'details-home-verification-report',
+
+  mixins: [NotificationMixin],
 
   components: {
     VisitDetailsCard,
@@ -419,7 +422,7 @@ export default {
     onEmailSendRequested(emailEntity) {
       // Validar que tenemos un reporte válido
       if (!this.effectiveItem || !this.effectiveItem.id) {
-        this.$toast.add({
+        this.showToast({
           severity: 'warn',
           summary: 'Reporte no disponible',
           detail: 'No se puede enviar el correo porque el reporte no está cargado. Por favor, recargue la página e intente nuevamente.',
@@ -438,7 +441,7 @@ export default {
       });
 
       // Mostrar mensaje de progreso
-      this.$toast.add({
+      this.showToast({
         severity: 'info',
         summary: 'Enviando correo',
         detail: 'Estamos enviando el reporte. Esto puede tomar unos segundos.',
@@ -450,7 +453,7 @@ export default {
           .then(response => {
             console.log('Correo enviado exitosamente:', response.data);
 
-            this.$toast.add({
+            this.showToast({
               severity: 'success',
               summary: 'Correo enviado exitosamente',
               detail: `El reporte ha sido enviado a ${emailEntity.recipientEmail}. El destinatario recibirá el documento PDF adjunto.`,
@@ -465,7 +468,7 @@ export default {
             // Procesar el error para mostrar un mensaje amigable
             const errorMessage = this.getEmailErrorMessage(error);
 
-            this.$toast.add({
+            this.showToast({
               severity: 'error',
               summary: 'No se pudo enviar el correo',
               detail: errorMessage,
@@ -536,7 +539,7 @@ export default {
     onDownloadOrPrintVerificationReport() {
       // Validar que tenemos un reporte válido
       if (!this.effectiveItem || !this.effectiveItem.id) {
-        this.$toast.add({
+        this.showToast({
           severity: 'warn',
           summary: 'Reporte no disponible',
           detail: 'No se puede descargar el reporte porque no está cargado. Por favor, recargue la página e intente nuevamente.',
@@ -545,53 +548,84 @@ export default {
         return;
       }
 
-      // Mostrar mensaje de progreso
-      this.$toast.add({
+      // Mostrar mensaje de preparación
+      this.showToast({
         severity: 'info',
-        summary: 'Generando reporte PDF',
-        detail: 'Estamos preparando el documento. Esto puede tomar unos segundos.',
+        summary: 'Preparando descarga',
+        detail: 'Estamos preparando su documento...',
         life: 3000
       });
 
       // Obtener el ID del reporte
       const reportId = this.effectiveItem.id;
 
-      // Llamar al servicio para generar el reporte y obtener la URL de descarga
-      this.downloadReportApiService.downloadReport(reportId)
+      // Paso 1: Intentar obtener la URL de descarga existente
+      this.downloadReportApiService.getDownloadUrl(reportId)
           .then(response => {
-            console.log('Respuesta del servidor:', response.data);
+            console.log('Respuesta del servidor (GET):', response.data);
 
             // Crear instancia del modelo con los datos recibidos
             this.downloadReport = new DownloadReport(response.data);
 
-            // Verificar que se recibió una URL válida
-            if (!this.downloadReport.reportUrl) {
-              throw new Error('El servidor no proporcionó una URL de descarga válida');
+            // Verificar si existe reportUrl
+            if (this.downloadReport.reportUrl) {
+              // Si existe URL, usar directamente
+              console.log('URL de descarga encontrada:', this.downloadReport.reportUrl);
+
+              // Abrir el PDF en una nueva pestaña del navegador
+              window.open(this.downloadReport.reportUrl, '_blank');
+
+              // Mostrar mensaje de éxito
+              this.showToast({
+                severity: 'success',
+                summary: 'Documento descargado',
+                detail: 'El reporte se ha abierto correctamente.',
+                life: 3000
+              });
+            } else {
+              // Si no existe URL, generar el reporte con POST
+              console.log('URL de descarga no encontrada, generando reporte...');
+
+              // Paso 2: Generar el reporte con POST
+              return this.downloadReportApiService.downloadReport(reportId);
             }
+          })
+          .then(response => {
+            // Esta respuesta solo se procesa si se ejecutó el POST
+            if (response) {
+              console.log('Respuesta del servidor (POST):', response.data);
 
-            // Abrir el PDF en una nueva pestaña del navegador
-            // Esto permite que el usuario pueda visualizar, descargar o imprimir el documento
-            window.open(this.downloadReport.reportUrl, '_blank');
+              // Crear instancia del modelo con los datos recibidos
+              this.downloadReport = new DownloadReport(response.data);
 
-            // Mostrar mensaje de éxito
-            this.$toast.add({
-              severity: 'success',
-              summary: 'Reporte generado exitosamente',
-              detail: 'El documento PDF se ha abierto en una nueva pestaña. Puede descargarlo o imprimirlo desde allí.',
-              life: 5000
-            });
+              // Verificar que se recibió una URL válida
+              if (!this.downloadReport.reportUrl) {
+                throw new Error('El servidor no proporcionó una URL de descarga válida');
+              }
 
-            console.log('URL del reporte:', this.downloadReport.reportUrl);
+              // Abrir el PDF en una nueva pestaña del navegador
+              window.open(this.downloadReport.reportUrl, '_blank');
+
+              // Mostrar mensaje de éxito
+              this.showToast({
+                severity: 'success',
+                summary: 'Documento descargado',
+                detail: 'El reporte se ha abierto correctamente.',
+                life: 3000
+              });
+
+              console.log('URL del reporte:', this.downloadReport.reportUrl);
+            }
           })
           .catch(error => {
-            console.error('Error al generar el reporte:', error);
+            console.error('Error al obtener/generar el reporte:', error);
 
             // Procesar el error para mostrar un mensaje amigable
             const errorMessage = this.getDownloadErrorMessage(error);
 
-            this.$toast.add({
+            this.showToast({
               severity: 'error',
-              summary: 'No se pudo generar el reporte',
+              summary: 'Error al descargar',
               detail: errorMessage,
               life: 6000
             });
@@ -653,7 +687,7 @@ export default {
 
         // Mostrar mensaje de éxito después de un breve delay
         setTimeout(() => {
-          this.$toast.add({
+          this.showToast({
             severity: 'success',
             summary: 'Datos cargados',
             detail: 'Reporte de verificación cargado correctamente',
@@ -665,7 +699,7 @@ export default {
             console.error('Error al obtener el reporte de verificación:', error);
 
             // Mostrar mensaje de error
-            this.$toast.add({
+            this.showToast({
               severity: 'error',
               summary: 'Error',
               detail: 'No se pudo cargar el reporte de verificación',
@@ -708,7 +742,7 @@ export default {
     } else {
       console.warn('No se proporcionó un ID de reporte en los parámetros de la ruta.');
 
-      this.$toast.add({
+      this.showToast({
         severity: 'warn',
         summary: 'Advertencia',
         detail: 'No se especificó un ID de reporte válido',

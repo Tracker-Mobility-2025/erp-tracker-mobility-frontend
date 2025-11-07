@@ -13,7 +13,7 @@ export class DownloadReportApiService {
     /**
      * Genera un reporte de verificación en formato PDF y obtiene el enlace de descarga
      * @param {number|string} reportId - ID del reporte a generar
-     * @returns {Promise<{reportId: number, reportUrl: string}>} Promesa con el objeto que contiene el ID del reporte y la URL de descarga
+     * @returns {Promise<axios.AxiosResponse<any>>} Promesa con el objeto que contiene el ID del reporte y la URL de descarga
      * @example
      * const service = new DownloadReportApiService('/reports');
      * service.downloadReport(123)
@@ -23,6 +23,11 @@ export class DownloadReportApiService {
      */
     downloadReport(reportId) {
         return http.post(`${this.resourceEndpoint}/${reportId}/generate-report`);
+    }
+
+
+    getDownloadUrl(reportId) {
+        return http.get(`${this.resourceEndpoint}/${reportId}/download-url`);
     }
 
 }
