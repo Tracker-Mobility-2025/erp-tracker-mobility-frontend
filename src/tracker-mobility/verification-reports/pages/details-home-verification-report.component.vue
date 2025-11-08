@@ -25,6 +25,7 @@ import {DownloadReportApiService} from "../services/download-report-api.service.
 import {Email} from "../models/email.entity.js";
 import {DownloadReport} from "../models/download-report.entity.js";
 import {NotificationMixin} from "../../../shared/utils/notification.utils.js";
+import {VerifierApiService} from "../../verifier-management/services/verifier-api.service.js";
 
 export default {
   name:'details-home-verification-report',
@@ -67,8 +68,14 @@ export default {
 
     // Mapear datos de detalles de visita
     visitDetails() {
+      // Construir nombre completo del verificador si existe
+      const verifierFullName = this.verifierData 
+          ? `${this.verifierData.name || ''} ${this.verifierData.lastName || ''}`.trim()
+          : null;
+      
       return {
-        verifier: this.effectiveItem?.order?.homeVisitDetails?.verifierName ||
+        verifier: verifierFullName || 
+            this.effectiveItem?.order?.homeVisitDetails?.verifierName ||
             `Verificador ID: ${this.effectiveItem?.order?.homeVisitDetails?.verifierId}` || 'No especificado',
         googleMapsLink: this.effectiveItem?.order?.client?.location?.mapLocation || '#',
         verificationDate: this.formatDate(this.effectiveItem?.order?.homeVisitDetails?.visitDate) || 'No especificada',
@@ -307,6 +314,9 @@ export default {
       downloadReport: new DownloadReport({}),
 
 
+      //Servicio para verificadores
+      verifierApiService: new VerifierApiService('/verifiers'),
+
       // Servicio para manejar reportes de verificación
       reportDetailsApiService: new ReportApiService('/reports'),
 
@@ -318,6 +328,9 @@ export default {
 
       // item de reporte de verificación
       reportData: null,
+
+      // Datos del verificador
+      verifierData: null,
 
       // Estado de carga
       loading: false,
@@ -650,6 +663,12 @@ export default {
         this.reportData = response.data;
         console.log('Reporte de verificación obtenido:', this.reportData);
 
+        // Obtener datos del verificador si existe el ID
+        const verifierId = this.reportData?.order?.homeVisitDetails?.verifierId;
+        if (verifierId) {
+          this.getVerifierById(verifierId);
+        }
+
         // Completar todos los pasos
         this.loadingStep = this.loadingSteps.length;
 
@@ -679,6 +698,19 @@ export default {
           })
           .finally(() => {
             this.loading = false;
+          });
+    },
+
+    // Función para obtener los datos del verificador por ID
+    getVerifierById(verifierId) {
+      this.verifierApiService.getById(verifierId)
+          .then(response => {
+            this.verifierData = response.data;
+            console.log('Datos del verificador obtenidos:', this.verifierData);
+          })
+          .catch(error => {
+            console.error('Error al obtener datos del verificador:', error);
+            // No mostramos error al usuario, simplemente usaremos el fallback
           });
     },
 
