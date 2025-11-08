@@ -2,7 +2,9 @@
 import {VerificationRequestsApi} from "../services/verification-requests-api.service.js";
 import {RequestObservationsApiService} from "../services/request-observations-api.service.js";
 import {DownloadReportApiService} from "../../../tracker-mobility/verification-reports/services/download-report-api.service.js";
+import {DownloadReport} from "../../../tracker-mobility/verification-reports/models/download-report.entity.js";
 import {VerificationRequest} from "../models/verification-request.entity.js";
+import {NotificationMixin} from "../../../shared/utils/notification.utils.js";
 import RequestApplicantDetails from "../components/request-applicant-details.component.vue";
 import RequestClientDetails from "../components/request-client-details.component.vue";
 import RequestLocationDetails from "../components/request-location-details.component.vue";
@@ -12,6 +14,8 @@ import RequestObservationsDetails from "../components/request-observations-detai
 
 export default {
   name: 'verification-request-details',
+
+  mixins: [NotificationMixin],
 
   components: {
     RequestApplicantDetails,
@@ -31,6 +35,9 @@ export default {
 
       // Item de la solicitud
       item: null,
+
+      // Datos del reporte generado
+      reportData: null,
 
       // Estados de carga
       isLoading: true,
@@ -140,7 +147,7 @@ export default {
           return 'info';
         case 'EN_PROCESO':
           return 'info';
-        case 'FINALIZADO':
+        case 'COMPLETADA':
           return 'success';
         default:
           return 'info';
@@ -156,7 +163,7 @@ export default {
       this.editModeEnabled = true;
 
       // Mostrar mensaje informativo
-      this.$toast.add({
+      this.showToast({
         severity: 'info',
         summary: 'Modo edición activado',
         detail: `Puedes editar los campos necesarios para subsanar la observación: ${this.getObservationTypeLabel(observation.observationType)}`,
@@ -202,7 +209,7 @@ export default {
         // Validaciones iniciales
         const validationError = this.validateSubsanacion();
         if (validationError) {
-          this.$toast.add({
+          this.showToast({
             severity: 'error',
             summary: 'Error de validación',
             detail: validationError,
@@ -214,7 +221,7 @@ export default {
         const clientComponent = this.$refs.clientDetailsComponent;
         const documentsComponent = this.$refs.documentsDetailsComponent;
 
-        this.$toast.add({
+        this.showToast({
           severity: 'info',
           summary: 'Procesando subsanación',
           detail: 'Guardando los cambios realizados...',
@@ -235,12 +242,7 @@ export default {
         this.clearDocumentSelections(documentsComponent);
 
         // 5. Mensaje de éxito y recarga
-        this.$toast.add({
-          severity: 'success',
-          summary: 'Subsanación guardada',
-          detail: 'Los cambios se han guardado correctamente y la observación ha sido resuelta',
-          life: 5000
-        });
+        this.showToast('success', 'Subsanación guardada', 'Los cambios se han guardado correctamente y la observación ha sido resuelta');
 
         this.cancelEditMode();
         await this.getRequestDetailsByOrderId(this.item.id);
@@ -249,12 +251,7 @@ export default {
         console.error('Error al guardar la subsanación:', error);
         const errorMessage = this.getSubsanacionErrorMessage(error);
 
-        this.$toast.add({
-          severity: 'error',
-          summary: 'Error al guardar',
-          detail: errorMessage,
-          life: 5000
-        });
+        this.showToast('error', 'Error al guardar', errorMessage);
       }
     },
 
@@ -387,8 +384,8 @@ export default {
     // Descargar reporte de verificación en PDF
     downloadReport() {
       // Validar que tenemos una solicitud válida
-      if (!this.item || !this.item.id) {
-        this.$toast.add({
+      if (!this.item || !this.item.reportId) {
+        this.showToast({
           severity: 'warn',
           summary: 'Solicitud no disponible',
           detail: 'No se puede descargar el reporte porque la solicitud no está cargada. Por favor, recargue la página e intente nuevamente.',
@@ -397,49 +394,49 @@ export default {
         return;
       }
 
-      // Mostrar mensaje de progreso
-      this.$toast.add({
+      // Mostrar mensaje de preparación
+      this.showToast({
         severity: 'info',
-        summary: 'Generando reporte PDF',
-        detail: 'Estamos preparando el documento. Esto puede tomar unos segundos.',
+        summary: 'Preparando descarga',
+        detail: 'Estamos preparando su documento...',
         life: 3000
       });
 
-      // Llamar al servicio para generar el reporte usando POST
-      this.downloadReportApiService.downloadReport(this.item.id)
+      // Obtener la URL de descarga del reporte
+      this.downloadReportApiService.getReportDownloadUrl(this.item.reportId)
         .then(response => {
-          // Verificar que la respuesta contenga la URL del reporte
-          if (response.data && response.data.reportUrl) {
-            const reportUrl = response.data.reportUrl;
+          console.log('Respuesta del servidor:', response.data);
 
-            // Abrir el PDF en una nueva pestaña
-            window.open(reportUrl, '_blank');
+          // Crear instancia del modelo con los datos recibidos
+          this.reportData = new DownloadReport(response.data);
 
-            this.$toast.add({
-              severity: 'success',
-              summary: 'Reporte generado exitosamente',
-              detail: 'El documento PDF se abrirá en una nueva pestaña. Puede descargarlo o imprimirlo desde allí.',
-              life: 5000
-            });
-          } else {
-            // Si no hay URL en la respuesta
-            this.$toast.add({
-              severity: 'error',
-              summary: 'Error al generar el reporte',
-              detail: 'No se recibió la URL del documento. Por favor, intente nuevamente.',
-              life: 5000
-            });
+          // Verificar que se recibió una URL válida
+          if (!this.reportData.reportUrl) {
+            throw new Error('El servidor no proporcionó una URL de descarga válida');
           }
+
+          // Abrir el PDF en una nueva pestaña del navegador
+          window.open(this.reportData.reportUrl, '_blank');
+
+          // Mostrar mensaje de éxito
+          this.showToast({
+            severity: 'success',
+            summary: 'Documento descargado',
+            detail: 'El reporte se ha abierto correctamente.',
+            life: 3000
+          });
+
+          console.log('URL del reporte:', this.reportData.reportUrl);
         })
         .catch(error => {
-          console.error('Error al generar el reporte:', error);
+          console.error('Error al obtener el reporte:', error);
 
           // Procesar el error para mostrar un mensaje amigable
           const errorMessage = this.getDownloadErrorMessage(error);
 
-          this.$toast.add({
+          this.showToast({
             severity: 'error',
-            summary: 'No se pudo generar el reporte',
+            summary: 'Error al descargar',
             detail: errorMessage,
             life: 6000
           });
@@ -531,7 +528,7 @@ export default {
             class="text-sm"
           />
           <pv-button
-            v-if="item.status === 'FINALIZADO'"
+            v-if="item.status === 'COMPLETADA'"
             icon="pi pi-download"
             label="Descargar reporte"
             class="p-button-success p-button-sm"

@@ -7,7 +7,9 @@ export class VerificationRequest {
             requestDate = "",
             client = null,
             applicantCompany = null,
-            observations = []
+            homeVisitDetails = null,
+            observations = [],
+            reportId = 0
         } = {}
     ) {
         this.id = id;
@@ -16,7 +18,9 @@ export class VerificationRequest {
         this.requestDate = requestDate;
         this.client = client ? new ClientDetails(client) : null;
         this.applicantCompany = applicantCompany ? new ApplicantCompanyDetails(applicantCompany) : null;
+        this.homeVisitDetails = homeVisitDetails ? new HomeVisitDetails(homeVisitDetails) : null;
         this.observations = observations.map(obs => new Observation(obs));
+        this.reportId = reportId;
     }
 }
 
@@ -30,8 +34,12 @@ export class ClientDetails {
             identityDocument = null,
             isTenant = false,
             documents = [],
+            contactReferences = [],
             landlord = null,
-            location = null
+            dwelling = null,
+            location = null,
+            residence = null,
+            zone = null
         } = {}
     ) {
         this.id = id;
@@ -41,8 +49,12 @@ export class ClientDetails {
         this.identityDocument = identityDocument ? new IdentityDocument(identityDocument) : null;
         this.isTenant = isTenant;
         this.documents = documents.map(doc => new Document(doc));
+        this.contactReferences = contactReferences.map(ref => new ContactReference(ref));
         this.landlord = landlord ? new Landlord(landlord) : null;
+        this.dwelling = dwelling ? new Dwelling(dwelling) : null;
         this.location = location ? new Location(location) : null;
+        this.residence = residence ? new Residence(residence) : null;
+        this.zone = zone ? new Zone(zone) : null;
     }
 
     // Método helper para obtener el nombre completo del cliente
@@ -81,11 +93,15 @@ export class Landlord {
     constructor(
         {
             fullName = "",
-            phoneNumber = ""
+            phoneNumber = "",
+            ownHome = false,
+            interviewDetails = null
         } = {}
     ) {
         this.fullName = fullName;
         this.phoneNumber = phoneNumber;
+        this.ownHome = ownHome;
+        this.interviewDetails = interviewDetails ? new InterviewDetails(interviewDetails) : null;
     }
 }
 
@@ -145,3 +161,124 @@ export class Observation {
     }
 }
 
+export class ContactReference {
+    constructor(
+        {
+            id = 0,
+            fullName = "",
+            phoneNumber = "",
+            relation = ""
+        } = {}
+    ) {
+        this.id = id;
+        this.fullName = fullName;
+        this.phoneNumber = phoneNumber;
+        this.relation = relation;
+    }
+}
+
+export class InterviewDetails {
+    constructor(
+        {
+            clientNameAccordingToLandlord = "",
+            servicesPaidByClient = [],
+            isTheClientPunctualWithPayments = false,
+            time = 0,
+            timeType = "",
+            floorOccupiedByClient = 0
+        } = {}
+    ) {
+        this.clientNameAccordingToLandlord = clientNameAccordingToLandlord;
+        this.servicesPaidByClient = servicesPaidByClient;
+        this.isTheClientPunctualWithPayments = isTheClientPunctualWithPayments;
+        this.time = time;
+        this.timeType = timeType;
+        this.floorOccupiedByClient = floorOccupiedByClient;
+    }
+}
+
+export class Dwelling {
+    constructor(
+        {
+            dwellingType = "",
+            numberFloors = 0,
+            floorOccupied = 0,
+            facadeColor = "",
+            dwellingMaterial = "",
+            dwellingCondition = "",
+            typeFurnished = "",
+            roofType = "",
+            garage = null
+        } = {}
+    ) {
+        this.dwellingType = dwellingType;
+        this.numberFloors = numberFloors;
+        this.floorOccupied = floorOccupied;
+        this.facadeColor = facadeColor;
+        this.dwellingMaterial = dwellingMaterial;
+        this.dwellingCondition = dwellingCondition;
+        this.typeFurnished = typeFurnished;
+        this.roofType = roofType;
+        this.garage = garage ? new Garage(garage) : null;
+    }
+}
+
+export class Garage {
+    constructor(
+        {
+            garageType = "",
+            distanceToDwelling = ""
+        } = {}
+    ) {
+        this.garageType = garageType;
+        this.distanceToDwelling = distanceToDwelling;
+    }
+}
+
+export class Residence {
+    constructor(
+        {
+            livesWith = "",
+            isResident = false,
+            time = 0,
+            timeType = "",
+            residenceType = ""
+        } = {}
+    ) {
+        this.livesWith = livesWith;
+        this.isResident = isResident;
+        this.time = time;
+        this.timeType = timeType;
+        this.residenceType = residenceType;
+    }
+}
+
+export class Zone {
+    constructor(
+        {
+            zoneType = "",
+            zoneCharacteristics = [],
+            accessType = "",
+            riskLevel = ""
+        } = {}
+    ) {
+        this.zoneType = zoneType;
+        this.zoneCharacteristics = zoneCharacteristics;
+        this.accessType = accessType;
+        this.riskLevel = riskLevel;
+    }
+}
+
+export class HomeVisitDetails {
+    constructor(
+        {
+            verifierId = 0,
+            visitDate = "",
+            visitTime = ""
+        } = {}
+    ) {
+        this.verifierId = verifierId;
+        this.visitDate = visitDate;
+        this.visitTime = visitTime;
+    }
+}

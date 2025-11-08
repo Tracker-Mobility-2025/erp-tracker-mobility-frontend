@@ -30,4 +30,9 @@ export class DownloadReportApiService {
         return http.get(`${this.resourceEndpoint}/${reportId}/download-url`);
     }
 
+    // /api/v1/reports/{reportId}/download-url Obtener URL de descarga del reporte
+    getReportDownloadUrl(reportId) {
+        return http.get(`${this.resourceEndpoint}/${reportId}/download-url`);
+    }
+
 }

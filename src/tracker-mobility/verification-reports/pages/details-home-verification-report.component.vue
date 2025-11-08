@@ -559,66 +559,34 @@ export default {
       // Obtener el ID del reporte
       const reportId = this.effectiveItem.id;
 
-      // Paso 1: Intentar obtener la URL de descarga existente
-      this.downloadReportApiService.getDownloadUrl(reportId)
+      // Obtener la URL de descarga del reporte
+      this.downloadReportApiService.getReportDownloadUrl(reportId)
           .then(response => {
-            console.log('Respuesta del servidor (GET):', response.data);
+            console.log('Respuesta del servidor:', response.data);
 
             // Crear instancia del modelo con los datos recibidos
             this.downloadReport = new DownloadReport(response.data);
 
-            // Verificar si existe reportUrl
-            if (this.downloadReport.reportUrl) {
-              // Si existe URL, usar directamente
-              console.log('URL de descarga encontrada:', this.downloadReport.reportUrl);
-
-              // Abrir el PDF en una nueva pestaña del navegador
-              window.open(this.downloadReport.reportUrl, '_blank');
-
-              // Mostrar mensaje de éxito
-              this.showToast({
-                severity: 'success',
-                summary: 'Documento descargado',
-                detail: 'El reporte se ha abierto correctamente.',
-                life: 3000
-              });
-            } else {
-              // Si no existe URL, generar el reporte con POST
-              console.log('URL de descarga no encontrada, generando reporte...');
-
-              // Paso 2: Generar el reporte con POST
-              return this.downloadReportApiService.downloadReport(reportId);
+            // Verificar que se recibió una URL válida
+            if (!this.downloadReport.reportUrl) {
+              throw new Error('El servidor no proporcionó una URL de descarga válida');
             }
-          })
-          .then(response => {
-            // Esta respuesta solo se procesa si se ejecutó el POST
-            if (response) {
-              console.log('Respuesta del servidor (POST):', response.data);
 
-              // Crear instancia del modelo con los datos recibidos
-              this.downloadReport = new DownloadReport(response.data);
+            // Abrir el PDF en una nueva pestaña del navegador
+            window.open(this.downloadReport.reportUrl, '_blank');
 
-              // Verificar que se recibió una URL válida
-              if (!this.downloadReport.reportUrl) {
-                throw new Error('El servidor no proporcionó una URL de descarga válida');
-              }
+            // Mostrar mensaje de éxito
+            this.showToast({
+              severity: 'success',
+              summary: 'Documento descargado',
+              detail: 'El reporte se ha abierto correctamente.',
+              life: 3000
+            });
 
-              // Abrir el PDF en una nueva pestaña del navegador
-              window.open(this.downloadReport.reportUrl, '_blank');
-
-              // Mostrar mensaje de éxito
-              this.showToast({
-                severity: 'success',
-                summary: 'Documento descargado',
-                detail: 'El reporte se ha abierto correctamente.',
-                life: 3000
-              });
-
-              console.log('URL del reporte:', this.downloadReport.reportUrl);
-            }
+            console.log('URL del reporte:', this.downloadReport.reportUrl);
           })
           .catch(error => {
-            console.error('Error al obtener/generar el reporte:', error);
+            console.error('Error al obtener el reporte:', error);
 
             // Procesar el error para mostrar un mensaje amigable
             const errorMessage = this.getDownloadErrorMessage(error);
