@@ -9,8 +9,17 @@ export default {
   data() {
     return {
       drawer: true,
-      visible: true
+      visible: true,
+      isOpen: true // Control del estado del sidebar
     };
+  },
+
+  methods: {
+    toggleSidebar() {
+      this.isOpen = !this.isOpen;
+      // Emitir evento para que el layout ajuste el margen
+      this.$emit('sidebar-toggle', this.isOpen);
+    }
   },
 
   computed: {
@@ -52,42 +61,121 @@ export default {
 </script>
 
 <template>
-  <div class="sidebar-fixed">
-    <aside class="sidebar-tracker">
-      <!-- Header del sidebar -->
-      <div class="sidebar-header">
-        <div class="sidebar-brand">
-          <i class="pi pi-mobile brand-icon"></i>
-          <h3 class="brand-title">Tracker Mobility</h3>
-        </div>
-      </div>
+  <div>
+    <!-- Cinta deslizante (visible cuando el sidebar está cerrado) -->
+    <div 
+      class="sidebar-toggle-ribbon" 
+      :class="{ 'hidden': isOpen }"
+      @click="toggleSidebar"
+    >
+      <i class="pi pi-angle-right ribbon-icon"></i>
+    </div>
 
-      <!-- Contenido del sidebar -->
-      <div class="sidebar-content">
-        <nav class="sidebar-nav">
-          <ul class="sidebar-menu">
-            <li
-              v-for="item in filteredItems"
-              :key="item.label"
-              class="sidebar-item"
-            >
-              <router-link
-                :to="item.to"
-                class="sidebar-link"
+    <!-- Sidebar deslizante -->
+    <div class="sidebar-fixed" :class="{ 'closed': !isOpen }">
+      <aside class="sidebar-tracker">
+        <!-- Botón de cerrar dentro del sidebar -->
+        <div class="sidebar-close-btn" @click="toggleSidebar">
+          <i class="pi pi-angle-left"></i>
+        </div>
+
+        <!-- Header del sidebar -->
+        <div class="sidebar-header">
+          <div class="sidebar-brand">
+            <i class="pi pi-mobile brand-icon"></i>
+            <h3 class="brand-title">Tracker Mobility</h3>
+          </div>
+        </div>
+
+        <!-- Contenido del sidebar -->
+        <div class="sidebar-content">
+          <nav class="sidebar-nav">
+            <ul class="sidebar-menu">
+              <li
+                v-for="item in filteredItems"
+                :key="item.label"
+                class="sidebar-item"
               >
-                <i :class="item.icon" class="sidebar-icon"></i>
-                <span class="sidebar-label">{{ item.label }}</span>
-              </router-link>
-            </li>
-          </ul>
-        </nav>
-      </div>
-    </aside>
+                <router-link
+                  :to="item.to"
+                  class="sidebar-link"
+                >
+                  <i :class="item.icon" class="sidebar-icon"></i>
+                  <span class="sidebar-label">{{ item.label }}</span>
+                </router-link>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Overlay para cerrar el sidebar al hacer click fuera (en mobile) -->
+    <div 
+      class="sidebar-overlay" 
+      :class="{ 'active': isOpen }"
+      @click="toggleSidebar"
+    ></div>
   </div>
 </template>
 
 <style scoped>
 /* Usar colores corporativos desde style.css global */
+
+/* ============================================================================
+   CINTA DESLIZANTE (TOGGLE RIBBON)
+   ============================================================================ */
+
+.sidebar-toggle-ribbon {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 120px;
+  background: var(--color-primary);
+  border-radius: 0 12px 12px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 150;
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 1;
+  visibility: visible;
+}
+
+.sidebar-toggle-ribbon.hidden {
+  opacity: 0;
+  visibility: hidden;
+  left: -50px;
+}
+
+.sidebar-toggle-ribbon:hover {
+  width: 50px;
+  background: var(--color-primary-dark, #1e3a8a);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.ribbon-icon {
+  color: #ffffff;
+  font-size: 1.5rem;
+  animation: pulseArrow 2s ease-in-out infinite;
+}
+
+@keyframes pulseArrow {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+}
+
+/* ============================================================================
+   SIDEBAR PRINCIPAL
+   ============================================================================ */
 
 .sidebar-fixed {
   position: fixed;
@@ -96,6 +184,12 @@ export default {
   height: 100vh;
   z-index: 100;
   width: 260px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(0);
+}
+
+.sidebar-fixed.closed {
+  transform: translateX(-100%);
 }
 
 .sidebar-tracker {
@@ -106,13 +200,67 @@ export default {
   display: flex;
   flex-direction: column;
   box-shadow: 4px 0 15px rgba(0, 0, 0, 0.15);
+  position: relative;
 }
+
+/* ============================================================================
+   BOTÓN DE CERRAR
+   ============================================================================ */
+
+.sidebar-close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.sidebar-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.sidebar-close-btn i {
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+/* ============================================================================
+   OVERLAY (PARA MOBILE)
+   ============================================================================ */
+
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 90;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  display: none; /* Oculto por defecto en desktop */
+}
+
+/* ============================================================================
+   HEADER Y BRAND
+   ============================================================================ */
 
 .sidebar-header {
   padding: 1.5rem 1rem;
+  padding-top: 3.5rem; /* Espacio para el botón de cerrar */
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   background: var(--color-primary);
-  min-height: 70px;
+  min-height: 100px;
   display: flex;
   align-items: center;
 }
@@ -138,6 +286,10 @@ export default {
   line-height: 1.2;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
+
+/* ============================================================================
+   CONTENIDO Y NAVEGACIÓN
+   ============================================================================ */
 
 .sidebar-content {
   flex: 1;
@@ -195,15 +347,23 @@ export default {
   letter-spacing: 0.025em;
 }
 
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
 
-
-/* Responsive design */
+/* Tablets */
 @media (max-width: 1024px) {
   .sidebar-fixed {
     width: 260px;
   }
+  
+  .sidebar-toggle-ribbon {
+    width: 35px;
+    height: 100px;
+  }
 }
 
+/* Móviles grandes */
 @media (max-width: 768px) {
   .sidebar-fixed {
     width: 240px;
@@ -216,8 +376,25 @@ export default {
   .brand-title {
     font-size: 1.1rem;
   }
+  
+  /* Mostrar overlay en mobile cuando el sidebar está abierto */
+  .sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .sidebar-toggle-ribbon {
+    width: 32px;
+    height: 90px;
+  }
+  
+  .ribbon-icon {
+    font-size: 1.3rem;
+  }
 }
 
+/* Móviles pequeños */
 @media (max-width: 480px) {
   .sidebar-fixed {
     width: 220px;
@@ -225,6 +402,15 @@ export default {
   
   .brand-title {
     font-size: 1rem;
+  }
+  
+  .sidebar-toggle-ribbon {
+    width: 30px;
+    height: 80px;
+  }
+  
+  .ribbon-icon {
+    font-size: 1.2rem;
   }
 }
 </style>

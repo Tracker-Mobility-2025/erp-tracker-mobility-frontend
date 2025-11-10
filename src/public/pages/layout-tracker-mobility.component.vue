@@ -10,6 +10,18 @@ export default {
     ToolbarTrackerMobility
   },
 
+  data() {
+    return {
+      sidebarOpen: true
+    };
+  },
+
+  methods: {
+    handleSidebarToggle(isOpen) {
+      this.sidebarOpen = isOpen;
+    }
+  },
+
   created() {
     console.log('Layout creado de manera exitosa');
   }
@@ -18,11 +30,11 @@ export default {
 
 <template>
   <div class="layout-container">
-    <!-- Sidebar fijo a la izquierda -->
-    <SidebarTrackerMobility />
+    <!-- Sidebar fijo a la izquierda con control de toggle -->
+    <SidebarTrackerMobility @sidebar-toggle="handleSidebarToggle" />
 
     <!-- Contenedor principal que incluye toolbar y contenido -->
-    <div class="main-content">
+    <div class="main-content" :class="{ 'sidebar-closed': !sidebarOpen }">
       <!-- Toolbar fijo en la parte superior -->
       <ToolbarTrackerMobility />
 
@@ -48,6 +60,11 @@ export default {
   flex-direction: column;
   margin-left: 260px; /* Ancho del sidebar */
   height: 100vh;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.main-content.sidebar-closed {
+  margin-left: 0;
 }
 
 .content-area {
@@ -62,7 +79,7 @@ export default {
 /* Responsive design para pantallas pequeñas */
 @media (max-width: 768px) {
   .main-content {
-    margin-left: 0;
+    margin-left: 0 !important; /* En mobile siempre ocupa todo el ancho */
   }
 }
 </style>
