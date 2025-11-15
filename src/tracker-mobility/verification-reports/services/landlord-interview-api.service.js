@@ -7,7 +7,7 @@ export class LandlordInterviewApiService {
     }
 
     sendLandlordInterview(orderId, data) {
-        return http.post(`${this.resourceEndpoint}/${orderId}/landlord-interview`, data);
+        return http.patch(`${this.resourceEndpoint}/${orderId}/landlord-interview`, data);
     }
 
 }

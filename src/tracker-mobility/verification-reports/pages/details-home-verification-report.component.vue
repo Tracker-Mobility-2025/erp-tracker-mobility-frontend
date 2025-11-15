@@ -87,12 +87,18 @@ export default {
     // Mapear datos del solicitante
     canEditInterview() {
       const isTenant = this.effectiveItem?.order?.client?.isTenant === true;
-      const hasFinalResult = !!this.effectiveItem?.finalResult;
-      return isTenant && !hasFinalResult;
+      const finalResult = this.effectiveItem?.finalResult;
+      
+      // Permitir edición si:
+      // 1. Es inquilino Y no hay resultado final, O
+      // 2. El resultado final es ENTREVISTA_ARRENDADOR_FALTANTE
+      return isTenant && (!finalResult || finalResult === 'ENTREVISTA_ARRENDADOR_FALTANTE');
     },
 
     isEditBlockedByFinalResult() {
-      return !!this.effectiveItem?.finalResult;
+      const finalResult = this.effectiveItem?.finalResult;
+      // No bloquear si el resultado es ENTREVISTA_ARRENDADOR_FALTANTE
+      return !!finalResult && finalResult !== 'ENTREVISTA_ARRENDADOR_FALTANTE';
     },
 
     applicantData() {
@@ -739,32 +745,59 @@ export default {
 
     // Actualizar entrevista con arrendador (view + backend API)
     async onUpdateInterviewDetailsRequested(payload) {
+      console.log('═══════════════════════════════════════════════════════');
+      console.log('🔄 INICIO: Actualización de entrevista con arrendador');
+      console.log('═══════════════════════════════════════════════════════');
+      
       try {
+        console.log('📥 Payload recibido del componente hijo:', payload);
+        
         // Mostrar indicador de carga
         this.loading = true;
 
-        const toBool = (v) => v === 'Sí' || v === true || v === 'true';
+        // Función para convertir valores a booleano o null
+        const toBoolOrNull = (v) => {
+          if (v === null || v === undefined) return null;
+          if (v === 'Sí' || v === true || v === 'true') return true;
+          if (v === 'No' || v === false || v === 'false') return false;
+          return null;
+        };
+        
+        console.log('🔍 Procesando valores booleanos...');
+        console.log('  - ownHouse original:', payload?.ownHouse);
+        console.log('  - clientPaysPunctual original:', payload?.clientPaysPunctual);
         
         // Construir el payload según el formato del endpoint
         const apiPayload = {
-          ownHome: toBool(payload?.ownHouse),
+          ownHome: toBoolOrNull(payload?.ownHouse),
           clientNameAccordingToLandlord: payload?.tenantName || '',
           servicesPaidByClient: payload?.serviceClientPays || '',
-          isTheClientPunctualWithPayments: toBool(payload?.clientPaysPunctual),
+          isTheClientPunctualWithPayments: toBoolOrNull(payload?.clientPaysPunctual),
           timeLivingAccordingToLandlord: payload?.clientRentalTime || '',
           floorOccupiedByClient: payload?.clientFloorNumber || ''
         };
 
+        console.log('📦 Payload transformado para API:', JSON.stringify(apiPayload, null, 2));
+
         // Obtener el orderId desde el reporte
         const orderId = this.effectiveItem?.order?.id;
         
+        console.log('🔑 Order ID obtenido:', orderId);
+        
         if (!orderId) {
+          console.error('❌ ERROR: No se encontró el Order ID');
           throw new Error('No se pudo obtener el ID de la orden');
         }
 
+        console.log('📡 Enviando petición al backend...');
+        console.log(`   Endpoint: /orders/${orderId}/landlord-interview`);
+        
         // Enviar actualización al backend
-        await this.landlordInterviewApiService.sendLandlordInterview(orderId, apiPayload);
+        const response = await this.landlordInterviewApiService.sendLandlordInterview(orderId, apiPayload);
+        
+        console.log('✅ Respuesta del servidor:', response);
 
+        console.log('🔄 Actualizando estado local...');
         // Actualizar estado local de la vista para reflejar cambios inmediatamente
         if (!this.reportData) this.reportData = {};
         if (!this.reportData.order) this.reportData.order = {};
@@ -782,6 +815,9 @@ export default {
           floorOccupiedByClient: apiPayload.floorOccupiedByClient
         };
 
+        console.log('💾 Estado local actualizado correctamente');
+        console.log('✅ Proceso completado exitosamente');
+
         this.showToast({
           severity: 'success',
           summary: 'Guardado exitosamente',
@@ -789,11 +825,32 @@ export default {
           life: 3000
         });
       } catch (error) {
-        console.error('Error al actualizar entrevista con arrendador:', error);
+        console.error('═══════════════════════════════════════════════════════');
+        console.error('❌ ERROR en actualización de entrevista con arrendador');
+        console.error('═══════════════════════════════════════════════════════');
+        console.error('Error completo:', error);
+        console.error('Tipo de error:', error?.constructor?.name);
+        
+        if (error?.response) {
+          console.error('📡 Respuesta del servidor:');
+          console.error('  - Status:', error.response.status);
+          console.error('  - Status Text:', error.response.statusText);
+          console.error('  - Data:', error.response.data);
+          console.error('  - Headers:', error.response.headers);
+        }
+        
+        if (error?.request) {
+          console.error('📤 Request realizado:', error.request);
+        }
+        
+        console.error('💬 Mensaje de error:', error?.message);
+        console.error('📚 Stack trace:', error?.stack);
         
         const errorMessage = error?.response?.data?.message || 
                             error?.message || 
                             'No se pudo actualizar la entrevista con el arrendador.';
+        
+        console.error('🔔 Mensaje mostrado al usuario:', errorMessage);
         
         this.showToast({
           severity: 'error',
@@ -803,6 +860,9 @@ export default {
         });
       } finally {
         this.loading = false;
+        console.log('═══════════════════════════════════════════════════════');
+        console.log('🏁 FIN: Actualización de entrevista con arrendador');
+        console.log('═══════════════════════════════════════════════════════');
       }
     }
   },

@@ -40,6 +40,7 @@ export default {
         clientFloorNumber: ''
       },
       booleanOptions: [
+        { label: 'No especifica', value: null },
         { label: 'Sí', value: 'Sí' },
         { label: 'No', value: 'No' }
       ]
@@ -68,6 +69,24 @@ export default {
     }
   },
 
+  computed: {
+    formattedOwnHouse() {
+      const value = this.item?.ownHouse;
+      if (value === '-' || value === '' || value === null || value === undefined) {
+        return 'No especifica';
+      }
+      return value;
+    },
+    
+    formattedClientPaysPunctual() {
+      const value = this.item?.clientPaysPunctual;
+      if (value === '-' || value === '' || value === null || value === undefined) {
+        return 'No especifica';
+      }
+      return value;
+    }
+  },
+
   methods: {
     onEditToggle() {
       if (!this.canEdit) return;
@@ -87,6 +106,7 @@ export default {
 
     onSaveEdit() {
       // Emitir evento al padre para gestionar la actualización
+      // Los valores null se enviarán tal cual para "No especifica"
       this.$emit('update-interview-details-requested', { ...this.editForm });
       // Mantener el componente en modo lectura tras guardar
       this.isEditing = false;
@@ -165,7 +185,7 @@ export default {
           </label>
           <template v-if="!isEditing">
             <p class="font-semibold text-dark m-0">
-              {{ item?.ownHouse || '-' }}
+              {{ formattedOwnHouse }}
             </p>
           </template>
           <template v-else>
@@ -196,7 +216,7 @@ export default {
           </label>
           <template v-if="!isEditing">
             <p class="font-semibold text-dark m-0">
-              {{ item?.clientPaysPunctual || '-' }}
+              {{ formattedClientPaysPunctual }}
             </p>
           </template>
           <template v-else>

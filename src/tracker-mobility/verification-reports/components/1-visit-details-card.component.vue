@@ -28,8 +28,16 @@ export default {
         'text-green-700 bg-green-100': result === 'conforme',
         'text-yellow-700 bg-yellow-100': result === 'observado',
         'text-red-700 bg-red-100': result === 'rechazado',
-        'text-blue-700 bg-blue-100': result === 'pendiente'
+        'text-blue-700 bg-blue-100': result === 'pendiente',
+        'text-purple-700 bg-purple-100': result === 'ent faltante'
       };
+    },
+    
+    formattedResult() {
+      if (this.result === 'ENTREVISTA_ARRENDADOR_FALTANTE') {
+        return 'ENT FALTANTE';
+      }
+      return this.result;
     }
   },
 
@@ -109,7 +117,7 @@ export default {
             <span 
               :class="[resultClass, 'px-2 py-1 border-round text-sm font-semibold']"
             >
-              {{ result || 'No especificado' }}
+              {{ formattedResult || 'No especificado' }}
             </span>
           </p>
         </div>

@@ -33,6 +33,7 @@ export default {
         { label: 'Conforme', value: 'CONFORME' },
         { label: 'Observado', value: 'OBSERVADO' },
         { label: 'Rechazado', value: 'RECHAZADO' },
+        { label: 'Ent Faltante', value: 'ENTREVISTA_ARRENDADOR_FALTANTE' },
       ],
 
       title: {
@@ -151,6 +152,8 @@ export default {
           return '#FB8C00'; // Naranja
         case 'RECHAZADO':
           return '#D32F2F'; // Rojo
+        case 'ENTREVISTA_ARRENDADOR_FALTANTE':
+          return '#9C27B0'; // Púrpura
         default:
           return '#E0E0E0';
       }
@@ -158,12 +161,20 @@ export default {
 
     // Retorna si debe usar texto blanco
     shouldUseWhiteText(status) {
-      return ['CONFORME', 'OBSERVADO', 'RECHAZADO'].includes(status);
+      return ['CONFORME', 'OBSERVADO', 'RECHAZADO', 'ENTREVISTA_ARRENDADOR_FALTANTE'].includes(status);
     },
 
     // Obtener cantidad de reportes por resultado
     getCountByStatus(status) {
       return this.itemsArray.filter(r => r.finalResult === status).length;
+    },
+
+    // Formatear el texto del estado para visualización
+    getStatusLabel(status) {
+      if (status === 'ENTREVISTA_ARRENDADOR_FALTANTE') {
+        return 'ENT FALTANTE';
+      }
+      return status;
     },
 
     formatDate(dateString) {
@@ -456,7 +467,7 @@ export default {
             color: shouldUseWhiteText(data.finalResult) ? '#FFFFFF' : '#000000'
           }"
         >
-          {{ data.finalResult }}
+          {{ getStatusLabel(data.finalResult) }}
         </span>
       </template>
 
