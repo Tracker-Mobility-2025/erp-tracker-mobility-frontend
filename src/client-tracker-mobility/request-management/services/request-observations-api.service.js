@@ -14,7 +14,7 @@ export class RequestObservationsApiService {
     // Actualizar documentos asociados a la solicitud (/api/v1/orders/{orderId}/client/documents/{documentId})
     // Recibe FormData con:
     //   - file: archivo binario (puede estar vacío)
-    //   - type: tipo de documento (DNI, CARNET_EXTRANJERIA, PTP, FOTO_FACHADA_VIVIENDA, RECIBO_AGUA, RECIBO_LUZ, etc.)
+    //   - type: tipo de documento (FOTO_FACHADA_VIVIENDA, RECIBO_SERVICIO, DOCUMENTO_IDENTIDAD)
     updateDocument(orderId, documentId, formData) {
         return http.patch(`${this.resourceEndpoint}/${orderId}/client/documents/${documentId}`, formData, {
             headers: {

@@ -28,13 +28,13 @@ export default {
       if (!this.item?.client?.documents) return [];
       
       // Tipos de documentos permitidos
-      const allowedTypes = ['FOTO_FACHADA_VIVIENDA', 'RECIBO_AGUA', 'DNI'];
+      const allowedTypes = ['FOTO_FACHADA_VIVIENDA', 'RECIBO_SERVICIO', 'DOCUMENTO_IDENTIDAD'];
       
       // Mapeo de nombres
       const typeMapping = {
         'FOTO_FACHADA_VIVIENDA': 'FACHADA DE VIVIENDA',
-        'RECIBO_AGUA': 'RECIBO DE SERVICIO',
-        'DNI': 'DOCUMENTO DE IDENTIDAD'
+        'RECIBO_SERVICIO': 'RECIBO DE SERVICIO',
+        'DOCUMENTO_IDENTIDAD': 'DOCUMENTO DE IDENTIDAD'
       };
       
       // Filtrar y transformar documentos
@@ -448,8 +448,8 @@ export default {
         'contract': 'Contrato de alquiler',
         'other': 'Otro documento',
         'FOTO_FACHADA_VIVIENDA': 'FACHADA DE VIVIENDA',
-        'RECIBO_AGUA': 'RECIBO DE SERVICIO',
-        'DNI': 'DOCUMENTO DE IDENTIDAD'
+        'RECIBO_SERVICIO': 'RECIBO DE SERVICIO',
+        'DOCUMENTO_IDENTIDAD': 'DOCUMENTO DE IDENTIDAD'
       };
       return labels[documentType] || documentType || 'Documento';
     },
