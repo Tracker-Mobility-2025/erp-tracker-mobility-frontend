@@ -82,8 +82,11 @@ export default {
         <!-- Header del sidebar -->
         <div class="sidebar-header">
           <div class="sidebar-brand">
-            <i class="pi pi-mobile brand-icon"></i>
-            <h3 class="brand-title">Tracker Mobility</h3>
+            <img
+              src="../../assets/img/logo-toolbar-tracker-mobility.png"
+              alt="Tracker Mobility Logo"
+              class="brand-logo"
+            />
           </div>
         </div>
 
@@ -154,7 +157,7 @@ export default {
 
 .sidebar-toggle-ribbon:hover {
   width: 50px;
-  background: var(--color-primary-dark, #1e3a8a);
+  background: var(--color-primary-dark);
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
 }
 
@@ -268,23 +271,17 @@ export default {
 .sidebar-brand {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.75rem;
   width: 100%;
 }
 
-.brand-icon {
-  color: #ffffff;
-  font-size: 1.8rem;
-  flex-shrink: 0;
-}
-
-.brand-title {
-  color: #ffffff;
-  font-size: 1.2rem;
-  font-weight: 700;
-  margin: 0;
-  line-height: 1.2;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+.brand-logo {
+  max-width: 100%;
+  height: auto;
+  max-height: 60px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 /* ============================================================================
@@ -373,10 +370,6 @@ export default {
     padding: 0.875rem 1rem;
   }
   
-  .brand-title {
-    font-size: 1.1rem;
-  }
-  
   /* Mostrar overlay en mobile cuando el sidebar está abierto */
   .sidebar-overlay.active {
     display: block;
@@ -400,10 +393,7 @@ export default {
     width: 220px;
   }
   
-  .brand-title {
-    font-size: 1rem;
-  }
-  
+
   .sidebar-toggle-ribbon {
     width: 30px;
     height: 80px;

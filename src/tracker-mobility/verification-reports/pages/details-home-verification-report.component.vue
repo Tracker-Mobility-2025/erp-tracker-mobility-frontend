@@ -84,6 +84,10 @@ export default {
     },
 
     // Mapear datos del solicitante
+    canEditInterview() {
+      return this.effectiveItem?.order?.client?.isTenant === true;
+    },
+
     applicantData() {
       return {
         businessName: this.effectiveItem?.order?.applicantCompany?.companyName || 'No especificado',
@@ -721,6 +725,73 @@ export default {
       setTimeout(() => {
         clearInterval(progressInterval);
       }, 5000);
+    },
+
+    // TODO: Persist interview updates (view + backend API)
+    onUpdateInterviewDetailsRequested(payload) {
+      try {
+        const toBool = (v) => v === 'Sí' || v === true || v === 'true';
+        const parseServices = (v) => {
+          if (Array.isArray(v)) return v;
+          if (typeof v === 'string') return v.split(',').map(s => s.trim()).filter(Boolean);
+          return [];
+        };
+
+        const mapped = {
+          ownHome: toBool(payload?.ownHouse),
+          interviewDetails: {
+            clientNameAccordingToLandlord: payload?.tenantName || '',
+            servicesPaidByClient: parseServices(payload?.serviceClientPays),
+            isTheClientPunctualWithPayments: toBool(payload?.clientPaysPunctual),
+            // TODO: Parse rental time into numeric value and type
+            // Example inputs: "2 años", "6 meses" -> time: 2, timeType: 'años'
+            time: payload?.clientRentalTime || '',
+            timeType: '', // TODO: derive from clientRentalTime
+            floorOccupiedByClient: payload?.clientFloorNumber || ''
+          }
+        };
+
+        // Update local view state so computed bindings refresh
+        if (!this.reportData) this.reportData = {};
+        if (!this.reportData.order) this.reportData.order = {};
+        if (!this.reportData.order.client) this.reportData.order.client = {};
+        if (!this.reportData.order.client.landlord) this.reportData.order.client.landlord = {};
+
+        this.reportData.order.client.landlord.ownHome = mapped.ownHome;
+        this.reportData.order.client.landlord.interviewDetails = {
+          ...(this.reportData.order.client.landlord.interviewDetails || {}),
+          ...mapped.interviewDetails
+        };
+
+        // TODO: Persist to backend API
+        // const reportId = this.effectiveItem?.id;
+        // const updatePayload = {
+        //   order: {
+        //     client: {
+        //       landlord: {
+        //         ownHome: mapped.ownHome,
+        //         interviewDetails: mapped.interviewDetails
+        //       }
+        //     }
+        //   }
+        // };
+        // return this.reportDetailsApiService.update(reportId, updatePayload);
+
+        this.showToast({
+          severity: 'success',
+          summary: 'Guardado',
+          detail: 'Entrevista actualizada (pendiente de persistir en API).',
+          life: 3000
+        });
+      } catch (error) {
+        console.error('Error al actualizar entrevista (vista):', error);
+        this.showToast({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo aplicar los cambios.',
+          life: 4000
+        });
+      }
     }
   },
 
@@ -872,7 +943,11 @@ export default {
         <LandlordDataCard :item="landlordData" />
 
         <!-- Sexta sección: Detalles de la entrevista -->
-        <InterviewDetailsCard :item="interviewDetails" />
+        <InterviewDetailsCard
+          :item="interviewDetails"
+          :can-edit="canEditInterview"
+          @update-interview-details-requested="onUpdateInterviewDetailsRequested"
+        />
 
         <!-- ============== SECCIÓN: Observaciones, resumen, glosario y casuística ============== -->
         <div class="section-separator">

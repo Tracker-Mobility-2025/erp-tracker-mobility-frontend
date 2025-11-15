@@ -8,7 +8,7 @@ export default {
       type: Object,
       required: false,
       default: () => ({
-        tenantName: 'Alfonso Eloy Sanchez Vela',
+        tenantName: '_',
         ownHouse: '-',
         serviceClientPays: '-',
         clientPaysPunctual: '-',
@@ -16,7 +16,77 @@ export default {
         clientFloorNumber: '-'
       })
     },
+    canEdit: {
+      type: Boolean,
+      required: false,
+      default: false
+    }
   },
+
+  data() {
+    return {
+      isEditing: false,
+      editForm: {
+        tenantName: '',
+        ownHouse: '',
+        serviceClientPays: '',
+        clientPaysPunctual: '',
+        clientRentalTime: '',
+        clientFloorNumber: ''
+      },
+      booleanOptions: [
+        { label: 'Sí', value: 'Sí' },
+        { label: 'No', value: 'No' }
+      ]
+    }
+  },
+
+  watch: {
+    item: {
+      immediate: true,
+      deep: true,
+      handler(newVal) {
+        this.editForm = {
+          tenantName: newVal?.tenantName || '',
+          ownHouse: newVal?.ownHouse || '',
+          serviceClientPays: newVal?.serviceClientPays || '',
+          clientPaysPunctual: newVal?.clientPaysPunctual || '',
+          clientRentalTime: newVal?.clientRentalTime || '',
+          clientFloorNumber: newVal?.clientFloorNumber || ''
+        };
+      }
+    },
+    canEdit(newVal) {
+      if (!newVal && this.isEditing) {
+        this.isEditing = false;
+      }
+    }
+  },
+
+  methods: {
+    onEditToggle() {
+      if (!this.canEdit) return;
+      this.isEditing = !this.isEditing;
+      if (!this.isEditing) {
+        // Reset form when cancelling edit mode
+        this.editForm = {
+          tenantName: this.item?.tenantName || '',
+          ownHouse: this.item?.ownHouse || '',
+          serviceClientPays: this.item?.serviceClientPays || '',
+          clientPaysPunctual: this.item?.clientPaysPunctual || '',
+          clientRentalTime: this.item?.clientRentalTime || '',
+          clientFloorNumber: this.item?.clientFloorNumber || ''
+        };
+      }
+    },
+
+    onSaveEdit() {
+      // Emitir evento al padre para gestionar la actualización
+      this.$emit('update-interview-details-requested', { ...this.editForm });
+      // Mantener el componente en modo lectura tras guardar
+      this.isEditing = false;
+    }
+  }
 
 };
 
@@ -25,10 +95,38 @@ export default {
 <template>
   <pv-card class="w-full">
     <template #header>
-      <h3 class="text-lg font-bold flex align-items-center gap-2 text-white p-3 m-0">
-        <i class="pi pi-comments text-white"></i>
-        Detalles de la entrevista
-      </h3>
+      <div class="flex justify-content-between align-items-center">
+        <h3 class="text-lg font-bold flex align-items-center gap-2 text-white p-3 m-0">
+          <i class="pi pi-comments text-white"></i>
+          Detalles de la entrevista
+        </h3>
+        <div v-if="canEdit" class="flex align-items-center gap-2 pr-3">
+          <pv-button
+            v-if="!isEditing"
+            size="small"
+            icon="pi pi-pencil"
+            label="Editar"
+            class="p-button-warning p-button-sm"
+            @click="onEditToggle"
+          />
+          <template v-else>
+            <pv-button
+              size="small"
+              icon="pi pi-times"
+              label="Cancelar"
+              class="p-button-secondary p-button-sm"
+              @click="onEditToggle"
+            />
+            <pv-button
+              size="small"
+              icon="pi pi-save"
+              label="Guardar"
+              class="p-button-success p-button-sm"
+              @click="onSaveEdit"
+            />
+          </template>
+        </div>
+      </div>
     </template>
     <template #content>
       
@@ -39,9 +137,14 @@ export default {
             <i class="pi pi-user text-primary"></i>
             Nombre del inquilino:
           </label>
-          <p class="font-semibold text-dark m-0">
-            {{ item?.tenantName || '-' }}
-          </p>
+          <template v-if="!isEditing">
+            <p class="font-semibold text-dark m-0">
+              {{ item?.tenantName || '-' }}
+            </p>
+          </template>
+          <template v-else>
+            <pv-input-text v-model="editForm.tenantName" class="w-full" placeholder="Nombre del inquilino" />
+          </template>
         </div>
         
         <div class="field col-12 md:col-4">
@@ -49,9 +152,14 @@ export default {
             <i class="pi pi-home text-primary"></i>
             Casa propia
           </label>
-          <p class="font-semibold text-dark m-0">
-            {{ item?.ownHouse || '-' }}
-          </p>
+          <template v-if="!isEditing">
+            <p class="font-semibold text-dark m-0">
+              {{ item?.ownHouse || '-' }}
+            </p>
+          </template>
+          <template v-else>
+            <pv-select v-model="editForm.ownHouse" :options="booleanOptions" option-label="label" option-value="value" class="w-full" placeholder="Seleccione"/>
+          </template>
         </div>
         
         <div class="field col-12 md:col-4">
@@ -59,9 +167,14 @@ export default {
             <i class="pi pi-dollar text-primary"></i>
             Servicio que paga el cliente
           </label>
-          <p class="font-semibold text-dark m-0">
-            {{ item?.serviceClientPays || '-' }}
-          </p>
+          <template v-if="!isEditing">
+            <p class="font-semibold text-dark m-0">
+              {{ item?.serviceClientPays || '-' }}
+            </p>
+          </template>
+          <template v-else>
+            <pv-input-text v-model="editForm.serviceClientPays" class="w-full" placeholder="Servicios (separados por coma)"/>
+          </template>
         </div>
         
         <!-- Segunda fila -->
@@ -70,9 +183,14 @@ export default {
             <i class="pi pi-check-circle text-primary"></i>
             ¿El cliente paga puntual?
           </label>
-          <p class="font-semibold text-dark m-0">
-            {{ item?.clientPaysPunctual || '-' }}
-          </p>
+          <template v-if="!isEditing">
+            <p class="font-semibold text-dark m-0">
+              {{ item?.clientPaysPunctual || '-' }}
+            </p>
+          </template>
+          <template v-else>
+            <pv-select v-model="editForm.clientPaysPunctual" :options="booleanOptions" option-label="label" option-value="value" class="w-full" placeholder="Seleccione"/>
+          </template>
         </div>
         
         <div class="field col-12 md:col-4">
@@ -80,9 +198,14 @@ export default {
             <i class="pi pi-clock text-primary"></i>
             Tiempo de arrendamiento del cliente:
           </label>
-          <p class="font-semibold text-dark m-0">
-            {{ item?.clientRentalTime || '-' }}
-          </p>
+          <template v-if="!isEditing">
+            <p class="font-semibold text-dark m-0">
+              {{ item?.clientRentalTime || '-' }}
+            </p>
+          </template>
+          <template v-else>
+            <pv-input-text v-model="editForm.clientRentalTime" class="w-full" placeholder="Ej: 2 años"/>
+          </template>
         </div>
         
         <div class="field col-12 md:col-4">
@@ -90,9 +213,14 @@ export default {
             <i class="pi pi-building text-primary"></i>
             Nro de piso en el que habita el cliente:
           </label>
-          <p class="font-semibold text-dark m-0">
-            {{ item?.clientFloorNumber || '-' }}
-          </p>
+          <template v-if="!isEditing">
+            <p class="font-semibold text-dark m-0">
+              {{ item?.clientFloorNumber || '-' }}
+            </p>
+          </template>
+          <template v-else>
+            <pv-input-text v-model="editForm.clientFloorNumber" class="w-full" placeholder="Ej: 3"/>
+          </template>
         </div>
       </div>
     </template>

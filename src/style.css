@@ -11,6 +11,7 @@
 
     /* Paleta de colores corporativa */
     --color-primary: #2E3DB4;           /* Azul corporativo */
+    --color-primary-dark: #222F99;      /* Azul corporativo (más oscuro) */
     --color-background: #ecebeb;        /* Gris medio */
     --color-success: #28A745;           /* Verde confirmaciones */
     --color-text-gray: #363636;         /* Gris letras */
