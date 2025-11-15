@@ -108,12 +108,11 @@ export default {
     // Mapear dirección del cliente
     customerAddress() {
       const location = this.effectiveItem?.order?.client?.location;
-      const dwelling = this.effectiveItem?.order?.client?.dwelling;
       return {
         department: location?.department || 'No especificado',
         province: location?.province || 'No especificado',
         district: location?.district || 'No especificado',
-        fullAddress: dwelling?.homeAddress || 'No especificada'
+        fullAddress: location?.homeAddress || 'No especificada'
       };
     },
 
@@ -123,14 +122,15 @@ export default {
       const residence = client?.residence;
       const dwelling = client?.dwelling;
       const zone = client?.zone;
+      const location = client?.location;
 
       return {
         livesWith: residence?.livesWith || 'No especificado',
         resides: residence?.isResident ? 'Sí' : (residence?.isResident === false ? 'No' : 'No especificado'),
-        residenceTime: residence?.time ? `${residence.time} ${residence.timeType || ''}` : 'No especificado',
+        residenceTime: client?.timeLivingText || (residence?.time ? `${residence.time} ${residence.timeType || ''}` : 'No especificado'),
         housingRented: client?.isTenant ? 'Alquilado' : 'Propio',
         housingType: dwelling?.dwellingType || 'No especificado',
-        floorsQuantity: dwelling?.numberFloors || 'No especificado',
+        floorsQuantity: dwelling?.numberFloors || client?.apartmentInformation || 'No especificado',
         floorLives: dwelling?.floorOccupied || 'No especificado',
         facadeColor: dwelling?.facadeColor || 'No especificado',
         material: dwelling?.dwellingMaterial || 'No especificado',
@@ -140,10 +140,10 @@ export default {
         roofType: dwelling?.roofType || 'No especificado',
         zoneCharacteristic: zone?.zoneCharacteristics?.join(', ') || 'No especificado',
         housingAccess: zone?.accessType || 'No especificado',
-        zoneRisk: zone?.riskLevel || 'No especificado',
+        zoneRisk: zone?.riskLevel || client?.datacrimSecurityLevel || 'No especificado',
         garageIs: dwelling?.garage?.garageType || 'No especificado',
         garageDistance: dwelling?.garage?.distanceToDwelling || 'No especificado',
-        realDirection: dwelling?.homeAddress || 'No especificada',
+        realDirection: client?.exactClientAddress || location?.homeAddress || 'No especificada',
         familiarReferences: client?.contactReferences?.map(ref => ({
           name: ref.fullName || 'No especificado',
           contact: ref.phoneNumber || 'No especificado',
@@ -215,12 +215,26 @@ export default {
       };
     },
 
-    // ANEXO 01: Registro fotográfico del domicilio
+    // ANEXO 01: Registro fotográfico del candidato
     annexe01Data() {
       const documents = this.effectiveItem?.order?.client?.documents;
       return {
-        title: 'ANEXO 01: Registro fotográfico del domicilio',
-        images: documents?.filter(doc => doc.type === 'FOTO_FACHADA_VIVIENDA')?.map(doc => ({
+        title: 'ANEXO 01: Registro fotográfico del candidato',
+        images: documents?.filter(doc => doc.type === 'ANEXO_1')?.map(doc => ({
+          src: doc.url,
+          alt: `Registro fotográfico del candidato`,
+          description: this.getDocumentDescription(doc.type),
+          type: doc.type
+        })) || []
+      };
+    },
+
+    // ANEXO 02: Registro fotográfico del domicilio
+    annexe02Data() {
+      const documents = this.effectiveItem?.order?.client?.documents;
+      return {
+        title: 'ANEXO 02: Registro fotográfico del domicilio',
+        images: documents?.filter(doc => doc.type === 'ANEXO_2')?.map(doc => ({
           src: doc.url,
           alt: `Registro fotográfico del domicilio`,
           description: this.getDocumentDescription(doc.type),
@@ -229,44 +243,12 @@ export default {
       };
     },
 
-    // ANEXO 02: Registro fotográfico de alrededores
-    annexe02Data() {
-      const documents = this.effectiveItem?.order?.client?.documents;
-      return {
-        title: 'ANEXO 02: Registro fotográfico de alrededores del domicilio',
-        images: documents?.filter(doc => doc.type === 'FOTO_ALREDEDORES_VIVIENDA')?.map(doc => ({
-          src: doc.url,
-          alt: `Registro fotográfico de alrededores`,
-          description: this.getDocumentDescription(doc.type),
-          type: doc.type
-        })) || []
-      };
-    },
-
-    // ANEXO 03: Documentos de identidad del candidato
+    // ANEXO 03: Registro fotográfico de la cochera
     annexe03Data() {
       const documents = this.effectiveItem?.order?.client?.documents;
       return {
-        title: 'ANEXO 03: Documentos de identidad del candidato',
-        images: documents?.filter(doc =>
-            doc.type === 'DNI' ||
-            doc.type === 'CARNET_EXTRANJERIA' ||
-            doc.type === 'PTP'
-        )?.map(doc => ({
-          src: doc.url,
-          alt: 'Documento de identidad del candidato',
-          description: this.getDocumentDescription(doc.type),
-          type: doc.type
-        })) || []
-      };
-    },
-
-    // ANEXO 04: Registro fotográfico de la cochera
-    annexe04Data() {
-      const documents = this.effectiveItem?.order?.client?.documents;
-      return {
-        title: 'ANEXO 04: Registro fotográfico de la cochera',
-        images: documents?.filter(doc => doc.type === 'FOTO_COCHERA')?.map(doc => ({
+        title: 'ANEXO 03: Registro fotográfico de la cochera',
+        images: documents?.filter(doc => doc.type === 'ANEXO_3')?.map(doc => ({
           src: doc.url,
           alt: 'Registro fotográfico de la cochera',
           description: this.getDocumentDescription(doc.type),
@@ -275,12 +257,12 @@ export default {
       };
     },
 
-    // ANEXO 05: Registro fotográfico de habitaciones
-    annexe05Data() {
+    // ANEXO 04: Registro fotográfico de las habitaciones del domicilio
+    annexe04Data() {
       const documents = this.effectiveItem?.order?.client?.documents;
       return {
-        title: 'ANEXO 05: Registro fotográfico de las habitaciones del domicilio',
-        images: documents?.filter(doc => doc.type === 'FOTO_HABITACIONES')?.map(doc => ({
+        title: 'ANEXO 04: Registro fotográfico de las habitaciones del domicilio',
+        images: documents?.filter(doc => doc.type === 'ANEXO_4')?.map(doc => ({
           src: doc.url,
           alt: 'Registro fotográfico de habitaciones',
           description: this.getDocumentDescription(doc.type),
@@ -289,17 +271,28 @@ export default {
       };
     },
 
-    // ANEXO 06: Recibos de servicios
+    // ANEXO 05: Registro fotográfico de alrededores del domicilio
+    annexe05Data() {
+      const documents = this.effectiveItem?.order?.client?.documents;
+      return {
+        title: 'ANEXO 05: Registro fotográfico de alrededores del domicilio',
+        images: documents?.filter(doc => doc.type === 'ANEXO_5')?.map(doc => ({
+          src: doc.url,
+          alt: 'Registro fotográfico de alrededores',
+          description: this.getDocumentDescription(doc.type),
+          type: doc.type
+        })) || []
+      };
+    },
+
+    // ANEXO 06: Foto datacrim
     annexe06Data() {
       const documents = this.effectiveItem?.order?.client?.documents;
       return {
-        title: 'ANEXO 06: Recibos de servicios',
-        images: documents?.filter(doc =>
-            doc.type === 'RECIBO_AGUA' ||
-            doc.type === 'RECIBO_LUZ'
-        )?.map(doc => ({
+        title: 'ANEXO 06: Foto datacrim',
+        images: documents?.filter(doc => doc.type === 'ANEXO_6')?.map(doc => ({
           src: doc.url,
-          alt: 'Recibo de servicios',
+          alt: 'Foto datacrim',
           description: this.getDocumentDescription(doc.type),
           type: doc.type
         })) || []
@@ -363,15 +356,15 @@ export default {
     // Función para obtener descripción amigable del tipo de documento
     getDocumentDescription(docType) {
       const descriptions = {
-        'DNI': 'Documento Nacional de Identidad',
-        'CARNET_EXTRANJERIA': 'Carnet de Extranjería',
-        'PTP': 'Permiso Temporal de Permanencia',
-        'RECIBO_AGUA': 'Recibo de Servicio de Agua',
-        'RECIBO_LUZ': 'Recibo de Servicio de Luz',
+        'ANEXO_1': 'Fotografía del candidato',
+        'ANEXO_2': 'Fotografía del domicilio',
+        'ANEXO_3': 'Fotografía de la cochera',
+        'ANEXO_4': 'Fotografía de las habitaciones',
+        'ANEXO_5': 'Fotografía de los alrededores del domicilio',
+        'ANEXO_6': 'Fotografía datacrim',
+        'DOCUMENTO_IDENTIDAD': 'Documento de identidad',
         'FOTO_FACHADA_VIVIENDA': 'Fotografía de la fachada de la vivienda',
-        'FOTO_ALREDEDORES_VIVIENDA': 'Fotografía de los alrededores de la vivienda',
-        'FOTO_HABITACIONES': 'Fotografía de las habitaciones',
-        'FOTO_COCHERA': 'Fotografía de la cochera'
+        'RECIBO_SERVICIO': 'Recibo de servicio (agua/luz)'
       };
       return descriptions[docType] || `Documento tipo: ${docType}`;
     },
