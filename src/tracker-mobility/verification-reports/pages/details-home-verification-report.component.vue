@@ -22,6 +22,7 @@ import EmailSendComponent from '../components/email-send.component.vue'
 import {ReportApiService} from "../services/reports-api.service.js";
 import {EmailApiService} from "../services/email-api.service.js";
 import {DownloadReportApiService} from "../services/download-report-api.service.js";
+import {LandlordInterviewApiService} from "../services/landlord-interview-api.service.js";
 import {Email} from "../models/email.entity.js";
 import {DownloadReport} from "../models/download-report.entity.js";
 import {NotificationMixin} from "../../../shared/utils/notification.utils.js";
@@ -328,6 +329,9 @@ export default {
 
       // Servicio para manejar descarga de reportes en PDF
       downloadReportApiService: new DownloadReportApiService('/reports'),
+
+      // Servicio para manejar entrevista con arrendador
+      landlordInterviewApiService: new LandlordInterviewApiService('/orders'),
 
       // item de reporte de verificación
       reportData: null,
@@ -733,70 +737,72 @@ export default {
       }, 5000);
     },
 
-    // TODO: Persist interview updates (view + backend API)
-    onUpdateInterviewDetailsRequested(payload) {
+    // Actualizar entrevista con arrendador (view + backend API)
+    async onUpdateInterviewDetailsRequested(payload) {
       try {
+        // Mostrar indicador de carga
+        this.loading = true;
+
         const toBool = (v) => v === 'Sí' || v === true || v === 'true';
-        const parseServices = (v) => {
-          if (Array.isArray(v)) return v;
-          if (typeof v === 'string') return v.split(',').map(s => s.trim()).filter(Boolean);
-          return [];
-        };
-
-        const mapped = {
+        
+        // Construir el payload según el formato del endpoint
+        const apiPayload = {
           ownHome: toBool(payload?.ownHouse),
-          interviewDetails: {
-            clientNameAccordingToLandlord: payload?.tenantName || '',
-            servicesPaidByClient: parseServices(payload?.serviceClientPays),
-            isTheClientPunctualWithPayments: toBool(payload?.clientPaysPunctual),
-            // TODO: Parse rental time into numeric value and type
-            // Example inputs: "2 años", "6 meses" -> time: 2, timeType: 'años'
-            time: payload?.clientRentalTime || '',
-            timeType: '', // TODO: derive from clientRentalTime
-            floorOccupiedByClient: payload?.clientFloorNumber || ''
-          }
+          clientNameAccordingToLandlord: payload?.tenantName || '',
+          servicesPaidByClient: payload?.serviceClientPays || '',
+          isTheClientPunctualWithPayments: toBool(payload?.clientPaysPunctual),
+          timeLivingAccordingToLandlord: payload?.clientRentalTime || '',
+          floorOccupiedByClient: payload?.clientFloorNumber || ''
         };
 
-        // Update local view state so computed bindings refresh
+        // Obtener el orderId desde el reporte
+        const orderId = this.effectiveItem?.order?.id;
+        
+        if (!orderId) {
+          throw new Error('No se pudo obtener el ID de la orden');
+        }
+
+        // Enviar actualización al backend
+        await this.landlordInterviewApiService.sendLandlordInterview(orderId, apiPayload);
+
+        // Actualizar estado local de la vista para reflejar cambios inmediatamente
         if (!this.reportData) this.reportData = {};
         if (!this.reportData.order) this.reportData.order = {};
         if (!this.reportData.order.client) this.reportData.order.client = {};
         if (!this.reportData.order.client.landlord) this.reportData.order.client.landlord = {};
 
-        this.reportData.order.client.landlord.ownHome = mapped.ownHome;
+        this.reportData.order.client.landlord.ownHome = apiPayload.ownHome;
         this.reportData.order.client.landlord.interviewDetails = {
           ...(this.reportData.order.client.landlord.interviewDetails || {}),
-          ...mapped.interviewDetails
+          clientNameAccordingToLandlord: apiPayload.clientNameAccordingToLandlord,
+          servicesPaidByClient: apiPayload.servicesPaidByClient.split(',').map(s => s.trim()).filter(Boolean),
+          isTheClientPunctualWithPayments: apiPayload.isTheClientPunctualWithPayments,
+          time: apiPayload.timeLivingAccordingToLandlord,
+          timeType: '',
+          floorOccupiedByClient: apiPayload.floorOccupiedByClient
         };
-
-        // TODO: Persist to backend API
-        // const reportId = this.effectiveItem?.id;
-        // const updatePayload = {
-        //   order: {
-        //     client: {
-        //       landlord: {
-        //         ownHome: mapped.ownHome,
-        //         interviewDetails: mapped.interviewDetails
-        //       }
-        //     }
-        //   }
-        // };
-        // return this.reportDetailsApiService.update(reportId, updatePayload);
 
         this.showToast({
           severity: 'success',
-          summary: 'Guardado',
-          detail: 'Entrevista actualizada (pendiente de persistir en API).',
+          summary: 'Guardado exitosamente',
+          detail: 'Los datos de la entrevista con el arrendador se actualizaron correctamente.',
           life: 3000
         });
       } catch (error) {
-        console.error('Error al actualizar entrevista (vista):', error);
+        console.error('Error al actualizar entrevista con arrendador:', error);
+        
+        const errorMessage = error?.response?.data?.message || 
+                            error?.message || 
+                            'No se pudo actualizar la entrevista con el arrendador.';
+        
         this.showToast({
           severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudo aplicar los cambios.',
-          life: 4000
+          summary: 'Error al guardar',
+          detail: errorMessage,
+          life: 5000
         });
+      } finally {
+        this.loading = false;
       }
     }
   },
