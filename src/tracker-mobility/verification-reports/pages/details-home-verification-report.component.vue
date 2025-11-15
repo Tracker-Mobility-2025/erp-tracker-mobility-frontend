@@ -85,7 +85,13 @@ export default {
 
     // Mapear datos del solicitante
     canEditInterview() {
-      return this.effectiveItem?.order?.client?.isTenant === true;
+      const isTenant = this.effectiveItem?.order?.client?.isTenant === true;
+      const hasFinalResult = !!this.effectiveItem?.finalResult;
+      return isTenant && !hasFinalResult;
+    },
+
+    isEditBlockedByFinalResult() {
+      return !!this.effectiveItem?.finalResult;
     },
 
     applicantData() {
@@ -946,6 +952,7 @@ export default {
         <InterviewDetailsCard
           :item="interviewDetails"
           :can-edit="canEditInterview"
+          :blocked-by-final-result="isEditBlockedByFinalResult"
           @update-interview-details-requested="onUpdateInterviewDetailsRequested"
         />
 

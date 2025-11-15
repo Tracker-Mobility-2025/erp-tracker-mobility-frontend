@@ -20,6 +20,11 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+    blockedByFinalResult: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
 
@@ -125,6 +130,12 @@ export default {
               @click="onSaveEdit"
             />
           </template>
+        </div>
+        <div v-else-if="blockedByFinalResult" class="flex align-items-center gap-2 pr-3">
+          <span class="text-sm text-white flex align-items-center gap-2">
+            <i class="pi pi-lock"></i>
+            Edición bloqueada porque el reporte ya tiene resultado final
+          </span>
         </div>
       </div>
     </template>
