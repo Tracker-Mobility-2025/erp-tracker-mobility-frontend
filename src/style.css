@@ -52,6 +52,49 @@
     --border-warning: #FFEAA7;          /* Borde amarillo */
     --border-info: #BEE5EB;             /* Borde azul */
 
+    /* === COLORES ESTANDARIZADOS PARA ESTADOS DE WORKFLOW === */
+    /* Estados principales del sistema (request-management, service-orders) */
+    --status-pendiente: #A8A8A8;        /* Gris - necesita asignación */
+    --status-asignado: #1976D2;         /* Azul - asignado, esperando inicio */
+    --status-en-proceso: #FFC107;       /* Amarillo - activamente en ejecución */
+    --status-completada: #4CAF50;       /* Verde - terminado exitosamente */
+    --status-cancelada: #D32F2F;        /* Rojo - cancelado/rechazado */
+    --status-observado: #FB8C00;        /* Naranja - tiene observaciones críticas */
+    --status-subsanada: #66BB6A;        /* Verde claro - observaciones corregidas */
+    
+    /* Estados específicos para verification-reports */
+    --status-conforme: #4CAF50;         /* Verde - reporte conforme */
+    --status-rechazado: #D32F2F;        /* Rojo - reporte rechazado */
+    
+    /* Estados de observaciones */
+    --observation-pendiente: #FB8C00;   /* Naranja - observación pendiente */
+    --observation-resuelta: #4CAF50;    /* Verde - observación resuelta */
+    
+    /* Color por defecto para estados no definidos */
+    --status-default: #E0E0E0;          /* Gris claro */
+    --status-todos: #E0E0E0;            /* Gris claro para "Todos" */
+
+    /* === ESTADOS DE VERIFICADORES === */
+    /* Estados específicos para el módulo de verificadores */
+    --status-activo: #4CAF50;           /* Verde - verificador activo */
+    --status-inactivo: #D32F2F;         /* Rojo - verificador inactivo */
+
+    /* === ESTADOS DE CLIENTES === */
+    /* Estados específicos para el módulo de clientes */
+    --status-active: #4CAF50;           /* Verde - cliente activo */
+    --status-inactive: #D32F2F;         /* Rojo - cliente inactivo */
+
+    /* === TEXTO PARA ESTADOS === */
+    /* Determina si usar texto blanco o negro según el fondo */
+    --text-white: #FFFFFF;
+    --text-black: #000000;
+
+    /* Mapeo de estados que requieren texto blanco */
+    /* ASIGNADO, COMPLETADA, CANCELADA, OBSERVADO, SUBSANADA, CONFORME, RECHAZADO */
+    /* PENDIENTE y EN_PROCESO usan texto negro */
+    --border-warning: #FFEAA7;          /* Borde amarillo */
+    --border-info: #BEE5EB;             /* Borde azul */
+
     /* Variables de espaciado */
     --spacing-xs: 0.25rem;
     --spacing-sm: 0.5rem;
@@ -1296,5 +1339,143 @@ html:not(.force-dark-mode) .p-dropdown,
 html:not(.force-dark-mode) .p-select,
 html:not(.force-dark-mode) .p-calendar {
     color-scheme: light !important;
+}
+
+/* === CLASES UTILITARIAS PARA ESTADOS DEL WORKFLOW === */
+
+/* Badges personalizados para filtros dropdown */
+.badge-custom {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding: 0 0.5rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.5rem;
+    transition: all 0.2s ease;
+}
+
+/* Tags de estado personalizados para tablas */
+.status-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+/* Tags de observaciones (más pequeños) */
+.observation-status-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+/* === CLASES DE COLOR PARA ESTADOS === */
+
+/* Estados principales */
+.status-pendiente {
+    background-color: var(--status-pendiente);
+    color: var(--text-black);
+}
+
+.status-asignado {
+    background-color: var(--status-asignado);
+    color: var(--text-white);
+}
+
+.status-en-proceso {
+    background-color: var(--status-en-proceso);
+    color: var(--text-black);
+}
+
+.status-completada {
+    background-color: var(--status-completada);
+    color: var(--text-white);
+}
+
+.status-cancelada {
+    background-color: var(--status-cancelada);
+    color: var(--text-white);
+}
+
+.status-observado {
+    background-color: var(--status-observado);
+    color: var(--text-white);
+}
+
+.status-subsanada {
+    background-color: var(--status-subsanada);
+    color: var(--text-white);
+}
+
+/* Estados específicos */
+.status-conforme {
+    background-color: var(--status-conforme);
+    color: var(--text-white);
+}
+
+.status-rechazado {
+    background-color: var(--status-rechazado);
+    color: var(--text-white);
+}
+
+/* Estados de observaciones */
+.observation-pendiente {
+    background-color: var(--observation-pendiente);
+    color: var(--text-white);
+}
+
+.observation-resuelta {
+    background-color: var(--observation-resuelta);
+    color: var(--text-white);
+}
+
+/* Estados por defecto */
+.status-default {
+    background-color: var(--status-default);
+    color: var(--text-black);
+}
+
+.status-todos {
+    background-color: var(--status-todos);
+    color: var(--text-black);
+}
+
+/* === ESTADOS DE VERIFICADORES === */
+/* Activo - verificador disponible para asignaciones */
+.status-activo {
+    background-color: var(--status-activo);
+    color: var(--text-white);
+}
+
+/* Inactivo - verificador no disponible */
+.status-inactivo {
+    background-color: var(--status-inactivo);
+    color: var(--text-white);
+}
+
+/* === ESTADOS DE CLIENTES === */
+/* Activo - cliente con cuenta activa */
+.status-active {
+    background-color: var(--status-active);
+    color: var(--text-white);
+}
+
+/* Inactivo - cliente con cuenta suspendida */
+.status-inactive {
+    background-color: var(--status-inactive);
+    color: var(--text-white);
 }
 

@@ -179,54 +179,18 @@ export default {
       this.globalFilterValue = value;
     },
 
-    // Retorna la clase CSS personalizada para el estado
+    // Retorna la clase CSS para el estado (definidas en src/style.css)
     getStatusClass(status) {
-      const baseClasses = 'text-sm font-semibold';
-      switch (status) {
-        case 'PENDIENTE':
-          return `${baseClasses} status-pendiente`;
-        case 'ASIGNADO':
-          return `${baseClasses} status-asignado`;
-        case 'EN_PROCESO':
-          return `${baseClasses} status-en-proceso`;
-        case 'COMPLETADA':
-          return `${baseClasses} status-completada`;
-        case 'CANCELADA':
-          return `${baseClasses} status-cancelada`;
-        case 'OBSERVADO':
-          return `${baseClasses} status-observado`;
-        case 'SUBSANADA':
-          return `${baseClasses} status-subsanada`;
-        default:
-          return `${baseClasses} status-default`;
-      }
-    },
-
-    // Retorna el color de fondo para badges en filtros
-    getStatusColor(status) {
-      switch (status) {
-        case 'PENDIENTE':
-          return '#A8A8A8';
-        case 'ASIGNADO':
-          return '#1976D2';
-        case 'EN_PROCESO':
-          return '#FFC107';
-        case 'COMPLETADA':
-          return '#4CAF50';
-        case 'CANCELADA':
-          return '#D32F2F';
-        case 'OBSERVADO':
-          return '#FB8C00';
-        case 'SUBSANADA':
-          return '#66BB6A';
-        default:
-          return '#E0E0E0';
-      }
-    },
-
-    // Retorna si el texto debe ser blanco (para contraste)
-    shouldUseWhiteText(status) {
-      return ['ASIGNADO', 'COMPLETADA', 'CANCELADA', 'OBSERVADO', 'SUBSANADA'].includes(status);
+      const statusMap = {
+        'PENDIENTE': 'status-pendiente',
+        'ASIGNADO': 'status-asignado', 
+        'EN_PROCESO': 'status-en-proceso',
+        'COMPLETADA': 'status-completada',
+        'CANCELADA': 'status-cancelada',
+        'OBSERVADO': 'status-observado',
+        'SUBSANADA': 'status-subsanada'
+      };
+      return statusMap[status] || 'status-default';
     },
 
     // Contar observaciones pendientes de una solicitud
@@ -460,18 +424,14 @@ export default {
                 <span>{{ slotProps.option.label }}</span>
                 <span 
                   v-if="slotProps.option.value !== null"
-                  class="badge-custom ml-2"
-                  :style="{
-                    backgroundColor: getStatusColor(slotProps.option.value),
-                    color: shouldUseWhiteText(slotProps.option.value) ? '#FFFFFF' : '#000000'
-                  }"
+                  class="badge-custom"
+                  :class="getStatusClass(slotProps.option.value)"
                 >
                   {{ getCountByStatus(slotProps.option.value) }}
                 </span>
                 <span 
                   v-else
-                  class="badge-custom ml-2"
-                  style="background-color: #E0E0E0; color: #000000;"
+                  class="badge-custom status-todos"
                 >
                   {{ itemsArray.length }}
                 </span>
@@ -508,10 +468,7 @@ export default {
       <template #status="{ data }">
         <span 
           class="status-tag"
-          :style="{
-            backgroundColor: getStatusColor(data.status),
-            color: shouldUseWhiteText(data.status) ? '#FFFFFF' : '#000000'
-          }"
+          :class="getStatusClass(data.status)"
         >
           {{ data.status.replace(/_/g, ' ') }}
         </span>
@@ -522,10 +479,7 @@ export default {
         <div class="flex align-items-center gap-2">
           <span 
             class="badge-custom"
-            :style="{
-              backgroundColor: getPendingObservationsCount(data) > 0 ? '#D32F2F' : '#4CAF50',
-              color: '#FFFFFF'
-            }"
+            :class="getPendingObservationsCount(data) > 0 ? 'status-cancelada' : 'status-completada'"
           >
             {{ getPendingObservationsCount(data) }}
           </span>
@@ -565,70 +519,5 @@ export default {
 </template>
 
 <style scoped>
-/* Badges personalizados para filtros */
-.badge-custom {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 1.5rem;
-  height: 1.5rem;
-  padding: 0 0.5rem;
-  border-radius: 1rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  line-height: 1.5rem;
-}
-
-/* Tags de estado en tabla */
-.status-tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.75rem;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  white-space: nowrap;
-  transition: all 0.2s ease;
-}
-
-/* Estados específicos con colores personalizados */
-.status-pendiente {
-  background-color: #A8A8A8;
-  color: #000000;
-}
-
-.status-asignado {
-  background-color: #1976D2;
-  color: #FFFFFF;
-}
-
-.status-en-proceso {
-  background-color: #FFC107;
-  color: #000000;
-}
-
-.status-completada {
-  background-color: #4CAF50;
-  color: #FFFFFF;
-}
-
-.status-cancelada {
-  background-color: #D32F2F;
-  color: #FFFFFF;
-}
-
-.status-observado {
-  background-color: #FB8C00;
-  color: #FFFFFF;
-}
-
-.status-subsanada {
-  background-color: #66BB6A;
-  color: #FFFFFF;
-}
-
-.status-default {
-  background-color: #E0E0E0;
-  color: #000000;
-}
+/* Los estilos de estados ahora están centralizados en src/style.css */
 </style>

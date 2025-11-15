@@ -197,29 +197,43 @@ export default {
       this.globalFilterValue = value;
     },
 
-    // Retorna el color personalizado para el estado
+    // Retorna la clase CSS para el estado
+    getStatusClass(status) {
+      const statusMap = {
+        'PENDIENTE': 'status-pendiente',
+        'ASIGNADO': 'status-asignado',
+        'EN_PROCESO': 'status-en-proceso',
+        'COMPLETADA': 'status-completada',
+        'CANCELADA': 'status-cancelada',
+        'OBSERVADO': 'status-observado',
+        'SUBSANADA': 'status-subsanada'
+      };
+      return statusMap[status] || 'status-default';
+    },
+
+    // Retorna el color personalizado para el estado (mantener para compatibilidad temporal)
     getStatusColor(status) {
       switch (status) {
         case 'PENDIENTE':
-          return '#A8A8A8'; // Gris
+          return '#A8A8A8';
         case 'ASIGNADO':
-          return '#1976D2'; // Azul
+          return '#1976D2';
         case 'EN_PROCESO':
-          return '#FFC107'; // Amarillo
+          return '#FFC107';
         case 'COMPLETADA':
-          return '#4CAF50'; // Verde
+          return '#4CAF50';
         case 'CANCELADA':
-          return '#D32F2F'; // Rojo
+          return '#D32F2F';
         case 'OBSERVADO':
-          return '#FB8C00'; // Naranja
+          return '#FB8C00';
         case 'SUBSANADA':
-          return '#66BB6A'; // Verde claro
+          return '#66BB6A';
         default:
           return '#E0E0E0';
       }
     },
 
-    // Retorna si debe usar texto blanco
+    // Retorna si debe usar texto blanco (mantener para compatibilidad temporal)
     shouldUseWhiteText(status) {
       return ['ASIGNADO', 'COMPLETADA', 'CANCELADA', 'OBSERVADO', 'SUBSANADA'].includes(status);
     },
@@ -393,50 +407,12 @@ export default {
 <template>
 
   <div class="h-full overflow-hidden flex flex-column p-4">
-    <!-- Header con título + descripción y resúmenes -->
+    <!-- Header con título + descripción -->
     <div class="flex justify-content-between align-items-center mb-1">
       <!-- Título y descripción -->
       <div class="flex flex-column">
         <h2 class="text-3xl font-bold mb-2">Gestión de órdenes de verificación</h2>
         <p>Administra las órdenes de verificación, asigna verificadores y programa visitas.</p>
-      </div>
-
-      <!-- Resumen de cantidad de órdenes -->
-      <div class="flex gap-2 flex-nowrap">
-        <!-- Total de órdenes -->
-        <div class="flex align-items-center gap-2 bg-blue-50 text-blue-700 px-2 py-1 border-round border-1 border-blue-200 flex-shrink-0">
-          <i class="pi pi-file-o text-blue-600 text-sm"></i>
-          <span class="font-semibold text-sm">Total:</span>
-          <span class="font-bold text-sm">{{ itemsArray.length }}</span>
-        </div>
-
-        <!-- Órdenes Finalizadas -->
-        <div class="flex align-items-center gap-2 bg-green-50 text-green-700 px-2 py-1 border-round border-1 border-green-200 flex-shrink-0">
-          <i class="pi pi-check-circle text-green-600 text-sm"></i>
-          <span class="font-semibold text-sm">Finalizadas:</span>
-          <span class="font-bold text-sm">{{ itemsArray.filter(o => o.status === 'FINALIZADO').length }}</span>
-        </div>
-
-        <!-- Órdenes Pendientes -->
-        <div class="flex align-items-center gap-2 bg-orange-50 text-orange-700 px-2 py-1 border-round border-1 border-orange-200 flex-shrink-0">
-          <i class="pi pi-clock text-orange-600 text-sm"></i>
-          <span class="font-semibold text-sm">Pendientes:</span>
-          <span class="font-bold text-sm">{{ itemsArray.filter(o => o.status === 'PENDIENTE').length }}</span>
-        </div>
-
-        <!-- Órdenes En Proceso -->
-        <div class="flex align-items-center gap-2 bg-cyan-50 text-cyan-700 px-2 py-1 border-round border-1 border-cyan-200 flex-shrink-0">
-          <i class="pi pi-cog text-cyan-600 text-sm"></i>
-          <span class="font-semibold text-sm">En Proceso:</span>
-          <span class="font-bold text-sm">{{ itemsArray.filter(o => o.status === 'EN_PROCESO' || o.status === 'ASIGNADO').length }}</span>
-        </div>
-
-        <!-- Órdenes Observadas -->
-        <div class="flex align-items-center gap-2 bg-red-50 text-red-700 px-2 py-1 border-round border-1 border-red-200 flex-shrink-0">
-          <i class="pi pi-exclamation-triangle text-red-600 text-sm"></i>
-          <span class="font-semibold text-sm">Observadas:</span>
-          <span class="font-bold text-sm">{{ itemsArray.filter(o => o.status === 'OBSERVADO').length }}</span>
-        </div>
       </div>
     </div>
 
@@ -485,17 +461,13 @@ export default {
                 <span 
                   v-if="slotProps.option.value !== null"
                   class="badge-custom ml-2"
-                  :style="{
-                    backgroundColor: getStatusColor(slotProps.option.value),
-                    color: shouldUseWhiteText(slotProps.option.value) ? '#FFFFFF' : '#000000'
-                  }"
+                  :class="getStatusClass(slotProps.option.value)"
                 >
                   {{ getCountByStatus(slotProps.option.value) }}
                 </span>
                 <span 
                   v-else
-                  class="badge-custom ml-2"
-                  style="background-color: #E0E0E0; color: #000000;"
+                  class="badge-custom ml-2 status-default"
                 >
                   {{ itemsArray.length }}
                 </span>
@@ -525,10 +497,7 @@ export default {
       <template #status="{ data }">
         <span 
           class="status-tag"
-          :style="{
-            backgroundColor: getStatusColor(data.status),
-            color: shouldUseWhiteText(data.status) ? '#FFFFFF' : '#000000'
-          }"
+          :class="getStatusClass(data.status)"
         >
           {{ data.status.replace(/_/g, ' ') }}
         </span>

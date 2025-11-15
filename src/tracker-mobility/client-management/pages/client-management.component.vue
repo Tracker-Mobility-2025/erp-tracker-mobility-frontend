@@ -44,7 +44,7 @@ export default {
 
       // Opciones para el dropdown de estado
       statusOptions: [
-        { label: 'Todos los estados', value: '' },
+        { label: 'Todos', value: '' },
         { label: 'Activo', value: 'ACTIVE' },
         { label: 'Inactivo', value: 'INACTIVE' }
       ],
@@ -98,6 +98,20 @@ export default {
 
 
   methods: {
+
+    // Retorna la cantidad de clientes por estado
+    getCountByStatus(status) {
+      return this.clientArray.filter(c => c.status === status).length;
+    },
+
+    // Retorna la clase CSS para el estado del cliente
+    getStatusClass(status) {
+      const statusMap = {
+        'ACTIVE': 'status-active',
+        'INACTIVE': 'status-inactive'
+      };
+      return statusMap[status] || 'status-default';
+    },
 
     // E para crear, editar
     onNewItem() {
@@ -362,36 +376,12 @@ export default {
 
 
   <div class="h-full overflow-hidden flex flex-column p-4">
-    <!-- Header con título + descripción y resúmenes -->
+    <!-- Header con título + descripción -->
     <div class="flex justify-content-between align-items-center mb-1">
       <!-- Título y descripción -->
       <div class="flex flex-column">
         <h2 class="text-3xl font-bold mb-2">Gestión de Clientes</h2>
         <p>Administra la información y cuentas de tus clientes y su equipo</p>
-      </div>
-
-      <!-- Resumen de cantidad de clientes, clientes activos y clientes inactivos -->
-      <div class="flex gap-3 flex-wrap">
-        <!-- Total de Clientes -->
-        <div class="flex align-items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1 border-round border-1 border-blue-200">
-          <i class="pi pi-users text-blue-600"></i>
-          <span class="font-semibold text-sm">Total:</span>
-          <span class="font-bold">{{ clientArray.length }}</span>
-        </div>
-
-        <!-- Clientes Activos -->
-        <div class="flex align-items-center gap-2 bg-green-50 text-green-700 px-3 py-1 border-round border-1 border-green-200">
-          <i class="pi pi-check-circle text-green-600"></i>
-          <span class="font-semibold text-sm">Activos:</span>
-          <span class="font-bold">{{ clientArray.filter(c => c.status === 'ACTIVE').length }}</span>
-        </div>
-
-        <!-- Clientes Inactivos -->
-        <div class="flex align-items-center gap-2 bg-red-50 text-red-700 px-3 py-1 border-round border-1 border-red-200">
-          <i class="pi pi-times-circle text-red-600"></i>
-          <span class="font-semibold text-sm">Inactivos:</span>
-          <span class="font-bold">{{ clientArray.filter(c => c.status === 'INACTIVE').length }}</span>
-        </div>
       </div>
     </div>
 
@@ -417,7 +407,26 @@ export default {
             optionValue="value"
             placeholder="Filtrar por estado"
             class="w-full"
-          />
+          >
+            <template #option="slotProps">
+              <div class="flex align-items-center justify-content-between w-full">
+                <span>{{ slotProps.option.label }}</span>
+                <span 
+                  v-if="slotProps.option.value !== ''"
+                  class="badge-custom ml-2"
+                  :class="getStatusClass(slotProps.option.value)"
+                >
+                  {{ getCountByStatus(slotProps.option.value) }}
+                </span>
+                <span 
+                  v-else
+                  class="badge-custom ml-2 status-default"
+                >
+                  {{ clientArray.length }}
+                </span>
+              </div>
+            </template>
+          </pv-select>
         </div>
 
         <!-- Botón para limpiar filtros -->
@@ -460,11 +469,8 @@ export default {
               <div class="flex align-items-center gap-2">
                 <i class="pi pi-building text-primary text-xl"></i>
                 <span 
-                  :class="{
-                    'bg-green-100 text-green-800': client.status === 'ACTIVE',
-                    'bg-red-100 text-red-800': client.status === 'INACTIVE'
-                  }"
-                  class="px-2 py-1 border-round text-xs font-semibold"
+                  class="status-tag px-2 py-1 border-round text-xs font-semibold"
+                  :class="getStatusClass(client.status)"
                 >
                   {{ client.status === 'ACTIVE' ? 'Activo' : 'Inactivo' }}
                 </span>
@@ -573,6 +579,32 @@ export default {
 </template>
 
 <style scoped>
+/* Badges personalizados para filtros */
+.badge-custom {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.5rem;
+}
+
+/* Tags de estado personalizados */
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
 /* Usando PrimeFlex pero controlando el estiramiento */
 .grid {
   justify-content: flex-start;
