@@ -28,7 +28,10 @@ export default {
         { label: 'Pendiente', value: 'PENDIENTE' },
         { label: 'Asignado', value: 'ASIGNADO' },
         { label: 'En Proceso', value: 'EN_PROCESO' },
-        { label: 'Finalizado', value: 'FINALIZADO' }
+        { label: 'Completada', value: 'COMPLETADA' },
+        { label: 'Cancelada', value: 'CANCELADA' },
+        { label: 'Observado', value: 'OBSERVADO' },
+        { label: 'Subsanada', value: 'SUBSANADA' }
       ],
 
       // Item de la orden obtenido de la API

@@ -139,25 +139,30 @@ export default {
       }, 4000);
     },
 
-    getStatusSeverity(status) {
+    // Retorna el color personalizado para el estado
+    getStatusColor(status) {
       switch (status) {
         case 'PENDIENTE':
-          return 'warn';
+          return '#A8A8A8';
         case 'ASIGNADO':
-          return 'info';
+          return '#1976D2';
         case 'EN_PROCESO':
-          return 'info';
+          return '#FFC107';
         case 'COMPLETADA':
-          return 'success';
+          return '#4CAF50';
         case 'CANCELADA':
-          return 'danger';
+          return '#D32F2F';
         case 'OBSERVADO':
-          return 'danger';
+          return '#FB8C00';
         case 'SUBSANADA':
-          return 'success';
+          return '#66BB6A';
         default:
-          return 'info';
+          return '#E0E0E0';
       }
+    },
+
+    shouldUseWhiteText(status) {
+      return ['ASIGNADO', 'COMPLETADA', 'CANCELADA', 'OBSERVADO', 'SUBSANADA'].includes(status);
     },
 
     // Manejar subsanación de observación - Habilitar modo edición
@@ -528,11 +533,15 @@ export default {
           Fecha de solicitud: {{ formatDate(item.requestDate) }}
         </span>
         <div class="flex align-items-center gap-2">
-          <pv-tag
-            :value="item.status"
-            :severity="getStatusSeverity(item.status)"
-            class="text-sm"
-          />
+          <span 
+            class="status-tag"
+            :style="{
+              backgroundColor: getStatusColor(item.status),
+              color: shouldUseWhiteText(item.status) ? '#FFFFFF' : '#000000'
+            }"
+          >
+            {{ item.status.replace(/_/g, ' ') }}
+          </span>
           <pv-button
             v-if="item.status === 'COMPLETADA'"
             icon="pi pi-download"

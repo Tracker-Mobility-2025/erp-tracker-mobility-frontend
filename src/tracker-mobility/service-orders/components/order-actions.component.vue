@@ -69,8 +69,8 @@ export default {
 
       // Opciones de estados de observación
       observationStatusOptions: [
-        { label: 'Pendiente', value: 'PENDIENTE', severity: 'warning' },
-        { label: 'Resuelta', value: 'RESUELTA', severity: 'success' }
+        { label: 'Pendiente', value: 'PENDIENTE', severity: 'warning', color: '#FB8C00' },
+        { label: 'Resuelta', value: 'RESUELTA', severity: 'success', color: '#4CAF50' }
       ]
     };
   },
@@ -114,7 +114,18 @@ export default {
     // Obtener información del estado de observación
     getObservationStatusInfo(status) {
       const option = this.observationStatusOptions.find(opt => opt.value === status);
-      return option || { label: status, severity: 'info' };
+      return option || { label: status, severity: 'info', color: '#E0E0E0' };
+    },
+
+    // Obtener color personalizado para estado de observación
+    getObservationColor(status) {
+      const info = this.getObservationStatusInfo(status);
+      return info.color;
+    },
+
+    // Determinar si usar texto blanco para observaciones
+    shouldUseWhiteTextObservation(status) {
+      return ['PENDIENTE', 'RESUELTA'].includes(status);
     },
     // Inicializar datos locales desde el prop
     initializeLocalData() {
@@ -577,12 +588,16 @@ export default {
                     <p class="font-semibold text-sm text-blue-800 m-0">
                       {{ getObservationTypeLabel(observation.observationType) }}
                     </p>
-                    <pv-tag
+                    <span
                       v-if="observation.status"
-                      :value="getObservationStatusInfo(observation.status).label"
-                      :severity="getObservationStatusInfo(observation.status).severity"
-                      class="text-xs"
-                    />
+                      class="observation-status-tag"
+                      :style="{
+                        backgroundColor: getObservationColor(observation.status),
+                        color: shouldUseWhiteTextObservation(observation.status) ? '#FFFFFF' : '#000000'
+                      }"
+                    >
+                      {{ getObservationStatusInfo(observation.status).label }}
+                    </span>
                   </div>
                   <p class="text-sm text-600 m-0">
                     {{ observation.description }}
@@ -675,6 +690,18 @@ export default {
 
 .observations-list::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* Tags de estado de observaciones personalizados */
+.observation-status-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.2s ease;
 }
 
 /* Estilos para campos inválidos (validación) */

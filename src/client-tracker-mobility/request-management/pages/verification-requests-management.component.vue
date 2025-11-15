@@ -130,13 +130,21 @@ export default {
         role: authStore.currentRole,
         isSignedIn: authStore.isSignedIn
       };
-    },
+    }
 
 
 
   },
 
   methods: {
+
+    // Obtener cantidad de órdenes por estado
+    getCountByStatus(status) {
+      if (status === 'EN_PROCESO') {
+        return this.itemsArray.filter(o => o.status === 'EN_PROCESO' || o.status === 'ASIGNADO').length;
+      }
+      return this.itemsArray.filter(o => o.status === status).length;
+    },
 
     // Eliminar múltiples órdenes seleccionadas
     onDeleteSelectedItems(selectedItems) {
@@ -171,26 +179,54 @@ export default {
       this.globalFilterValue = value;
     },
 
-    // Retorna la severidad para el tag de estado
-    getStatusSeverity(status) {
+    // Retorna la clase CSS personalizada para el estado
+    getStatusClass(status) {
+      const baseClasses = 'text-sm font-semibold';
       switch (status) {
         case 'PENDIENTE':
-          return 'warn';
+          return `${baseClasses} status-pendiente`;
         case 'ASIGNADO':
-          return 'info';
+          return `${baseClasses} status-asignado`;
         case 'EN_PROCESO':
-          return 'info';
+          return `${baseClasses} status-en-proceso`;
         case 'COMPLETADA':
-          return 'success';
+          return `${baseClasses} status-completada`;
         case 'CANCELADA':
-          return 'danger';
+          return `${baseClasses} status-cancelada`;
         case 'OBSERVADO':
-          return 'danger';
+          return `${baseClasses} status-observado`;
         case 'SUBSANADA':
-          return 'success';
+          return `${baseClasses} status-subsanada`;
         default:
-          return 'info';
+          return `${baseClasses} status-default`;
       }
+    },
+
+    // Retorna el color de fondo para badges en filtros
+    getStatusColor(status) {
+      switch (status) {
+        case 'PENDIENTE':
+          return '#A8A8A8';
+        case 'ASIGNADO':
+          return '#1976D2';
+        case 'EN_PROCESO':
+          return '#FFC107';
+        case 'COMPLETADA':
+          return '#4CAF50';
+        case 'CANCELADA':
+          return '#D32F2F';
+        case 'OBSERVADO':
+          return '#FB8C00';
+        case 'SUBSANADA':
+          return '#66BB6A';
+        default:
+          return '#E0E0E0';
+      }
+    },
+
+    // Retorna si el texto debe ser blanco (para contraste)
+    shouldUseWhiteText(status) {
+      return ['ASIGNADO', 'COMPLETADA', 'CANCELADA', 'OBSERVADO', 'SUBSANADA'].includes(status);
     },
 
     // Contar observaciones pendientes de una solicitud
@@ -373,65 +409,10 @@ export default {
 <template>
 
   <div class="h-full overflow-hidden flex flex-column p-4">
-    <!-- Header con título + descripción y resúmenes -->
-    <div class="flex justify-content-between align-items-center mb-1">
-      <!-- Título y descripción -->
-      <div class="flex flex-column">
-        <h2 class="text-3xl font-bold mb-2">Gestión de solicitudes de verificación</h2>
-        <p>Administra las solicitudes de verificación domiciliarias solicitadas.</p>
-      </div>
-
-      <!-- Resumen de cantidad de órdenes -->
-      <div class="flex gap-2 flex-nowrap">
-        <!-- Total de órdenes -->
-        <div class="flex align-items-center gap-2 bg-blue-50 text-blue-700 px-2 py-1 border-round border-1 border-blue-200 flex-shrink-0">
-          <i class="pi pi-file-o text-blue-600 text-sm"></i>
-          <span class="font-semibold text-sm">Total:</span>
-          <span class="font-bold text-sm">{{ itemsArray.length }}</span>
-        </div>
-
-        <!-- Órdenes Completadas -->
-        <div class="flex align-items-center gap-2 bg-green-50 text-green-700 px-2 py-1 border-round border-1 border-green-200 flex-shrink-0">
-          <i class="pi pi-check-circle text-green-600 text-sm"></i>
-          <span class="font-semibold text-sm">Completadas:</span>
-          <span class="font-bold text-sm">{{ itemsArray.filter(o => o.status === 'COMPLETADA').length }}</span>
-        </div>
-
-        <!-- Órdenes Pendientes -->
-        <div class="flex align-items-center gap-2 bg-orange-50 text-orange-700 px-2 py-1 border-round border-1 border-orange-200 flex-shrink-0">
-          <i class="pi pi-clock text-orange-600 text-sm"></i>
-          <span class="font-semibold text-sm">Pendientes:</span>
-          <span class="font-bold text-sm">{{ itemsArray.filter(o => o.status === 'PENDIENTE').length }}</span>
-        </div>
-
-        <!-- Órdenes En Proceso -->
-        <div class="flex align-items-center gap-2 bg-cyan-50 text-cyan-700 px-2 py-1 border-round border-1 border-cyan-200 flex-shrink-0">
-          <i class="pi pi-cog text-cyan-600 text-sm"></i>
-          <span class="font-semibold text-sm">En Proceso:</span>
-          <span class="font-bold text-sm">{{ itemsArray.filter(o => o.status === 'EN_PROCESO' || o.status === 'ASIGNADO').length }}</span>
-        </div>
-
-        <!-- Órdenes Observadas -->
-        <div class="flex align-items-center gap-2 bg-red-50 text-red-700 px-2 py-1 border-round border-1 border-red-200 flex-shrink-0">
-          <i class="pi pi-exclamation-triangle text-red-600 text-sm"></i>
-          <span class="font-semibold text-sm">Observadas:</span>
-          <span class="font-bold text-sm">{{ itemsArray.filter(o => o.status === 'OBSERVADO').length }}</span>
-        </div>
-
-        <!-- Órdenes Subsanadas -->
-        <div class="flex align-items-center gap-2 bg-teal-50 text-teal-700 px-2 py-1 border-round border-1 border-teal-200 flex-shrink-0">
-          <i class="pi pi-check-square text-teal-600 text-sm"></i>
-          <span class="font-semibold text-sm">Subsanadas:</span>
-          <span class="font-bold text-sm">{{ itemsArray.filter(o => o.status === 'SUBSANADA').length }}</span>
-        </div>
-
-        <!-- Órdenes Canceladas -->
-        <div class="flex align-items-center gap-2 bg-gray-50 text-gray-700 px-2 py-1 border-round border-1 border-gray-200 flex-shrink-0">
-          <i class="pi pi-times-circle text-gray-600 text-sm"></i>
-          <span class="font-semibold text-sm">Canceladas:</span>
-          <span class="font-bold text-sm">{{ itemsArray.filter(o => o.status === 'CANCELADA').length }}</span>
-        </div>
-      </div>
+    <!-- Header con título + descripción -->
+    <div class="mb-3">
+      <h2 class="text-3xl font-bold mb-2">Gestión de solicitudes de verificación</h2>
+      <p class="m-0">Administra las solicitudes de verificación domiciliarias solicitadas.</p>
     </div>
 
     <!-- Componente DataManager para gestionar ordenes de servicio-->
@@ -473,7 +454,30 @@ export default {
               option-value="value"
               placeholder="Estado: Todos"
               class="flex-1 h-full"
-          />
+          >
+            <template #option="slotProps">
+              <div class="flex align-items-center justify-content-between w-full">
+                <span>{{ slotProps.option.label }}</span>
+                <span 
+                  v-if="slotProps.option.value !== null"
+                  class="badge-custom ml-2"
+                  :style="{
+                    backgroundColor: getStatusColor(slotProps.option.value),
+                    color: shouldUseWhiteText(slotProps.option.value) ? '#FFFFFF' : '#000000'
+                  }"
+                >
+                  {{ getCountByStatus(slotProps.option.value) }}
+                </span>
+                <span 
+                  v-else
+                  class="badge-custom ml-2"
+                  style="background-color: #E0E0E0; color: #000000;"
+                >
+                  {{ itemsArray.length }}
+                </span>
+              </div>
+            </template>
+          </pv-select>
           
           <!-- Filtro por fecha de solicitud -->
           <pv-calendar
@@ -502,20 +506,29 @@ export default {
 
       <!-- Custom Status Column -->
       <template #status="{ data }">
-        <pv-tag
-            :value="data.status"
-            :severity="getStatusSeverity(data.status)"
-            class="text-sm"
-        />
+        <span 
+          class="status-tag"
+          :style="{
+            backgroundColor: getStatusColor(data.status),
+            color: shouldUseWhiteText(data.status) ? '#FFFFFF' : '#000000'
+          }"
+        >
+          {{ data.status.replace(/_/g, ' ') }}
+        </span>
       </template>
 
       <!-- Custom Pending Observations Column -->
       <template #pendingObservations="{ data }">
         <div class="flex align-items-center gap-2">
-          <pv-badge
-              :value="getPendingObservationsCount(data)"
-              :severity="getPendingObservationsCount(data) > 0 ? 'danger' : 'success'"
-          />
+          <span 
+            class="badge-custom"
+            :style="{
+              backgroundColor: getPendingObservationsCount(data) > 0 ? '#D32F2F' : '#4CAF50',
+              color: '#FFFFFF'
+            }"
+          >
+            {{ getPendingObservationsCount(data) }}
+          </span>
           <span class="text-sm" :class="getPendingObservationsCount(data) > 0 ? 'text-red-600 font-semibold' : 'text-green-600'">
             {{ getPendingObservationsCount(data) > 0 ? 'Pendientes' : 'Sin observaciones' }}
           </span>
@@ -552,5 +565,70 @@ export default {
 </template>
 
 <style scoped>
+/* Badges personalizados para filtros */
+.badge-custom {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.5rem;
+}
 
+/* Tags de estado en tabla */
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+/* Estados específicos con colores personalizados */
+.status-pendiente {
+  background-color: #A8A8A8;
+  color: #000000;
+}
+
+.status-asignado {
+  background-color: #1976D2;
+  color: #FFFFFF;
+}
+
+.status-en-proceso {
+  background-color: #FFC107;
+  color: #000000;
+}
+
+.status-completada {
+  background-color: #4CAF50;
+  color: #FFFFFF;
+}
+
+.status-cancelada {
+  background-color: #D32F2F;
+  color: #FFFFFF;
+}
+
+.status-observado {
+  background-color: #FB8C00;
+  color: #FFFFFF;
+}
+
+.status-subsanada {
+  background-color: #66BB6A;
+  color: #FFFFFF;
+}
+
+.status-default {
+  background-color: #E0E0E0;
+  color: #000000;
+}
 </style>

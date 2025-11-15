@@ -150,7 +150,9 @@ export class Observation {
             orderId = 0,
             observationType = "",
             description = "",
-            status = ""
+            status = "",
+            createdDate = null,
+            resolvedDate = null
         } = {}
     ) {
         this.id = id;
@@ -158,6 +160,8 @@ export class Observation {
         this.observationType = observationType;
         this.description = description;
         this.status = status;
+        this.createdDate = createdDate;
+        this.resolvedDate = resolvedDate;
     }
 }
 

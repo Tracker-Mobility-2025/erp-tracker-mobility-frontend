@@ -19,10 +19,10 @@ export default {
         'RECIBO_SERVICIO': 'Recibo de servicio'
       },
 
-      // Configuración de severidad por estado (para levantamiento de observaciones)
+      // Configuración de estados de observaciones con colores personalizados
       statusConfig: {
-        'PENDIENTE': { severity: 'danger', label: 'PENDIENTE', icon: 'pi-exclamation-triangle' },
-        'RESUELTA': { severity: 'success', label: 'RESUELTA', icon: 'pi-check-circle' }
+        'PENDIENTE': { severity: 'danger', label: 'PENDIENTE', icon: 'pi-exclamation-triangle', color: '#FB8C00' },
+        'RESUELTA': { severity: 'success', label: 'RESUELTA', icon: 'pi-check-circle', color: '#4CAF50' }
       }
     }
   },
@@ -45,7 +45,16 @@ export default {
     },
 
     getStatusConfig(status) {
-      return this.statusConfig[status] || { severity: 'info', label: status, icon: 'pi-info-circle' };
+      return this.statusConfig[status] || { severity: 'info', label: status, icon: 'pi-info-circle', color: '#E0E0E0' };
+    },
+
+    getObservationColor(status) {
+      const config = this.getStatusConfig(status);
+      return config.color;
+    },
+
+    shouldUseWhiteTextObservation(status) {
+      return ['PENDIENTE', 'RESUELTA'].includes(status);
     },
 
     // Manejar subsanación de observación - Emitir evento al padre para habilitar modo edición
@@ -84,11 +93,16 @@ export default {
                 {{ getObservationTypeLabel(observation.observationType) }}
               </span>
             </div>
-            <pv-tag
-                :severity="getStatusConfig(observation.status).severity"
-                :value="getStatusConfig(observation.status).label"
-                :icon="`pi ${getStatusConfig(observation.status).icon}`"
-            />
+            <span
+              class="observation-status-tag"
+              :style="{
+                backgroundColor: getObservationColor(observation.status),
+                color: shouldUseWhiteTextObservation(observation.status) ? '#FFFFFF' : '#000000'
+              }"
+            >
+              <i :class="`pi ${getStatusConfig(observation.status).icon} mr-1`"></i>
+              {{ getStatusConfig(observation.status).label }}
+            </span>
           </div>
 
           <!-- Descripción de la observación -->
@@ -115,6 +129,18 @@ export default {
 </template>
 
 <style scoped>
+/* Tags de estado de observaciones personalizados */
+.observation-status-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
 :deep(.p-card) {
   border-radius: 6px !important;
   overflow: hidden !important;

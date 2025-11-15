@@ -142,17 +142,28 @@ export default {
       this.globalFilterValue = value || '';
     },
 
-    getStatusSeverity(status) {
+    // Retorna el color personalizado para el resultado final
+    getStatusColor(status) {
       switch (status) {
         case 'CONFORME':
-          return 'success';
+          return '#4CAF50'; // Verde
         case 'OBSERVADO':
-          return 'warn';
+          return '#FB8C00'; // Naranja
         case 'RECHAZADO':
-          return 'danger';
+          return '#D32F2F'; // Rojo
         default:
-          return 'info';
+          return '#E0E0E0';
       }
+    },
+
+    // Retorna si debe usar texto blanco
+    shouldUseWhiteText(status) {
+      return ['CONFORME', 'OBSERVADO', 'RECHAZADO'].includes(status);
+    },
+
+    // Obtener cantidad de reportes por resultado
+    getCountByStatus(status) {
+      return this.itemsArray.filter(r => r.finalResult === status).length;
     },
 
     formatDate(dateString) {
@@ -391,7 +402,30 @@ export default {
               option-value="value"
               placeholder="Estado: Todos"
               class="flex-1 h-full"
-          />
+          >
+            <template #option="slotProps">
+              <div class="flex align-items-center justify-content-between w-full">
+                <span>{{ slotProps.option.label }}</span>
+                <span 
+                  v-if="slotProps.option.value !== null"
+                  class="badge-custom ml-2"
+                  :style="{
+                    backgroundColor: getStatusColor(slotProps.option.value),
+                    color: shouldUseWhiteText(slotProps.option.value) ? '#FFFFFF' : '#000000'
+                  }"
+                >
+                  {{ getCountByStatus(slotProps.option.value) }}
+                </span>
+                <span 
+                  v-else
+                  class="badge-custom ml-2"
+                  style="background-color: #E0E0E0; color: #000000;"
+                >
+                  {{ itemsArray.length }}
+                </span>
+              </div>
+            </template>
+          </pv-select>
           <!-- Filtro por fecha -->
           <pv-calendar
               id="visitDate"
@@ -415,11 +449,15 @@ export default {
 
       <!-- Template para el campo "result" -->
       <template #result="{ data }">
-        <pv-tag
-            :value="data.finalResult"
-            :severity="getStatusSeverity(data.finalResult)"
-            class="text-sm"
-        />
+        <span 
+          class="status-tag"
+          :style="{
+            backgroundColor: getStatusColor(data.finalResult),
+            color: shouldUseWhiteText(data.finalResult) ? '#FFFFFF' : '#000000'
+          }"
+        >
+          {{ data.finalResult }}
+        </span>
       </template>
 
       <!-- Template para el campo "requestDate" -->
@@ -445,6 +483,32 @@ export default {
 </template>
 
 <style scoped>
+/* Badges personalizados para filtros */
+.badge-custom {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.5rem;
+}
+
+/* Tags de estado personalizados */
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
 /* Estilos usando variables CSS corporativas */
 .text-orange-500 {
   color: var(--color-warning) !important;

@@ -30,22 +30,31 @@ export default {
       if (!this.documents || this.documents.length === 0) return [];
       
       // Tipos de documentos permitidos
-      const allowedTypes = ['FOTO_FACHADA_VIVIENDA', 'RECIBO_AGUA', 'DNI'];
+      const allowedTypes = ['DOCUMENTO_IDENTIDAD', 'RECIBO_SERVICIO', 'FOTO_FACHADA_VIVIENDA'];
       
       // Mapeo de nombres
       const typeMapping = {
-        'FOTO_FACHADA_VIVIENDA': 'FACHADA DE VIVIENDA',
-        'RECIBO_AGUA': 'RECIBO DE SERVICIO',
-        'DNI': 'DOC. DE IDENTIDAD'
+        'DOCUMENTO_IDENTIDAD': 'DOCUMENTO DE IDENTIDAD',
+        'RECIBO_SERVICIO': 'RECIBO DE SERVICIO',
+        'FOTO_FACHADA_VIVIENDA': 'FACHADA DE VIVIENDA'
       };
       
-      // Filtrar y transformar documentos
+      // Orden de presentación deseado
+      const typeOrder = {
+        'FOTO_FACHADA_VIVIENDA': 1,
+        'DOCUMENTO_IDENTIDAD': 2,
+        'RECIBO_SERVICIO': 3
+      };
+      
+      // Filtrar, transformar y ordenar documentos
       return this.documents
         .filter(doc => allowedTypes.includes(doc.type))
         .map(doc => ({
           ...doc,
-          displayName: typeMapping[doc.type] || doc.type
-        }));
+          displayName: typeMapping[doc.type] || doc.type,
+          order: typeOrder[doc.type] || 999
+        }))
+        .sort((a, b) => a.order - b.order);
     }
   },
 
@@ -129,9 +138,9 @@ export default {
         'receipt': 'Recibo de servicios',
         'contract': 'Contrato de alquiler',
         'other': 'Otro documento',
-        'FOTO_FACHADA_VIVIENDA': 'FACHADA DE VIVIENDA',
-        'RECIBO_AGUA': 'RECIBO DE SERVICIO',
-        'DNI': 'DOCUMENTO DE IDENTIDAD'
+        'DOCUMENTO_IDENTIDAD': 'DOCUMENTO DE IDENTIDAD',
+        'RECIBO_SERVICIO': 'RECIBO DE SERVICIO',
+        'FOTO_FACHADA_VIVIENDA': 'FACHADA DE VIVIENDA'
       };
       return labels[documentType] || documentType || 'Documento';
     },
@@ -209,9 +218,9 @@ export default {
     <template #content>
       <!-- Mensaje de modo edición -->
       <pv-message v-if="editMode" severity="info" :closable="false" class="mb-3">
-        <div class="flex align-items-center gap-2">
-          <i class="pi pi-info-circle"></i>
-          <span>Puedes reemplazar cada documento individualmente seleccionando un nuevo archivo</span>
+        <div class="flex flex-wrap align-items-start gap-2">
+          <i class="pi pi-info-circle flex-shrink-0 mt-1"></i>
+          <span class="flex-grow-1">Puedes reemplazar cada documento individualmente seleccionando un nuevo archivo</span>
         </div>
       </pv-message>
 
@@ -221,11 +230,13 @@ export default {
             :key="document.id"
             class="field col-12 md:col-4"
         >
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2 mb-2">
-            <i :class="`pi ${getFileIcon(document.url)} ${getFileColor(document.url)}`"></i>
-            {{ document.displayName }}
-            <pv-tag v-if="hasSelectedFile(document.id) && editMode" value="Nuevo archivo" severity="success" class="ml-2" />
-          </label>
+          <div class="flex flex-wrap align-items-center gap-2 mb-2">
+            <label class="font-semibold text-color-secondary flex align-items-center gap-2 m-0">
+              <i :class="`pi ${getFileIcon(document.url)} ${getFileColor(document.url)}`"></i>
+              <span>{{ document.displayName }}</span>
+            </label>
+            <pv-tag v-if="hasSelectedFile(document.id) && editMode" value="Nuevo archivo" severity="success" class="flex-shrink-0" />
+          </div>
           <div class="flex flex-column align-items-center p-3 border-1 surface-border border-round hover:shadow-3 transition-all" :class="{ 'border-primary': hasSelectedFile(document.id) && editMode }">
 
             <!-- Preview del archivo actual o nuevo -->
@@ -254,9 +265,9 @@ export default {
 
             <!-- Información del nuevo archivo seleccionado -->
             <div v-if="hasSelectedFile(document.id) && editMode" class="w-full mb-2 p-2 bg-green-50 border-round">
-              <div class="flex align-items-center gap-2">
-                <i class="pi pi-check-circle text-green-600"></i>
-                <span class="text-sm text-green-800 font-medium">{{ getSelectedFileName(document.id) }}</span>
+              <div class="flex flex-wrap align-items-center gap-2">
+                <i class="pi pi-check-circle text-green-600 flex-shrink-0"></i>
+                <span class="text-sm text-green-800 font-medium flex-grow-1" style="word-break: break-word;">{{ getSelectedFileName(document.id) }}</span>
               </div>
             </div>
 
@@ -415,10 +426,52 @@ export default {
   min-height: 200px;
 }
 
+/* Estilos responsive para badges */
+:deep(.p-badge) {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Asegurar que los labels de documentos no se rompan */
+label {
+  word-break: keep-all;
+}
 
 @media (max-width: 768px) {
   .card-header :deep(.p-button) {
     flex: 1;
+  }
+  
+  /* Hacer badges más pequeños en móviles */
+  :deep(.p-badge) {
+    font-size: 0.625rem;
+    padding: 0.2rem 0.4rem;
+  }
+  
+  /* Ajustar badge en header */
+  :deep(.p-card-header .p-badge) {
+    font-size: 0.625rem;
+    padding: 0.15rem 0.35rem;
+  }
+  
+  /* Ajustar badge NUEVO en preview de imagen */
+  .absolute.p-badge {
+    top: 3px !important;
+    right: 3px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Para pantallas muy pequeñas */
+  :deep(.p-badge) {
+    font-size: 0.5rem;
+    padding: 0.15rem 0.3rem;
+  }
+  
+  :deep(.p-card-header .p-badge) {
+    font-size: 0.5rem;
+    padding: 0.1rem 0.25rem;
   }
 }
 </style>

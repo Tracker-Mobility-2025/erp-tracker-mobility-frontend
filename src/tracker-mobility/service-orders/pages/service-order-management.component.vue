@@ -46,8 +46,10 @@ export default {
         { label: 'Pendiente', value: 'PENDIENTE' },
         { label: 'Asignado', value: 'ASIGNADO' },
         { label: 'En Proceso', value: 'EN_PROCESO' },
+        { label: 'Completada', value: 'COMPLETADA' },
+        { label: 'Cancelada', value: 'CANCELADA' },
         { label: 'Observado', value: 'OBSERVADO' },
-        { label: 'Finalizado', value: 'FINALIZADO' }
+        { label: 'Subsanada', value: 'SUBSANADA' }
       ],
       title: {
         singular: 'orden de verificación',
@@ -195,22 +197,39 @@ export default {
       this.globalFilterValue = value;
     },
 
-    // Retorna la severidad para el tag de estado
-    getStatusSeverity(status) {
+    // Retorna el color personalizado para el estado
+    getStatusColor(status) {
       switch (status) {
         case 'PENDIENTE':
-          return 'warn';
+          return '#A8A8A8'; // Gris
         case 'ASIGNADO':
-          return 'info';
+          return '#1976D2'; // Azul
         case 'EN_PROCESO':
-          return 'info';
+          return '#FFC107'; // Amarillo
+        case 'COMPLETADA':
+          return '#4CAF50'; // Verde
+        case 'CANCELADA':
+          return '#D32F2F'; // Rojo
         case 'OBSERVADO':
-          return 'danger';
-        case 'FINALIZADO':
-          return 'success';
+          return '#FB8C00'; // Naranja
+        case 'SUBSANADA':
+          return '#66BB6A'; // Verde claro
         default:
-          return 'info';
+          return '#E0E0E0';
       }
+    },
+
+    // Retorna si debe usar texto blanco
+    shouldUseWhiteText(status) {
+      return ['ASIGNADO', 'COMPLETADA', 'CANCELADA', 'OBSERVADO', 'SUBSANADA'].includes(status);
+    },
+
+    // Obtener cantidad de órdenes por estado
+    getCountByStatus(status) {
+      if (status === 'EN_PROCESO') {
+        return this.itemsArray.filter(o => o.status === 'EN_PROCESO' || o.status === 'ASIGNADO').length;
+      }
+      return this.itemsArray.filter(o => o.status === status).length;
     },
 
     // Función modular para manejar errores de servidor
@@ -459,7 +478,30 @@ export default {
             option-value="value"
             placeholder="Estado: Todos"
             class="flex-1 h-full"
-          />
+          >
+            <template #option="slotProps">
+              <div class="flex align-items-center justify-content-between w-full">
+                <span>{{ slotProps.option.label }}</span>
+                <span 
+                  v-if="slotProps.option.value !== null"
+                  class="badge-custom ml-2"
+                  :style="{
+                    backgroundColor: getStatusColor(slotProps.option.value),
+                    color: shouldUseWhiteText(slotProps.option.value) ? '#FFFFFF' : '#000000'
+                  }"
+                >
+                  {{ getCountByStatus(slotProps.option.value) }}
+                </span>
+                <span 
+                  v-else
+                  class="badge-custom ml-2"
+                  style="background-color: #E0E0E0; color: #000000;"
+                >
+                  {{ itemsArray.length }}
+                </span>
+              </div>
+            </template>
+          </pv-select>
           <!-- Filtro por fecha -->
           <pv-calendar
               id="visitDate"
@@ -481,11 +523,15 @@ export default {
 
       <!-- Custom Status Column -->
       <template #status="{ data }">
-        <pv-tag 
-          :value="data.status"
-          :severity="getStatusSeverity(data.status)"
-          class="text-sm"
-        />
+        <span 
+          class="status-tag"
+          :style="{
+            backgroundColor: getStatusColor(data.status),
+            color: shouldUseWhiteText(data.status) ? '#FFFFFF' : '#000000'
+          }"
+        >
+          {{ data.status.replace(/_/g, ' ') }}
+        </span>
       </template>
 
       <!-- Custom Verificador Column -->
@@ -511,6 +557,32 @@ export default {
 </template>
 
 <style scoped>
+/* Badges personalizados para filtros */
+.badge-custom {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.5rem;
+}
+
+/* Tags de estado personalizados */
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
 /* Estilos usando variables CSS corporativas */
 .text-orange-500 {
   color: var(--color-warning) !important;
