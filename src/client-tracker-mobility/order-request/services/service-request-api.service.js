@@ -16,12 +16,6 @@ export class OrderServiceRequest {
      */
 
     create(applicantCompanyData, clientData) {
-        console.log('Creando orden de servicio:', {
-            empresa: applicantCompanyData.companyName,
-            cliente: `${clientData.name} ${clientData.lastName}`,
-            documentos: clientData.documents.length
-        });
-
         // Crear FormData para envío de archivos y datos
         const formData = new FormData();
         
@@ -49,29 +43,17 @@ export class OrderServiceRequest {
         clientData.documents.forEach((doc) => {
             if (doc.file?.name) {
                 formData.append('files', doc.file);
-            } else {
-                console.warn('Documento sin archivo válido:', doc.type);
             }
         });
-
-        console.log(`Enviando solicitud a ${this.resourceEndpoint}`);
 
         // Enviar FormData
         return http.post(this.resourceEndpoint, formData)
             .then(response => {
-                console.log('Respuesta recibida:', {
-                    status: response.status,
-                    orderCode: response.data.orderCode
-                });
-
                 response.data = new OrderResponse(response.data);
                 return response;
             })
             .catch(error => {
-                console.error('Error al crear orden:', {
-                    status: error.response?.status,
-                    message: error.response?.data?.message || error.message
-                });
+                console.error('Error al crear orden:', error);
                 throw error;
             });
     }

@@ -68,13 +68,13 @@ export default {
     // Computed properties con getter/setter para manejar archivos
     serviceReceiptFile: {
       get() {
-        const doc = this.client.documents.find(doc => doc.type === 'RECIBO_AGUA' || doc.type === 'RECIBO_LUZ');
+        const doc = this.client.documents.find(doc => doc.type === 'RECIBO_SERVICIO');
         return doc?.file || null;
       },
       set(file) {
-        const existingIndex = this.client.documents.findIndex(doc => doc.type === 'RECIBO_AGUA' || doc.type === 'RECIBO_LUZ');
+        const existingIndex = this.client.documents.findIndex(doc => doc.type === 'RECIBO_SERVICIO');
         if (file) {
-          const document = { type: 'RECIBO_AGUA', file: file, url: null }; // Usar RECIBO_AGUA por defecto
+          const document = { type: 'RECIBO_SERVICIO', file: file, url: null };
           if (existingIndex >= 0) {
             this.client.documents[existingIndex] = document;
           } else {
@@ -88,13 +88,13 @@ export default {
 
     identityDocFile: {
       get() {
-        const doc = this.client.documents.find(doc => doc.type === 'DNI' || doc.type === 'CARNET_EXTRANJERIA' || doc.type === 'PTP');
+        const doc = this.client.documents.find(doc => doc.type === 'DOCUMENTO_IDENTIDAD');
         return doc?.file || null;
       },
       set(file) {
-        const existingIndex = this.client.documents.findIndex(doc => doc.type === 'DNI' || doc.type === 'CARNET_EXTRANJERIA' || doc.type === 'PTP');
+        const existingIndex = this.client.documents.findIndex(doc => doc.type === 'DOCUMENTO_IDENTIDAD');
         if (file) {
-          const document = { type: 'DNI', file: file, url: null }; // Usar DNI por defecto
+          const document = { type: 'DOCUMENTO_IDENTIDAD', file: file, url: null };
           if (existingIndex >= 0) {
             this.client.documents[existingIndex] = document;
           } else {
@@ -108,11 +108,11 @@ export default {
 
     // Computed properties para acceder a los documentos completos
     serviceReceiptDoc(){
-      return this.client.documents.find(doc => doc.type === 'RECIBO_AGUA' || doc.type === 'RECIBO_LUZ');
+      return this.client.documents.find(doc => doc.type === 'RECIBO_SERVICIO');
     },
 
     identityDoc(){
-      return this.client.documents.find(doc => doc.type === 'DNI' || doc.type === 'CARNET_EXTRANJERIA' || doc.type === 'PTP');
+      return this.client.documents.find(doc => doc.type === 'DOCUMENTO_IDENTIDAD');
     },
 
     // ======= VALIDACIONES
@@ -269,7 +269,7 @@ export default {
       this.showValidation = true;
       
       // Primero validar el formulario actual (documentación)
-      if (!this.isFormValid) { 
+      if (!this.isFormValid) {
         this.focusFirstError(); 
         return; 
       }
@@ -298,7 +298,7 @@ export default {
     // Método para limpiar tipos de documento antiguos
     cleanOldDocumentTypes() {
       // Eliminar documentos con tipos antiguos
-      const oldTypes = ['FACADE_PHOTO', 'SERVICE_RECEIPT', 'IDENTITY_DOCUMENT'];
+      const oldTypes = ['FACADE_PHOTO', 'SERVICE_RECEIPT', 'IDENTITY_DOCUMENT', 'DNI', 'CARNET_EXTRANJERIA', 'PTP', 'RECIBO_AGUA', 'RECIBO_LUZ'];
       
       this.client.documents = this.client.documents.filter(doc => {
         return !oldTypes.includes(doc.type);
@@ -307,8 +307,6 @@ export default {
 
     async createRequest() {
       try {
-        console.log('Preparando datos para envío al backend');
-
         // Validar que tenemos los datos necesarios
         if (!this.applicantCompany || !this.applicantCompany.applicantCompanyId) {
           throw new Error('Datos de empresa solicitante no disponibles');
@@ -316,6 +314,27 @@ export default {
 
         if (!this.client || !this.client.name) {
           throw new Error('Datos del cliente no disponibles');
+        }
+        
+        // Validar campos críticos del cliente
+        const requiredClientFields = {
+          name: this.client.name,
+          lastName: this.client.lastName,
+          documentType: this.client.documentType,
+          documentNumber: this.client.documentNumber,
+          phoneNumber: this.client.phoneNumber,
+          department: this.client.department,
+          province: this.client.province,
+          district: this.client.district,
+          homeAddress: this.client.homeAddress
+        };
+        
+        const missingFields = Object.entries(requiredClientFields)
+          .filter(([key, value]) => !value || value === '')
+          .map(([key]) => key);
+        
+        if (missingFields.length > 0) {
+          throw new Error(`Faltan campos requeridos: ${missingFields.join(', ')}`);
         }
 
         const validDocuments = this.client.documents.filter(doc => doc.file && doc.file.name);
@@ -325,26 +344,18 @@ export default {
         }
 
         // Verificar que no haya tipos de documento antiguos
-        const oldTypes = ['FACADE_PHOTO', 'SERVICE_RECEIPT', 'IDENTITY_DOCUMENT'];
+        const oldTypes = ['FACADE_PHOTO', 'SERVICE_RECEIPT', 'IDENTITY_DOCUMENT', 'DNI', 'CARNET_EXTRANJERIA', 'PTP', 'RECIBO_AGUA', 'RECIBO_LUZ'];
         const hasOldTypes = this.client.documents.some(doc => oldTypes.includes(doc.type));
         
         if (hasOldTypes) {
           throw new Error('Error interno: tipos de documento obsoletos detectados');
         }
 
-        console.log('Validaciones completadas - Enviando solicitud:', {
-          empresa: this.applicantCompany.companyName,
-          cliente: `${this.client.name} ${this.client.lastName}`,
-          documentos: this.client.documents.length
-        });
-
         // Activar estado de carga
         this.isCreatingRequest = true;
 
         // Realizar la petición HTTP
         const response = await this.orderServiceRequest.create(this.applicantCompany, this.client);
-
-        console.log('Solicitud creada exitosamente - Código:', response.data.orderCode);
 
         // Actualizar el estado de éxito con el modelo completo
         this.isRequestCreated = true;

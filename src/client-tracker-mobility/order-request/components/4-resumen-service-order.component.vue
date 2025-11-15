@@ -121,8 +121,7 @@ export default {
     // Foto de fachada desde el modelo Client (prioridad: orderData > inject)
     facadePhoto() {
       const client = this.orderData?.client || this.client;
-      return client.documents?.find(doc => doc.type === 'FOTO_FACHADA_VIVIENDA') ||
-             client.documents?.find(doc => doc.type === 'FACADE_PHOTO');
+      return client.documents?.find(doc => doc.type === 'FOTO_FACHADA_VIVIENDA');
     },
 
     customerFullName() {
