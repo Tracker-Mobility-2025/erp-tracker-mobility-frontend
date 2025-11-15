@@ -24,6 +24,26 @@ export class Casuistic {
     }
 }
 
+export class OrderObservation {
+    constructor({ 
+        id = null, 
+        orderId = null, 
+        observationType = null, 
+        description = null, 
+        status = null,
+        createdDate = null,
+        resolvedDate = null
+    } = {}) {
+        this.id = id;
+        this.orderId = orderId;
+        this.observationType = observationType;
+        this.description = description;
+        this.status = status;
+        this.createdDate = createdDate;
+        this.resolvedDate = resolvedDate;
+    }
+}
+
 export class IdentityDocument {
     constructor({ documentNumber = null, documentType = null } = {}) {
         this.documentNumber = documentNumber;
@@ -97,7 +117,6 @@ export class Dwelling {
                     dwellingCondition = null,
                     typeFurnished = null,
                     roofType = null,
-                    homeAddress = null,
                     garage = null
                 } = {}) {
         this.dwellingType = dwellingType;
@@ -108,16 +127,16 @@ export class Dwelling {
         this.dwellingCondition = dwellingCondition;
         this.typeFurnished = typeFurnished;
         this.roofType = roofType;
-        this.homeAddress = homeAddress;
         this.garage = garage ? new Garage(garage) : null;
     }
 }
 
 export class Location {
-    constructor({ department = null, province = null, district = null, mapLocation = null } = {}) {
+    constructor({ department = null, province = null, district = null, homeAddress = null, mapLocation = null } = {}) {
         this.department = department;
         this.province = province;
         this.district = district;
+        this.homeAddress = homeAddress;
         this.mapLocation = mapLocation;
     }
 }
@@ -155,7 +174,15 @@ export class Client {
                     dwelling = null,
                     location = null,
                     residence = null,
-                    zone = null
+                    zone = null,
+                    exactClientAddress = null,
+                    timeLivingText = null,
+                    verifierSummary = null,
+                    additionalObservations = [],
+                    datacrimSecurityLevel = null,
+                    typeIdDocument = null,
+                    apartmentInformation = null,
+                    areaRisk = []
                 } = {}) {
         this.id = id;
         this.name = name;
@@ -170,6 +197,14 @@ export class Client {
         this.location = location ? new Location(location) : null;
         this.residence = residence ? new Residence(residence) : null;
         this.zone = zone ? new Zone(zone) : null;
+        this.exactClientAddress = exactClientAddress;
+        this.timeLivingText = timeLivingText;
+        this.verifierSummary = verifierSummary;
+        this.additionalObservations = additionalObservations || [];
+        this.datacrimSecurityLevel = datacrimSecurityLevel;
+        this.typeIdDocument = typeIdDocument;
+        this.apartmentInformation = apartmentInformation;
+        this.areaRisk = areaRisk || [];
     }
 }
 
@@ -221,7 +256,7 @@ export class Order {
         this.client = client ? new Client(client) : null;
         this.applicantCompany = applicantCompany ? new ApplicantCompany(applicantCompany) : null;
         this.homeVisitDetails = homeVisitDetails ? new HomeVisitDetails(homeVisitDetails) : null;
-        this.observations = observations.map(o => new Observation(o));
+        this.observations = observations.map(o => new OrderObservation(o));
     }
 }
 
@@ -238,7 +273,8 @@ export class VerificationReport {
                     observations = [],
                     glossary = [],
                     casuistics = [],
-                    order = null
+                    order = null,
+                    finalReportFileUrl = null
                 } = {}) {
         this.id = id;
         this.reportCode = reportCode;
@@ -248,5 +284,6 @@ export class VerificationReport {
         this.glossary = glossary.map(g => new Glossary(g));
         this.casuistics = casuistics.map(c => new Casuistic(c));
         this.order = order ? new Order(order) : null;
+        this.finalReportFileUrl = finalReportFileUrl;
     }
 }
