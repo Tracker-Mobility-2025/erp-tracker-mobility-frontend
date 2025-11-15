@@ -39,8 +39,10 @@ export default {
         { label: 'Pendiente', value: 'PENDIENTE' },
         { label: 'Asignado', value: 'ASIGNADO' },
         { label: 'En Proceso', value: 'EN_PROCESO' },
+        { label: 'Completada', value: 'COMPLETADA' },
+        { label: 'Cancelada', value: 'CANCELADA' },
         { label: 'Observado', value: 'OBSERVADO' },
-        { label: 'Finalizado', value: 'FINALIZADO' }
+        { label: 'Subsanada', value: 'SUBSANADA' }
       ],
       title: {
         singular: 'Solicitud de verificación',
@@ -178,9 +180,13 @@ export default {
           return 'info';
         case 'EN_PROCESO':
           return 'info';
+        case 'COMPLETADA':
+          return 'success';
+        case 'CANCELADA':
+          return 'danger';
         case 'OBSERVADO':
           return 'danger';
-        case 'FINALIZADO':
+        case 'SUBSANADA':
           return 'success';
         default:
           return 'info';
@@ -384,11 +390,11 @@ export default {
           <span class="font-bold text-sm">{{ itemsArray.length }}</span>
         </div>
 
-        <!-- Órdenes Finalizadas -->
+        <!-- Órdenes Completadas -->
         <div class="flex align-items-center gap-2 bg-green-50 text-green-700 px-2 py-1 border-round border-1 border-green-200 flex-shrink-0">
           <i class="pi pi-check-circle text-green-600 text-sm"></i>
-          <span class="font-semibold text-sm">Finalizadas:</span>
-          <span class="font-bold text-sm">{{ itemsArray.filter(o => o.status === 'FINALIZADO').length }}</span>
+          <span class="font-semibold text-sm">Completadas:</span>
+          <span class="font-bold text-sm">{{ itemsArray.filter(o => o.status === 'COMPLETADA').length }}</span>
         </div>
 
         <!-- Órdenes Pendientes -->
@@ -410,6 +416,20 @@ export default {
           <i class="pi pi-exclamation-triangle text-red-600 text-sm"></i>
           <span class="font-semibold text-sm">Observadas:</span>
           <span class="font-bold text-sm">{{ itemsArray.filter(o => o.status === 'OBSERVADO').length }}</span>
+        </div>
+
+        <!-- Órdenes Subsanadas -->
+        <div class="flex align-items-center gap-2 bg-teal-50 text-teal-700 px-2 py-1 border-round border-1 border-teal-200 flex-shrink-0">
+          <i class="pi pi-check-square text-teal-600 text-sm"></i>
+          <span class="font-semibold text-sm">Subsanadas:</span>
+          <span class="font-bold text-sm">{{ itemsArray.filter(o => o.status === 'SUBSANADA').length }}</span>
+        </div>
+
+        <!-- Órdenes Canceladas -->
+        <div class="flex align-items-center gap-2 bg-gray-50 text-gray-700 px-2 py-1 border-round border-1 border-gray-200 flex-shrink-0">
+          <i class="pi pi-times-circle text-gray-600 text-sm"></i>
+          <span class="font-semibold text-sm">Canceladas:</span>
+          <span class="font-bold text-sm">{{ itemsArray.filter(o => o.status === 'CANCELADA').length }}</span>
         </div>
       </div>
     </div>

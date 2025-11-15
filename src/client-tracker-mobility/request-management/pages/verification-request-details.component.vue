@@ -149,6 +149,12 @@ export default {
           return 'info';
         case 'COMPLETADA':
           return 'success';
+        case 'CANCELADA':
+          return 'danger';
+        case 'OBSERVADO':
+          return 'danger';
+        case 'SUBSANADA':
+          return 'success';
         default:
           return 'info';
       }
