@@ -22,7 +22,7 @@ export default {
       tiposDocumento: [
         { label: 'DNI', value: 'DNI' },
         { label: 'PTP', value: 'PTP' },
-        { label: 'Carnet de extranjería', value: 'CE' }
+        { label: 'Carnet de extranjería', value: 'CARNET_EXTRANJERIA' }
       ],
 
       // Control de validación
@@ -52,7 +52,7 @@ export default {
       if (!documentType || !documentNumber) return false;
       const num = String(documentNumber).replace(/\s/g, '');
       if (documentType === 'DNI') return /^\d{8}$/.test(num);
-      if (documentType === 'CE')  return /^\d{9,12}$/.test(num);
+      if (documentType === 'CARNET_EXTRANJERIA')  return /^\d{9,12}$/.test(num);
       if (documentType === 'PTP') return /^\d{9,12}$/.test(num);
       return false;
     },
