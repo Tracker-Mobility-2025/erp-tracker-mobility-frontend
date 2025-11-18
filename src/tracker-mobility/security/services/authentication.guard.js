@@ -95,29 +95,20 @@ export const authenticationGuard = (to, from, next) => {
         }
 
         // ⭐ REDIRECCIÓN SEGÚN ROL DESPUÉS DEL LOGIN
-        // Si el usuario es COMPANY_EMPLOYEE y está tratando de acceder a rutas de ADMIN, redirigir
+        // Si el usuario es COMPANY_EMPLOYEE y está tratando de acceder a rutas restringidas de ADMIN
         if (store.currentRole === 'COMPANY_EMPLOYEE') {
-            // Si intenta acceder a la raíz / o al dashboard
-            if (to.path === '/' || to.path === '' || to.name === 'dashboard') {
-                console.log('[GUARD] COMPANY_EMPLOYEE redirigido a formulario de solicitud');
-                return next({ name: 'management-requests-form' });
-            }
+            // Rutas de admin permitidas para COMPANY_EMPLOYEE
+            const allowedAdminRoutes = ['/admin/service-orders', '/admin/order-details'];
 
-            // Si intenta acceder a cualquier ruta de admin, redirigir a su área
-            if (to.path.startsWith('/admin')) {
-                console.log('[GUARD] COMPANY_EMPLOYEE intentó acceder a ruta admin, redirigiendo');
-                return next({ name: 'management-requests-form' });
+            // Si intenta acceder a rutas de admin no permitidas, redirigir
+            if (to.path.startsWith('/admin') && !allowedAdminRoutes.some(route => to.path.startsWith(route))) {
+                console.log('[GUARD] COMPANY_EMPLOYEE intentó acceder a ruta admin restringida, redirigiendo');
+                return next({ name: 'service-orders' });
             }
         }
 
-        // Si el usuario es ADMIN y está tratando de acceder a rutas de COMPANY_EMPLOYEE, redirigir
-        if (store.currentRole === 'ADMIN') {
-            // Si intenta acceder a rutas de applicant-company, redirigir al dashboard
-            if (to.path.startsWith('/applicant-company')) {
-                console.log('[GUARD] ADMIN intentó acceder a ruta de empleado, redirigiendo');
-                return next({ name: 'dashboard' });
-            }
-        }
+        // Si el usuario es ADMIN y está tratando de acceder a rutas de COMPANY_EMPLOYEE, permitir
+        // (Eliminamos la restricción anterior que impedía a ADMIN acceder a estas rutas)
 
         console.log('[GUARD] Acceso permitido');
         next();

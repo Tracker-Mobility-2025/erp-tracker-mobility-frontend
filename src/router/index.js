@@ -42,14 +42,11 @@ const router = createRouter({
             },
             children: [
 
-                // Ruta por defecto al entrar en / (redirige según el rol)
+                // Ruta por defecto al entrar en / (redirige a órdenes)
                 {
                     path: '',
                     name: 'home',
-                    redirect: () => {
-                        // Esta redirección se maneja en el guard de autenticación
-                        return { name: 'service-orders' };
-                    }
+                    redirect: { name: 'service-orders' }
                 },
 
                 // ============== Rutas de ADMIN ==============
@@ -73,7 +70,7 @@ const router = createRouter({
                     component: ServiceOrderManagementComponent,
                     meta: {
                         title: 'Ordenes de servicio',
-                        roles: ['ADMIN']
+                        roles: ['ADMIN', 'COMPANY_EMPLOYEE'] // Ambos roles pueden ver órdenes
                     }
                 },
                 {
@@ -82,7 +79,7 @@ const router = createRouter({
                     component: OrderDetailManagementComponent,
                     meta: {
                         title: 'Detalles de la orden',
-                        roles: ['ADMIN']
+                        roles: ['ADMIN', 'COMPANY_EMPLOYEE'] // Ambos roles pueden ver detalles
                     }
                 },
 

@@ -163,10 +163,10 @@ export const useAuthenticationStore = defineStore('authentication', {
             // Verificar si hay una ruta guardada de origen
             const redirectPath = localStorage.getItem('redirectAfterLogin');
             
-            // Definir rutas por defecto según rol
+            // Definir rutas por defecto según rol (ambos van a órdenes)
             const defaultRoutesByRole = {
-                'ADMIN': '/admin/dashboard',
-                'COMPANY_EMPLOYEE': '/applicant-company/management-request-form'
+                'ADMIN': '/admin/service-orders',
+                'COMPANY_EMPLOYEE': '/admin/service-orders'
             };
             
             // ⚠️ Verificar que el rol está autorizado para hacer login
