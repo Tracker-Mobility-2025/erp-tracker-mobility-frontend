@@ -1,12 +1,45 @@
 {
-  "name": "erp-tracker-mobility",
+  "name": "erp-tracker-mobility-frontend",
+  "version": "1.0.0",
+  "description": "Sistema integral de gestión de verificaciones domiciliarias y órdenes de servicio - Frontend",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
+  "author": {
+    "name": "MetaSoft Solutions SAC",
+    "email": "contacto@metasoft.pe",
+    "url": "https://www.metasoft.pe"
+  },
+  "contributors": [
+    {
+      "name": "Janover Gonzalo Saldaña Vela",
+      "email": "janover@metasoft.pe",
+      "role": "Full Stack Developer"
+    },
+    {
+      "name": "Claudio Jesús Moreno Rosales",
+      "email": "claudio@metasoft.pe",
+      "role": "Full Stack Developer"
+    }
+  ],
+  "license": "PROPRIETARY",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/metasoft-solutions/erp-tracker-mobility-frontend"
+  },
+  "keywords": [
+    "erp",
+    "tracker-mobility",
+    "verificaciones",
+    "ordenes-servicio",
+    "vue3",
+    "primevue",
+    "vite"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "server": "json-server --watch server/db.json --port 3000"
   },
   "dependencies": {
     "@iconify/vue": "^5.0.0",
