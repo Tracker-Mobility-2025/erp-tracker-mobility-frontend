@@ -149,7 +149,14 @@ Primera versión estable del sistema ERP Tracker Mobility Frontend.
 
 ---
 
+---
+
 **© 2025 MetaSoft Solutions SAC - Todos los derechos reservados**
 
-Para más información, visite: [www.metasoft.com.pe](https://www.metasoft.com.pe)
+**Desarrollado para:** Tracker Mobility  
+**Proveedor de Desarrollo:** MetaSoft Solutions SAC
+
+Para más información:  
+- **Cliente:** [www.trackermobility.com.pe](https://www.trackermobility.com.pe)  
+- **Desarrollador:** [www.metasoft.pe](https://www.metasoft.pe)
 

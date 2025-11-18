@@ -1,7 +1,7 @@
 {
   "name": "erp-tracker-mobility-frontend",
   "version": "1.0.0",
-  "description": "Sistema integral de gestión de verificaciones domiciliarias y órdenes de servicio - Frontend",
+  "description": "Sistema integral de gestión de verificaciones domiciliarias y órdenes de servicio - Desarrollado por MetaSoft Solutions SAC para Tracker Mobility",
   "private": true,
   "type": "module",
   "author": {
@@ -24,7 +24,7 @@
   "license": "PROPRIETARY",
   "repository": {
     "type": "git",
-    "url": "https://github.com/metasoft-solutions/erp-tracker-mobility-frontend"
+    "url": "https://github.com/Tracker-Mobility-2025/erp-tracker-mobility-frontend"
   },
   "keywords": [
     "erp",

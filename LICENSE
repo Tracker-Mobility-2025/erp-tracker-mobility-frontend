@@ -7,9 +7,12 @@ TÉRMINOS Y CONDICIONES
 
 1. PROPIEDAD INTELECTUAL
 
-Este software y toda la documentación asociada (el "Software") son propiedad
-exclusiva de MetaSoft Solutions SAC, una empresa constituida bajo las leyes
-de la República del Perú.
+Este software y toda la documentación asociada (el "Software") fueron
+desarrollados por MetaSoft Solutions SAC para Tracker Mobility.
+
+MetaSoft Solutions SAC, empresa constituida bajo las leyes de la República
+del Perú, retiene todos los derechos de propiedad intelectual sobre el
+código fuente y la arquitectura del Software.
 
 2. RESTRICCIONES DE USO
 
@@ -58,9 +61,16 @@ jurisdicción exclusiva de los tribunales de Lima, Perú.
 Para consultas sobre licencias, permisos o cualquier aspecto relacionado con
 este Software, por favor contacte:
 
+   DESARROLLADOR:
    MetaSoft Solutions SAC
-   Email: contacto@metasoft.com.pe
-   Website: www.metasoft.com.pe
+   Email: contacto@metasoft.pe
+   Website: www.metasoft.pe
+   Perú
+
+   CLIENTE:
+   Tracker Mobility
+   Email: contacto@trackermobility.com.pe
+   Website: www.trackermobility.com.pe
    Perú
 
 8. DESARROLLADORES
@@ -77,5 +87,6 @@ IMPORTANTE: El uso no autorizado de este software constituye una violación
 de esta licencia y puede resultar en acciones legales civiles y/o penales.
 
 © 2025 MetaSoft Solutions SAC. Todos los derechos reservados.
+Desarrollado para Tracker Mobility.
 Versión 1.0.0 | 17 de Noviembre de 2025
 

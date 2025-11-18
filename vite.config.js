@@ -9,10 +9,12 @@ export default defineConfig({
       banner(`
       ═══════════════════════════════════════════════════════════════
       ║  Proyecto: ERP Tracker Mobility - Sistema de Gestión       ║
-      ║  Empresa:  MetaSoft Solutions SAC                          ║
-      ║  Website:  www.metasoft.pe                                 ║
       ║                                                             ║
-      ║  Desarrolladores:                                          ║
+      ║  Cliente:       Tracker Mobility                           ║
+      ║  Desarrollado:  MetaSoft Solutions SAC                     ║
+      ║  Website:       www.metasoft.pe                            ║
+      ║                                                             ║
+      ║  Equipo de Desarrollo:                                     ║
       ║  • Janover Gonzalo Saldaña Vela (Full Stack Developer)    ║
       ║  • Claudio Jesús Moreno Rosales (Full Stack Developer)    ║
       ║                                                             ║
@@ -20,6 +22,7 @@ export default defineConfig({
       ║  Fecha:    17 de Noviembre 2025                            ║
       ║                                                             ║
       ║  © 2025 MetaSoft Solutions SAC                             ║
+      ║  Desarrollado para Tracker Mobility                        ║
       ║  Todos los derechos reservados                             ║
       ═══════════════════════════════════════════════════════════════
     `)
