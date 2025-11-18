@@ -48,7 +48,7 @@ const router = createRouter({
                     name: 'home',
                     redirect: () => {
                         // Esta redirección se maneja en el guard de autenticación
-                        return { name: 'dashboard' };
+                        return { name: 'service-orders' };
                     }
                 },
 
