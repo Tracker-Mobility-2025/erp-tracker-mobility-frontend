@@ -246,19 +246,7 @@ El proyecto sigue una **arquitectura modular basada en dominios** con separació
 
 ### 🔄 Flujo de Autenticación
 
-```mermaid
-graph LR
-    A[Usuario] --> B[/sign-in]
-    B --> C{Credenciales Válidas?}
-    C -->|Sí| D[Generar Token JWT]
-    D --> E[Almacenar en localStorage]
-    E --> F[Redirección según rol]
-    F --> G[Dashboard/Portal]
-    C -->|No| H[Mostrar Error]
-    H --> B
-```
-
-**Proceso detallado:**
+**Proceso de autenticación:**
 1. Usuario accede a `/sign-in`
 2. Ingresa credenciales (username + password)
 3. Sistema valida con backend y genera token JWT
@@ -341,23 +329,30 @@ graph LR
 
 ### Pasos de Instalación
 
+**1. Clonar el repositorio**
 ```bash
-# 1. Clonar el repositorio
-git clone https://github.com/tu-organizacion/erp-tracker-mobility-frontend.git
+git clone https://github.com/Tracker-Mobility-2025/erp-tracker-mobility-frontend.git
 cd erp-tracker-mobility-frontend
-
-# 2. Instalar dependencias
-npm install
-
-# 3. Configurar variables de entorno (crear archivo .env)
-cp .env.example .env
-
-# 4. Iniciar servidor de desarrollo
-npm run dev
-
-# 5. Abrir en el navegador
-# http://localhost:5173
 ```
+
+**2. Instalar dependencias**
+```bash
+npm install
+```
+
+**3. Configurar variables de entorno** _(opcional)_
+```bash
+cp .env.example .env
+# Editar .env con tus valores
+```
+
+**4. Iniciar servidor de desarrollo**
+```bash
+npm run dev
+```
+
+**5. Abrir en el navegador**
+- URL: `http://localhost:5173`
 
 ### Variables de Entorno
 
@@ -646,7 +641,7 @@ MetaSoft Solutions SAC desarrolló esta plataforma tecnológica integral para po
 <table>
   <tr>
     <td align="center" width="50%">
-      <img src="https://via.placeholder.com/150/2196F3/FFFFFF?text=JS" width="120px;" style="border-radius: 50%;" alt="Janover Saldaña"/><br />
+      <img src="https://via.placeholder.com/150/2196F3/FFFFFF?text=JS" width="120px;" alt="Janover Saldaña"/><br />
       <sub><b>Janover Gonzalo Saldaña Vela</b></sub><br />
       <sub>🚀 Full Stack Developer</sub><br />
       <sub>Lead Developer & Arquitectura</sub><br /><br />
@@ -659,6 +654,7 @@ MetaSoft Solutions SAC desarrolló esta plataforma tecnológica integral para po
       <br /><br />
       <details>
       <summary>📋 Contribuciones principales</summary>
+      <br />
       <ul align="left">
         <li>Arquitectura del sistema y estructura del proyecto</li>
         <li>Implementación de módulos principales</li>
@@ -670,7 +666,7 @@ MetaSoft Solutions SAC desarrolló esta plataforma tecnológica integral para po
       </details>
     </td>
     <td align="center" width="50%">
-      <img src="https://via.placeholder.com/150/4CAF50/FFFFFF?text=CM" width="120px;" style="border-radius: 50%;" alt="Claudio Moreno"/><br />
+      <img src="https://via.placeholder.com/150/4CAF50/FFFFFF?text=CM" width="120px;" alt="Claudio Moreno"/><br />
       <sub><b>Claudio Jesús Moreno Rosales</b></sub><br />
       <sub>🎨 Full Stack Developer</sub><br />
       <sub>UI/UX & Components</sub><br /><br />
@@ -683,6 +679,7 @@ MetaSoft Solutions SAC desarrolló esta plataforma tecnológica integral para po
       <br /><br />
       <details>
       <summary>📋 Contribuciones principales</summary>
+      <br />
       <ul align="left">
         <li>Diseño de interfaz y experiencia de usuario</li>
         <li>Desarrollo de componentes reutilizables</li>
@@ -710,15 +707,6 @@ const teamSkills = {
 ```
 
 </div>
-
----
-
-## 📄 Licencia
-
-Copyright © 2025 **MetaSoft Solutions SAC**. Todos los derechos reservados.
-
-Este software es propiedad de MetaSoft Solutions SAC y está protegido por las leyes de derechos de autor. 
-El uso no autorizado, la reproducción o distribución de este software está estrictamente prohibido.
 
 ---
 
