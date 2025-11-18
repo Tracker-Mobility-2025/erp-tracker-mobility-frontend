@@ -14,10 +14,10 @@ export const authenticationGuard = (to, from, next) => {
      * Check if the route is public
      * Public routes are those that do not require authentication
      * In this case, the public routes are:
-     * - /tracker-mobility/sign-in
+     * - /sign-in
      * All other routes are protected
      */
-    const isPublic = to.path.startsWith('/tracker-mobility/sign-in');
+    const isPublic = to.path.startsWith('/sign-in');
 
     // If it's a public route, allow access immediately
     if (isPublic) {
@@ -97,14 +97,14 @@ export const authenticationGuard = (to, from, next) => {
         // ⭐ REDIRECCIÓN SEGÚN ROL DESPUÉS DEL LOGIN
         // Si el usuario es COMPANY_EMPLOYEE y está tratando de acceder a rutas de ADMIN, redirigir
         if (store.currentRole === 'COMPANY_EMPLOYEE') {
-            // Si intenta acceder a la raíz /tracker-mobility o al dashboard
-            if (to.path === '/tracker-mobility' || to.path === '/tracker-mobility/' || to.name === 'dashboard') {
+            // Si intenta acceder a la raíz / o al dashboard
+            if (to.path === '/' || to.path === '' || to.name === 'dashboard') {
                 console.log('[GUARD] COMPANY_EMPLOYEE redirigido a formulario de solicitud');
                 return next({ name: 'management-requests-form' });
             }
 
             // Si intenta acceder a cualquier ruta de admin, redirigir a su área
-            if (to.path.startsWith('/tracker-mobility/admin')) {
+            if (to.path.startsWith('/admin')) {
                 console.log('[GUARD] COMPANY_EMPLOYEE intentó acceder a ruta admin, redirigiendo');
                 return next({ name: 'management-requests-form' });
             }
@@ -113,7 +113,7 @@ export const authenticationGuard = (to, from, next) => {
         // Si el usuario es ADMIN y está tratando de acceder a rutas de COMPANY_EMPLOYEE, redirigir
         if (store.currentRole === 'ADMIN') {
             // Si intenta acceder a rutas de applicant-company, redirigir al dashboard
-            if (to.path.startsWith('/tracker-mobility/applicant-company')) {
+            if (to.path.startsWith('/applicant-company')) {
                 console.log('[GUARD] ADMIN intentó acceder a ruta de empleado, redirigiendo');
                 return next({ name: 'dashboard' });
             }

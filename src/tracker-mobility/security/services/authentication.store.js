@@ -165,8 +165,8 @@ export const useAuthenticationStore = defineStore('authentication', {
             
             // Definir rutas por defecto según rol
             const defaultRoutesByRole = {
-                'ADMIN': '/tracker-mobility/admin/dashboard',
-                'COMPANY_EMPLOYEE': '/tracker-mobility/applicant-company/management-request-form'
+                'ADMIN': '/admin/dashboard',
+                'COMPANY_EMPLOYEE': '/applicant-company/management-request-form'
             };
             
             // ⚠️ Verificar que el rol está autorizado para hacer login
@@ -224,17 +224,17 @@ export const useAuthenticationStore = defineStore('authentication', {
          */
         isRouteAccessibleForRole(routePath, userRole) {
             // Rutas de ADMIN (requieren rol ADMIN)
-            if (routePath.startsWith('/tracker-mobility/admin/')) {
+            if (routePath.startsWith('/admin/')) {
                 return userRole === 'ADMIN';
             }
             
             // Rutas de solicitud de servicio (requieren rol COMPANY_EMPLOYEE)
-            if (routePath.startsWith('/tracker-mobility/service-request/')) {
+            if (routePath.startsWith('/applicant-company/')) {
                 return userRole === 'COMPANY_EMPLOYEE';
             }
             
             // Rutas públicas
-            if (routePath.startsWith('/tracker-mobility/sign-in')) {
+            if (routePath.startsWith('/sign-in')) {
                 return true;
             }
             

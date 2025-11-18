@@ -26,13 +26,13 @@ export default {
     items() {
       return [
         { role: 'COMPANY_EMPLOYEE', label: 'Nueva Solicitud', icon: 'pi pi-fw pi-plus-circle', to:
-              `/tracker-mobility/applicant-company/management-request-form` },
-        { role: 'COMPANY_EMPLOYEE', label: 'Mis Órdenes', icon: 'pi pi-fw pi-file-edit', to: `/tracker-mobility/applicant-company/my-service-orders` },
-        //{ role: 'ADMIN', label: 'Dashboard', icon: 'pi pi-fw pi-chart-line', to: `/tracker-mobility/admin/dashboard` },
-        { role: 'ADMIN', label: 'Órdenes', icon: 'pi pi-fw pi-file-edit', to: `/tracker-mobility/admin/service-orders` },
-        { role: 'ADMIN', label: 'Verificadores', icon: 'pi pi-fw pi-users', to: `/tracker-mobility/admin/verifiers` },
-        { role: 'ADMIN', label: 'Reportes', icon: 'pi pi-fw pi-chart-bar', to: `/tracker-mobility/admin/verification-reports` },
-        { role: 'ADMIN', label: 'Clientes', icon: 'pi pi-fw pi-user', to: `/tracker-mobility/admin/clients` },
+              `/applicant-company/management-request-form` },
+        { role: 'COMPANY_EMPLOYEE', label: 'Mis Órdenes', icon: 'pi pi-fw pi-file-edit', to: `/applicant-company/my-service-orders` },
+        //{ role: 'ADMIN', label: 'Dashboard', icon: 'pi pi-fw pi-chart-line', to: `/admin/dashboard` },
+        { role: 'ADMIN', label: 'Órdenes', icon: 'pi pi-fw pi-file-edit', to: `/admin/service-orders` },
+        { role: 'ADMIN', label: 'Verificadores', icon: 'pi pi-fw pi-users', to: `/admin/verifiers` },
+        { role: 'ADMIN', label: 'Reportes', icon: 'pi pi-fw pi-chart-bar', to: `/admin/verification-reports` },
+        { role: 'ADMIN', label: 'Clientes', icon: 'pi pi-fw pi-user', to: `/admin/clients` },
       ];
     },
 

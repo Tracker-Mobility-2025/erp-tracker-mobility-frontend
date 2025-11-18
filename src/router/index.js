@@ -17,8 +17,6 @@ import ClientManagementComponent from "../tracker-mobility/client-management/pag
 import ClientDetailsManagementComponent
     from "../tracker-mobility/client-management/pages/client-details-management.component.vue";
 import {authenticationGuard} from "../tracker-mobility/security/services/authentication.guard.js";
-import ManagementRequestOrderComponent
-    from "../client-tracker-mobility/order-request/pages/management-request-order.component.vue";
 import ManagementRequestFormComponent
     from "../client-tracker-mobility/order-request/pages/management-request-form.component.vue";
 import VerificationRequestsManagementComponent
@@ -31,12 +29,12 @@ import VerificationRequestDetailsComponent
 const router = createRouter({
     history: createWebHistory(),
     routes: [
-        {path: '/tracker-mobility/sign-in' , name: 'sign-in', component: SignInComponent, meta: { title:'Login'}},
+        {path: '/sign-in' , name: 'sign-in', component: SignInComponent, meta: { title:'Login'}},
 
         // =====================================================================================
 
         {
-            path: '/tracker-mobility', 
+            path: '/',
             component: LayoutTrackerMobilityComponent,
             meta: {
                 title: 'Tracker Mobility',
@@ -44,10 +42,10 @@ const router = createRouter({
             },
             children: [
 
-                // Ruta por defecto al entrar en /tracker-mobility (redirige según el rol)
+                // Ruta por defecto al entrar en / (redirige según el rol)
                 {
                     path: '',
-                    name: 'tracker-mobility',
+                    name: 'home',
                     redirect: () => {
                         // Esta redirección se maneja en el guard de autenticación
                         return { name: 'dashboard' };
@@ -196,7 +194,7 @@ const router = createRouter({
 
 
         // Ruta catch-all DEBE estar al final para no interceptar otras rutas
-        {path: '/:pathMatch(.*)*', redirect: '/tracker-mobility/sign-in'}
+        {path: '/:pathMatch(.*)*', redirect: '/sign-in'}
 
     ]
 });
