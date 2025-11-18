@@ -1,6 +1,7 @@
-# 🚀 ERP Tracker Mobility - Sistema de Gestión de Verificaciones Domiciliarias
-
 <div align="center">
+
+#  ERP Tracker Mobility
+## Sistema de Gestión de Verificaciones Domiciliarias
 
 ![Tracker Mobility](src/assets/img/logo-toolbar-tracker-mobility.png)
 
