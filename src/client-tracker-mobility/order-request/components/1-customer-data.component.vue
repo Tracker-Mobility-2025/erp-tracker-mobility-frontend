@@ -114,8 +114,6 @@ export default {
     }
   },
 
-
-
   methods: {
     onFieldBlur(fieldName){
       this.touched[fieldName] = true;
