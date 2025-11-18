@@ -638,73 +638,167 @@ MetaSoft Solutions SAC desarrolló esta plataforma tecnológica integral para po
 
 <div align="center">
 
+### 💼 Desarrolladores Principales
+
 <table>
   <tr>
     <td align="center" width="50%">
-      <img src="https://via.placeholder.com/150/2196F3/FFFFFF?text=JS" width="120px;" alt="Janover Saldaña"/><br />
-      <sub><b>Janover Gonzalo Saldaña Vela</b></sub><br />
-      <sub>🚀 Full Stack Developer</sub><br />
-      <sub>Lead Developer & Arquitectura</sub><br /><br />
-      <a href="https://github.com/janover-saldana">
-        <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" />
-      </a>
-      <a href="https://linkedin.com/in/janover-saldana">
-        <img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" />
-      </a>
-      <br /><br />
+      <img src="https://github.com/identicons/janover-saldana.png" width="150px;" alt="Janover Saldaña"/><br />
+      <h3>Janover Gonzalo Saldaña Vela</h3>
+      <p>
+        <strong>🚀 Lead Full Stack Developer</strong><br />
+        <em>Arquitectura & Backend Specialist</em>
+      </p>
+      <p>
+        <a href="https://github.com/janover-saldana">
+          <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
+        </a>
+        <a href="https://linkedin.com/in/janover-saldana">
+          <img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
+        </a>
+        <a href="mailto:janover@metasoft.pe">
+          <img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email" />
+        </a>
+      </p>
       <details>
-      <summary>📋 Contribuciones principales</summary>
+      <summary><strong>📋 Áreas de Responsabilidad</strong></summary>
       <br />
-      <ul align="left">
-        <li>Arquitectura del sistema y estructura del proyecto</li>
-        <li>Implementación de módulos principales</li>
-        <li>Sistema de autenticación y seguridad JWT</li>
-        <li>Integración con backend API REST</li>
-        <li>Optimización de rendimiento y bundle</li>
-        <li>Configuración de Vite y build process</li>
-      </ul>
+      <table align="left">
+        <tr><td>🏗️</td><td><strong>Arquitectura del Sistema</strong></td></tr>
+        <tr><td></td><td>Diseño de estructura modular basada en dominios</td></tr>
+        <tr><td></td><td>Definición de patrones y mejores prácticas</td></tr>
+        <tr><td colspan="2"></td></tr>
+        <tr><td>🔐</td><td><strong>Seguridad & Autenticación</strong></td></tr>
+        <tr><td></td><td>Implementación de sistema JWT</td></tr>
+        <tr><td></td><td>Guards de navegación y control de acceso</td></tr>
+        <tr><td></td><td>Interceptores HTTP y manejo de tokens</td></tr>
+        <tr><td colspan="2"></td></tr>
+        <tr><td>🔌</td><td><strong>Integración Backend</strong></td></tr>
+        <tr><td></td><td>Configuración de servicios API REST</td></tr>
+        <tr><td></td><td>Gestión de estado con Pinia</td></tr>
+        <tr><td></td><td>Manejo de errores y excepciones</td></tr>
+        <tr><td colspan="2"></td></tr>
+        <tr><td>⚡</td><td><strong>Performance & Build</strong></td></tr>
+        <tr><td></td><td>Optimización de rendimiento y bundle size</td></tr>
+        <tr><td></td><td>Configuración de Vite y deployment</td></tr>
+        <tr><td></td><td>Code splitting y lazy loading</td></tr>
+      </table>
       </details>
     </td>
     <td align="center" width="50%">
-      <img src="https://via.placeholder.com/150/4CAF50/FFFFFF?text=CM" width="120px;" alt="Claudio Moreno"/><br />
-      <sub><b>Claudio Jesús Moreno Rosales</b></sub><br />
-      <sub>🎨 Full Stack Developer</sub><br />
-      <sub>UI/UX & Components</sub><br /><br />
-      <a href="https://github.com/claudio-moreno">
-        <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" />
-      </a>
-      <a href="https://linkedin.com/in/claudio-moreno">
-        <img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" />
-      </a>
-      <br /><br />
+      <img src="https://github.com/identicons/claudio-moreno.png" width="150px;" alt="Claudio Moreno"/><br />
+      <h3>Claudio Jesús Moreno Rosales</h3>
+      <p>
+        <strong>🎨 Senior Full Stack Developer</strong><br />
+        <em>UI/UX & Frontend Specialist</em>
+      </p>
+      <p>
+        <a href="https://github.com/claudio-moreno">
+          <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
+        </a>
+        <a href="https://linkedin.com/in/claudio-moreno">
+          <img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
+        </a>
+        <a href="mailto:claudio@metasoft.pe">
+          <img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email" />
+        </a>
+      </p>
       <details>
-      <summary>📋 Contribuciones principales</summary>
+      <summary><strong>📋 Áreas de Responsabilidad</strong></summary>
       <br />
-      <ul align="left">
-        <li>Diseño de interfaz y experiencia de usuario</li>
-        <li>Desarrollo de componentes reutilizables</li>
-        <li>Implementación de módulos de gestión</li>
-        <li>Sistema de notificaciones y feedback</li>
-        <li>Testing y documentación técnica</li>
-        <li>Integración de PrimeVue y theming</li>
-      </ul>
+      <table align="left">
+        <tr><td>🎨</td><td><strong>Diseño UI/UX</strong></td></tr>
+        <tr><td></td><td>Diseño de interfaz y experiencia de usuario</td></tr>
+        <tr><td></td><td>Implementación de sistema de diseño</td></tr>
+        <tr><td></td><td>Responsive design y accesibilidad</td></tr>
+        <tr><td colspan="2"></td></tr>
+        <tr><td>🧩</td><td><strong>Componentes Reutilizables</strong></td></tr>
+        <tr><td></td><td>DataManager component con CRUD completo</td></tr>
+        <tr><td></td><td>Sistema de notificaciones modular</td></tr>
+        <tr><td></td><td>FileUploader y componentes de formularios</td></tr>
+        <tr><td colspan="2"></td></tr>
+        <tr><td>📦</td><td><strong>Módulos de Gestión</strong></td></tr>
+        <tr><td></td><td>Implementación de módulos principales</td></tr>
+        <tr><td></td><td>Integración de PrimeVue components</td></tr>
+        <tr><td></td><td>Sistema de temas y personalización</td></tr>
+        <tr><td colspan="2"></td></tr>
+        <tr><td>📝</td><td><strong>Documentación & Testing</strong></td></tr>
+        <tr><td></td><td>Documentación técnica completa</td></tr>
+        <tr><td></td><td>Testing de componentes</td></tr>
+        <tr><td></td><td>Code review y control de calidad</td></tr>
+      </table>
       </details>
     </td>
   </tr>
 </table>
 
+---
+
 ### 🌟 Stack de Competencias del Equipo
 
-```javascript
-const teamSkills = {
-  frontend: ['Vue.js 3', 'JavaScript ES6+', 'HTML5', 'CSS3', 'PrimeVue', 'Pinia'],
-  backend: ['Node.js', 'Express', 'RESTful APIs', 'JWT Authentication'],
-  database: ['MySQL', 'MongoDB', 'PostgreSQL'],
-  tools: ['Git', 'Vite', 'Webpack', 'npm/yarn', 'VS Code'],
-  methodologies: ['Scrum', 'Agile', 'Git Flow', 'Code Review'],
-  deployment: ['Vercel', 'AWS', 'Docker', 'CI/CD']
-};
-```
+<table>
+<tr>
+<td width="33%" align="center">
+
+**💻 Frontend Development**
+
+![Vue.js](https://img.shields.io/badge/Vue.js-3.5+-4FC08D?style=flat-square&logo=vue.js&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white)
+![PrimeVue](https://img.shields.io/badge/PrimeVue-4.3+-41B883?style=flat-square)
+![Pinia](https://img.shields.io/badge/Pinia-FFD859?style=flat-square&logo=pinia&logoColor=black)
+
+</td>
+<td width="33%" align="center">
+
+**⚙️ Backend & Database**
+
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express-000000?style=flat-square&logo=express&logoColor=white)
+![REST API](https://img.shields.io/badge/REST-02569B?style=flat-square&logo=rest&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-000000?style=flat-square&logo=jsonwebtokens&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat-square&logo=mongodb&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)
+
+</td>
+<td width="33%" align="center">
+
+**🛠️ Tools & DevOps**
+
+![Git](https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white)
+![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)
+![Webpack](https://img.shields.io/badge/Webpack-8DD6F9?style=flat-square&logo=webpack&logoColor=black)
+![VS Code](https://img.shields.io/badge/VS_Code-007ACC?style=flat-square&logo=visual-studio-code&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
+
+</td>
+</tr>
+</table>
+
+**📊 Metodologías de Trabajo:**
+
+- ✅ **Scrum** - Desarrollo ágil con sprints de 2 semanas
+- ✅ **Git Flow** - Gestión de ramas y control de versiones
+- ✅ **Code Review** - Revisión de código entre pares
+- ✅ **CI/CD** - Integración y despliegue continuo
+- ✅ **TDD** - Desarrollo guiado por pruebas
+- ✅ **Documentation First** - Documentación antes de código
+
+**🎯 Especialidades del Equipo:**
+
+| Área | Expertise |
+|------|----------|
+| 🏗️ **Arquitectura** | Diseño de sistemas escalables, patrones de diseño, clean architecture |
+| 🔐 **Seguridad** | JWT, OAuth, autenticación multifactor, encriptación |
+| 🎨 **UI/UX** | Diseño responsive, accesibilidad WCAG, animaciones, UX research |
+| ⚡ **Performance** | Optimización de rendimiento, lazy loading, code splitting |
+| 📱 **Responsive** | Mobile-first, progressive web apps, cross-browser compatibility |
+| 🧪 **Testing** | Unit testing, integration testing, E2E testing |
 
 </div>
 
@@ -712,59 +806,156 @@ const teamSkills = {
 
 ## 📞 Soporte y Contacto
 
+<div align="center">
+
+### 🤝 Canales de Comunicación
+
+</div>
+
 <table>
 <tr>
 <td valign="top" width="50%">
 
 ### 🎯 Cliente - Tracker Mobility
 
-**Consultas sobre el servicio de verificación:**
+<div align="center">
+<img src="https://via.placeholder.com/300x80/4CAF50/FFFFFF?text=Tracker+Mobility" alt="Tracker Mobility" width="250"/>
+</div>
 
-📧 **Email:** contacto@trackermobility.com.pe  
-📱 **Teléfono:** +51 XXX XXX XXX  
-🕐 **Horario:** Lunes a Viernes, 9:00 AM - 6:00 PM  
-📍 **Ubicación:** Lima, Perú
+**📋 Consultas sobre servicios de verificación**
 
-**Para solicitudes de servicio:**
-- Portal web de clientes
-- Email de soporte
-- Línea directa de atención
+| Canal | Información |
+|-------|-------------|
+| 📧 **Email General** | contacto@trackermobility.com.pe |
+| 📧 **Email Soporte** | soporte@trackermobility.com.pe |
+| 📱 **Teléfono** | +51 (01) XXX-XXXX |
+| 📱 **WhatsApp Business** | +51 9XX XXX XXX |
+| 🕐 **Horario** | Lunes a Viernes: 9:00 AM - 6:00 PM |
+| 📍 **Ubicación** | Lima, Perú |
+| 🌐 **Web** | www.trackermobility.com.pe |
+
+**🎯 Servicios disponibles:**
+- ✅ Solicitud de nuevas verificaciones
+- ✅ Consulta de estado de órdenes
+- ✅ Descarga de reportes
+- ✅ Atención al cliente general
+- ✅ Información comercial
 
 </td>
 <td valign="top" width="50%">
 
 ### 💻 Soporte Técnico - MetaSoft Solutions
 
-**Soporte técnico del sistema:**
+<div align="center">
+<img src="https://via.placeholder.com/300x80/2196F3/FFFFFF?text=MetaSoft+Solutions" alt="MetaSoft Solutions" width="250"/>
+</div>
 
-📧 **Email:** soporte@metasoft.pe  
-📧 **Email técnico:** dev@metasoft.pe  
-📱 **Teléfono:** +51 XXX XXX XXX  
-🕐 **Horario:** Lunes a Viernes, 9:00 AM - 6:00 PM (GMT-5)
+**🔧 Soporte técnico del sistema ERP**
 
-**Para reportar problemas técnicos:**
-- Bugs o errores del sistema
-- Solicitudes de nuevas funcionalidades
-- Consultas de implementación
-- Soporte de integración
+| Canal | Información |
+|-------|-------------|
+| 📧 **Soporte General** | soporte@metasoft.pe |
+| 📧 **Soporte Técnico** | dev@metasoft.pe |
+| 📧 **Bugs & Issues** | bugs@metasoft.pe |
+| 🔒 **Seguridad** | security@metasoft.pe |
+| 📱 **Teléfono** | +51 (01) XXX-XXXX |
+| 🕐 **Horario** | Lunes a Viernes: 9:00 AM - 6:00 PM (GMT-5) |
+| 📍 **Ubicación** | Lima, Perú |
+| 🌐 **Web** | www.metasoft.pe |
+
+**🛠️ Tipos de soporte:**
+- 🐛 Reportes de bugs y errores
+- ✨ Solicitudes de nuevas funcionalidades
+- 🔍 Consultas de implementación
+- 🔌 Soporte de integración API
+- 📚 Documentación y capacitación
 
 </td>
 </tr>
 </table>
 
-### 🐛 Reportar Problemas
+---
 
-Para reportar bugs o solicitar nuevas funcionalidades:
+### 🐛 Proceso para Reportar Problemas
 
-1. **Email:** Enviar detalles a `soporte@metasoft.pe`
-2. **Incluir:**
-   - Descripción detallada del problema
-   - Pasos para reproducir el error
-   - Screenshots o videos (si aplica)
-   - Información del navegador/dispositivo
-   - Usuario y rol afectado
+<table>
+<tr>
+<td width="25%" align="center">
 
-3. **Respuesta:** 24-48 horas hábiles
+**1️⃣ Identificar**
+
+🔍 Detecta el problema  
+📝 Documenta el error  
+📸 Captura evidencia
+
+</td>
+<td width="25%" align="center">
+
+**2️⃣ Reportar**
+
+📧 Envía email a:  
+`soporte@metasoft.pe`  
+🎫 Usa plantilla de reporte
+
+</td>
+<td width="25%" align="center">
+
+**3️⃣ Seguimiento**
+
+⏱️ Respuesta en 24-48h  
+🔄 Actualizaciones periódicas  
+📊 Tracking del ticket
+
+</td>
+<td width="25%" align="center">
+
+**4️⃣ Resolución**
+
+✅ Solución implementada  
+🧪 Testing y validación  
+📢 Notificación de cierre
+
+</td>
+</tr>
+</table>
+
+**📋 Información a incluir en el reporte:**
+
+```markdown
+**Título:** [Breve descripción del problema]
+
+**Descripción:**
+- ¿Qué estaba intentando hacer?
+- ¿Qué esperaba que sucediera?
+- ¿Qué sucedió en su lugar?
+
+**Pasos para reproducir:**
+1. Ir a...
+2. Hacer clic en...
+3. Ver error...
+
+**Entorno:**
+- Navegador: [Chrome/Firefox/Safari] versión X.X
+- Sistema Operativo: [Windows/Mac/Linux]
+- Rol de usuario: [ADMIN/COMPANY_EMPLOYEE]
+- Usuario afectado: [username]
+
+**Evidencia:**
+- Screenshots o videos adjuntos
+- Mensajes de error de consola
+- Logs relevantes
+
+**Prioridad:** [Baja/Media/Alta/Crítica]
+```
+
+**⏱️ Tiempos de Respuesta (SLA):**
+
+| Prioridad | Primera Respuesta | Resolución Estimada |
+|-----------|------------------|---------------------|
+| 🔴 **Crítica** | 2-4 horas | 24 horas |
+| 🟠 **Alta** | 8-12 horas | 48 horas |
+| 🟡 **Media** | 24 horas | 3-5 días |
+| 🟢 **Baja** | 48 horas | 1-2 semanas |
 
 ---
 
@@ -772,24 +963,149 @@ Para reportar bugs o solicitar nuevas funcionalidades:
 
 <div align="center">
 
-Este proyecto fue posible gracias a la colaboración entre **Tracker Mobility** y **MetaSoft Solutions SAC**.
+### 💝 Este proyecto es el resultado de una exitosa colaboración
 
-**Agradecimientos especiales a:**
+<table>
+<tr>
+<td align="center" width="33%">
 
-- 🎯 **Tracker Mobility** - Por confiar en MetaSoft Solutions para desarrollar su plataforma tecnológica
-- 👥 **Equipo de Desarrollo** - Por su dedicación y expertise técnico
-- 🌟 **Comunidad Open Source** - Por las herramientas y librerías utilizadas:
-  - Vue.js Team
-  - PrimeVue/PrimeTek
-  - Vite Team
-  - Toda la comunidad de contribuidores
+**🎯 CLIENTE**
 
-**Tecnologías Open Source utilizadas:**
+<img src="https://via.placeholder.com/150x60/4CAF50/FFFFFF?text=Tracker" alt="Tracker Mobility" width="150"/>
 
-[![Vue.js](https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vue.js&logoColor=4FC08D)](https://vuejs.org/)
-[![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Pinia](https://img.shields.io/badge/Pinia-FFD859?style=for-the-badge&logo=pinia&logoColor=black)](https://pinia.vuejs.org/)
-[![Axios](https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white)](https://axios-http.com/)
+**Tracker Mobility**
+
+Por confiar en MetaSoft Solutions para desarrollar su plataforma tecnológica integral y por su visión innovadora en el sector de verificación domiciliaria.
+
+</td>
+<td align="center" width="33%">
+
+**💻 DESARROLLO**
+
+<img src="https://via.placeholder.com/150x60/2196F3/FFFFFF?text=MetaSoft" alt="MetaSoft" width="150"/>
+
+**MetaSoft Solutions SAC**
+
+Equipo de desarrollo dedicado que convirtió los requisitos en una solución tecnológica robusta y escalable.
+
+</td>
+<td align="center" width="33%">
+
+**🌟 COMUNIDAD**
+
+<img src="https://via.placeholder.com/150x60/FF6B6B/FFFFFF?text=Open+Source" alt="Open Source" width="150"/>
+
+**Open Source Community**
+
+Por las increíbles herramientas que hicieron posible este proyecto.
+
+</td>
+</tr>
+</table>
+
+---
+
+### 🛠️ Tecnologías y Herramientas Utilizadas
+
+**Core Framework & Libraries:**
+
+<p align="center">
+  <a href="https://vuejs.org/" target="_blank">
+    <img src="https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vue.js&logoColor=4FC08D" alt="Vue.js" />
+  </a>
+  <a href="https://vitejs.dev/" target="_blank">
+    <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
+  </a>
+  <a href="https://pinia.vuejs.org/" target="_blank">
+    <img src="https://img.shields.io/badge/Pinia-FFD859?style=for-the-badge&logo=pinia&logoColor=black" alt="Pinia" />
+  </a>
+  <a href="https://router.vuejs.org/" target="_blank">
+    <img src="https://img.shields.io/badge/Vue_Router-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white" alt="Vue Router" />
+  </a>
+</p>
+
+**UI/UX Components:**
+
+<p align="center">
+  <a href="https://primevue.org/" target="_blank">
+    <img src="https://img.shields.io/badge/PrimeVue-41B883?style=for-the-badge&logo=vue.js&logoColor=white" alt="PrimeVue" />
+  </a>
+  <a href="https://primeflex.org/" target="_blank">
+    <img src="https://img.shields.io/badge/PrimeFlex-41B883?style=for-the-badge" alt="PrimeFlex" />
+  </a>
+  <a href="https://iconify.design/" target="_blank">
+    <img src="https://img.shields.io/badge/Iconify-1769AA?style=for-the-badge&logo=iconify&logoColor=white" alt="Iconify" />
+  </a>
+</p>
+
+**HTTP & Utilities:**
+
+<p align="center">
+  <a href="https://axios-http.com/" target="_blank">
+    <img src="https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white" alt="Axios" />
+  </a>
+  <a href="https://www.npmjs.com/package/json-server" target="_blank">
+    <img src="https://img.shields.io/badge/JSON_Server-000000?style=for-the-badge&logo=json&logoColor=white" alt="JSON Server" />
+  </a>
+</p>
+
+**Development & Deployment:**
+
+<p align="center">
+  <a href="https://nodejs.org/" target="_blank">
+    <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" />
+  </a>
+  <a href="https://www.npmjs.com/" target="_blank">
+    <img src="https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white" alt="npm" />
+  </a>
+  <a href="https://vercel.com/" target="_blank">
+    <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel" />
+  </a>
+  <a href="https://git-scm.com/" target="_blank">
+    <img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white" alt="Git" />
+  </a>
+</p>
+
+---
+
+### 🌟 Agradecimientos Especiales
+
+<table>
+<tr>
+<td width="50%">
+
+**🎓 Comunidades y Equipos:**
+
+- **Vue.js Core Team** - Por crear y mantener un framework excepcional
+- **PrimeTek Team** - Por PrimeVue y su ecosistema de componentes
+- **Evan You** - Creador de Vue.js y Vite
+- **Comunidad de Stack Overflow** - Por resolver dudas y compartir conocimiento
+- **GitHub Community** - Por la plataforma de colaboración
+- **MDN Web Docs** - Por la documentación web de referencia
+
+</td>
+<td width="50%">
+
+**📚 Recursos y Aprendizaje:**
+
+- **Vue Mastery** - Tutoriales y cursos avanzados
+- **Vue School** - Capacitación profesional
+- **CSS-Tricks** - Tips y trucos de CSS
+- **DevDocs** - Documentación consolidada
+- **Awesome Vue** - Lista curada de recursos
+- **Medium & Dev.to** - Artículos y tutoriales
+
+</td>
+</tr>
+</table>
+
+---
+
+<p align="center">
+  <strong>🚀 Construido con pasión y dedicación</strong><br />
+  <em>"La mejor manera de predecir el futuro es crearlo"</em><br />
+  <sub>— Peter Drucker</sub>
+</p>
 
 </div>
 
