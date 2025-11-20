@@ -165,8 +165,8 @@ export const useAuthenticationStore = defineStore('authentication', {
             
             // Definir rutas por defecto según rol (ambos van a órdenes)
             const defaultRoutesByRole = {
-                'ADMIN': '/admin/service-orders',
-                'COMPANY_EMPLOYEE': '/admin/service-orders'
+                'ADMIN': '/app/admin/service-orders',
+                'COMPANY_EMPLOYEE': '/app/admin/service-orders'
             };
             
             // ⚠️ Verificar que el rol está autorizado para hacer login
@@ -224,12 +224,12 @@ export const useAuthenticationStore = defineStore('authentication', {
          */
         isRouteAccessibleForRole(routePath, userRole) {
             // Rutas de ADMIN (requieren rol ADMIN)
-            if (routePath.startsWith('/admin/')) {
+            if (routePath.startsWith('/app/admin/')) {
                 return userRole === 'ADMIN';
             }
             
             // Rutas de solicitud de servicio (requieren rol COMPANY_EMPLOYEE)
-            if (routePath.startsWith('/applicant-company/')) {
+            if (routePath.startsWith('/app/applicant-company/')) {
                 return userRole === 'COMPANY_EMPLOYEE';
             }
             

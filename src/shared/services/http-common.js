@@ -4,7 +4,7 @@ import {authenticationInterceptor} from "../../tracker-mobility/security/service
 
 // const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const API_BASE_URL = " https://web-service-tracker-mobility-production-19fb.up.railway.app/api/v1"
+const API_BASE_URL = "https://web-service-tracker-mobility-production-653e.up.railway.app/api/v1"
 
 
 const http = axios.create({ baseURL: API_BASE_URL });

@@ -29,12 +29,19 @@ import VerificationRequestDetailsComponent
 const router = createRouter({
     history: createWebHistory(),
     routes: [
+        // Ruta de inicio de sesión como primera ruta
         {path: '/sign-in' , name: 'sign-in', component: SignInComponent, meta: { title:'Login'}},
+
+        // Redirección de la raíz al sign-in
+        {
+            path: '/',
+            redirect: '/sign-in'
+        },
 
         // =====================================================================================
 
         {
-            path: '/',
+            path: '/app',
             component: LayoutTrackerMobilityComponent,
             meta: {
                 title: 'Tracker Mobility',
@@ -42,11 +49,15 @@ const router = createRouter({
             },
             children: [
 
-                // Ruta por defecto al entrar en / (redirige a órdenes)
+                // Ruta por defecto al entrar en /app (redirige según el rol del usuario)
                 {
                     path: '',
                     name: 'home',
-                    redirect: { name: 'service-orders' }
+                    redirect: (to) => {
+                        // El guard de autenticación ya verificó el rol
+                        // Aquí solo redirigimos a una ruta por defecto
+                        return { name: 'service-orders' }
+                    }
                 },
 
                 // ============== Rutas de ADMIN ==============

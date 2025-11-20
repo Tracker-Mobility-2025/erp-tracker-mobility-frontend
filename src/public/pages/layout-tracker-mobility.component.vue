@@ -1,13 +1,11 @@
 <script>
 import SidebarTrackerMobility from '../components/sidebar-tracker-mobility.component.vue'
-import ToolbarTrackerMobility from '../components/toolbar-tracker-mobility.component.vue'
 
 export default {
   name: 'layout-tracker-mobility',
 
   components: {
-    SidebarTrackerMobility,
-    ToolbarTrackerMobility
+    SidebarTrackerMobility
   },
 
   data() {
@@ -33,11 +31,8 @@ export default {
     <!-- Sidebar fijo a la izquierda con control de toggle -->
     <SidebarTrackerMobility @sidebar-toggle="handleSidebarToggle" />
 
-    <!-- Contenedor principal que incluye toolbar y contenido -->
+    <!-- Contenedor principal con contenido -->
     <div class="main-content" :class="{ 'sidebar-closed': !sidebarOpen }">
-      <!-- Toolbar fijo en la parte superior -->
-      <ToolbarTrackerMobility />
-
       <!-- Área de contenido principal donde se renderizarán las rutas -->
       <main class="content-area">
         <router-view />
