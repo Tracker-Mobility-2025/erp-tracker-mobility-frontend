@@ -171,19 +171,18 @@ export default {
     <!-- Sidebar deslizante -->
     <div class="sidebar-fixed" :class="{ 'closed': !isOpen }">
       <aside class="sidebar-tracker">
-        <!-- Botón de cerrar dentro del sidebar -->
-        <div class="sidebar-close-btn" @click="toggleSidebar">
-          <i class="pi pi-angle-left"></i>
-        </div>
-
-        <!-- Header del sidebar -->
+        <!-- Header del sidebar con título y botón de cerrar -->
         <div class="sidebar-header">
           <div class="sidebar-brand">
             <img
-              src="../../assets/img/logo-toolbar-tracker-mobility.png"
+              src="../../assets/img/logo-sidebar-tracker-mobility.png"
               alt="Tracker Mobility Logo"
               class="brand-logo"
             />
+            <h2>Tracker Mobility</h2>
+          </div>
+          <div class="sidebar-close-btn" @click="toggleSidebar">
+            <i class="pi pi-angle-left"></i>
           </div>
         </div>
 
@@ -330,9 +329,6 @@ export default {
    ============================================================================ */
 
 .sidebar-close-btn {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -342,7 +338,7 @@ export default {
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  z-index: 10;
+  flex-shrink: 0;
 }
 
 .sidebar-close-btn:hover {
@@ -378,13 +374,14 @@ export default {
    ============================================================================ */
 
 .sidebar-header {
-  padding: 1.5rem 1rem;
-  padding-top: 3.5rem; /* Espacio para el botón de cerrar */
+  padding: 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   background: var(--color-primary);
-  min-height: 100px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 60px;
 }
 
 .sidebar-brand {
@@ -392,15 +389,29 @@ export default {
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
 }
 
 .brand-logo {
-  max-width: 100%;
-  height: auto;
-  max-height: 60px;
+  width: 40px;
+  height: 40px;
   object-fit: contain;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  flex-shrink: 0;
+}
+
+.sidebar-brand h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 /* ============================================================================

@@ -405,8 +405,8 @@ export default {
             :options="statusOptions"
             optionLabel="label"
             optionValue="value"
-            placeholder="Filtrar por estado"
-            class="w-full"
+            placeholder="Estado: Todos"
+            class="w-full h-full"
           >
             <template #option="slotProps">
               <div class="flex align-items-center justify-content-between w-full">
@@ -432,12 +432,10 @@ export default {
         <!-- Botón para limpiar filtros -->
         <div class="w-full md:w-auto">
           <pv-button
-            label="Limpiar Filtros"
+            label="Limpiar filtros"
             icon="pi pi-filter-slash"
-            severity="secondary"
-            outlined
             @click="onClearFilters"
-            class="w-full md:w-auto"
+            class="p-button-secondary flex-shrink-0 h-full"
           />
         </div>
 
@@ -599,7 +597,7 @@ export default {
   align-items: center;
   padding: 0.25rem 0.75rem;
   border-radius: 0.375rem;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 600;
   white-space: nowrap;
   transition: all 0.2s ease;

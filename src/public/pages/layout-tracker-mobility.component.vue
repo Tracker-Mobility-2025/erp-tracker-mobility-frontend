@@ -27,7 +27,7 @@ export default {
 </script>
 
 <template>
-  <div class="layout-container">
+  <div class="layout-container ">
     <!-- Sidebar fijo a la izquierda con control de toggle -->
     <SidebarTrackerMobility @sidebar-toggle="handleSidebarToggle" />
 
