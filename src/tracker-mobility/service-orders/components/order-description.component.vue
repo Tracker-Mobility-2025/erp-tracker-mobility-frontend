@@ -34,7 +34,7 @@ export default {
       const typeMapping = {
         'FOTO_FACHADA_VIVIENDA': 'FACHADA DE VIVIENDA',
         'RECIBO_SERVICIO': 'RECIBO DE SERVICIO',
-        'DOCUMENTO_IDENTIDAD': 'DOCUMENTO DE IDENTIDAD'
+        'DOCUMENTO_IDENTIDAD': 'DOC DE IDENTIDAD'
       };
       
       // Filtrar y transformar documentos
@@ -733,7 +733,7 @@ export default {
       <template #content>
 
         <div class="formgrid grid">
-          <div class="field col-12 md:col-4">
+          <div class="field col-12 md:col-8">
             <label class="font-semibold text-600 flex align-items-center gap-2">
               <i class="pi pi-user text-primary"></i>
               Nombre completo
@@ -799,8 +799,8 @@ export default {
           </div>
           <span class="text-sm text-600">{{ Math.round(imageZoom * 100) }}%</span>
         </div>
-        <div class="image-container" style="overflow: auto; max-height: 60vh; border: 1px solid var(--surface-border); border-radius: 6px;">
-          <img 
+        <div class="image-container" style="overflow: auto; max-height: 60vh; border: 1px solid #e5e7eb; border-radius: 6px;">
+          <img
             :src="selectedDocument.url" 
             :alt="selectedDocument?.displayName || getDocumentLabel(selectedDocument.type)"
             :style="{ transform: `scale(${imageZoom})`, transformOrigin: 'top left', display: 'block' }"
@@ -921,8 +921,8 @@ export default {
 
 /* Estilos para el modal de documentos */
 :deep(.document-viewer-modal .p-dialog-header) {
-  background: var(--primary-50);
-  border-bottom: 1px solid var(--surface-border);
+  background: var(--color-card-background);
+  border-bottom: 1px solid #e5e7eb;
 }
 
 :deep(.document-viewer-modal .p-dialog-content) {
@@ -930,18 +930,18 @@ export default {
 }
 
 :deep(.document-viewer-modal .p-dialog-footer) {
-  border-top: 1px solid var(--surface-border);
-  background: var(--surface-ground);
+  border-top: 1px solid #e5e7eb;
+  background: var(--color-white);
 }
 
 .image-viewer .image-container {
-  background: var(--surface-ground);
+  background: var(--color-white);
   border-radius: 6px;
 }
 
 .document-preview {
   min-height: 200px;
-  background: var(--surface-50);
+  background: var(--color-background);
   border-radius: 6px;
 }
 
@@ -959,7 +959,7 @@ export default {
 .content-frame-container {
   position: relative;
   height: 500px;
-  border: 1px solid var(--surface-border);
+  border: 1px solid #e5e7eb;
   border-radius: 6px;
   overflow: hidden;
 }
@@ -981,9 +981,9 @@ export default {
 
 .content-header {
   padding: 0.5rem;
-  background: var(--surface-100);
+  background: var(--color-background);
   border-radius: 6px;
-  border: 1px solid var(--surface-border);
+  border: 1px solid #e5e7eb;
 }
 
 /* Mejorar responsividad del modal */
