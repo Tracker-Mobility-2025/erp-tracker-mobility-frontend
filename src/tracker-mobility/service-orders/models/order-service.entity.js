@@ -75,7 +75,6 @@ export class Dwelling {
                     dwellingCondition = null,
                     typeFurnished = null,
                     roofType = null,
-                    homeAddress = null,
                     garage = null
                 } = {}) {
         this.dwellingType = dwellingType;
@@ -86,16 +85,16 @@ export class Dwelling {
         this.dwellingCondition = dwellingCondition;
         this.typeFurnished = typeFurnished;
         this.roofType = roofType;
-        this.homeAddress = homeAddress;
         this.garage = garage ? new Garage(garage) : null;
     }
 }
 
 export class Location {
-    constructor({ department = null, province = null, district = null, mapLocation = null } = {}) {
+    constructor({ department = null, province = null, district = null, homeAddress = null, mapLocation = null } = {}) {
         this.department = department;
         this.province = province;
         this.district = district;
+        this.homeAddress = homeAddress;
         this.mapLocation = mapLocation;
     }
 }
@@ -158,12 +157,14 @@ export class Client {
 
 export class ApplicantCompany {
     constructor({
+                    applicantCompanyId = null,
                     companyName = null,
                     executiveName = null,
                     ruc = null,
                     corporateEmail = null,
                     contactPhoneNumber = null
                 } = {}) {
+        this.applicantCompanyId = applicantCompanyId;
         this.companyName = companyName;
         this.executiveName = executiveName;
         this.ruc = ruc;
@@ -186,13 +187,17 @@ export class Observation {
         orderId = null,
         observationType = null,
         description = null,
-        status = null
+        status = null,
+        createdDate = null,
+        resolvedDate = null
     } = {}) {
         this.id = id;
         this.orderId = orderId;
         this.observationType = observationType;
         this.description = description;
         this.status = status;
+        this.createdDate = createdDate;
+        this.resolvedDate = resolvedDate;
     }
 }
 
@@ -228,7 +233,8 @@ export class OrderService {
                     applicantCompany = null,
                     homeVisitDetails = null,
                     observations = [],
-                    report = null
+                    report = null,
+                    reportId = null
                 } = {}) {
         this.id = id;
         this.orderCode = orderCode;
@@ -239,6 +245,7 @@ export class OrderService {
         this.homeVisitDetails = homeVisitDetails ? new HomeVisitDetails(homeVisitDetails) : null;
         this.observations = observations.map(o => new Observation(o));
         this.report = report ? new Report(report) : null;
+        this.reportId = reportId;
     }
 
 

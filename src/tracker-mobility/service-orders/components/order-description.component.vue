@@ -48,6 +48,18 @@ export default {
   },
 
   methods: {
+    formatDocumentType(documentType) {
+      if (!documentType) return 'No disponible';
+
+      const documentTypeMap = {
+        'DNI': 'DNI',
+        'CARNET_EXTRANJERIA': 'CE',
+        'PTP': 'PTP'
+      };
+
+      return documentTypeMap[documentType] || documentType;
+    },
+
     async downloadDocument(type, document = null) {
       try {
         if (!document || !document.url) {
@@ -585,7 +597,7 @@ export default {
       <template #content>
 
         <div class="formgrid grid">
-          <!-- Fila 1: Nombres completos, Apellidos completos y Tipo de documento -->
+          <!-- Fila 1: Nombres completos, Apellidos completos y Número de contacto -->
           <div class="field col-12 md:col-4">
             <label class="font-semibold text-600 flex align-items-center gap-2">
               <i class="pi pi-user text-primary"></i>
@@ -602,32 +614,32 @@ export default {
           </div>
           <div class="field col-12 md:col-4">
             <label class="font-semibold text-600 flex align-items-center gap-2">
-              <i class="pi pi-credit-card text-primary"></i>
-              Tipo de documento
-            </label>
-            <p class="font-semibold text-900 m-0">{{ item?.client?.identityDocument?.documentType || 'No disponible' }}</p>
-          </div>
-          <!-- Fila 2: N° de documento, Número de contacto y Dirección de domicilio -->
-          <div class="field col-12 md:col-4">
-            <label class="font-semibold text-600 flex align-items-center gap-2">
-              <i class="pi pi-hashtag text-primary"></i>
-              N° de documento de identidad
-            </label>
-            <p class="font-semibold text-900 m-0">{{ item?.client?.identityDocument?.documentNumber || 'No disponible' }}</p>
-          </div>
-          <div class="field col-12 md:col-4">
-            <label class="font-semibold text-600 flex align-items-center gap-2">
               <i class="pi pi-phone text-primary"></i>
               Número de contacto
             </label>
             <p class="font-semibold text-900 m-0">{{ item?.client?.phoneNumber || 'No disponible' }}</p>
+          </div>
+          <!-- Fila 2: Tipo de documento, N° de documento y Dirección de domicilio -->
+          <div class="field col-12 md:col-4">
+            <label class="font-semibold text-600 flex align-items-center gap-2">
+              <i class="pi pi-credit-card text-primary"></i>
+              Tipo de documento
+            </label>
+            <p class="font-semibold text-900 m-0">{{ formatDocumentType(item?.client?.identityDocument?.documentType) }}</p>
+          </div>
+          <div class="field col-12 md:col-4">
+            <label class="font-semibold text-600 flex align-items-center gap-2">
+              <i class="pi pi-hashtag text-primary"></i>
+              N° de documento
+            </label>
+            <p class="font-semibold text-900 m-0">{{ item?.client?.identityDocument?.documentNumber || 'No disponible' }}</p>
           </div>
           <div class="field col-12 md:col-4">
             <label class="font-semibold text-600 flex align-items-center gap-2">
               <i class="pi pi-home text-primary"></i>
               Dirección de domicilio
             </label>
-            <p class="font-semibold text-900 m-0">{{ item?.client?.dwelling?.homeAddress || 'No disponible' }}</p>
+            <p class="font-semibold text-900 m-0">{{ item?.client?.location?.homeAddress || 'No disponible' }}</p>
           </div>
           <!-- Ubicación en Google Maps -->
           <div class="field col-12" v-if="item?.client?.location?.mapLocation">

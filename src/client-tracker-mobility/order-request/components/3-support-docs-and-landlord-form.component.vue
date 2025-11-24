@@ -387,7 +387,7 @@ export default {
     // Inicializar el servicio de solicitudes
     this.orderServiceRequest = new OrderServiceRequest('/orders');
     
-    // 🧹 Limpiar documentos con tipos antiguos que puedan estar en memoria
+    // Limpiar documentos con tipos antiguos que puedan estar en memoria
     this.cleanOldDocumentTypes();
   }
 };

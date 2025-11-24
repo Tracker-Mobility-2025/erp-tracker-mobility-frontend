@@ -32,8 +32,8 @@ export default {
         // Solo aplicar filtro si hay contenido real (no null, no undefined, no string vacío o solo espacios)
         const matchesSearch = !this.search || this.search.trim().length === 0 || 
             (order.orderCode && order.orderCode.toLowerCase().trim().replace(/\s+/g, ' ').includes(this.search.toLowerCase().trim().replace(/\s+/g, ' '))) ||
-            (order.client && order.client.dwelling && order.client.dwelling.homeAddress && 
-             order.client.dwelling.homeAddress.toLowerCase().trim().replace(/\s+/g, ' ').includes(this.search.toLowerCase().trim().replace(/\s+/g, ' ')));
+            (order.client && order.client.location && order.client.location.homeAddress &&
+             order.client.location.homeAddress.toLowerCase().trim().replace(/\s+/g, ' ').includes(this.search.toLowerCase().trim().replace(/\s+/g, ' ')));
 
         // Filtro por estado
         const matchesStatus = this.selectedStatus === "Todos" || order.status === this.selectedStatus;
@@ -207,7 +207,7 @@ export default {
             <!-- Datos de la orden -->
             <div class="grid text-sm">
               <div class="col-3 font-bold text-dark">{{ order.orderCode }}</div>
-              <div class="col-3 font-bold text-dark">{{ order.client.dwelling.homeAddress }}</div>
+              <div class="col-3 font-bold text-dark">{{ order.client.location.homeAddress }}</div>
               <div class="col-3 font-bold text-dark">
                 {{ formatDate(order.homeVisitDetails.visitDate) }}
               </div>
