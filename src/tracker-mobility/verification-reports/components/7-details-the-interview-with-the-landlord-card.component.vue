@@ -104,9 +104,61 @@ export default {
       }
     },
 
+    validateForm() {
+      // Validar que todos los campos estén completados (permitiendo "No especifica" como valor válido)
+      const errors = [];
+
+      // Validar nombre del inquilino
+      if (!this.editForm.tenantName || this.editForm.tenantName.trim() === '') {
+        errors.push('Nombre del inquilino');
+      }
+
+      // Casa propia: acepta null (No especifica), 'Sí', o 'No'
+      // Solo inválido si es undefined o string vacío
+      if (this.editForm.ownHouse === undefined || this.editForm.ownHouse === '') {
+        errors.push('Casa propia');
+      }
+
+      // Validar servicio que paga el cliente
+      if (!this.editForm.serviceClientPays || this.editForm.serviceClientPays.trim() === '') {
+        errors.push('Servicio que paga el cliente');
+      }
+
+      // ¿Paga puntual?: acepta null (No especifica), 'Sí', o 'No'
+      // Solo inválido si es undefined o string vacío
+      if (this.editForm.clientPaysPunctual === undefined || this.editForm.clientPaysPunctual === '') {
+        errors.push('¿El cliente paga puntual?');
+      }
+
+      // Validar tiempo de arrendamiento
+      if (!this.editForm.clientRentalTime || this.editForm.clientRentalTime.trim() === '') {
+        errors.push('Tiempo de arrendamiento del cliente');
+      }
+
+      // Validar número de piso
+      if (!this.editForm.clientFloorNumber || this.editForm.clientFloorNumber.trim() === '') {
+        errors.push('Número de piso en el que habita el cliente');
+      }
+
+      return errors;
+    },
+
     onSaveEdit() {
+      // Validar formulario antes de guardar
+      const errors = this.validateForm();
+
+      if (errors.length > 0) {
+        // Mostrar mensaje de error con los campos faltantes
+        this.$toast.add({
+          severity: 'warn',
+          summary: 'Campos incompletos',
+          detail: `Debe completar los siguientes campos: ${errors.join(', ')}.`,
+          life: 5000
+        });
+        return;
+      }
+
       // Emitir evento al padre para gestionar la actualización
-      // Los valores null se enviarán tal cual para "No especifica"
       this.$emit('update-interview-details-requested', { ...this.editForm });
       // Mantener el componente en modo lectura tras guardar
       this.isEditing = false;

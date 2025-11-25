@@ -200,24 +200,42 @@ export default {
     interviewDetails() {
       const interview = this.effectiveItem?.order?.client?.landlord?.interviewDetails;
       const client = this.effectiveItem?.order?.client;
+      const landlord = this.effectiveItem?.order?.client?.landlord;
+
+      // Función auxiliar para manejar valores null/undefined/vacíos
+      const formatValue = (value) => {
+        if (value === null || value === undefined || value === '') {
+          return 'No especifica';
+        }
+        return value;
+      };
+
+      // Formatear booleanos a Sí/No/No especifica
+      const formatBoolean = (value) => {
+        if (value === true) return 'Sí';
+        if (value === false) return 'No';
+        return 'No especifica';
+      };
 
       // Formatear servicesPaidByClient - puede venir como string o array
-      let servicesPaid = 'No especificado';
+      let servicesPaid = 'No especifica';
       if (interview?.servicesPaidByClient) {
         if (Array.isArray(interview.servicesPaidByClient)) {
-          servicesPaid = interview.servicesPaidByClient.join(', ');
-        } else if (typeof interview.servicesPaidByClient === 'string') {
+          servicesPaid = interview.servicesPaidByClient.length > 0 ? interview.servicesPaidByClient.join(', ') : 'No especifica';
+        } else if (typeof interview.servicesPaidByClient === 'string' && interview.servicesPaidByClient.trim() !== '') {
           servicesPaid = interview.servicesPaidByClient;
         }
       }
 
       return {
-        tenantName: interview?.clientNameAccordingToLandlord || (client ? `${client.name || ''} ${client.lastName || ''}`.trim() : 'No especificado'),
-        ownHouse: this.effectiveItem?.order?.client?.landlord?.ownHome ? 'Sí' : 'No',
+        tenantName: formatValue(interview?.clientNameAccordingToLandlord) !== 'No especifica' 
+          ? interview.clientNameAccordingToLandlord 
+          : (client ? `${client.name || ''} ${client.lastName || ''}`.trim() : 'No especifica'),
+        ownHouse: formatBoolean(landlord?.ownHome),
         serviceClientPays: servicesPaid,
-        clientPaysPunctual: interview?.isTheClientPunctualWithPayments ? 'Sí' : (interview?.isTheClientPunctualWithPayments === false ? 'No' : 'No especificado'),
-        clientRentalTime: interview?.timeLivingAccordingToLandlord || 'No especificado',
-        clientFloorNumber: interview?.floorOccupiedByClient || 'No especificado'
+        clientPaysPunctual: formatBoolean(interview?.isTheClientPunctualWithPayments),
+        clientRentalTime: formatValue(interview?.timeLivingAccordingToLandlord),
+        clientFloorNumber: formatValue(interview?.floorOccupiedByClient)
       };
     },
 
@@ -839,15 +857,23 @@ export default {
           // Cualquier otro valor que no sea explícitamente Sí o No se considera null
           return null;
         };
+
+        // Función para limpiar strings (convertir valores vacíos, '-', 'No especificado' a string vacío)
+        const cleanString = (v) => {
+          if (v === null || v === undefined || v === '' || v === '-' || v === 'No especificado' || v === 'No especifica') {
+            return '';
+          }
+          return String(v).trim();
+        };
         
         // Construir el payload según el formato del endpoint
         const apiPayload = {
           ownHome: toBoolOrNull(payload?.ownHouse),
-          clientNameAccordingToLandlord: payload?.tenantName || '',
-          servicesPaidByClient: payload?.serviceClientPays || '',
+          clientNameAccordingToLandlord: cleanString(payload?.tenantName),
+          servicesPaidByClient: cleanString(payload?.serviceClientPays),
           isTheClientPunctualWithPayments: toBoolOrNull(payload?.clientPaysPunctual),
-          timeLivingAccordingToLandlord: payload?.clientRentalTime || '',
-          floorOccupiedByClient: payload?.clientFloorNumber || ''
+          timeLivingAccordingToLandlord: cleanString(payload?.clientRentalTime),
+          floorOccupiedByClient: cleanString(payload?.clientFloorNumber)
         };
 
         // Obtener el orderId desde el reporte
@@ -860,6 +886,7 @@ export default {
 
         console.log('📡 Enviando petición al backend...');
         console.log(`   Endpoint: /orders/${orderId}/landlord-interview`);
+        console.log('📦 Payload enviado:', JSON.stringify(apiPayload, null, 2));
         
         // Enviar actualización al backend
         const response = await this.landlordInterviewApiService.sendLandlordInterview(orderId, apiPayload);
