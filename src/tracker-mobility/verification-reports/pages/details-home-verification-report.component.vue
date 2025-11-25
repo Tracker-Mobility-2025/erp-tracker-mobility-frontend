@@ -600,6 +600,17 @@ export default {
         return;
       }
 
+      // Validar si falta la entrevista con el arrendador
+      if (this.effectiveItem.finalResult === 'ENTREVISTA_ARRENDADOR_FALTANTE') {
+        this.showToast({
+          severity: 'warn',
+          summary: 'Entrevista pendiente',
+          detail: 'Debe completar la entrevista con el arrendador antes de descargar el informe. Por favor, complete los datos de la entrevista en la sección "Detalles de la entrevista" y vuelva a intentarlo.',
+          life: 6000
+        });
+        return;
+      }
+
       // Mostrar mensaje de preparación
       this.showToast({
         severity: 'info',
