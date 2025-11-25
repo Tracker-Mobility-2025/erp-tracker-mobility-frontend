@@ -85,6 +85,13 @@ export default {
       }));
     },
 
+    // Verificar si la asignación de verificador puede ser editada
+    canEditVerifierAssignment() {
+      if (!this.item || !this.item.status) return false;
+      // Solo permitir edición si el estado es PENDIENTE o ASIGNADO
+      return this.item.status === 'PENDIENTE' || this.item.status === 'ASIGNADO';
+    },
+
     // Validación en tiempo real para los campos de asignación
     isVerifierAssignmentValid() {
       if (!this.editingStates.verifier) return true;
@@ -172,6 +179,13 @@ export default {
 
     // Habilitar modo edición para una sección específica
     enableEditing(section) {
+      // Verificar si se puede editar la asignación de verificador
+      if (section === 'verifier' && !this.canEditVerifierAssignment) {
+        this.showToast('warn', 'Acción no permitida', 
+          'Solo se puede asignar verificador cuando el estado es PENDIENTE o ASIGNADO.');
+        return;
+      }
+
       // Guardar datos originales de la sección específica
       if (section === 'verifier') {
         this.originalData.verifier = {
@@ -474,8 +488,22 @@ export default {
               label="Editar"
               icon="pi pi-pencil"
               class="p-button-warning w-full"
+              :disabled="!canEditVerifierAssignment"
               @click="enableEditing('verifier')"
           />
+
+          <!-- Mensaje informativo cuando no se puede editar -->
+          <div 
+              v-if="!editingStates.verifier && !canEditVerifierAssignment"
+              class="w-full p-3 border-1 border-orange-300 border-round bg-orange-50 mt-2"
+          >
+            <div class="flex align-items-center gap-2">
+              <i class="pi pi-info-circle text-orange-600"></i>
+              <span class="text-sm text-orange-800">
+                La asignación de verificador solo está disponible cuando el estado es <strong>PENDIENTE</strong> o <strong>ASIGNADO</strong>.
+              </span>
+            </div>
+          </div>
 
           <!-- Botones de acción (cuando está editando) -->
           <template v-if="editingStates.verifier">
