@@ -614,16 +614,58 @@ export default {
       // Obtener la URL de descarga del reporte
       this.downloadReportApiService.getReportDownloadUrl(reportId)
           .then(response => {
-            console.log('Respuesta del servidor:', response.data);
+            console.log('Respuesta del servidor (download-url):', response.data);
 
             // Crear instancia del modelo con los datos recibidos
             this.downloadReport = new DownloadReport(response.data);
 
-            // Verificar que se recibió una URL válida
-            if (!this.downloadReport.reportUrl) {
-              throw new Error('El servidor no proporcionó una URL de descarga válida');
+            // Verificar si la URL es null (reporte no generado aún)
+            if (!this.downloadReport.reportUrl || this.downloadReport.reportUrl === null) {
+              console.log('URL de descarga es null. Generando reporte...');
+              
+              // Mostrar mensaje de generación
+              this.showToast({
+                severity: 'info',
+                summary: 'Generando reporte',
+                detail: 'El reporte no ha sido generado previamente. Generando PDF, por favor espere...',
+                life: 4000
+              });
+
+              // Generar el reporte
+              return this.downloadReportApiService.generateVerificationReport(reportId)
+                .then(generateResponse => {
+                  console.log('Reporte generado exitosamente:', generateResponse.data);
+                  
+                  // Volver a obtener la URL de descarga después de generar
+                  return this.downloadReportApiService.getReportDownloadUrl(reportId);
+                })
+                .then(retryResponse => {
+                  console.log('Respuesta del servidor (retry download-url):', retryResponse.data);
+                  
+                  // Actualizar con la nueva URL
+                  this.downloadReport = new DownloadReport(retryResponse.data);
+                  
+                  // Verificar nuevamente que se recibió una URL válida
+                  if (!this.downloadReport.reportUrl) {
+                    throw new Error('No se pudo generar la URL de descarga después de crear el reporte');
+                  }
+                  
+                  // Abrir el PDF en una nueva pestaña del navegador
+                  window.open(this.downloadReport.reportUrl, '_blank');
+
+                  // Mostrar mensaje de éxito
+                  this.showToast({
+                    severity: 'success',
+                    summary: 'Reporte generado y descargado',
+                    detail: 'El reporte se ha generado y abierto correctamente.',
+                    life: 3000
+                  });
+
+                  console.log('URL del reporte generado:', this.downloadReport.reportUrl);
+                });
             }
 
+            // Si ya existe URL, abrir directamente
             // Abrir el PDF en una nueva pestaña del navegador
             window.open(this.downloadReport.reportUrl, '_blank');
 

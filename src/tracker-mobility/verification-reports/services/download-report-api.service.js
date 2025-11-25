@@ -10,6 +10,11 @@ export class DownloadReportApiService {
         this.resourceEndpoint = _resourceEndpoint;
     }
 
+    // Generar reporte de verificación en formato PDF api/v1/reports/{reportId}/generate-report
+    generateVerificationReport(reportId) {
+        return http.post(`${this.resourceEndpoint}/${reportId}/generate-report`);
+    }
+
     // /api/v1/reports/{reportId}/download-url Obtener URL de descarga del reporte
     getReportDownloadUrl(reportId) {
         return http.get(`${this.resourceEndpoint}/${reportId}/download-url`);
