@@ -10,26 +10,6 @@ export class DownloadReportApiService {
         this.resourceEndpoint = _resourceEndpoint;
     }
 
-    /**
-     * Genera un reporte de verificación en formato PDF y obtiene el enlace de descarga
-     * @param {number|string} reportId - ID del reporte a generar
-     * @returns {Promise<axios.AxiosResponse<any>>} Promesa con el objeto que contiene el ID del reporte y la URL de descarga
-     * @example
-     * const service = new DownloadReportApiService('/reports');
-     * service.downloadReport(123)
-     *   .then(response => {
-     *     console.log(response.data.reportUrl); // URL del PDF generado
-     *   });
-     */
-    downloadReport(reportId) {
-        return http.post(`${this.resourceEndpoint}/${reportId}/generate-report`);
-    }
-
-
-    getDownloadUrl(reportId) {
-        return http.get(`${this.resourceEndpoint}/${reportId}/download-url`);
-    }
-
     // /api/v1/reports/{reportId}/download-url Obtener URL de descarga del reporte
     getReportDownloadUrl(reportId) {
         return http.get(`${this.resourceEndpoint}/${reportId}/download-url`);

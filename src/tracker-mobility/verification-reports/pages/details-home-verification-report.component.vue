@@ -216,7 +216,7 @@ export default {
         ownHouse: this.effectiveItem?.order?.client?.landlord?.ownHome ? 'Sí' : 'No',
         serviceClientPays: servicesPaid,
         clientPaysPunctual: interview?.isTheClientPunctualWithPayments ? 'Sí' : (interview?.isTheClientPunctualWithPayments === false ? 'No' : 'No especificado'),
-        clientRentalTime: interview?.time ? `${interview.time} ${interview.timeType || ''}` : 'No especificado',
+        clientRentalTime: interview?.timeLivingAccordingToLandlord || 'No especificado',
         clientFloorNumber: interview?.floorOccupiedByClient || 'No especificado'
       };
     },
@@ -771,27 +771,21 @@ export default {
 
     // Actualizar entrevista con arrendador (view + backend API)
     async onUpdateInterviewDetailsRequested(payload) {
-      console.log('═══════════════════════════════════════════════════════');
-      console.log('🔄 INICIO: Actualización de entrevista con arrendador');
-      console.log('═══════════════════════════════════════════════════════');
+
       
       try {
-        console.log('📥 Payload recibido del componente hijo:', payload);
-        
+
         // Mostrar indicador de carga
         this.loading = true;
 
         // Función para convertir valores a booleano o null
         const toBoolOrNull = (v) => {
-          if (v === null || v === undefined) return null;
+          if (v === null || v === undefined || v === '' || v === 'No especifica') return null;
           if (v === 'Sí' || v === true || v === 'true') return true;
           if (v === 'No' || v === false || v === 'false') return false;
+          // Cualquier otro valor que no sea explícitamente Sí o No se considera null
           return null;
         };
-        
-        console.log('🔍 Procesando valores booleanos...');
-        console.log('  - ownHouse original:', payload?.ownHouse);
-        console.log('  - clientPaysPunctual original:', payload?.clientPaysPunctual);
         
         // Construir el payload según el formato del endpoint
         const apiPayload = {
@@ -803,13 +797,9 @@ export default {
           floorOccupiedByClient: payload?.clientFloorNumber || ''
         };
 
-        console.log('📦 Payload transformado para API:', JSON.stringify(apiPayload, null, 2));
-
         // Obtener el orderId desde el reporte
         const orderId = this.effectiveItem?.order?.id;
-        
-        console.log('🔑 Order ID obtenido:', orderId);
-        
+
         if (!orderId) {
           console.error('❌ ERROR: No se encontró el Order ID');
           throw new Error('No se pudo obtener el ID de la orden');
@@ -820,8 +810,6 @@ export default {
         
         // Enviar actualización al backend
         const response = await this.landlordInterviewApiService.sendLandlordInterview(orderId, apiPayload);
-        
-        console.log('✅ Respuesta del servidor:', response);
 
         console.log('🔄 Actualizando estado local...');
         // Actualizar estado local de la vista para reflejar cambios inmediatamente
@@ -851,9 +839,6 @@ export default {
           life: 3000
         });
       } catch (error) {
-        console.error('═══════════════════════════════════════════════════════');
-        console.error('❌ ERROR en actualización de entrevista con arrendador');
-        console.error('═══════════════════════════════════════════════════════');
         console.error('Error completo:', error);
         console.error('Tipo de error:', error?.constructor?.name);
         
@@ -886,9 +871,6 @@ export default {
         });
       } finally {
         this.loading = false;
-        console.log('═══════════════════════════════════════════════════════');
-        console.log('🏁 FIN: Actualización de entrevista con arrendador');
-        console.log('═══════════════════════════════════════════════════════');
       }
     }
   },
