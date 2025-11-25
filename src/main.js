@@ -101,6 +101,16 @@ import {createPinia} from "pinia";
 //create app instance
 const app=createApp(App)
 
+// Configurar Vue para suprimir warnings específicos de PrimeVue
+app.config.warnHandler = (msg, instance, trace) => {
+  // Ignorar warnings de onMounted de PrimeVue (problema conocido de la librería)
+  if (msg.includes('onMounted is called when there is no active component')) {
+    return;
+  }
+  // Mostrar otros warnings normalmente
+  console.warn(`[Vue warn]: ${msg}`, trace);
+};
+
 // Use Pinia BEFORE Router to ensure stores are available for guards
 const pinia = createPinia();
 app.use(pinia);

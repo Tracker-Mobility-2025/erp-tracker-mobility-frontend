@@ -112,21 +112,14 @@ export default {
               <p class="font-semibold text-dark m-0">{{ item?.housingType || 'No especificado' }}</p>
             </div>
             
-            <div class="field col-12 md:col-3">
+            <div class="field col-12 md:col-6">
               <label class="font-semibold text-color-secondary flex align-items-center gap-2">
                 <i class="pi pi-sort-numeric-up text-primary"></i>
-                Cant. de pisos:
+                Cant. de pisos y piso en que vive:
               </label>
               <p class="font-semibold text-dark m-0">{{ item?.floorsQuantity || 'No especificado' }}</p>
             </div>
-            
-            <div class="field col-12 md:col-3">
-              <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-                <i class="pi pi-arrow-up text-primary"></i>
-                Piso que habita:
-              </label>
-              <p class="font-semibold text-dark m-0">{{ item?.floorLives || 'No especificado' }}</p>
-            </div>
+
             
             <div class="field col-12 md:col-3">
               <label class="font-semibold text-color-secondary flex align-items-center gap-2">

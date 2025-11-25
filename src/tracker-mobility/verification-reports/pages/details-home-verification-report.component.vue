@@ -141,23 +141,39 @@ export default {
       const zone = client?.zone;
       const location = client?.location;
 
+      // Formatear el tipo de techo
+      let roofTypeFormatted = 'No especificado';
+      if (dwelling?.roofType) {
+        if (dwelling.roofType === 'CASA_TECHADA') {
+          roofTypeFormatted = 'TECHADA';
+        } else if (dwelling.roofType === 'CASA_NO_TECHADA') {
+          roofTypeFormatted = 'NO TECHADA';
+        } else {
+          roofTypeFormatted = dwelling.roofType;
+        }
+      }
+
       return {
         livesWith: residence?.livesWith || 'No especificado',
         resides: residence?.isResident ? 'Sí' : (residence?.isResident === false ? 'No' : 'No especificado'),
         residenceTime: client?.timeLivingText || (residence?.time ? `${residence.time} ${residence.timeType || ''}` : 'No especificado'),
         housingRented: client?.isTenant ? 'Alquilado' : 'Propio',
         housingType: dwelling?.dwellingType || 'No especificado',
-        floorsQuantity: dwelling?.numberFloors || client?.apartmentInformation || 'No especificado',
+        floorsQuantity: client?.apartmentInformation || 'No especificado',
         floorLives: dwelling?.floorOccupied || 'No especificado',
         facadeColor: dwelling?.facadeColor || 'No especificado',
         material: dwelling?.dwellingMaterial || 'No especificado',
         state: dwelling?.dwellingCondition || 'No especificado',
         zone: zone?.zoneType || 'No especificado',
         housingStatus: dwelling?.typeFurnished || 'No especificado',
-        roofType: dwelling?.roofType || 'No especificado',
-        zoneCharacteristic: zone?.zoneCharacteristics?.join(', ') || 'No especificado',
+        roofType: roofTypeFormatted,
+        zoneCharacteristic: (Array.isArray(zone?.zoneCharacteristics) && zone.zoneCharacteristics.length > 0) 
+          ? zone.zoneCharacteristics.join(', ') 
+          : 'No especificado',
         housingAccess: zone?.accessType || 'No especificado',
-        zoneRisk: zone?.riskLevel || client?.datacrimSecurityLevel || 'No especificado',
+        zoneRisk: (Array.isArray(client?.areaRisk) && client.areaRisk.length > 0)
+          ? client.areaRisk.join(', ')
+          : 'No especificado',
         garageIs: dwelling?.garage?.garageType || 'No especificado',
         garageDistance: dwelling?.garage?.distanceToDwelling || 'No especificado',
         realDirection: client?.exactClientAddress || location?.homeAddress || 'No especificada',
@@ -185,10 +201,20 @@ export default {
       const interview = this.effectiveItem?.order?.client?.landlord?.interviewDetails;
       const client = this.effectiveItem?.order?.client;
 
+      // Formatear servicesPaidByClient - puede venir como string o array
+      let servicesPaid = 'No especificado';
+      if (interview?.servicesPaidByClient) {
+        if (Array.isArray(interview.servicesPaidByClient)) {
+          servicesPaid = interview.servicesPaidByClient.join(', ');
+        } else if (typeof interview.servicesPaidByClient === 'string') {
+          servicesPaid = interview.servicesPaidByClient;
+        }
+      }
+
       return {
         tenantName: interview?.clientNameAccordingToLandlord || (client ? `${client.name || ''} ${client.lastName || ''}`.trim() : 'No especificado'),
         ownHouse: this.effectiveItem?.order?.client?.landlord?.ownHome ? 'Sí' : 'No',
-        serviceClientPays: interview?.servicesPaidByClient?.join(', ') || 'No especificado',
+        serviceClientPays: servicesPaid,
         clientPaysPunctual: interview?.isTheClientPunctualWithPayments ? 'Sí' : (interview?.isTheClientPunctualWithPayments === false ? 'No' : 'No especificado'),
         clientRentalTime: interview?.time ? `${interview.time} ${interview.timeType || ''}` : 'No especificado',
         clientFloorNumber: interview?.floorOccupiedByClient || 'No especificado'
