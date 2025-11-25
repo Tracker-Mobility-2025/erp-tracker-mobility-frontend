@@ -170,10 +170,11 @@ export default {
 <template>
   <pv-card class="w-full">
     <template #header>
-      <div class="flex justify-content-between align-items-center">
+      <div class="flex justify-content-between align-items-center" :class="canEdit ? 'bg-orange-500' : 'bg-primary'">
         <h3 class="text-lg font-bold flex align-items-center gap-2 text-white p-3 m-0">
           <i class="pi pi-comments text-white"></i>
           Detalles de la entrevista
+          <span v-if="canEdit" class="text-sm font-normal">(Pendiente de completar)</span>
         </h3>
         <div v-if="canEdit" class="flex align-items-center gap-2 pr-3">
           <pv-button

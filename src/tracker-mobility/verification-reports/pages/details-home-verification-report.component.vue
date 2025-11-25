@@ -141,6 +141,15 @@ export default {
       const zone = client?.zone;
       const location = client?.location;
 
+      // Función para formatear valores con guiones bajos a texto legible
+      const formatEnumValue = (value) => {
+        if (!value || value === 'No especificado') return value;
+        return value
+          .split('_')
+          .map(word => word.toUpperCase())
+          .join(' ');
+      };
+
       // Formatear el tipo de techo
       let roofTypeFormatted = 'No especificado';
       if (dwelling?.roofType) {
@@ -168,11 +177,11 @@ export default {
         housingStatus: dwelling?.typeFurnished || 'No especificado',
         roofType: roofTypeFormatted,
         zoneCharacteristic: (Array.isArray(zone?.zoneCharacteristics) && zone.zoneCharacteristics.length > 0) 
-          ? zone.zoneCharacteristics.join(', ') 
+          ? zone.zoneCharacteristics.map(formatEnumValue).join(', ') 
           : 'No especificado',
         housingAccess: zone?.accessType || 'No especificado',
         zoneRisk: (Array.isArray(client?.areaRisk) && client.areaRisk.length > 0)
-          ? client.areaRisk.join(', ')
+          ? client.areaRisk.map(formatEnumValue).join(', ')
           : 'No especificado',
         garageIs: dwelling?.garage?.garageType || 'No especificado',
         garageDistance: dwelling?.garage?.distanceToDwelling || 'No especificado',
@@ -917,6 +926,13 @@ export default {
           detail: 'Los datos de la entrevista con el arrendador se actualizaron correctamente.',
           life: 3000
         });
+
+        // Refrescar los datos del reporte desde el backend
+        const reportId = this.effectiveItem?.id;
+        if (reportId) {
+          console.log('🔄 Refrescando datos del reporte...');
+          await this.getVerificationReportById(reportId);
+        }
       } catch (error) {
         console.error('Error completo:', error);
         console.error('Tipo de error:', error?.constructor?.name);
@@ -1066,6 +1082,17 @@ export default {
         </pv-button>
       </div>
 
+      <!-- Alerta de entrevista pendiente -->
+      <div v-if="canEditInterview" class="bg-orange-100 border-left-3 border-orange-500 p-4 mb-4 mt-4">
+        <div class="flex align-items-center gap-3">
+          <i class="pi pi-exclamation-triangle text-orange-600 text-2xl"></i>
+          <div>
+            <h3 class="text-orange-800 font-bold m-0 mb-1">Detalles de la entrevista con el arrendador (Pendiente de completar)</h3>
+            <p class="text-orange-700 m-0">Por favor, complete la información de la entrevista con el arrendador antes de generar el reporte final.</p>
+          </div>
+        </div>
+      </div>
+
       <!-- Tarjetas de información del reporte de verificación -->
       <div class="flex flex-column pb-4 gap-4 mt-4">
         <!-- Primera sección: Detalles de la visita -->
@@ -1095,7 +1122,14 @@ export default {
 
         <!-- ============== SECCIÓN: Detalles de la entrevista con el arrendador ============== -->
         <div class="section-separator">
-          <h2 class="text-xl font-bold text-gray-800 py-2 border-bottom-1 surface-border mb-0">Detalles de la entrevista con el arrendador</h2>
+          <h2 class="text-xl font-bold py-2 border-bottom-1 surface-border mb-0" 
+              :class="canEditInterview ? 'text-orange-600' : 'text-gray-800'">
+            <i v-if="canEditInterview" class="pi pi-exclamation-triangle mr-2"></i>
+            Detalles de la entrevista con el arrendador
+            <span v-if="canEditInterview" class="ml-2 text-sm font-normal text-orange-600">
+              (Pendiente de completar)
+            </span>
+          </h2>
         </div>
 
         <!-- Quinta sección: Datos del arrendador -->
@@ -1106,6 +1140,7 @@ export default {
           :item="interviewDetails"
           :can-edit="canEditInterview"
           :blocked-by-final-result="isEditBlockedByFinalResult"
+          :class="{ 'card-pending': canEditInterview }"
           @update-interview-details-requested="onUpdateInterviewDetailsRequested"
         />
 
@@ -1185,6 +1220,40 @@ export default {
 </template>
 
 <style scoped>
+
+/* Estilos para sección pendiente de entrevista */
+.section-pending {
+  background: linear-gradient(to right, #fff7ed, #ffffff);
+  border-left: 4px solid #ea580c;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  animation: pulse-border 2s ease-in-out infinite;
+}
+
+@keyframes pulse-border {
+  0%, 100% {
+    border-left-color: #ea580c;
+  }
+  50% {
+    border-left-color: #fb923c;
+  }
+}
+
+.card-pending {
+  border: 2px solid #fed7aa;
+  box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.1);
+  animation: highlight-card 2s ease-in-out infinite;
+}
+
+@keyframes highlight-card {
+  0%, 100% {
+    box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.2);
+  }
+}
 
 /* Estilos del indicador de carga minimalista */
 .loading-container {
