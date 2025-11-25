@@ -2,9 +2,7 @@
 import axios from "axios";
 import {authenticationInterceptor} from "../../tracker-mobility/security/services/authentication.interceptor.js";
 
-// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-const API_BASE_URL = "https://web-service-tracker-mobility-c6uu5.ondigitalocean.app/api/v1"
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const http = axios.create({ baseURL: API_BASE_URL });
 
