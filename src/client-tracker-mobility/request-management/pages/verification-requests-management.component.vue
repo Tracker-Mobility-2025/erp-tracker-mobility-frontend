@@ -26,6 +26,7 @@ export default {
         { field: 'requestDate', header: 'Fecha de solicitud', sortable: true, template: 'requestDate', style: 'width: 150px;' },
         { field: 'status', header: 'Estado', sortable: true, template: 'status', style: 'width: 120px;' },
         { field: 'observations', header: 'Obs. Pendientes', sortable: false, template: 'pendingObservations', style: 'width: 140px;' },
+        { field: 'homeVisitDetails.visitDate', header: 'Visita', sortable: true, template: 'visitDate', style: 'width: 130px;' },
         { field: 'clientName', header: 'Cliente', sortable: true, template: 'clientName', style: 'width: 180px;' },
         { field: 'client.phoneNumber', header: 'Contacto', sortable: true, style: 'width: 140px;' }
       ],
@@ -487,6 +488,15 @@ export default {
             {{ getPendingObservationsCount(data) > 0 ? 'Pendientes' : 'Sin observaciones' }}
           </span>
         </div>
+      </template>
+
+      <!-- Custom Visit Date Column -->
+      <template #visitDate="{ data }">
+        <span :class="{ 'text-orange-500 font-medium': !data.homeVisitDetails || !data.homeVisitDetails.visitDate }">
+          {{ data.homeVisitDetails && data.homeVisitDetails.visitDate
+            ? formatDate(data.homeVisitDetails.visitDate)
+            : 'PENDIENTE' }}
+        </span>
       </template>
 
       <!-- Custom Client Name Column -->

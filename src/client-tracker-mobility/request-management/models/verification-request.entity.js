@@ -277,11 +277,13 @@ export class HomeVisitDetails {
     constructor(
         {
             verifierId = 0,
+            verifierFullName = "",
             visitDate = "",
             visitTime = ""
         } = {}
     ) {
         this.verifierId = verifierId;
+        this.verifierFullName = verifierFullName;
         this.visitDate = visitDate;
         this.visitTime = visitTime;
     }
