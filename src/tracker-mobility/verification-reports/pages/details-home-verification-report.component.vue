@@ -210,11 +210,19 @@ export default {
         return value;
       };
 
-      // Formatear booleanos a Sí/No/No especifica
-      const formatBoolean = (value) => {
+      // Formatear booleanos o strings a Sí/No/No especifica
+      const formatBooleanOrString = (value) => {
+        // Si viene como boolean
         if (value === true) return 'Sí';
         if (value === false) return 'No';
-        return 'No especifica';
+        // Si viene como string
+        if (value === 'Sí' || value === 'Si') return 'Sí';
+        if (value === 'No') return 'No';
+        if (value === 'No especifica') return 'No especifica';
+        // Si es null, undefined o vacío
+        if (value === null || value === undefined || value === '') return 'No especifica';
+        // Cualquier otro valor se mantiene tal cual
+        return value;
       };
 
       // Formatear servicesPaidByClient - puede venir como string o array
@@ -231,9 +239,9 @@ export default {
         tenantName: formatValue(interview?.clientNameAccordingToLandlord) !== 'No especifica' 
           ? interview.clientNameAccordingToLandlord 
           : (client ? `${client.name || ''} ${client.lastName || ''}`.trim() : 'No especifica'),
-        ownHouse: formatBoolean(landlord?.ownHome),
+        ownHouse: formatBooleanOrString(landlord?.ownHome),
         serviceClientPays: servicesPaid,
-        clientPaysPunctual: formatBoolean(interview?.isTheClientPunctualWithPayments),
+        clientPaysPunctual: formatBooleanOrString(interview?.isTheClientPunctualWithPayments),
         clientRentalTime: formatValue(interview?.timeLivingAccordingToLandlord),
         clientFloorNumber: formatValue(interview?.floorOccupiedByClient)
       };
@@ -849,29 +857,21 @@ export default {
         // Mostrar indicador de carga
         this.loading = true;
 
-        // Función para convertir valores a booleano o null
-        const toBoolOrNull = (v) => {
-          if (v === null || v === undefined || v === '' || v === 'No especifica') return null;
-          if (v === 'Sí' || v === true || v === 'true') return true;
-          if (v === 'No' || v === false || v === 'false') return false;
-          // Cualquier otro valor que no sea explícitamente Sí o No se considera null
-          return null;
-        };
-
-        // Función para limpiar strings (convertir valores vacíos, '-', 'No especificado' a string vacío)
+        // Función para limpiar strings (convertir valores vacíos, '-', 'No especificado', null a string vacío)
+        // NOTA: "No especifica" se mantiene como está y se envía al backend
         const cleanString = (v) => {
-          if (v === null || v === undefined || v === '' || v === '-' || v === 'No especificado' || v === 'No especifica') {
+          if (v === null || v === undefined || v === '' || v === '-' || v === 'No especificado') {
             return '';
           }
           return String(v).trim();
         };
         
-        // Construir el payload según el formato del endpoint
+        // Construir el payload según el formato del endpoint (todos como strings)
         const apiPayload = {
-          ownHome: toBoolOrNull(payload?.ownHouse),
+          ownHome: cleanString(payload?.ownHouse),
           clientNameAccordingToLandlord: cleanString(payload?.tenantName),
           servicesPaidByClient: cleanString(payload?.serviceClientPays),
-          isTheClientPunctualWithPayments: toBoolOrNull(payload?.clientPaysPunctual),
+          isTheClientPunctualWithPayments: cleanString(payload?.clientPaysPunctual),
           timeLivingAccordingToLandlord: cleanString(payload?.clientRentalTime),
           floorOccupiedByClient: cleanString(payload?.clientFloorNumber)
         };
@@ -902,10 +902,9 @@ export default {
         this.reportData.order.client.landlord.interviewDetails = {
           ...(this.reportData.order.client.landlord.interviewDetails || {}),
           clientNameAccordingToLandlord: apiPayload.clientNameAccordingToLandlord,
-          servicesPaidByClient: apiPayload.servicesPaidByClient.split(',').map(s => s.trim()).filter(Boolean),
+          servicesPaidByClient: apiPayload.servicesPaidByClient ? apiPayload.servicesPaidByClient.split(',').map(s => s.trim()).filter(Boolean) : [],
           isTheClientPunctualWithPayments: apiPayload.isTheClientPunctualWithPayments,
-          time: apiPayload.timeLivingAccordingToLandlord,
-          timeType: '',
+          timeLivingAccordingToLandlord: apiPayload.timeLivingAccordingToLandlord,
           floorOccupiedByClient: apiPayload.floorOccupiedByClient
         };
 

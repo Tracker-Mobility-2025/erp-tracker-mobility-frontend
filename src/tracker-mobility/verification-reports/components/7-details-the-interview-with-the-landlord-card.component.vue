@@ -40,7 +40,7 @@ export default {
         clientFloorNumber: ''
       },
       booleanOptions: [
-        { label: 'No especifica', value: null },
+        { label: 'No especifica', value: 'No especifica' },
         { label: 'Sí', value: 'Sí' },
         { label: 'No', value: 'No' }
       ]
@@ -105,38 +105,36 @@ export default {
     },
 
     validateForm() {
-      // Validar que todos los campos estén completados (permitiendo "No especifica" como valor válido)
+      // Validar que todos los campos hayan sido seleccionados/completados
       const errors = [];
 
-      // Validar nombre del inquilino
-      if (!this.editForm.tenantName || this.editForm.tenantName.trim() === '') {
+      // Validar nombre del inquilino (no permite vacío o solo espacios)
+      if (this.editForm.tenantName === null || this.editForm.tenantName === undefined || this.editForm.tenantName.trim() === '') {
         errors.push('Nombre del inquilino');
       }
 
-      // Casa propia: acepta null (No especifica), 'Sí', o 'No'
-      // Solo inválido si es undefined o string vacío
-      if (this.editForm.ownHouse === undefined || this.editForm.ownHouse === '') {
+      // Casa propia: acepta 'Sí', 'No', o 'No especifica' (pero no null/undefined)
+      if (this.editForm.ownHouse === null || this.editForm.ownHouse === undefined || this.editForm.ownHouse === '') {
         errors.push('Casa propia');
       }
 
-      // Validar servicio que paga el cliente
-      if (!this.editForm.serviceClientPays || this.editForm.serviceClientPays.trim() === '') {
+      // Validar servicio que paga el cliente (no permite vacío o solo espacios)
+      if (this.editForm.serviceClientPays === null || this.editForm.serviceClientPays === undefined || this.editForm.serviceClientPays.trim() === '') {
         errors.push('Servicio que paga el cliente');
       }
 
-      // ¿Paga puntual?: acepta null (No especifica), 'Sí', o 'No'
-      // Solo inválido si es undefined o string vacío
-      if (this.editForm.clientPaysPunctual === undefined || this.editForm.clientPaysPunctual === '') {
+      // ¿Paga puntual?: acepta 'Sí', 'No', o 'No especifica' (pero no null/undefined)
+      if (this.editForm.clientPaysPunctual === null || this.editForm.clientPaysPunctual === undefined || this.editForm.clientPaysPunctual === '') {
         errors.push('¿El cliente paga puntual?');
       }
 
-      // Validar tiempo de arrendamiento
-      if (!this.editForm.clientRentalTime || this.editForm.clientRentalTime.trim() === '') {
+      // Validar tiempo de arrendamiento (no permite vacío o solo espacios)
+      if (this.editForm.clientRentalTime === null || this.editForm.clientRentalTime === undefined || this.editForm.clientRentalTime.trim() === '') {
         errors.push('Tiempo de arrendamiento del cliente');
       }
 
-      // Validar número de piso
-      if (!this.editForm.clientFloorNumber || this.editForm.clientFloorNumber.trim() === '') {
+      // Validar número de piso (no permite vacío o solo espacios)
+      if (this.editForm.clientFloorNumber === null || this.editForm.clientFloorNumber === undefined || this.editForm.clientFloorNumber.trim() === '') {
         errors.push('Número de piso en el que habita el cliente');
       }
 
