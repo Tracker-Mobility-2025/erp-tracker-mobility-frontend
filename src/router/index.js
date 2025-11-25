@@ -54,9 +54,16 @@ const router = createRouter({
                     path: '',
                     name: 'home',
                     redirect: (to) => {
-                        // El guard de autenticación ya verificó el rol
-                        // Aquí solo redirigimos a una ruta por defecto
-                        return { name: 'service-orders' }
+                        // Obtener el rol del usuario desde localStorage
+                        const userRole = localStorage.getItem('role');
+                        
+                        // Redirigir según el rol
+                        if (userRole === 'COMPANY_EMPLOYEE') {
+                            return { name: 'management-requests-form' };
+                        }
+                        
+                        // ADMIN y otros roles van a service-orders
+                        return { name: 'service-orders' };
                     }
                 },
 

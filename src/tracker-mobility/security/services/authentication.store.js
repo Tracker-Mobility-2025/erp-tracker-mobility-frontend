@@ -163,10 +163,10 @@ export const useAuthenticationStore = defineStore('authentication', {
             // Verificar si hay una ruta guardada de origen
             const redirectPath = localStorage.getItem('redirectAfterLogin');
             
-            // Definir rutas por defecto según rol (ambos van a órdenes)
+            // Definir rutas por defecto según rol
             const defaultRoutesByRole = {
                 'ADMIN': '/app/admin/service-orders',
-                'COMPANY_EMPLOYEE': '/app/admin/service-orders'
+                'COMPANY_EMPLOYEE': '/app/applicant-company/management-request-form'
             };
             
             // ⚠️ Verificar que el rol está autorizado para hacer login
@@ -225,6 +225,16 @@ export const useAuthenticationStore = defineStore('authentication', {
         isRouteAccessibleForRole(routePath, userRole) {
             // Rutas de ADMIN (requieren rol ADMIN)
             if (routePath.startsWith('/app/admin/')) {
+                // COMPANY_EMPLOYEE puede ver órdenes (solo lectura)
+                const allowedForCompanyEmployee = [
+                    '/app/admin/service-orders',
+                    '/app/admin/order-details'
+                ];
+                
+                if (userRole === 'COMPANY_EMPLOYEE') {
+                    return allowedForCompanyEmployee.some(route => routePath.startsWith(route));
+                }
+                
                 return userRole === 'ADMIN';
             }
             

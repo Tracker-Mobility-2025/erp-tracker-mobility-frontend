@@ -103,7 +103,7 @@ export const authenticationGuard = (to, from, next) => {
             // Si intenta acceder a rutas de admin no permitidas, redirigir
             if (to.path.startsWith('/app/admin') && !allowedAdminRoutes.some(route => to.path.startsWith(route))) {
                 console.log('[GUARD] COMPANY_EMPLOYEE intentó acceder a ruta admin restringida, redirigiendo');
-                return next({ name: 'service-orders' });
+                return next({ name: 'management-requests-form' });
             }
         }
 
