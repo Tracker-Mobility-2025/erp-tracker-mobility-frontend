@@ -92,6 +92,14 @@ export default {
       return this.item.status === 'PENDIENTE' || this.item.status === 'ASIGNADO';
     },
 
+    // Verificar si se pueden agregar observaciones
+    canEditObservations() {
+      if (!this.item || !this.item.status) return false;
+      // Solo permitir agregar observaciones en estados específicos
+      const allowedStatuses = ['PENDIENTE', 'ASIGNADO', 'OBSERVADO', 'SUBSANADA'];
+      return allowedStatuses.includes(this.item.status);
+    },
+
     // Validación en tiempo real para los campos de asignación
     isVerifierAssignmentValid() {
       if (!this.editingStates.verifier) return true;
@@ -183,6 +191,13 @@ export default {
       if (section === 'verifier' && !this.canEditVerifierAssignment) {
         this.showToast('warn', 'Acción no permitida', 
           'Solo se puede asignar verificador cuando el estado es PENDIENTE o ASIGNADO.');
+        return;
+      }
+
+      // Verificar si se pueden agregar observaciones
+      if (section === 'observations' && !this.canEditObservations) {
+        this.showToast('warn', 'Acción no permitida', 
+          'Solo se pueden agregar observaciones cuando el estado es PENDIENTE, ASIGNADO, OBSERVADO o SUBSANADA.');
         return;
       }
 
@@ -481,29 +496,16 @@ export default {
           </div>
         </div>
 
-        <div class="flex gap-2 w-full">
+        <!-- Botones de acción -->
+        <div v-if="canEditVerifierAssignment" class="flex gap-2 w-full">
           <!-- Botón de Editar (cuando no está editando) -->
           <pv-button
               v-if="!editingStates.verifier"
               label="Editar"
               icon="pi pi-pencil"
               class="p-button-warning w-full"
-              :disabled="!canEditVerifierAssignment"
               @click="enableEditing('verifier')"
           />
-
-          <!-- Mensaje informativo cuando no se puede editar -->
-          <div 
-              v-if="!editingStates.verifier && !canEditVerifierAssignment"
-              class="w-full p-3 border-1 border-orange-300 border-round bg-orange-50 mt-2"
-          >
-            <div class="flex align-items-center gap-2">
-              <i class="pi pi-info-circle text-orange-600"></i>
-              <span class="text-sm text-orange-800">
-                La asignación de verificador solo está disponible cuando el estado es <strong>PENDIENTE</strong> o <strong>ASIGNADO</strong>.
-              </span>
-            </div>
-          </div>
 
           <!-- Botones de acción (cuando está editando) -->
           <template v-if="editingStates.verifier">
@@ -521,6 +523,19 @@ export default {
                 @click="cancelEditing('verifier')"
             />
           </template>
+        </div>
+
+        <!-- Mensaje informativo cuando no se puede editar -->
+        <div 
+            v-if="!canEditVerifierAssignment"
+            class="w-full p-3 border-1 border-orange-300 border-round bg-orange-50"
+        >
+          <div class="flex align-items-center gap-2">
+            <i class="pi pi-info-circle text-orange-600"></i>
+            <span class="text-sm text-orange-800">
+              La asignación de verificador solo está disponible cuando el estado es <strong>PENDIENTE</strong> o <strong>ASIGNADO</strong>.
+            </span>
+          </div>
         </div>
       </template>
     </pv-card>
@@ -636,7 +651,8 @@ export default {
           </div>
         </div>
 
-        <div class="flex gap-2 w-full">
+        <!-- Botones de acción -->
+        <div v-if="canEditObservations" class="flex gap-2 w-full">
           <!-- Botón de Editar (cuando no está editando) -->
           <pv-button
               v-if="!editingStates.observations"
@@ -662,6 +678,19 @@ export default {
                 @click="cancelEditing('observations')"
             />
           </template>
+        </div>
+
+        <!-- Mensaje informativo cuando no se pueden agregar observaciones -->
+        <div 
+            v-if="!canEditObservations"
+            class="w-full p-3 border-1 border-orange-300 border-round bg-orange-50"
+        >
+          <div class="flex align-items-center gap-2">
+            <i class="pi pi-info-circle text-orange-600"></i>
+            <span class="text-sm text-orange-800">
+              Solo se pueden agregar observaciones cuando el estado es <strong>PENDIENTE</strong>, <strong>ASIGNADO</strong>, <strong>OBSERVADO</strong> o <strong>SUBSANADA</strong>.
+            </span>
+          </div>
         </div>
       </template>
     </pv-card>
