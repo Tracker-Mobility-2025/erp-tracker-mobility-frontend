@@ -1,7 +1,10 @@
 <script>
+import { ImageViewerMixin } from '../mixins/image-viewer.mixin.js';
 
 export default {
   name: 'annexe-06-domicile-location-card',
+
+  mixins: [ImageViewerMixin],
 
   props: {
     item: {
@@ -21,19 +24,9 @@ export default {
   },
 
   methods: {
-    openImageModal(image) {
-      // Lógica para abrir imagen en modal o nueva ventana
-      console.log('Abrir imagen:', image.src);
-    },
-
-    downloadImage(image) {
-      // Lógica para descargar imagen
-      console.log('Descargar imagen:', image.src);
-    },
-
     openInGoogleMaps() {
       // Lógica para abrir imagen en Google Maps (para mapas)
-      console.log('Ver recibo en detalle');
+      console.log('Ver ubicación en Google Maps');
     }
   }
 
@@ -68,17 +61,19 @@ export default {
                     @click="openImageModal(image)"
                   />
                 </div>
-                <div class="image-actions mt-2 flex justify-content-center gap-2">
-                  <pv-button 
+                <div class="image-actions mt-2 flex flex-column gap-2">
+                  <pv-button
                     icon="pi pi-eye" 
-                    class="p-button-sm p-button-text p-button-primary"
-                    v-tooltip="'Ver imagen'"
+                    label="Ver"
+                    class="p-button-sm p-button-primary w-full"
+                    v-tooltip.top="'Ver mapa en grande'"
                     @click="openImageModal(image)"
                   />
                   <pv-button 
                     icon="pi pi-download" 
-                    class="p-button-sm p-button-text p-button-primary"
-                    v-tooltip="'Descargar imagen'"
+                    label="Descargar"
+                    class="p-button-sm p-button-outlined w-full"
+                    v-tooltip.top="'Descargar mapa'"
                     @click="downloadImage(image)"
                   />
                 </div>
@@ -96,6 +91,86 @@ export default {
       </div>
     </template>
   </pv-card>
+
+  <!-- ====================== Modal para visualizar imágenes ====================== -->
+  <pv-dialog
+    v-model:visible="showDocumentModal"
+    :modal="true"
+    :closable="true"
+    :draggable="false"
+    :resizable="false"
+    class="image-viewer-modal"
+    :style="{ width: '90vw', maxWidth: '800px' }"
+    @hide="closeModal"
+  >
+    <template #header>
+      <div class="flex align-items-center gap-2">
+        <i :class="`pi ${getFileIcon(selectedDocument?.url)} ${getFileColor(selectedDocument?.url)}`"></i>
+        <span class="font-semibold">{{ selectedDocument?.displayName || 'Imagen' }}</span>
+      </div>
+    </template>
+
+    <div class="document-viewer-content" v-if="selectedDocument">
+      <div class="image-viewer">
+        <div class="image-controls mb-3 flex justify-content-between align-items-center">
+          <div class="flex gap-2">
+            <pv-button
+              icon="pi pi-minus"
+              class="p-button-sm p-button-outlined"
+              @click="zoomOut"
+              :disabled="imageZoom <= 0.5"
+              title="Alejar"
+            />
+            <pv-button
+              icon="pi pi-refresh"
+              class="p-button-sm p-button-outlined"
+              @click="resetZoom"
+              title="Tamaño original"
+            />
+            <pv-button
+              icon="pi pi-plus"
+              class="p-button-sm p-button-outlined"
+              @click="zoomIn"
+              :disabled="imageZoom >= 3"
+              title="Acercar"
+            />
+          </div>
+          <span class="text-sm text-600">{{ Math.round(imageZoom * 100) }}%</span>
+        </div>
+        <div class="image-container-modal" style="overflow: auto; max-height: 60vh; border: 1px solid #e5e7eb; border-radius: 6px;">
+          <img
+            :src="selectedDocument.url"
+            :alt="selectedDocument?.alt || selectedDocument?.displayName"
+            :style="{ transform: `scale(${imageZoom})`, transformOrigin: 'top left', display: 'block' }"
+            class="max-w-full h-auto"
+            @error="handleImageError"
+          />
+        </div>
+      </div>
+    </div>
+
+    <template #footer>
+      <div class="modal-footer-container">
+        <div class="footer-actions-left">
+          <pv-button
+            icon="pi pi-download"
+            label="Descargar"
+            class="p-button-outlined"
+            @click="downloadImage({ src: selectedDocument?.url, description: selectedDocument?.displayName, alt: selectedDocument?.alt })"
+            :disabled="!selectedDocument?.url"
+          />
+        </div>
+        <div class="footer-actions-right">
+          <pv-button
+            icon="pi pi-times"
+            label="Cerrar"
+            class="p-button-text"
+            @click="closeModal"
+          />
+        </div>
+      </div>
+    </template>
+  </pv-dialog>
 </template>
 
 <style scoped>
@@ -133,5 +208,74 @@ export default {
 
 .hover\:scale-105:hover {
   transform: scale(1.05);
+}
+
+/* Estilos para el modal de imágenes */
+:deep(.image-viewer-modal .p-dialog-header) {
+  background-color: #4A60D0;
+  color: white;
+}
+
+:deep(.image-viewer-modal .p-dialog-content) {
+  padding: 1.5rem;
+}
+
+:deep(.image-viewer-modal .p-dialog-footer) {
+  padding: 1rem 1.5rem;
+}
+
+.image-container-modal {
+  background-color: #f8f9fa;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.image-controls {
+  background-color: #f8f9fa;
+  padding: 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.modal-footer-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 1rem;
+}
+
+.footer-actions-left {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.footer-actions-right {
+  display: flex;
+  gap: 0.5rem;
+}
+
+:deep(.image-viewer-modal) {
+  max-height: 90vh;
+}
+
+:deep(.image-viewer-modal .p-dialog-content) {
+  max-height: calc(90vh - 150px);
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .modal-footer-container {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .footer-actions-left,
+  .footer-actions-right {
+    width: 100%;
+    justify-content: center;
+  }
 }
 </style>

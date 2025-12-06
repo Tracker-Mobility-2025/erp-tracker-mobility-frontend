@@ -1,5 +1,6 @@
 <script>
 import FileUploader from "../../../shared/components/file-uploader.component.vue";
+import { InputValidationMixin } from '../mixins/input-validation.mixin.js';
 
 export default {
   name: 'address-data',
@@ -7,6 +8,8 @@ export default {
   components: {
     FileUploader
   },
+
+  mixins: [InputValidationMixin],
 
   inject: ['client'],
 
@@ -267,6 +270,8 @@ export default {
               :aria-invalid="!!fieldErrors.department"
               :aria-describedby="fieldErrors.department ? 'err-departamento' : null"
               @blur="onFieldBlur('department')"
+              @keydown="validateTextOnly"
+              @paste="(e) => handlePaste(e, 'text')"
           />
           <div class="error-container">
             <small
@@ -290,6 +295,8 @@ export default {
               :aria-invalid="!!fieldErrors.province"
               :aria-describedby="fieldErrors.province ? 'err-provincia' : null"
               @blur="onFieldBlur('province')"
+              @keydown="validateTextOnly"
+              @paste="(e) => handlePaste(e, 'text')"
           />
           <div class="error-container">
             <small
@@ -313,6 +320,8 @@ export default {
               :aria-invalid="!!fieldErrors.district"
               :aria-describedby="fieldErrors.district ? 'err-distrito' : null"
               @blur="onFieldBlur('district')"
+              @keydown="validateTextOnly"
+              @paste="(e) => handlePaste(e, 'text')"
           />
           <div class="error-container">
             <small

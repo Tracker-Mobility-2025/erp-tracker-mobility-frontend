@@ -48,6 +48,16 @@ export default {
   },
 
   methods: {
+    formatPhoneNumber(phoneNumber) {
+      if (!phoneNumber) return 'No disponible';
+
+      // Convertir a string y eliminar espacios o caracteres no numéricos
+      const cleanNumber = String(phoneNumber).replace(/\D/g, '');
+
+      // Separar cada 3 dígitos con un espacio
+      return cleanNumber.replace(/(\d{3})(?=\d)/g, '$1 ');
+    },
+
     formatDocumentType(documentType) {
       if (!documentType) return 'No disponible';
 
@@ -571,7 +581,7 @@ export default {
               <i class="pi pi-phone text-primary"></i>
               Número de contacto
             </label>
-            <p class="font-semibold text-900 m-0">{{ item?.applicantCompany?.contactPhoneNumber || 'No disponible' }}</p>
+            <p class="font-semibold text-900 m-0">{{ formatPhoneNumber(item?.applicantCompany?.contactPhoneNumber) }}</p>
           </div>
           <div class="field col-12 md:col-8">
             <label class="font-semibold text-600 flex align-items-center gap-2">
@@ -617,9 +627,9 @@ export default {
               <i class="pi pi-phone text-primary"></i>
               Número de contacto
             </label>
-            <p class="font-semibold text-900 m-0">{{ item?.client?.phoneNumber || 'No disponible' }}</p>
+            <p class="font-semibold text-900 m-0">{{ formatPhoneNumber(item?.client?.phoneNumber) }}</p>
           </div>
-          <!-- Fila 2: Tipo de documento, N° de documento y Dirección de domicilio -->
+          <!-- Fila 2: Tipo de documento y N° de documento -->
           <div class="field col-12 md:col-4">
             <label class="font-semibold text-600 flex align-items-center gap-2">
               <i class="pi pi-credit-card text-primary"></i>
@@ -633,6 +643,28 @@ export default {
               N° de documento
             </label>
             <p class="font-semibold text-900 m-0">{{ item?.client?.identityDocument?.documentNumber || 'No disponible' }}</p>
+          </div>
+          <!-- Fila 3: Departamento, Provincia y Distrito -->
+          <div class="field col-12 md:col-4">
+            <label class="font-semibold text-600 flex align-items-center gap-2">
+              <i class="pi pi-map text-primary"></i>
+              Departamento
+            </label>
+            <p class="font-semibold text-900 m-0">{{ (item?.client?.location?.department || 'No disponible').toUpperCase() }}</p>
+          </div>
+          <div class="field col-12 md:col-4">
+            <label class="font-semibold text-600 flex align-items-center gap-2">
+              <i class="pi pi-building text-primary"></i>
+              Provincia
+            </label>
+            <p class="font-semibold text-900 m-0">{{ (item?.client?.location?.province || 'No disponible').toUpperCase() }}</p>
+          </div>
+          <div class="field col-12 md:col-4">
+            <label class="font-semibold text-600 flex align-items-center gap-2">
+              <i class="pi pi-flag text-primary"></i>
+              Distrito
+            </label>
+            <p class="font-semibold text-900 m-0">{{ item?.client?.location?.district || 'No disponible' }}</p>
           </div>
           <div class="field col-12 md:col-4">
             <label class="font-semibold text-600 flex align-items-center gap-2">
@@ -757,7 +789,7 @@ export default {
               <i class="pi pi-phone text-primary"></i>
               Número de contacto
             </label>
-            <p class="font-semibold text-900 m-0">{{ item?.client?.landlord?.phoneNumber || 'No disponible' }}</p>
+            <p class="font-semibold text-900 m-0">{{ formatPhoneNumber(item?.client?.landlord?.phoneNumber) }}</p>
           </div>
         </div>
       </template>

@@ -1,9 +1,13 @@
 <script>
+import { InputValidationMixin } from '../mixins/input-validation.mixin.js';
+
 export default {
   name: 'customer-data',
   
   components: {},
   
+  mixins: [InputValidationMixin],
+
   inject: ['client', 'applicantCompany'],
   
   data() {
@@ -179,6 +183,8 @@ export default {
               :aria-invalid="!!fieldErrors.name"
               :aria-describedby="fieldErrors.name ? 'err-nombres' : null"
               @blur="onFieldBlur('name')"
+              @keydown="validateTextOnly"
+              @paste="(e) => handlePaste(e, 'text')"
           />
           <div class="error-container">
             <small
@@ -202,6 +208,8 @@ export default {
               :aria-invalid="!!fieldErrors.lastName"
               :aria-describedby="fieldErrors.lastName ? 'err-apellidos' : null"
               @blur="onFieldBlur('lastName')"
+              @keydown="validateTextOnly"
+              @paste="(e) => handlePaste(e, 'text')"
           />
           <div class="error-container">
             <small
@@ -250,6 +258,8 @@ export default {
                 :aria-invalid="!!fieldErrors.documentNumber"
                 :aria-describedby="fieldErrors.documentNumber ? 'err-numdoc' : null"
                 @blur="onFieldBlur('documentNumber')"
+                @keydown="validateNumbersOnly"
+                @paste="(e) => handlePaste(e, 'number')"
             />
           </pv-icon-field>
           <div class="error-container">

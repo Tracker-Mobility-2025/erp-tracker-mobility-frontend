@@ -63,15 +63,26 @@ export default {
       // Opciones de tipos de observación
       observationTypeOptions: [
         { label: '-- Seleccionar tipo --', value: null },
-        { label: 'Documento de identidad', value: 'DOCUMENTO_IDENTIDAD' },
-        { label: 'Recibo de servicio', value: 'RECIBO_SERVICIO' }
+        { label: 'Documento de identidad - Borroso o ilegible', value: 'DOCUMENTO_IDENTIDAD_BORROSO' },
+        { label: 'Recibo de servicio - Borroso o ilegible', value: 'RECIBO_SERVICIO_BORROSO' },
+        { label: 'Foto fachada vivienda - Borrosa o ilegible', value: 'FOTO_FACHADA_BORROSA' },
+        { label: 'Ubicación en mapa - Enlace incorrecto', value: 'UBICACION_INCORRECTA' },
+        { label: 'Datos del cliente - Incorrectos', value: 'DATOS_CLIENTE_INCOMPLETOS' },
+        { label: 'Datos del arrendador - Incorrectos', value: 'DATOS_ARRENDADOR_INCOMPLETOS' }
       ],
 
       // Opciones de estados de observación
       observationStatusOptions: [
         { label: 'Pendiente', value: 'PENDIENTE', severity: 'warning', color: '#FB8C00' },
         { label: 'Resuelta', value: 'RESUELTA', severity: 'success', color: '#4CAF50' }
-      ]
+      ],
+
+      // Paginación de observaciones
+      observationsPagination: {
+        currentPage: 1,
+        itemsPerPage: 5,
+        totalPages: 1
+      }
     };
   },
 
@@ -115,6 +126,32 @@ export default {
       return this.currentObservation.observationType &&
              this.currentObservation.description &&
              this.currentObservation.description.trim() !== '';
+    },
+
+    // Observaciones paginadas
+    paginatedObservations() {
+      if (!this.item.observations || this.item.observations.length === 0) return [];
+
+      const start = (this.observationsPagination.currentPage - 1) * this.observationsPagination.itemsPerPage;
+      const end = start + this.observationsPagination.itemsPerPage;
+
+      return this.item.observations.slice(start, end);
+    },
+
+    // Total de páginas de observaciones
+    totalObservationPages() {
+      if (!this.item.observations || this.item.observations.length === 0) return 1;
+      return Math.ceil(this.item.observations.length / this.observationsPagination.itemsPerPage);
+    },
+
+    // Verificar si hay página anterior
+    hasPreviousPage() {
+      return this.observationsPagination.currentPage > 1;
+    },
+
+    // Verificar si hay página siguiente
+    hasNextPage() {
+      return this.observationsPagination.currentPage < this.totalObservationPages;
     }
 
   },
@@ -142,6 +179,33 @@ export default {
     shouldUseWhiteTextObservation(status) {
       return ['PENDIENTE', 'RESUELTA'].includes(status);
     },
+
+    // Ir a la página anterior de observaciones
+    goToPreviousPage() {
+      if (this.hasPreviousPage) {
+        this.observationsPagination.currentPage--;
+      }
+    },
+
+    // Ir a la página siguiente de observaciones
+    goToNextPage() {
+      if (this.hasNextPage) {
+        this.observationsPagination.currentPage++;
+      }
+    },
+
+    // Ir a una página específica de observaciones
+    goToPage(pageNumber) {
+      if (pageNumber >= 1 && pageNumber <= this.totalObservationPages) {
+        this.observationsPagination.currentPage = pageNumber;
+      }
+    },
+
+    // Reiniciar paginación (ir a primera página)
+    resetPagination() {
+      this.observationsPagination.currentPage = 1;
+    },
+
     // Inicializar datos locales desde el prop
     initializeLocalData() {
       if (this.item.homeVisitDetails) {
@@ -374,12 +438,15 @@ export default {
           }
           this.item.observations.push(response.data);
 
+          // Resetear paginación para mostrar la nueva observación
+          this.resetPagination();
+
           // Mostrar mensaje de éxito
           this.showToast('success', 'Observación agregada', 'La observación ha sido agregada correctamente.');
 
           // Limpiar el formulario de observación actual
           this.currentObservation = {
-            observationType: 'DOCUMENTO_IDENTIDAD',
+            observationType: null,
             description: ''
           };
 
@@ -618,9 +685,9 @@ export default {
             <i class="pi pi-list text-primary"></i>
             Observaciones registradas ({{ item.observations.length }})
           </label>
-          <div class="observations-list max-h-15rem overflow-y-auto" style="scrollbar-width: thin; scrollbar-color: #cbd5e1 #f1f5f9;">
+          <div class="observations-list" style="scrollbar-width: thin; scrollbar-color: #cbd5e1 #f1f5f9;">
             <div
-              v-for="(observation, index) in item.observations"
+              v-for="(observation, index) in paginatedObservations"
               :key="observation.id || index"
               class="observation-item p-3 mb-2 border-1 border-300 border-round bg-blue-50 transition-all transition-duration-200 cursor-pointer"
             >
@@ -647,6 +714,40 @@ export default {
                   </p>
                 </div>
               </div>
+            </div>
+          </div>
+
+          <!-- Controles de paginación -->
+          <div v-if="totalObservationPages > 1" class="flex align-items-center justify-content-between mt-3 p-3 border-1 surface-border border-round bg-gray-50">
+            <div class="flex align-items-center gap-2">
+              <pv-button
+                icon="pi pi-angle-left"
+                class="p-button-sm p-button-text"
+                :disabled="!hasPreviousPage"
+                @click="goToPreviousPage"
+                v-tooltip.top="'Página anterior'"
+              />
+              <span class="text-sm text-600">
+                Página <strong>{{ observationsPagination.currentPage }}</strong> de <strong>{{ totalObservationPages }}</strong>
+              </span>
+              <pv-button
+                icon="pi pi-angle-right"
+                class="p-button-sm p-button-text"
+                :disabled="!hasNextPage"
+                @click="goToNextPage"
+                v-tooltip.top="'Página siguiente'"
+              />
+            </div>
+            <div class="flex align-items-center gap-1">
+              <pv-button
+                v-for="page in totalObservationPages"
+                :key="page"
+                :label="String(page)"
+                class="p-button-sm"
+                :class="page === observationsPagination.currentPage ? 'p-button-primary' : 'p-button-text'"
+                @click="goToPage(page)"
+                v-tooltip.top="`Ir a página ${page}`"
+              />
             </div>
           </div>
         </div>
@@ -747,6 +848,28 @@ export default {
 
 .observations-list::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* Estilos para la lista de observaciones sin scroll excesivo */
+.observations-list {
+  max-height: none;
+  overflow-y: visible;
+}
+
+/* Animación hover para items de observación */
+.observation-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Estilos para los controles de paginación */
+.p-button.p-button-primary {
+  font-weight: 600;
+}
+
+.p-button.p-button-text:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 /* Tags de estado de observaciones personalizados */

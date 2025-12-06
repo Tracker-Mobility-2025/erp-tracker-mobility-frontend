@@ -4,6 +4,7 @@ import DataManager from "../../../shared/components/data-manager.component.vue";
 import {OrderRequestApi} from "../services/order-request-api.service.js";
 import {VerifierApi} from "../services/verifier-api.service.js";
 import {NotificationMixin} from "../../../shared/utils/notification.utils.js";
+import {OrderService} from "../models/order-service.entity.js";
 
 export default {
   name: "service-order-management",
@@ -31,7 +32,8 @@ export default {
 
       // Definición de columnas para la tabla
       columns: [
-        { field: 'orderCode', header: 'Código de orden', sortable: true, style: 'width: 160px;' },
+        { field: 'orderCode', header: 'Código de orden', sortable: true, style: 'width: 120px;' },
+        { field: 'cliente', header: 'Cliente', sortable: true, template: 'cliente', style: 'width: 200px;' },
         { field: 'status', header: 'Estado', sortable: true, template: 'status', style: 'width: 120px;' },
         { field: 'applicantCompany.companyName', header: 'Solicitante', sortable: true, style: 'width: 150px;' },
         { field: 'verificador', header: 'Verificador', sortable: true, template: 'verificador', style: 'width: 150px;' },
@@ -55,7 +57,10 @@ export default {
         singular: 'orden de verificación',
         plural: 'órdenes de verificación'
       },
-      loading: false
+      loading: false,
+      loadingTimeout: null,
+      hasLoadingError: false,
+      loadingTimeoutDuration: 15000 // 15 segundos de timeout
     }
   },
 
@@ -85,7 +90,14 @@ export default {
             verifierMatch = verifierName.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchTerm);
           }
           
-          return orderCodeMatch || companyMatch || verifierMatch;
+          // Buscar en nombre completo del cliente
+          let clientMatch = false;
+          if (order.client) {
+            const clientFullName = this.getClientFullName(order.client);
+            clientMatch = clientFullName.toLowerCase().trim().replace(/\s+/g, ' ').includes(searchTerm);
+          }
+
+          return orderCodeMatch || companyMatch || verifierMatch || clientMatch;
         });
       }
 
@@ -124,6 +136,13 @@ export default {
 
 
   methods: {
+
+    getClientFullName(client) {
+      if (!client || !client.name || !client.lastName) {
+        return 'Sin datos';
+      }
+      return client.getFullName ? client.getFullName() : `${client.name} ${client.lastName}`;
+    },
 
     getVerifierById(verifierId) {
       if (!verifierId || !this.verifiersArray.length) {
@@ -341,12 +360,12 @@ export default {
 
     // Retornar todas las órdenes desde la API (si se implementa)
     getAllOrders() {
-      this.loading = true;
-      this.orderRequestApi.getAll().then(response => {
+      return this.orderRequestApi.getAll().then(response => {
         // Validar respuesta usando función modular
         this.validateServerResponse(response, 'órdenes');
 
-        this.itemsArray = response.data;
+        // Mapear los datos del API a instancias de OrderService
+        this.itemsArray = response.data.map(orderData => new OrderService(orderData));
 
         // Ordenar por fecha de solicitud (más reciente primero)
         this.itemsArray.sort((a, b) => {
@@ -362,19 +381,16 @@ export default {
         });
 
         console.log('Órdenes de servicio cargadas:', this.itemsArray);
-
       }).catch(error => {
         this.itemsArray = []; // Limpiar datos en caso de error
         this.handleServerError(error, 'las órdenes');
-      }).finally(() => {
-        this.loading = false;
+        throw error; // Re-lanzar para manejar en loadAllData
       });
     },
 
     // Retorna todos los verificadores
     getAllVerifiers() {
-      this.loading = true;
-      this.verifierApi.getAll().then(response => {
+      return this.verifierApi.getAll().then(response => {
         // Validar respuesta usando función modular
         this.validateServerResponse(response, 'verificadores');
 
@@ -384,10 +400,52 @@ export default {
       .catch(error => {
         this.verifiersArray = []; // Limpiar datos en caso de error
         this.handleServerError(error, 'los verificadores');
+        // No re-lanzar el error para que no bloquee la carga de órdenes
+      });
+    },
+
+    // Cargar todos los datos (órdenes y verificadores) en paralelo
+    loadAllData() {
+      this.loading = true;
+      this.hasLoadingError = false;
+
+      // Configurar timeout para detectar carga lenta
+      this.loadingTimeout = setTimeout(() => {
+        if (this.loading) {
+          this.hasLoadingError = true;
+          console.warn('La carga de datos está tomando más tiempo del esperado');
+        }
+      }, this.loadingTimeoutDuration);
+
+      // Cargar ambos recursos en paralelo
+      Promise.all([
+        this.getAllOrders(),
+        this.getAllVerifiers()
+      ])
+      .then(() => {
+        // Ambas cargas completadas exitosamente
+        this.hasLoadingError = false;
+        console.log('Todos los datos cargados correctamente');
+      })
+      .catch(error => {
+        // Al menos una carga falló
+        this.hasLoadingError = true;
+        console.error('Error al cargar datos:', error);
       })
       .finally(() => {
+        // Limpiar timeout
+        if (this.loadingTimeout) {
+          clearTimeout(this.loadingTimeout);
+          this.loadingTimeout = null;
+        }
+        // Finalizar estado de carga
         this.loading = false;
       });
+    },
+
+    // Método para reintentar la carga de datos
+    retryLoadData() {
+      this.loadAllData();
     }
 
   },
@@ -396,10 +454,18 @@ export default {
 
     this.orderRequestApi = new OrderRequestApi('/orders');
     this.verifierApi = new VerifierApi('/verifiers');
-    // Aquí podrías cargar las órdenes desde una API si es necesario
-    this.getAllOrders();
-    this.getAllVerifiers();
 
+    // Cargar todos los datos
+    this.loadAllData();
+
+  },
+
+  beforeUnmount() {
+    // Limpiar timeout si existe al destruir el componente
+    if (this.loadingTimeout) {
+      clearTimeout(this.loadingTimeout);
+      this.loadingTimeout = null;
+    }
   }
 }
 </script>
@@ -415,6 +481,48 @@ export default {
         <p>Administra las órdenes de verificación, asigna verificadores y programa visitas.</p>
       </div>
     </div>
+
+    <!-- Mensaje de advertencia si la carga toma mucho tiempo -->
+    <pv-message
+      v-if="loading && hasLoadingError"
+      severity="warn"
+      :closable="false"
+      class="mb-3"
+    >
+      <div class="flex align-items-center justify-content-between w-full">
+        <div class="flex align-items-center gap-2">
+          <i class="pi pi-spin pi-spinner"></i>
+          <span>La carga está tomando más tiempo del esperado. Por favor, espere o intente recargar.</span>
+        </div>
+        <pv-button
+          label="Recargar"
+          icon="pi pi-refresh"
+          class="p-button-sm p-button-warning"
+          @click="retryLoadData"
+        />
+      </div>
+    </pv-message>
+
+    <!-- Mensaje de error si la carga falló -->
+    <pv-message
+      v-if="!loading && hasLoadingError && itemsArray.length === 0"
+      severity="error"
+      :closable="false"
+      class="mb-3"
+    >
+      <div class="flex align-items-center justify-content-between w-full">
+        <div class="flex align-items-center gap-2">
+          <i class="pi pi-exclamation-triangle"></i>
+          <span>No se pudieron cargar las órdenes. Por favor, intente nuevamente.</span>
+        </div>
+        <pv-button
+          label="Reintentar"
+          icon="pi pi-refresh"
+          class="p-button-sm p-button-danger"
+          @click="retryLoadData"
+        />
+      </div>
+    </pv-message>
 
     <!-- Componente DataManager para gestionar ordenes de servicio-->
     <data-manager
@@ -436,7 +544,7 @@ export default {
       new-button-label="Nueva Orden"
       delete-button-label="Eliminar"
       export-button-label="Exportar"
-      search-placeholder="Busca por código de orden, solicitante, verificador..."
+      search-placeholder="Busca por código de orden, cliente, solicitante, verificador..."
       @delete-selected-items-requested-manager="onDeleteSelectedItems"
       @delete-item-requested-manager="onDeleteItem"
       @view-item-requested-manager="onViewItem"
@@ -500,6 +608,13 @@ export default {
           :class="getStatusClass(data.status)"
         >
           {{ data.status.replace(/_/g, ' ') }}
+        </span>
+      </template>
+
+      <!-- Custom Cliente Column -->
+      <template #cliente="{ data }">
+        <span :class="{ 'text-gray-500 font-italic': !data.client }">
+          {{ data.client ? getClientFullName(data.client) : 'Sin datos' }}
         </span>
       </template>
 

@@ -3,6 +3,7 @@
 import FileUploader from "../../../shared/components/file-uploader.component.vue";
 import {OrderServiceRequest} from "../services/service-request-api.service.js";
 import {OrderResponse} from "../models/order-response.entity.js";
+import { InputValidationMixin } from '../mixins/input-validation.mixin.js';
 
 export default {
   name: 'support-docs-and-landlord-form',
@@ -11,6 +12,8 @@ export default {
     FileUploader
   },
   
+  mixins: [InputValidationMixin],
+
   inject: ['client', 'applicantCompany'],
 
   data () {
@@ -508,6 +511,8 @@ export default {
                 :aria-invalid="!!fieldErrors.nombres"
                 :aria-describedby="fieldErrors.nombres ? 'err-land-nombres' : null"
                 @blur="onFieldBlur('nombres')"
+                @keydown="validateTextOnly"
+                @paste="(e) => handlePaste(e, 'text')"
             />
             <div class="error-container">
               <small v-if="(touched.nombres || showValidation) && fieldErrors.nombres" id="err-land-nombres" class="error-message">
