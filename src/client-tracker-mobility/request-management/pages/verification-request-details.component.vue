@@ -156,13 +156,15 @@ export default {
           return '#FB8C00';
         case 'SUBSANADA':
           return '#66BB6A';
+        case 'ENTREVISTA_ARRENDADOR_FALTANTE':
+          return '#9C27B0';
         default:
           return '#E0E0E0';
       }
     },
 
     shouldUseWhiteText(status) {
-      return ['ASIGNADO', 'COMPLETADA', 'CANCELADA', 'OBSERVADO', 'SUBSANADA'].includes(status);
+      return ['ASIGNADO', 'COMPLETADA', 'CANCELADA', 'OBSERVADO', 'SUBSANADA', 'ENTREVISTA_ARRENDADOR_FALTANTE'].includes(status);
     },
 
     // Manejar subsanación de observación - Habilitar modo edición

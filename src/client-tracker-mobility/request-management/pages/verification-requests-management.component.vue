@@ -43,7 +43,8 @@ export default {
         { label: 'Completada', value: 'COMPLETADA' },
         { label: 'Cancelada', value: 'CANCELADA' },
         { label: 'Observado', value: 'OBSERVADO' },
-        { label: 'Subsanada', value: 'SUBSANADA' }
+        { label: 'Subsanada', value: 'SUBSANADA' },
+        { label: 'Ent Faltante', value: 'ENTREVISTA_ARRENDADOR_FALTANTE' }
       ],
       title: {
         singular: 'Solicitud de verificación',
@@ -189,7 +190,8 @@ export default {
         'COMPLETADA': 'status-completada',
         'CANCELADA': 'status-cancelada',
         'OBSERVADO': 'status-observado',
-        'SUBSANADA': 'status-subsanada'
+        'SUBSANADA': 'status-subsanada',
+        'ENTREVISTA_ARRENDADOR_FALTANTE': 'status-entrevista-arrendador-faltante'
       };
       return statusMap[status] || 'status-default';
     },

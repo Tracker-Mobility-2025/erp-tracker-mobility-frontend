@@ -62,7 +62,8 @@
     --status-cancelada: #D32F2F;        /* Rojo - cancelado/rechazado */
     --status-observado: #FB8C00;        /* Naranja - tiene observaciones críticas */
     --status-subsanada: #66BB6A;        /* Verde claro - observaciones corregidas */
-    
+    --status-entrevista-arrendador-faltante: #9C27B0;  /* Púrpura - falta entrevista del arrendador */
+
     /* Estados específicos para verification-reports */
     --status-conforme: #4CAF50;         /* Verde - reporte conforme */
     --status-rechazado: #D32F2F;        /* Rojo - reporte rechazado */
@@ -1418,6 +1419,11 @@ html:not(.force-dark-mode) .p-calendar {
 
 .status-subsanada {
     background-color: var(--status-subsanada);
+    color: var(--text-white);
+}
+
+.status-entrevista-arrendador-faltante {
+    background-color: var(--status-entrevista-arrendador-faltante);
     color: var(--text-white);
 }
 
