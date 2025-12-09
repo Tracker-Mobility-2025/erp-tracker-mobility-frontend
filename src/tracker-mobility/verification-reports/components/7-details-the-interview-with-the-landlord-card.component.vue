@@ -13,7 +13,8 @@ export default {
         serviceClientPays: '-',
         clientPaysPunctual: '-',
         clientRentalTime: '-',
-        clientFloorNumber: '-'
+        clientFloorNumber: '-',
+        interviewObservation: ''
       })
     },
     canEdit: {
@@ -37,7 +38,8 @@ export default {
         serviceClientPays: '',
         clientPaysPunctual: '',
         clientRentalTime: '',
-        clientFloorNumber: ''
+        clientFloorNumber: '',
+        interviewObservation: ''
       },
       booleanOptions: [
         { label: 'No especifica', value: 'No especifica' },
@@ -58,7 +60,8 @@ export default {
           serviceClientPays: newVal?.serviceClientPays || '',
           clientPaysPunctual: newVal?.clientPaysPunctual || '',
           clientRentalTime: newVal?.clientRentalTime || '',
-          clientFloorNumber: newVal?.clientFloorNumber || ''
+          clientFloorNumber: newVal?.clientFloorNumber || '',
+          interviewObservation: newVal?.interviewObservation || ''
         };
       }
     },
@@ -99,7 +102,8 @@ export default {
           serviceClientPays: this.item?.serviceClientPays || '',
           clientPaysPunctual: this.item?.clientPaysPunctual || '',
           clientRentalTime: this.item?.clientRentalTime || '',
-          clientFloorNumber: this.item?.clientFloorNumber || ''
+          clientFloorNumber: this.item?.clientFloorNumber || '',
+          interviewObservation: this.item?.interviewObservation || ''
         };
       }
     },
@@ -302,6 +306,27 @@ export default {
           </template>
           <template v-else>
             <pv-input-text v-model="editForm.clientFloorNumber" class="w-full" placeholder="Ej: 3"/>
+          </template>
+        </div>
+
+        <!-- Tercera fila - Observaciones de la entrevista -->
+        <div class="field col-12">
+          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
+            <i class="pi pi-file-edit text-primary"></i>
+            Observaciones de la entrevista:
+          </label>
+          <template v-if="!isEditing">
+            <p class="font-semibold text-dark m-0" style="white-space: pre-wrap;">
+              {{ item?.interviewObservation || '-' }}
+            </p>
+          </template>
+          <template v-else>
+            <pv-textarea
+              v-model="editForm.interviewObservation"
+              class="w-full"
+              rows="4"
+              placeholder="Ingrese observaciones adicionales sobre la entrevista (opcional)"
+            />
           </template>
         </div>
       </div>

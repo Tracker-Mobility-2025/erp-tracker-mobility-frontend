@@ -252,7 +252,8 @@ export default {
         serviceClientPays: servicesPaid,
         clientPaysPunctual: formatBooleanOrString(interview?.isTheClientPunctualWithPayments),
         clientRentalTime: formatValue(interview?.timeLivingAccordingToLandlord),
-        clientFloorNumber: formatValue(interview?.floorOccupiedByClient)
+        clientFloorNumber: formatValue(interview?.floorOccupiedByClient),
+        interviewObservation: interview?.interviewObservation || ''
       };
     },
 
@@ -882,7 +883,8 @@ export default {
           servicesPaidByClient: cleanString(payload?.serviceClientPays),
           isTheClientPunctualWithPayments: cleanString(payload?.clientPaysPunctual),
           timeLivingAccordingToLandlord: cleanString(payload?.clientRentalTime),
-          floorOccupiedByClient: cleanString(payload?.clientFloorNumber)
+          floorOccupiedByClient: cleanString(payload?.clientFloorNumber),
+          interviewObservation: cleanString(payload?.interviewObservation)
         };
 
         // Obtener el orderId desde el reporte
@@ -914,7 +916,8 @@ export default {
           servicesPaidByClient: apiPayload.servicesPaidByClient ? apiPayload.servicesPaidByClient.split(',').map(s => s.trim()).filter(Boolean) : [],
           isTheClientPunctualWithPayments: apiPayload.isTheClientPunctualWithPayments,
           timeLivingAccordingToLandlord: apiPayload.timeLivingAccordingToLandlord,
-          floorOccupiedByClient: apiPayload.floorOccupiedByClient
+          floorOccupiedByClient: apiPayload.floorOccupiedByClient,
+          interviewObservation: apiPayload.interviewObservation
         };
 
         console.log('💾 Estado local actualizado correctamente');
