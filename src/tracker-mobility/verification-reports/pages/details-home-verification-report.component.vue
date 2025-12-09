@@ -1045,7 +1045,7 @@ export default {
       <div class="flex align-content-center justify-content-between  mt-4 mb-2">
         <!-- Izquierda -->
         <h2 class="text-2xl xl:font-bold font-extrabold text-gray-900">
-          Reporte:<span class="text-blue-700 xl:font-bold "> {{ effectiveItem?.reportCode || 'Cargando...' }}</span>
+          Reporte: <span class="text-blue-700 xl:font-bold "> {{ effectiveItem?.reportCode || 'Cargando...' }}</span>
         </h2>
 
         <!-- Derecha -->
@@ -1149,20 +1149,22 @@ export default {
 
         <!-- ============== SECCIÓN: Observaciones, resumen, glosario y casuística ============== -->
         <div class="section-separator">
-          <h2 class="text-xl font-bold text-gray-800 py-2 border-bottom-1 surface-border mb-0">Observaciones, resumen, glosario y casuística</h2>
+          <h2 class="text-xl font-bold text-gray-800 py-2 border-bottom-1 surface-border mb-0">
+            {{ effectiveItem?.finalResult === 'CONFORME' ? 'Resumen y glosario' : 'Observaciones, resumen, glosario y casuística' }}
+          </h2>
         </div>
 
-        <!-- Séptima sección: Observaciones -->
-        <ObservationsCard :item="observationsData" />
+        <!-- Séptima sección: Observaciones - Solo se muestra si NO es CONFORME -->
+        <ObservationsCard v-if="effectiveItem?.finalResult !== 'CONFORME'" :item="observationsData" />
 
-        <!-- Octava sección: Resumen -->
+        <!-- Octava sección: Resumen - Siempre se muestra -->
         <ReportSummaryCard :item="summaryData" />
 
-        <!-- Novena sección: Glosario -->
+        <!-- Novena sección: Glosario - Siempre se muestra -->
         <ReportGlossaryCard :item="glossaryData" />
 
-        <!-- Décima sección: Casuística -->
-        <CasuistryReportCard :item="casuistryData" />
+        <!-- Décima sección: Casuística - Solo se muestra si NO es CONFORME -->
+        <CasuistryReportCard v-if="effectiveItem?.finalResult !== 'CONFORME'" :item="casuistryData" />
 
         <!-- ============== SECCIÓN: ANEXOS ============== -->
         <div class="section-separator">
