@@ -130,6 +130,7 @@ export default {
         { role: 'ADMIN', label: 'Verificadores', icon: 'pi pi-fw pi-users', to: `/app/admin/verifiers` },
         { role: 'ADMIN', label: 'Reportes', icon: 'pi pi-fw pi-chart-bar', to: `/app/admin/verification-reports` },
         { role: 'ADMIN', label: 'Clientes', icon: 'pi pi-fw pi-user', to: `/app/admin/clients` },
+        { role: 'MASTER_ADMIN', label: 'Admin Verificadores', icon: 'pi pi-fw pi-shield', to: `/app/support-metasoft/admin-verifiers` },
       ];
     },
 
@@ -144,6 +145,18 @@ export default {
 
     filteredItems() {
       if (!this.currentUser.isSignedIn) return [];
+
+      // MASTER_ADMIN ve Órdenes, Reportes, Clientes y Admin Verificadores
+      if (this.currentUser.role === 'MASTER_ADMIN') {
+        return this.items.filter(i =>
+          i.label === 'Órdenes' ||
+          i.label === 'Reportes' ||
+          i.label === 'Clientes' ||
+          i.label === 'Admin Verificadores'
+        );
+      }
+
+      // Otros roles solo ven los items que corresponden a su rol
       return this.items.filter(i => i.role === this.currentUser.role);
     }
   },

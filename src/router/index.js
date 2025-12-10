@@ -23,6 +23,7 @@ import VerificationRequestsManagementComponent
     from "../client-tracker-mobility/request-management/pages/verification-requests-management.component.vue";
 import VerificationRequestDetailsComponent
     from "../client-tracker-mobility/request-management/pages/verification-request-details.component.vue";
+import AdminVerifiersManagementComponent from "../support-metasoft/pages/admin-verifiers-management.component.vue";
 
 
 
@@ -45,7 +46,7 @@ const router = createRouter({
             component: LayoutTrackerMobilityComponent,
             meta: {
                 title: 'Tracker Mobility',
-                roles: ['ADMIN', 'COMPANY_EMPLOYEE'] // Ambos roles pueden acceder al layout
+                roles: ['ADMIN', 'COMPANY_EMPLOYEE', 'MASTER_ADMIN'] // Todos los roles pueden acceder al layout
             },
             children: [
 
@@ -62,7 +63,7 @@ const router = createRouter({
                             return { name: 'management-requests-form' };
                         }
                         
-                        // ADMIN y otros roles van a service-orders
+                        // ADMIN, MASTER_ADMIN y otros roles van a service-orders
                         return { name: 'service-orders' };
                     }
                 },
@@ -77,7 +78,7 @@ const router = createRouter({
                     component: DashboardManagementComponent,
                     meta: {
                         title: 'Dashboard',
-                        roles: ['ADMIN']
+                        roles: ['ADMIN', 'MASTER_ADMIN']
                     }
                 },
 
@@ -88,7 +89,7 @@ const router = createRouter({
                     component: ServiceOrderManagementComponent,
                     meta: {
                         title: 'Ordenes de servicio',
-                        roles: ['ADMIN', 'COMPANY_EMPLOYEE'] // Ambos roles pueden ver órdenes
+                        roles: ['ADMIN', 'COMPANY_EMPLOYEE', 'MASTER_ADMIN'] // Todos pueden ver órdenes
                     }
                 },
                 {
@@ -97,7 +98,7 @@ const router = createRouter({
                     component: OrderDetailManagementComponent,
                     meta: {
                         title: 'Detalles de la orden',
-                        roles: ['ADMIN', 'COMPANY_EMPLOYEE'] // Ambos roles pueden ver detalles
+                        roles: ['ADMIN', 'COMPANY_EMPLOYEE', 'MASTER_ADMIN'] // Todos pueden ver detalles
                     }
                 },
 
@@ -108,7 +109,7 @@ const router = createRouter({
                     component: VerifiersManagementComponent,
                     meta: {
                         title: 'Verificadores',
-                        roles: ['ADMIN']
+                        roles: ['ADMIN', 'MASTER_ADMIN']
                     }
                 },
                 {
@@ -117,7 +118,7 @@ const router = createRouter({
                     component: VerifiersDetailsManagementComponent,
                     meta: {
                         title: 'Detalles del verificador',
-                        roles: ['ADMIN']
+                        roles: ['ADMIN', 'MASTER_ADMIN']
                     }
                 },
 
@@ -128,7 +129,7 @@ const router = createRouter({
                     component: VerificationReportsManagementComponent,
                     meta: {
                         title: 'Reportes de verificación',
-                        roles: ['ADMIN']
+                        roles: ['ADMIN', 'MASTER_ADMIN']
                     }
                 },
                 {
@@ -137,7 +138,7 @@ const router = createRouter({
                     component: DetailsHomeVerificationReportComponent,
                     meta: {
                         title: 'Detalles del reporte de verificación',
-                        roles: ['ADMIN']
+                        roles: ['ADMIN', 'MASTER_ADMIN']
                     }
                 },
 
@@ -148,7 +149,7 @@ const router = createRouter({
                     component: ClientManagementComponent,
                     meta: {
                         title: 'Clientes',
-                        roles: ['ADMIN']
+                        roles: ['ADMIN', 'MASTER_ADMIN']
                     }
                 },
                 {
@@ -157,7 +158,7 @@ const router = createRouter({
                     component: ClientDetailsManagementComponent,
                     meta: {
                         title: 'Detalle del cliente',
-                        roles: ['ADMIN']
+                        roles: ['ADMIN', 'MASTER_ADMIN']
                     }
                 },
 
@@ -174,7 +175,7 @@ const router = createRouter({
                     component: ManagementRequestFormComponent,
                     meta: {
                         title: 'Solicitud de visita domiciliaria',
-                        roles: ['COMPANY_EMPLOYEE']
+                        roles: ['COMPANY_EMPLOYEE', 'MASTER_ADMIN']
                     }
                 },
 
@@ -185,7 +186,7 @@ const router = createRouter({
                     component: VerificationRequestsManagementComponent,
                     meta: {
                         title: 'Mis Solicitudes',
-                        roles: ['COMPANY_EMPLOYEE']
+                        roles: ['COMPANY_EMPLOYEE', 'MASTER_ADMIN']
                     }
                 },
 
@@ -196,7 +197,24 @@ const router = createRouter({
                     component: VerificationRequestDetailsComponent,
                     meta: {
                         title: 'Detalle de Solicitud',
-                        roles: ['COMPANY_EMPLOYEE']
+                        roles: ['COMPANY_EMPLOYEE', 'MASTER_ADMIN']
+                    }
+                },
+
+                //========================================================
+
+
+                // ============== Rutas de SUPPORT METASOFT (MASTER_ADMIN) ==============
+                //========================================================
+
+                // Gestión Administrativa de Verificadores
+                {
+                    path: 'support-metasoft/admin-verifiers',
+                    name: 'admin-verifiers',
+                    component: AdminVerifiersManagementComponent,
+                    meta: {
+                        title: 'Administración de Verificadores',
+                        roles: ['MASTER_ADMIN']
                     }
                 }
 

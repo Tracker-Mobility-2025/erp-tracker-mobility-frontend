@@ -36,7 +36,7 @@ export const authenticationGuard = (to, from, next) => {
 
         // Verificar que solo usuarios con roles autorizados puedan acceder al sistema
         if (store.isSignedIn) {
-            const authorizedRoles = ['ADMIN', 'COMPANY_EMPLOYEE'];
+            const authorizedRoles = ['ADMIN', 'COMPANY_EMPLOYEE', 'MASTER_ADMIN'];
             if (!authorizedRoles.includes(store.currentRole)) {
                 console.error(`[GUARD] Rol no autorizado detectado: ${store.currentRole}`);
                 // Cerrar sesión y redirigir
@@ -66,6 +66,12 @@ export const authenticationGuard = (to, from, next) => {
             const userRole = store.currentRole;
             console.log('[GUARD] Verificando roles para usuario:', userRole);
             
+            // MASTER_ADMIN tiene acceso a todas las rutas
+            if (userRole === 'MASTER_ADMIN') {
+                console.log('[GUARD] Usuario MASTER_ADMIN detectado - Acceso total garantizado');
+                return true;
+            }
+
             // Verificar todas las rutas coincidentes (incluyendo rutas padre)
             for (let matchedRoute of to.matched) {
                 if (matchedRoute.meta?.roles && matchedRoute.meta.roles.length > 0) {
@@ -95,6 +101,13 @@ export const authenticationGuard = (to, from, next) => {
         }
 
         // ⭐ REDIRECCIÓN SEGÚN ROL DESPUÉS DEL LOGIN
+        // MASTER_ADMIN tiene acceso completo a todas las rutas, no aplicar restricciones
+        if (store.currentRole === 'MASTER_ADMIN') {
+            console.log('[GUARD] MASTER_ADMIN detectado - Acceso total sin restricciones');
+            console.log('[GUARD] Acceso permitido');
+            return next();
+        }
+
         // Si el usuario es COMPANY_EMPLOYEE y está tratando de acceder a rutas restringidas de ADMIN
         if (store.currentRole === 'COMPANY_EMPLOYEE') {
             // Rutas de admin permitidas para COMPANY_EMPLOYEE

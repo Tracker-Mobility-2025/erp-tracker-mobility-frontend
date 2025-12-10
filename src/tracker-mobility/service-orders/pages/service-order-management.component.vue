@@ -5,6 +5,7 @@ import {OrderRequestApi} from "../services/order-request-api.service.js";
 import {VerifierApi} from "../services/verifier-api.service.js";
 import {NotificationMixin} from "../../../shared/utils/notification.utils.js";
 import {OrderService} from "../models/order-service.entity.js";
+import {useAuthenticationStore} from "../../security/services/authentication.store.js";
 
 export default {
   name: "service-order-management",
@@ -131,6 +132,12 @@ export default {
 
       return filtered;
     },
+
+    // Verificar si el usuario actual puede eliminar órdenes (solo MASTER_ADMIN)
+    canDeleteOrders() {
+      const authStore = useAuthenticationStore();
+      return authStore.currentRole === 'MASTER_ADMIN';
+    }
 
   },
 
@@ -534,11 +541,12 @@ export default {
       :loading="loading"
       :dynamic="true"
       :show-new="false"
-      :show-delete="false"
+      :show-delete="canDeleteOrders"
       :show-export="false"
-      :show-selection="true"
+      :show-selection="canDeleteOrders"
       :show-actions="true"
       :show-action-buttons="true"
+      :show-delete-action="canDeleteOrders"
       :rows="10"
       :rows-per-page-options="[5, 10, 15, 20, 50]"
       new-button-label="Nueva Orden"
