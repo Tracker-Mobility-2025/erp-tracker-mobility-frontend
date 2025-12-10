@@ -185,18 +185,40 @@ export default {
 
       // Scroll a la sección correspondiente según el tipo de observación
       this.$nextTick(() => {
-        if (observation.observationType === 'DOCUMENTO_IDENTIDAD') {
-          // Scroll a la sección de datos del cliente
-          const clientSection = document.querySelector('[data-section="client-details"]');
-          if (clientSection) {
-            clientSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        } else if (observation.observationType === 'RECIBO_SERVICIO') {
-          // Scroll a la sección de documentos
-          const documentsSection = document.querySelector('[data-section="documents-details"]');
-          if (documentsSection) {
-            documentsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
+        let targetSection = null;
+
+        switch(observation.observationType) {
+          // Observaciones relacionadas con documentos
+          case 'DOCUMENTO_IDENTIDAD_BORROSO':
+          case 'RECIBO_SERVICIO_BORROSO':
+          case 'FOTO_FACHADA_BORROSA':
+          case 'DOCUMENTO_IDENTIDAD':
+          case 'RECIBO_SERVICIO':
+            targetSection = document.querySelector('[data-section="documents-details"]');
+            break;
+
+          // Observaciones relacionadas con datos del cliente
+          case 'DATOS_CLIENTE_INCOMPLETOS':
+            targetSection = document.querySelector('[data-section="client-details"]');
+            break;
+
+          // Observaciones relacionadas con datos del arrendador
+          case 'DATOS_ARRENDADOR_INCOMPLETOS':
+            targetSection = document.querySelector('[data-section="landlord-details"]');
+            break;
+
+          // Observaciones relacionadas con ubicación
+          case 'UBICACION_INCORRECTA':
+            targetSection = document.querySelector('[data-section="location-details"]');
+            break;
+
+          default:
+            // Si no se encuentra una sección específica, ir a datos del cliente
+            targetSection = document.querySelector('[data-section="client-details"]');
+        }
+
+        if (targetSection) {
+          targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       });
     },
@@ -204,6 +226,13 @@ export default {
     // Obtener etiqueta del tipo de observación
     getObservationTypeLabel(type) {
       const labels = {
+        'DOCUMENTO_IDENTIDAD_BORROSO': 'Documento de identidad - Borroso o ilegible',
+        'RECIBO_SERVICIO_BORROSO': 'Recibo de servicio - Borroso o ilegible',
+        'FOTO_FACHADA_BORROSA': 'Foto fachada vivienda - Borrosa o ilegible',
+        'UBICACION_INCORRECTA': 'Ubicación en mapa - Enlace incorrecto',
+        'DATOS_CLIENTE_INCOMPLETOS': 'Datos del cliente - Incorrectos',
+        'DATOS_ARRENDADOR_INCOMPLETOS': 'Datos del arrendador - Incorrectos',
+        // Mantener compatibilidad con valores antiguos
         'DOCUMENTO_IDENTIDAD': 'Documento de identidad',
         'RECIBO_SERVICIO': 'Recibo de servicio'
       };
@@ -285,6 +314,9 @@ export default {
 
     // Construir el payload para actualizar los detalles de la orden
     buildOrderDetailsPayload(clientComponent) {
+      const locationComponent = this.$refs.locationDetailsComponent;
+      const landlordComponent = this.$refs.landlordDetailsComponent;
+
       const payload = {
         applicantCompany: {
           applicantCompanyId: this.item.applicantCompany?.applicantCompanyId || 0,
@@ -300,15 +332,15 @@ export default {
           phoneNumber: clientComponent?.localClient?.phoneNumber || this.item.client?.phoneNumber || '',
           isTenant: this.item.client?.isTenant || false,
           landlord: this.item.client?.isTenant ? {
-            fullName: this.item.client?.landlord?.fullName || '',
-            phoneNumber: this.item.client?.landlord?.phoneNumber || ''
+            fullName: landlordComponent?.localLandlord?.fullName || this.item.client?.landlord?.fullName || '',
+            phoneNumber: landlordComponent?.localLandlord?.phoneNumber || this.item.client?.landlord?.phoneNumber || ''
           } : null,
           location: {
             department: this.item.client?.location?.department || '',
             province: this.item.client?.location?.province || '',
             district: this.item.client?.location?.district || '',
             homeAddress: this.item.client?.location?.homeAddress || '',
-            mapLocation: this.item.client?.location?.mapLocation || ''
+            mapLocation: locationComponent?.localLocation?.mapLocation || this.item.client?.location?.mapLocation || ''
           }
         }
       };
@@ -636,11 +668,19 @@ export default {
           ref="clientDetailsComponent"
           :client="item.client"
           :edit-mode="editModeEnabled"
+          :observation-type="currentObservation?.observationType"
         />
       </div>
 
       <!-- Datos de domicilio -->
-      <request-location-details :location="item.client?.location" />
+      <div data-section="location-details">
+        <request-location-details
+          ref="locationDetailsComponent"
+          :location="item.client?.location"
+          :edit-mode="editModeEnabled"
+          :observation-type="currentObservation?.observationType"
+        />
+      </div>
 
       <!-- Documentos adjuntos -->
       <div data-section="documents-details">
@@ -648,14 +688,20 @@ export default {
           ref="documentsDetailsComponent"
           :documents="item.client?.documents"
           :edit-mode="editModeEnabled"
+          :observation-type="currentObservation?.observationType"
         />
       </div>
 
       <!-- Datos del arrendador -->
-      <request-landlord-details
-        :landlord="item.client?.landlord"
-        :is-tenant="item.client?.isTenant"
-      />
+      <div data-section="landlord-details">
+        <request-landlord-details
+          ref="landlordDetailsComponent"
+          :landlord="item.client?.landlord"
+          :is-tenant="item.client?.isTenant"
+          :edit-mode="editModeEnabled"
+          :observation-type="currentObservation?.observationType"
+        />
+      </div>
 
     </div>
 

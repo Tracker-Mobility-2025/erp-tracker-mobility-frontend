@@ -7,6 +7,34 @@ export class RequestObservationsApiService {
     }
 
     // Actualizar parcial de detalles de la solicitud (/api/v1/orders/{orderId}/order-details)
+    /*
+    Este endpoint recibe lo siguiente:
+        {
+          "applicantCompany": {
+            "id": 0,
+            "ruc": "string",
+            "companyName": "string",
+            "status": "ACTIVE"
+          },
+          "client": {
+            "name": "string",
+            "lastName": "string",
+            "phoneNumber": "string",
+            "isTenant": true,
+            "landlord": {
+              "fullName": "Luis García",
+              "phoneNumber": "912345678"
+            },
+            "location": {
+              "department": "string",
+              "province": "string",
+              "district": "string",
+              "homeAddress": "string",
+              "mapLocation": "https://maps.google.com/?q=-16.3998,-71.5369"
+            }
+          }
+        }
+     */
     updateOrderDetails(orderId, data) {
         return http.patch(`${this.resourceEndpoint}/${orderId}/order-details`, data);
     }
@@ -24,6 +52,10 @@ export class RequestObservationsApiService {
     }
 
     // /api/v1/orders/{orderId}/observations/{observationId} Actualizar observación de una orden
+    /*
+    Este endpoint recibe lo siguiente:
+
+     */
     updateObservation(orderId, observationId, data) {
         return http.patch(`${this.resourceEndpoint}/${orderId}/observations/${observationId}`, data);
     }

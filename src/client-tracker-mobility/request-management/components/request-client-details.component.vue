@@ -10,6 +10,20 @@ export default {
     editMode: {
       type: Boolean,
       default: false
+    },
+    observationType: {
+      type: String,
+      default: null
+    }
+  },
+
+  computed: {
+    // Verificar si los campos del cliente son editables
+    isClientEditable() {
+      if (!this.editMode) return false;
+      if (!this.observationType) return false;
+      // Solo editable si la observación es sobre datos del cliente incompletos
+      return this.observationType === 'DATOS_CLIENTE_INCOMPLETOS';
     }
   },
 
@@ -37,10 +51,10 @@ export default {
 <template>
   <pv-card class="w-full">
     <template #header>
-      <div class="flex align-items-center gap-2 px-3 py-2" :style="editMode ? 'background-color: #d97706; color: white; border-top-left-radius: 6px; border-top-right-radius: 6px;' : 'background-color: #4A60D0; color: white; border-top-left-radius: 6px; border-top-right-radius: 6px;'">
+      <div class="flex align-items-center gap-2 px-3 py-2" :style="isClientEditable ? 'background-color: #d97706; color: white; border-top-left-radius: 6px; border-top-right-radius: 6px;' : 'background-color: #4A60D0; color: white; border-top-left-radius: 6px; border-top-right-radius: 6px;'">
         <i class="pi pi-user-plus" style="color: white;"></i>
         <span class="text-lg font-bold">Datos del cliente</span>
-        <pv-badge v-if="editMode" value="EDITABLE" severity="warning" class="ml-auto" style="opacity: 0.85;" />
+        <pv-badge v-if="isClientEditable" value="EDITABLE" severity="warning" class="ml-auto" style="opacity: 0.85;" />
       </div>
     </template>
     <template #content>
@@ -52,7 +66,7 @@ export default {
             Nombres completos
           </label>
           <pv-input-text
-            v-if="editMode"
+            v-if="isClientEditable"
             v-model="localClient.name"
             class="w-full"
             placeholder="Ingrese nombres"
@@ -65,7 +79,7 @@ export default {
             Apellidos completos
           </label>
           <pv-input-text
-            v-if="editMode"
+            v-if="isClientEditable"
             v-model="localClient.lastName"
             class="w-full"
             placeholder="Ingrese apellidos"
@@ -78,7 +92,7 @@ export default {
             Tipo de documento
           </label>
           <pv-select
-            v-if="editMode"
+            v-if="isClientEditable"
             v-model="localClient.identityDocument.documentType"
             :options="['DNI', 'CE', 'PASAPORTE']"
             class="w-full"
@@ -94,7 +108,7 @@ export default {
             N° de documento
           </label>
           <pv-input-text
-            v-if="editMode"
+            v-if="isClientEditable"
             v-model="localClient.identityDocument.documentNumber"
             class="w-full"
             placeholder="Ingrese número de documento"
@@ -107,7 +121,7 @@ export default {
             Teléfono
           </label>
           <pv-input-text
-            v-if="editMode"
+            v-if="isClientEditable"
             v-model="localClient.phoneNumber"
             class="w-full"
             placeholder="Ingrese teléfono"

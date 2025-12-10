@@ -60,16 +60,6 @@ export default {
         description: ''
       },
 
-      // Opciones de tipos de observación
-      observationTypeOptions: [
-        { label: '-- Seleccionar tipo --', value: null },
-        { label: 'Documento de identidad - Borroso o ilegible', value: 'DOCUMENTO_IDENTIDAD_BORROSO' },
-        { label: 'Recibo de servicio - Borroso o ilegible', value: 'RECIBO_SERVICIO_BORROSO' },
-        { label: 'Foto fachada vivienda - Borrosa o ilegible', value: 'FOTO_FACHADA_BORROSA' },
-        { label: 'Ubicación en mapa - Enlace incorrecto', value: 'UBICACION_INCORRECTA' },
-        { label: 'Datos del cliente - Incorrectos', value: 'DATOS_CLIENTE_INCOMPLETOS' },
-        { label: 'Datos del arrendador - Incorrectos', value: 'DATOS_ARRENDADOR_INCOMPLETOS' }
-      ],
 
       // Opciones de estados de observación
       observationStatusOptions: [
@@ -87,6 +77,27 @@ export default {
   },
 
   computed: {
+
+    // Opciones de tipos de observación - Filtradas según si el cliente es inquilino
+    observationTypeOptions() {
+      const allOptions = [
+        { label: '-- Seleccionar tipo --', value: null },
+        { label: 'Documento de identidad - Borroso o ilegible', value: 'DOCUMENTO_IDENTIDAD_BORROSO' },
+        { label: 'Recibo de servicio - Borroso o ilegible', value: 'RECIBO_SERVICIO_BORROSO' },
+        { label: 'Foto fachada vivienda - Borrosa o ilegible', value: 'FOTO_FACHADA_BORROSA' },
+        { label: 'Ubicación en mapa - Enlace incorrecto', value: 'UBICACION_INCORRECTA' },
+        { label: 'Datos del cliente - Incorrectos', value: 'DATOS_CLIENTE_INCOMPLETOS' },
+        { label: 'Datos del arrendador - Incorrectos', value: 'DATOS_ARRENDADOR_INCOMPLETOS' }
+      ];
+
+      // Si el cliente NO es inquilino (isTenant === false), filtrar la opción de arrendador
+      if (this.item?.client?.isTenant === false) {
+        return allOptions.filter(option => option.value !== 'DATOS_ARRENDADOR_INCOMPLETOS');
+      }
+
+      // Si es inquilino o no hay información, mostrar todas las opciones
+      return allOptions;
+    },
 
     // Formatear lista de verificadores para el dropdown
     verifiersListFormatted() {
@@ -685,7 +696,11 @@ export default {
             <i class="pi pi-list text-primary"></i>
             Observaciones registradas ({{ item.observations.length }})
           </label>
-          <div class="observations-list" style="scrollbar-width: thin; scrollbar-color: #cbd5e1 #f1f5f9;">
+          <div
+            class="observations-list"
+            :class="{ 'observations-list-scrollable': paginatedObservations.length > 3 }"
+            style="scrollbar-width: thin; scrollbar-color: #cbd5e1 #f1f5f9;"
+          >
             <div
               v-for="(observation, index) in paginatedObservations"
               :key="observation.id || index"
@@ -854,6 +869,13 @@ export default {
 .observations-list {
   max-height: none;
   overflow-y: visible;
+}
+
+/* Activar scroll cuando hay más de 3 observaciones */
+.observations-list-scrollable {
+  max-height: 215px;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 /* Animación hover para items de observación */

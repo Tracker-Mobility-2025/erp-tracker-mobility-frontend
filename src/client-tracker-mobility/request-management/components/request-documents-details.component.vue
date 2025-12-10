@@ -10,6 +10,10 @@ export default {
     editMode: {
       type: Boolean,
       default: false
+    },
+    observationType: {
+      type: String,
+      default: null
     }
   },
 
@@ -55,6 +59,22 @@ export default {
           order: typeOrder[doc.type] || 999
         }))
         .sort((a, b) => a.order - b.order);
+    },
+
+    // Verificar si la card de documentos debe resaltarse (si hay algún documento editable)
+    isDocumentsCardEditable() {
+      if (!this.editMode || !this.observationType) return false;
+
+      // Tipos de observación relacionados con documentos
+      const documentObservations = [
+        'DOCUMENTO_IDENTIDAD_BORROSO',
+        'RECIBO_SERVICIO_BORROSO',
+        'FOTO_FACHADA_BORROSA',
+        'DOCUMENTO_IDENTIDAD',
+        'RECIBO_SERVICIO'
+      ];
+
+      return documentObservations.includes(this.observationType);
     }
   },
 
@@ -194,6 +214,27 @@ export default {
         return;
       }
       window.open(document.url, '_blank');
+    },
+
+    // Verificar si un documento específico es editable según el tipo de observación
+    isDocumentEditable(document) {
+      if (!this.editMode) return false;
+      if (!this.observationType) return true; // Si no hay observationType, todos son editables
+
+      // Mapeo de tipos de observación a tipos de documentos editables
+      const observationToDocumentMap = {
+        'DOCUMENTO_IDENTIDAD_BORROSO': ['DOCUMENTO_IDENTIDAD'],
+        'RECIBO_SERVICIO_BORROSO': ['RECIBO_SERVICIO'],
+        'FOTO_FACHADA_BORROSA': ['FOTO_FACHADA_VIVIENDA'],
+        // Compatibilidad con valores antiguos
+        'DOCUMENTO_IDENTIDAD': ['DOCUMENTO_IDENTIDAD'],
+        'RECIBO_SERVICIO': ['RECIBO_SERVICIO']
+      };
+
+      const allowedDocumentTypes = observationToDocumentMap[this.observationType];
+      if (!allowedDocumentTypes) return false;
+
+      return allowedDocumentTypes.includes(document.type);
     }
   },
 
@@ -209,15 +250,15 @@ export default {
 <template>
   <pv-card class="w-full">
     <template #header>
-      <div class="flex align-items-center gap-2 px-3 py-2" :style="editMode ? 'background-color: #d97706; color: white; border-top-left-radius: 6px; border-top-right-radius: 6px;' : 'background-color: #4A60D0; color: white; border-top-left-radius: 6px; border-top-right-radius: 6px;'">
+      <div class="flex align-items-center gap-2 px-3 py-2" :style="isDocumentsCardEditable ? 'background-color: #d97706; color: white; border-top-left-radius: 6px; border-top-right-radius: 6px;' : 'background-color: #4A60D0; color: white; border-top-left-radius: 6px; border-top-right-radius: 6px;'">
         <i class="pi pi-paperclip" style="color: white;"></i>
         <span class="text-lg font-bold">Documentos adjuntos</span>
-        <pv-badge v-if="editMode" value="EDITABLE" severity="warning" class="ml-auto" style="opacity: 0.85;" />
+        <pv-badge v-if="isDocumentsCardEditable" value="EDITABLE" severity="warning" class="ml-auto" style="opacity: 0.85;" />
       </div>
     </template>
     <template #content>
       <!-- Mensaje de modo edición -->
-      <pv-message v-if="editMode" severity="info" :closable="false" class="mb-3">
+      <pv-message v-if="isDocumentsCardEditable" severity="info" :closable="false" class="mb-3">
         <div class="flex flex-wrap align-items-start gap-2">
           <i class="pi pi-info-circle flex-shrink-0 mt-1"></i>
           <span class="flex-grow-1">Puedes reemplazar cada documento individualmente seleccionando un nuevo archivo</span>
@@ -273,9 +314,9 @@ export default {
 
             <!-- Botones de acción -->
             <div class="flex flex-column gap-2 w-full">
-              <!-- Selector de archivo en modo edición -->
+              <!-- Selector de archivo en modo edición (solo si el documento es editable) -->
               <pv-file-upload
-                v-if="editMode"
+                v-if="editMode && isDocumentEditable(document)"
                 mode="basic"
                 :name="`document-${document.id}`"
                 accept="image/*,application/pdf"
@@ -288,18 +329,25 @@ export default {
                 @select="handleFileSelect($event, document)"
               />
 
+              <!-- Mensaje si el documento no es editable -->
+              <div v-if="editMode && !isDocumentEditable(document)" class="w-full p-2 bg-gray-100 border-round text-center">
+                <span class="text-sm text-gray-600 flex align-items-center justify-content-center gap-2">
+                  <i class="pi pi-lock text-gray-500"></i>
+                  No editable para esta observación
+                </span>
+              </div>
+
               <!-- Botón para limpiar archivo seleccionado -->
               <pv-button
-                v-if="editMode && hasSelectedFile(document.id)"
+                v-if="editMode && hasSelectedFile(document.id) && isDocumentEditable(document)"
                 icon="pi pi-times"
                 label="Cancelar reemplazo"
                 class="p-button-sm p-button-danger p-button-outlined w-full"
                 @click="clearSelectedFile(document.id)"
               />
 
-              <!-- Botones estándar (ver y descargar) -->
+              <!-- Botones estándar (ver y descargar) - Mostrar siempre -->
               <pv-button
-                  v-if="!editMode"
                   icon="pi pi-eye"
                   label="Ver"
                   class="p-button-sm p-button-primary w-full"

@@ -15,6 +15,13 @@ export default {
     return {
       // Opciones de tipos de observación para etiquetas legibles
       observationTypeLabels: {
+        'DOCUMENTO_IDENTIDAD_BORROSO': 'Documento de identidad - Borroso o ilegible',
+        'RECIBO_SERVICIO_BORROSO': 'Recibo de servicio - Borroso o ilegible',
+        'FOTO_FACHADA_BORROSA': 'Foto fachada vivienda - Borrosa o ilegible',
+        'UBICACION_INCORRECTA': 'Ubicación en mapa - Enlace incorrecto',
+        'DATOS_CLIENTE_INCOMPLETOS': 'Datos del cliente - Incorrectos',
+        'DATOS_ARRENDADOR_INCOMPLETOS': 'Datos del arrendador - Incorrectos',
+        // Mantener compatibilidad con valores antiguos
         'DOCUMENTO_IDENTIDAD': 'Documento de identidad',
         'RECIBO_SERVICIO': 'Recibo de servicio'
       },
