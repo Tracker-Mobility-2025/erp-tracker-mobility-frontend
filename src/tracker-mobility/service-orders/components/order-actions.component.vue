@@ -110,7 +110,7 @@ export default {
     // Verificar si la asignación de verificador puede ser editada
     canEditVerifierAssignment() {
       if (!this.item || !this.item.status) return false;
-      // Solo permitir edición si el estado es PENDIENTE, ASIGNADO o SUBSANADA
+      // Solo permitir edición si el estado es PENDIENTE, ASIGNADO o SUBSANADO
       return this.item.status === 'PENDIENTE' ||
              this.item.status === 'ASIGNADO' ||
              this.item.status === 'SUBSANADA';
@@ -278,7 +278,21 @@ export default {
         return;
       }
 
-      // ...existing code...
+      // Guardar datos originales antes de editar (para poder cancelar)
+      if (section === 'verifier') {
+        this.originalData.verifier = {
+          verifierId: this.localHomeVisitDetails.verifierId,
+          visitDate: this.localHomeVisitDetails.visitDate,
+          visitTime: this.localHomeVisitDetails.visitTime
+        };
+      } else if (section === 'observations') {
+        this.originalData.observations = {
+          observations: this.item.observations ? [...this.item.observations] : []
+        };
+      }
+
+      // Activar modo de edición para la sección específica
+      this.editingStates[section] = true;
     },
 
     // Cancelar edición y restaurar datos originales para una sección específica
