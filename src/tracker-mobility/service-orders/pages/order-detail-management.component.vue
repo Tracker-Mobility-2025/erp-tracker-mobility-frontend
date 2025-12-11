@@ -196,7 +196,7 @@ export default {
 <template>
 
   <!-- Detalles de la orden de servicio (se divide en cards tipo grid)-->
-  <div class="order-container flex flex-column p-4 h-full w-full overflow-auto " >
+  <div class="order-container flex flex-column p-4 h-full w-full overflow-auto ">
 
     <!-- Breadcrumb -->
     <div class="text-base">
@@ -264,10 +264,10 @@ export default {
     </div>
 
     <!-- Grid de detalles de la orden (con dos columnas: izquierda más ancha, derecha más estrecha) -->
-    <div v-else-if="item" class="order-content flex gap-4 h-full w-full">
+    <div v-else-if="item" class="grid">
 
       <!-- Columna izquierda (2/3 del ancho) -->
-      <div class="flex flex-column gap-4" style="flex: 2;">
+      <div class="col-16 lg:col-8" >
         <order-description
             :item="item"
             @download-document="onDownloadDocument"
@@ -275,7 +275,7 @@ export default {
       </div>
 
       <!-- Columna derecha (1/3 del ancho) -->
-      <div class="flex flex-column gap-4" style="flex: 1;">
+      <div class="col-8 lg:col-4" >
         <order-actions
             :item="item"
             :verifiers-list="verifiersArray"
@@ -286,7 +286,6 @@ export default {
     </div>
 
   </div>
-
 
 
 </template>
