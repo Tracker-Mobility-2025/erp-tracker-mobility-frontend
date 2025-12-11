@@ -110,8 +110,10 @@ export default {
     // Verificar si la asignación de verificador puede ser editada
     canEditVerifierAssignment() {
       if (!this.item || !this.item.status) return false;
-      // Solo permitir edición si el estado es PENDIENTE o ASIGNADO
-      return this.item.status === 'PENDIENTE' || this.item.status === 'ASIGNADO';
+      // Solo permitir edición si el estado es PENDIENTE, ASIGNADO o SUBSANADA
+      return this.item.status === 'PENDIENTE' ||
+             this.item.status === 'ASIGNADO' ||
+             this.item.status === 'SUBSANADA';
     },
 
     // Verificar si se pueden agregar observaciones
@@ -265,7 +267,7 @@ export default {
       // Verificar si se puede editar la asignación de verificador
       if (section === 'verifier' && !this.canEditVerifierAssignment) {
         this.showToast('warn', 'Acción no permitida', 
-          'Solo se puede asignar verificador cuando el estado es PENDIENTE o ASIGNADO.');
+          'Solo se puede asignar verificador cuando el estado es PENDIENTE, ASIGNADO o SUBSANADA.');
         return;
       }
 
@@ -276,20 +278,7 @@ export default {
         return;
       }
 
-      // Guardar datos originales de la sección específica
-      if (section === 'verifier') {
-        this.originalData.verifier = {
-          verifierId: this.localHomeVisitDetails.verifierId,
-          visitDate: this.localHomeVisitDetails.visitDate,
-          visitTime: this.localHomeVisitDetails.visitTime
-        };
-      } else if (section === 'observations') {
-        this.originalData.observations = {
-          observations: [...(this.item.observations || [])]
-        };
-      }
-
-      this.editingStates[section] = true;
+      // ...existing code...
     },
 
     // Cancelar edición y restaurar datos originales para una sección específica
@@ -611,7 +600,7 @@ export default {
           <div class="flex align-items-center gap-2">
             <i class="pi pi-info-circle text-orange-600"></i>
             <span class="text-sm text-orange-800">
-              La asignación de verificador solo está disponible cuando el estado es <strong>PENDIENTE</strong> o <strong>ASIGNADO</strong>.
+              La asignación de verificador solo está disponible cuando el estado es <strong>PENDIENTE</strong>, <strong>ASIGNADO</strong> o <strong>SUBSANADA</strong>.
             </span>
           </div>
         </div>
