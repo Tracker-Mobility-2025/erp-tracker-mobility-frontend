@@ -3,9 +3,17 @@
 import {OrderService} from "../models/order-service.entity.js";
 import {OrderRequestApi} from "../services/order-request-api.service.js";
 import {ObservationApiService} from "../services/observation-api.service.js";
+import {NotificationMixin} from "../../../shared/utils/notification.utils.js";
+
+// Constantes de estados permitidos
+const VERIFIER_EDITABLE_STATUSES = ['PENDIENTE', 'ASIGNADO', 'SUBSANADA'];
+const OBSERVATION_EDITABLE_STATUSES = ['PENDIENTE', 'ASIGNADO', 'OBSERVADO', 'SUBSANADA'];
 
 export default {
   name: 'order-actions',
+  
+  mixins: [NotificationMixin],
+  
   components: {
   },
 
@@ -109,19 +117,14 @@ export default {
 
     // Verificar si la asignación de verificador puede ser editada
     canEditVerifierAssignment() {
-      if (!this.item || !this.item.status) return false;
-      // Solo permitir edición si el estado es PENDIENTE, ASIGNADO o SUBSANADO
-      return this.item.status === 'PENDIENTE' ||
-             this.item.status === 'ASIGNADO' ||
-             this.item.status === 'SUBSANADA';
+      if (!this.item?.status) return false;
+      return VERIFIER_EDITABLE_STATUSES.includes(this.item.status);
     },
 
     // Verificar si se pueden agregar observaciones
     canEditObservations() {
-      if (!this.item || !this.item.status) return false;
-      // Solo permitir agregar observaciones en estados específicos
-      const allowedStatuses = ['PENDIENTE', 'ASIGNADO', 'OBSERVADO', 'SUBSANADA'];
-      return allowedStatuses.includes(this.item.status);
+      if (!this.item?.status) return false;
+      return OBSERVATION_EDITABLE_STATUSES.includes(this.item.status);
     },
 
     // Validación en tiempo real para los campos de asignación
@@ -182,58 +185,41 @@ export default {
       return option || { label: status, severity: 'info', color: '#E0E0E0' };
     },
 
-    // Obtener color personalizado para estado de observación
-    getObservationColor(status) {
-      const info = this.getObservationStatusInfo(status);
-      return info.color;
-    },
-
     // Determinar si usar texto blanco para observaciones
     shouldUseWhiteTextObservation(status) {
       return ['PENDIENTE', 'RESUELTA'].includes(status);
     },
 
-    // Ir a la página anterior de observaciones
+    // Navegar entre páginas de observaciones
+    navigateToPage(pageNumber) {
+      const validPage = Math.max(1, Math.min(pageNumber, this.totalObservationPages));
+      this.observationsPagination.currentPage = validPage;
+    },
+    
     goToPreviousPage() {
-      if (this.hasPreviousPage) {
-        this.observationsPagination.currentPage--;
-      }
+      this.navigateToPage(this.observationsPagination.currentPage - 1);
     },
-
-    // Ir a la página siguiente de observaciones
+    
     goToNextPage() {
-      if (this.hasNextPage) {
-        this.observationsPagination.currentPage++;
-      }
+      this.navigateToPage(this.observationsPagination.currentPage + 1);
     },
-
-    // Ir a una página específica de observaciones
+    
     goToPage(pageNumber) {
-      if (pageNumber >= 1 && pageNumber <= this.totalObservationPages) {
-        this.observationsPagination.currentPage = pageNumber;
-      }
+      this.navigateToPage(pageNumber);
     },
-
-    // Reiniciar paginación (ir a primera página)
+    
     resetPagination() {
-      this.observationsPagination.currentPage = 1;
+      this.navigateToPage(1);
     },
 
     // Inicializar datos locales desde el prop
     initializeLocalData() {
-      if (this.item.homeVisitDetails) {
-        this.localHomeVisitDetails = {
-          verifierId: this.item.homeVisitDetails.verifierId || null,
-          visitDate: this.item.homeVisitDetails.visitDate || null,
-          visitTime: this.item.homeVisitDetails.visitTime || null
-        };
-      } else {
-        this.localHomeVisitDetails = {
-          verifierId: null,
-          visitDate: null,
-          visitTime: null
-        };
-      }
+      const details = this.item.homeVisitDetails || {};
+      this.localHomeVisitDetails = {
+        verifierId: details.verifierId || null,
+        visitDate: details.visitDate || null,
+        visitTime: details.visitTime || null
+      };
     },
 
     // Formatear fecha para envío al API
@@ -264,17 +250,21 @@ export default {
 
     // Habilitar modo edición para una sección específica
     enableEditing(section) {
-      // Verificar si se puede editar la asignación de verificador
       if (section === 'verifier' && !this.canEditVerifierAssignment) {
-        this.showToast('warn', 'Acción no permitida', 
-          'Solo se puede asignar verificador cuando el estado es PENDIENTE, ASIGNADO o SUBSANADA.');
+        this.showToast({
+          severity: 'warn',
+          summary: 'Acción no permitida',
+          detail: `Solo se puede asignar verificador cuando el estado es ${VERIFIER_EDITABLE_STATUSES.join(', ')}.`
+        });
         return;
       }
 
-      // Verificar si se pueden agregar observaciones
       if (section === 'observations' && !this.canEditObservations) {
-        this.showToast('warn', 'Acción no permitida', 
-          'Solo se pueden agregar observaciones cuando el estado es PENDIENTE, ASIGNADO, OBSERVADO o SUBSANADA.');
+        this.showToast({
+          severity: 'warn',
+          summary: 'Acción no permitida',
+          detail: `Solo se pueden agregar observaciones cuando el estado es ${OBSERVATION_EDITABLE_STATUSES.join(', ')}.`
+        });
         return;
       }
 
@@ -315,9 +305,12 @@ export default {
       // Validar que se hayan seleccionado todos los campos requeridos
       const validation = this.validateVerifierAssignment();
 
-      // Si la validación falla, mostrar mensaje de error y salir
       if (!validation.isValid) {
-        this.showToast('error', 'Error de validación', validation.message);
+        this.showToast({
+          severity: 'error',
+          summary: 'Error de validación',
+          detail: validation.message
+        });
         return;
       }
 
@@ -329,44 +322,23 @@ export default {
       };
 
       // Llamar al servicio API para actualizar la orden de servicio
-      this.orderRequestApi.assignVerifier(this.item.id, updateData).then(response => {
-
-          // Deshabilitar modo edición
+      this.orderRequestApi.assignVerifier(this.item.id, updateData)
+        .then(response => {
           this.editingStates.verifier = false;
           this.originalData.verifier = {};
-
-          this.showToast('success', 'Verificador asignado', 'El verificador ha sido asignado correctamente a la orden de servicio.');
+          this.showToast({
+            severity: 'success',
+            summary: 'Verificador asignado',
+            detail: 'El verificador ha sido asignado correctamente a la orden de servicio.'
+          });
         })
         .catch(error => {
           console.error('Error al asignar verificador:', error);
-          
-          let errorMessage = 'Hubo un error al asignar el verificador.';
-          
-          if (error.response) {
-            // Error del servidor
-            switch(error.response.status) {
-              case 404:
-                errorMessage = 'Orden de servicio no encontrada.';
-                break;
-              case 400:
-                errorMessage = 'Datos inválidos. Verifique la información ingresada.';
-                break;
-              case 409:
-                errorMessage = 'El verificador ya está asignado a otra orden en esa fecha y hora.';
-                break;
-              case 500:
-                errorMessage = 'Error interno del servidor. Intente más tarde.';
-                break;
-              default:
-                errorMessage = `Error del servidor (${error.response.status}). Contacte al administrador.`;
-            }
-          } else if (error.request) {
-            errorMessage = 'Error de conexión. Verifique su conexión a internet.';
-          } else {
-            errorMessage = 'Error inesperado. Por favor, intente nuevamente.';
-          }
-          
-          this.showToast('error', 'Error al asignar verificador', errorMessage);
+          this.showToast({
+            severity: 'error',
+            summary: 'Error al asignar verificador',
+            detail: this.getApiErrorMessage(error, 'Hubo un error al asignar el verificador.')
+          });
         });
     },
 
@@ -413,62 +385,80 @@ export default {
       };
     },
 
-    // Método para mostrar toast messages
-    showToast(severity, summary, detail, life = 3000) {
-      // Verificar si PrimeVue Toast está disponible
-      if (this.$toast && typeof this.$toast.add === 'function') {
-        this.$toast.add({
-          severity: severity,
-          summary: summary,
-          detail: detail,
-          life: life
-        });
-      } else {
-        // Fallback para consola si Toast no está disponible
-        console.log(`${severity.toUpperCase()}: ${summary} - ${detail}`);
+    // Obtener mensaje de error de API de forma consistente
+    getApiErrorMessage(error, defaultMessage) {
+      if (error.response) {
+        const errorMessages = {
+          404: 'Recurso no encontrado.',
+          400: 'Datos inválidos. Verifique la información ingresada.',
+          409: 'Conflicto con el estado actual. Verifique los datos.',
+          500: 'Error interno del servidor. Intente más tarde.'
+        };
+        return errorMessages[error.response.status] || 
+               `Error del servidor (${error.response.status}). Contacte al administrador.`;
       }
+      if (error.request) {
+        return 'Error de conexión. Verifique su conexión a internet.';
+      }
+      return defaultMessage || 'Error inesperado. Por favor, intente nuevamente.';
     },
 
+    // Obtener mensaje de error de API de forma consistente
+    getApiErrorMessage(error, defaultMessage) {
+      if (error.response) {
+        const errorMessages = {
+          404: 'Recurso no encontrado.',
+          400: 'Datos inválidos. Verifique la información ingresada.',
+          409: 'Conflicto con el estado actual. Verifique los datos.',
+          500: 'Error interno del servidor. Intente más tarde.'
+        };
+        return errorMessages[error.response.status] || 
+               `Error del servidor (${error.response.status}). Contacte al administrador.`;
+      }
+      if (error.request) {
+        return 'Error de conexión. Verifique su conexión a internet.';
+      }
+      return defaultMessage || 'Error inesperado. Por favor, intente nuevamente.';
+    },
 
     // Enviar observaciones de la orden de servicio
     submitOrderObservations() {
-      // Validar que se haya ingresado una descripción
-      if (!this.currentObservation.description || this.currentObservation.description.trim() === '') {
-        this.showToast('warn', 'Campo requerido', 'Debe ingresar una descripción para la observación.');
+      if (!this.currentObservation.description?.trim()) {
+        this.showToast({
+          severity: 'warn',
+          summary: 'Campo requerido',
+          detail: 'Debe ingresar una descripción para la observación.'
+        });
         return;
       }
 
-      // Crear nueva observación
       const newObservation = {
         observationType: this.currentObservation.observationType,
-        description: this.currentObservation.description.trim(),
+        description: this.currentObservation.description.trim()
       };
 
-      // Crear la observación en el backend
-      this.observationApiService.create(this.item.id, newObservation).then(response => {
-          // Agregar la nueva observación a la lista de observaciones del ítem
-          if (!this.item.observations) {
-            this.item.observations = [];
-          }
+      this.observationApiService.create(this.item.id, newObservation)
+        .then(response => {
+          if (!this.item.observations) this.item.observations = [];
           this.item.observations.push(response.data);
-
-          // Resetear paginación para mostrar la nueva observación
           this.resetPagination();
-
-          // Mostrar mensaje de éxito
-          this.showToast('success', 'Observación agregada', 'La observación ha sido agregada correctamente.');
-
-          // Limpiar el formulario de observación actual
-          this.currentObservation = {
-            observationType: null,
-            description: ''
-          };
-
+          
+          this.showToast({
+            severity: 'success',
+            summary: 'Observación agregada',
+            detail: 'La observación ha sido agregada correctamente.'
+          });
+          
+          this.currentObservation = { observationType: null, description: '' };
           this.editingStates.observations = false;
-      })
+        })
         .catch(error => {
-          console.error('Error al crear la observación en el backend:', error);
-          this.showToast('error', 'Error', 'No se pudo agregar la observación. Intente nuevamente.');
+          console.error('Error al crear la observación:', error);
+          this.showToast({
+            severity: 'error',
+            summary: 'Error',
+            detail: this.getApiErrorMessage(error, 'No se pudo agregar la observación.')
+          });
         });
     },
 
@@ -720,7 +710,7 @@ export default {
                       v-if="observation.status"
                       class="observation-status-tag"
                       :style="{
-                        backgroundColor: getObservationColor(observation.status),
+                        backgroundColor: getObservationStatusInfo(observation.status).color,
                         color: shouldUseWhiteTextObservation(observation.status) ? '#FFFFFF' : '#000000'
                       }"
                     >

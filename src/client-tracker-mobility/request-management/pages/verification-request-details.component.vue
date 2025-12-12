@@ -36,7 +36,8 @@ export default {
       // Item de la solicitud
       item: null,
 
-      // Datos del reporte generado
+      // Datos del reporte generado (URL del PDF)
+      downloadReportData: new DownloadReport({}),
       reportData: null,
 
       // Estados de carga
@@ -426,15 +427,26 @@ export default {
     // FIN HELPERS: saveSubsanacion
     // =============================
 
-    // Descargar reporte de verificación en PDF
+    // Descargar o imprimir el reporte de verificación en formato PDF
     downloadReport() {
       // Validar que tenemos una solicitud válida
       if (!this.item || !this.item.reportId) {
         this.showToast({
           severity: 'warn',
-          summary: 'Solicitud no disponible',
+          summary: 'Reporte no disponible',
           detail: 'No se puede descargar el reporte porque la solicitud no está cargada. Por favor, recargue la página e intente nuevamente.',
           life: 4000
+        });
+        return;
+      }
+
+      // Validar si falta la entrevista con el arrendador (solo si es inquilino)
+      if (this.item.client?.isTenant && this.item.status === 'ENTREVISTA_ARRENDADOR_FALTANTE') {
+        this.showToast({
+          severity: 'warn',
+          summary: 'Entrevista pendiente',
+          detail: 'El verificador debe completar la entrevista con el arrendador antes de generar el informe. Por favor, espere a que el verificador complete esta información.',
+          life: 6000
         });
         return;
       }
@@ -447,21 +459,65 @@ export default {
         life: 3000
       });
 
+      // Obtener el ID del reporte
+      const reportId = this.item.reportId;
+
       // Obtener la URL de descarga del reporte
-      this.downloadReportApiService.getReportDownloadUrl(this.item.reportId)
+      this.downloadReportApiService.getReportDownloadUrl(reportId)
         .then(response => {
-          console.log('Respuesta del servidor:', response.data);
+          console.log('Respuesta del servidor (download-url):', response.data);
 
           // Crear instancia del modelo con los datos recibidos
-          this.reportData = new DownloadReport(response.data);
+          this.downloadReportData = new DownloadReport(response.data);
 
-          // Verificar que se recibió una URL válida
-          if (!this.reportData.reportUrl) {
-            throw new Error('El servidor no proporcionó una URL de descarga válida');
+          // Verificar si la URL es null (reporte no generado aún)
+          if (!this.downloadReportData.reportUrl || this.downloadReportData.reportUrl === null) {
+            console.log('URL de descarga es null. Generando reporte...');
+            
+            // Mostrar mensaje de generación
+            this.showToast({
+              severity: 'info',
+              summary: 'Generando reporte',
+              detail: 'El reporte no ha sido generado previamente. Generando PDF, por favor espere...',
+              life: 4000
+            });
+
+            // Generar el reporte
+            return this.downloadReportApiService.generateVerificationReport(reportId)
+              .then(generateResponse => {
+                console.log('Reporte generado exitosamente:', generateResponse.data);
+                
+                // Volver a obtener la URL de descarga después de generar
+                return this.downloadReportApiService.getReportDownloadUrl(reportId);
+              })
+              .then(retryResponse => {
+                console.log('Respuesta del servidor (retry download-url):', retryResponse.data);
+                
+                // Actualizar con la nueva URL
+                this.downloadReportData = new DownloadReport(retryResponse.data);
+                
+                // Verificar nuevamente que se recibió una URL válida
+                if (!this.downloadReportData.reportUrl) {
+                  throw new Error('No se pudo generar la URL de descarga después de crear el reporte');
+                }
+                
+                // Abrir el PDF en una nueva pestaña del navegador
+                window.open(this.downloadReportData.reportUrl, '_blank');
+
+                // Mostrar mensaje de éxito
+                this.showToast({
+                  severity: 'success',
+                  summary: 'Reporte generado y descargado',
+                  detail: 'El reporte se ha generado y abierto correctamente.',
+                  life: 3000
+                });
+
+                console.log('URL del reporte generado:', this.downloadReportData.reportUrl);
+              });
           }
 
-          // Abrir el PDF en una nueva pestaña del navegador
-          window.open(this.reportData.reportUrl, '_blank');
+          // Si ya existe URL, abrir directamente
+          window.open(this.downloadReportData.reportUrl, '_blank');
 
           // Mostrar mensaje de éxito
           this.showToast({
@@ -471,7 +527,7 @@ export default {
             life: 3000
           });
 
-          console.log('URL del reporte:', this.reportData.reportUrl);
+          console.log('URL del reporte:', this.downloadReportData.reportUrl);
         })
         .catch(error => {
           console.error('Error al obtener el reporte:', error);

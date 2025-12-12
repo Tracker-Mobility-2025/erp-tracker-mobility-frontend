@@ -6,51 +6,46 @@ import {OrderRequestApi} from "../services/order-request-api.service.js";
 import {VerifierApi} from "../services/verifier-api.service.js";
 import {OrderService} from "../models/order-service.entity.js";
 import {Verifier} from "../../verifier-management/models/verifiers.entity.js";
+import {NotificationMixin} from "../../../shared/utils/notification.utils.js";
+
+// Constantes de configuración
+const STATUS_OPTIONS = [
+  { label: 'Todos', value: null },
+  { label: 'Pendiente', value: 'PENDIENTE' },
+  { label: 'Asignado', value: 'ASIGNADO' },
+  { label: 'En Proceso', value: 'EN_PROCESO' },
+  { label: 'Completada', value: 'COMPLETADA' },
+  { label: 'Cancelada', value: 'CANCELADA' },
+  { label: 'Observado', value: 'OBSERVADO' },
+  { label: 'Subsanada', value: 'SUBSANADA' }
+];
+
+const LOADING_STEPS = [
+  { icon: 'pi-file-o', label: 'Datos de la orden' },
+  { icon: 'pi-users', label: 'Información del cliente' },
+  { icon: 'pi-cog', label: 'Detalles del servicio' }
+];
 
 export default {
   name: 'order-detail-management',
+  
+  mixins: [NotificationMixin],
+  
   components: {OrderActions, OrderDescription},
 
   data() {
     return {
-
-      // Servicio para obtener detalles de la orden por ID
       orderRequestApi: new OrderRequestApi('/orders'),
-
-
-      // Servicio para obtener lista de verificadores
-      verifierApi: null,
-
+      verifierApi: new VerifierApi('/verifiers'),
       verifiersArray: [],
-
-      statusOptions: [
-        { label: 'Todos', value: null },
-        { label: 'Pendiente', value: 'PENDIENTE' },
-        { label: 'Asignado', value: 'ASIGNADO' },
-        { label: 'En Proceso', value: 'EN_PROCESO' },
-        { label: 'Completada', value: 'COMPLETADA' },
-        { label: 'Cancelada', value: 'CANCELADA' },
-        { label: 'Observado', value: 'OBSERVADO' },
-        { label: 'Subsanada', value: 'SUBSANADA' }
-      ],
-
-      // Item de la orden obtenido de la API
+      statusOptions: STATUS_OPTIONS,
       item: null,
-
-      // Estados de carga
       isLoading: true,
       hasError: false,
       errorMessage: '',
-      
-      // Progreso de carga
       loadingStep: 0,
-      loadingSteps: [
-        { icon: 'pi-file-o', label: 'Datos de la orden' },
-        { icon: 'pi-users', label: 'Información del cliente' },
-        { icon: 'pi-cog', label: 'Detalles del servicio' }
-      ],
-
-
+      loadingSteps: LOADING_STEPS,
+      loadingProgressInterval: null
     };
   },
 
@@ -62,133 +57,110 @@ export default {
       // Aquí iría la lógica real de descarga
     },
 
-    // Formatear fecha para mostrar
     formatDate(dateString) {
       if (!dateString) return 'No disponible';
-      
       try {
-        // Manejar diferentes formatos de fecha de entrada
-        let dateToFormat;
+        const datePart = dateString.includes('T') ? dateString.split('T')[0] : dateString;
+        const [year, month, day] = datePart.split('-').map(Number);
+        const date = new Date(year, month - 1, day);
         
-        if (dateString.includes('T')) {
-          // Si tiene formato ISO con hora, extraer solo la fecha
-          const datePart = dateString.split('T')[0];
-          const [year, month, day] = datePart.split('-');
-          // Crear fecha usando componentes individuales para evitar zona horaria
-          dateToFormat = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-        } else if (dateString.includes('-')) {
-          // Si es formato YYYY-MM-DD
-          const [year, month, day] = dateString.split('-');
-          dateToFormat = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-        } else {
-          // Fallback para otros formatos
-          dateToFormat = new Date(dateString);
-        }
+        if (isNaN(date.getTime())) return 'Fecha inválida';
         
-        // Verificar que la fecha sea válida
-        if (isNaN(dateToFormat.getTime())) return 'Fecha inválida';
-        
-        // Formatear como dd/mm/aaaa usando los métodos locales
-        const day = dateToFormat.getDate().toString().padStart(2, '0');
-        const month = (dateToFormat.getMonth() + 1).toString().padStart(2, '0');
-        const year = dateToFormat.getFullYear();
-        
-        return `${day}/${month}/${year}`;
+        return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
       } catch (error) {
         console.error('Error al formatear fecha:', error);
         return 'Fecha inválida';
       }
     },
 
-    getOrderDetailsByOrderId(orderId) {
-      // Lógica para obtener detalles de la orden por ID
+    async getOrderDetailsByOrderId(orderId) {
       console.log(`Obtener detalles de la orden con ID: `, orderId);
       
-      this.isLoading = true;
-      this.hasError = false;
-      this.loadingStep = 0;
-      
-      // Simular progreso de carga
+      this.resetLoadingState();
       this.simulateLoadingProgress();
       
-      this.orderRequestApi.getById(orderId).then(response => {
-          this.item = new OrderService(response.data);
-          
-          // Completar todos los pasos
-          this.loadingStep = this.loadingSteps.length;
-          
-          // Mostrar mensaje de éxito después de un breve delay
-          setTimeout(() => {
-            this.isLoading = false;
-            console.log('Detalles de la orden obtenidos:', this.item);
-          }, 300);
-        })
-        .catch(error => {
-          console.error('Error al obtener detalles de la orden:', error);
-          this.isLoading = false;
-          this.hasError = true;
-          this.errorMessage = 'Error al cargar los detalles de la orden. Por favor, intente nuevamente.';
+      try {
+        const response = await this.orderRequestApi.getById(orderId);
+        this.item = new OrderService(response.data);
+        this.loadingStep = this.loadingSteps.length;
+        
+        await new Promise(resolve => setTimeout(resolve, 300));
+        this.isLoading = false;
+        console.log('Detalles de la orden obtenidos:', this.item);
+      } catch (error) {
+        console.error('Error al obtener detalles de la orden:', error);
+        this.handleLoadingError();
+        this.showToast({
+          severity: 'error',
+          summary: 'Error al cargar',
+          detail: 'No se pudieron obtener los detalles de la orden.'
         });
-
+      }
     },
 
     simulateLoadingProgress() {
-      // Simular progreso paso a paso para mejor UX
-      const progressInterval = setInterval(() => {
+      this.clearLoadingInterval();
+      this.loadingProgressInterval = setInterval(() => {
         if (this.loadingStep < this.loadingSteps.length - 1) {
           this.loadingStep++;
         } else {
-          clearInterval(progressInterval);
+          this.clearLoadingInterval();
         }
-      }, 600); // Cambiar paso cada 600ms
-      
-      // Limpiar intervalo si la carga se completa antes
-      setTimeout(() => {
-        clearInterval(progressInterval);
-      }, 4000);
+      }, 600);
+      setTimeout(() => this.clearLoadingInterval(), 4000);
     },
 
-    // Obtener lista de verificadores disponibles
-    getAllVerifiers() {
-      // Lógica para obtener lista de verificadores activos
+    async getAllVerifiers() {
       console.log('Obtener lista de verificadores disponibles');
-      this.verifierApi.getAll().then(response => {
-
-        this.verifiersArray = response.data.map(resource  => new Verifier(resource));
-
-        // Filtrar solo los verificadores con status ACTIVE
-        this.verifiersArray = this.verifiersArray.filter(verifier => verifier.status === 'ACTIVE');
-
+      try {
+        const response = await this.verifierApi.getAll();
+        this.verifiersArray = response.data
+          .map(resource => new Verifier(resource))
+          .filter(verifier => verifier.status === 'ACTIVE');
         console.log('Lista de verificadores obtenida:', this.verifiersArray);
-
-        })
-        .catch(error => {
-          console.error('Error al obtener lista de verificadores:', error);
+      } catch (error) {
+        console.error('Error al obtener lista de verificadores:', error);
+        this.showToast({
+          severity: 'warn',
+          summary: 'Advertencia',
+          detail: 'No se pudo cargar la lista de verificadores.'
         });
-    }
+      }
+    },
 
+    // Métodos helper para gestión de estado
+    resetLoadingState() {
+      this.isLoading = true;
+      this.hasError = false;
+      this.loadingStep = 0;
+      this.errorMessage = '';
+    },
+
+    handleLoadingError() {
+      this.isLoading = false;
+      this.hasError = true;
+      this.errorMessage = 'Error al cargar los detalles de la orden. Por favor, intente nuevamente.';
+    },
+
+    clearLoadingInterval() {
+      if (this.loadingProgressInterval) {
+        clearInterval(this.loadingProgressInterval);
+        this.loadingProgressInterval = null;
+      }
+    }
   },
 
 
   created() {
-    // Obtener el id de la query en router
     const orderId = this.$route.query.id;
-
     console.log(`Cargar detalles de la orden con ID: ${orderId}`);
-    // Aquí iría la lógica real para cargar los detalles de la orden usando el orderId
-
-    // Inicializar servicios
-    this.orderRequestApi = new OrderRequestApi('/orders');
-    this.verifierApi = new VerifierApi('/verifiers');
-
-
-    // Llamar a la función para obtener lista de verificadores
     this.getAllVerifiers();
-    // Llamar a la función para obtener detalles de la orden
     this.getOrderDetailsByOrderId(orderId);
+  },
 
+  beforeUnmount() {
+    this.clearLoadingInterval();
   }
-
 };
 
 </script>
@@ -275,7 +247,7 @@ export default {
       </div>
 
       <!-- Columna derecha (1/3 del ancho) -->
-      <div class="col-8 lg:col-4" >
+      <div class="col-16 lg:col-4" >
         <order-actions
             :item="item"
             :verifiers-list="verifiersArray"
