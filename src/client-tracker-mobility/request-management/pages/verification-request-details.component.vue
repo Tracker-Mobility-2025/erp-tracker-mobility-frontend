@@ -12,6 +12,48 @@ import RequestLandlordDetails from "../components/request-landlord-details.compo
 import RequestDocumentsDetails from "../components/request-documents-details.component.vue";
 import RequestObservationsDetails from "../components/request-observations-details.component.vue";
 
+// Constantes de configuración
+const STATUS_COLORS = {
+  'PENDIENTE': '#A8A8A8',
+  'ASIGNADO': '#1976D2',
+  'EN_PROCESO': '#FFC107',
+  'COMPLETADA': '#4CAF50',
+  'CANCELADA': '#D32F2F',
+  'OBSERVADO': '#FB8C00',
+  'SUBSANADA': '#66BB6A',
+  'ENTREVISTA_ARRENDADOR_FALTANTE': '#9C27B0'
+};
+
+const STATUS_WHITE_TEXT = ['ASIGNADO', 'COMPLETADA', 'CANCELADA', 'OBSERVADO', 'SUBSANADA', 'ENTREVISTA_ARRENDADOR_FALTANTE'];
+
+const OBSERVATION_TYPE_LABELS = {
+  'DOCUMENTO_IDENTIDAD_BORROSO': 'Documento de identidad - Borroso o ilegible',
+  'RECIBO_SERVICIO_BORROSO': 'Recibo de servicio - Borroso o ilegible',
+  'FOTO_FACHADA_BORROSA': 'Foto fachada vivienda - Borrosa o ilegible',
+  'UBICACION_INCORRECTA': 'Ubicación en mapa - Enlace incorrecto',
+  'DATOS_CLIENTE_INCOMPLETOS': 'Datos del cliente - Incorrectos',
+  'DATOS_ARRENDADOR_INCOMPLETOS': 'Datos del arrendador - Incorrectos',
+  'DOCUMENTO_IDENTIDAD': 'Documento de identidad',
+  'RECIBO_SERVICIO': 'Recibo de servicio'
+};
+
+const OBSERVATION_SECTION_MAP = {
+  'DOCUMENTO_IDENTIDAD_BORROSO': 'documents-details',
+  'RECIBO_SERVICIO_BORROSO': 'documents-details',
+  'FOTO_FACHADA_BORROSA': 'documents-details',
+  'DOCUMENTO_IDENTIDAD': 'documents-details',
+  'RECIBO_SERVICIO': 'documents-details',
+  'DATOS_CLIENTE_INCOMPLETOS': 'client-details',
+  'DATOS_ARRENDADOR_INCOMPLETOS': 'landlord-details',
+  'UBICACION_INCORRECTA': 'location-details'
+};
+
+const LOADING_STEPS = [
+  { icon: 'pi-file-o', label: 'Datos de la solicitud' },
+  { icon: 'pi-users', label: 'Información del cliente' },
+  { icon: 'pi-building', label: 'Datos del solicitante' }
+];
+
 export default {
   name: 'verification-request-details',
 
@@ -28,34 +70,19 @@ export default {
 
   data() {
     return {
-      // Servicios API
-      verificationRequestsApi: null,
-      requestObservationsApiService: null,
-      downloadReportApiService: null,
-
-      // Item de la solicitud
+      verificationRequestsApi: new VerificationRequestsApi('/orders'),
+      requestObservationsApiService: new RequestObservationsApiService('/orders'),
+      downloadReportApiService: new DownloadReportApiService('/reports'),
       item: null,
-
-      // Datos del reporte generado (URL del PDF)
       downloadReportData: new DownloadReport({}),
-      reportData: null,
-
-      // Estados de carga
       isLoading: true,
       hasError: false,
       errorMessage: '',
-      
-      // Progreso de carga
       loadingStep: 0,
-      loadingSteps: [
-        { icon: 'pi-file-o', label: 'Datos de la solicitud' },
-        { icon: 'pi-users', label: 'Información del cliente' },
-        { icon: 'pi-building', label: 'Datos del solicitante' }
-      ],
-
-      // Estados de modo edición para subsanar observaciones
+      loadingSteps: LOADING_STEPS,
       editModeEnabled: false,
-      currentObservation: null
+      currentObservation: null,
+      loadingProgressInterval: null
     };
   },
 
@@ -83,100 +110,72 @@ export default {
       }
     },
 
-    // Formatear fecha para visualización
     formatDate(dateString) {
       if (!dateString) return 'No disponible';
-      
       try {
         const date = this.parseLocalDate(dateString);
         if (!date || isNaN(date.getTime())) return 'Fecha inválida';
-        
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const year = date.getFullYear();
-        
         return `${day}/${month}/${year}`;
       } catch (error) {
         return 'Error';
       }
     },
 
-    // Obtener detalles de la solicitud por ID
-    getRequestDetailsByOrderId(orderId) {
+    async getRequestDetailsByOrderId(orderId) {
       this.isLoading = true;
       this.hasError = false;
       this.loadingStep = 0;
-      
       this.simulateLoadingProgress();
       
-      this.verificationRequestsApi.getById(orderId).then(response => {
+      try {
+        const response = await this.verificationRequestsApi.getById(orderId);
         this.item = new VerificationRequest(response.data);
         this.loadingStep = this.loadingSteps.length;
-        
-        setTimeout(() => {
-          this.isLoading = false;
-          console.log('Solicitud cargada:', this.item.orderCode);
-        }, 300);
-      })
-      .catch(error => {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        this.isLoading = false;
+        console.log('Solicitud cargada:', this.item.orderCode);
+      } catch (error) {
         console.error('Error al obtener detalles de la solicitud:', error);
         this.isLoading = false;
         this.hasError = true;
         this.errorMessage = 'Error al cargar los detalles de la solicitud. Por favor, intente nuevamente.';
-      });
-    },
-
-    simulateLoadingProgress() {
-      const progressInterval = setInterval(() => {
-        if (this.loadingStep < this.loadingSteps.length - 1) {
-          this.loadingStep++;
-        } else {
-          clearInterval(progressInterval);
-        }
-      }, 600);
-      
-      setTimeout(() => {
-        clearInterval(progressInterval);
-      }, 4000);
-    },
-
-    // Retorna el color personalizado para el estado
-    getStatusColor(status) {
-      switch (status) {
-        case 'PENDIENTE':
-          return '#A8A8A8';
-        case 'ASIGNADO':
-          return '#1976D2';
-        case 'EN_PROCESO':
-          return '#FFC107';
-        case 'COMPLETADA':
-          return '#4CAF50';
-        case 'CANCELADA':
-          return '#D32F2F';
-        case 'OBSERVADO':
-          return '#FB8C00';
-        case 'SUBSANADA':
-          return '#66BB6A';
-        case 'ENTREVISTA_ARRENDADOR_FALTANTE':
-          return '#9C27B0';
-        default:
-          return '#E0E0E0';
       }
     },
 
-    shouldUseWhiteText(status) {
-      return ['ASIGNADO', 'COMPLETADA', 'CANCELADA', 'OBSERVADO', 'SUBSANADA', 'ENTREVISTA_ARRENDADOR_FALTANTE'].includes(status);
+    simulateLoadingProgress() {
+      this.clearLoadingInterval();
+      this.loadingProgressInterval = setInterval(() => {
+        if (this.loadingStep < this.loadingSteps.length - 1) {
+          this.loadingStep++;
+        } else {
+          this.clearLoadingInterval();
+        }
+      }, 600);
+      setTimeout(() => this.clearLoadingInterval(), 4000);
     },
 
-    // Manejar subsanación de observación - Habilitar modo edición
-    handleSubsanarObservation(observation) {
-      // Guardar la observación actual
-      this.currentObservation = observation;
+    clearLoadingInterval() {
+      if (this.loadingProgressInterval) {
+        clearInterval(this.loadingProgressInterval);
+        this.loadingProgressInterval = null;
+      }
+    },
 
-      // Habilitar modo edición
+    getStatusColor(status) {
+      return STATUS_COLORS[status] || '#E0E0E0';
+    },
+
+    shouldUseWhiteText(status) {
+      return STATUS_WHITE_TEXT.includes(status);
+    },
+
+    handleSubsanarObservation(observation) {
+      this.currentObservation = observation;
       this.editModeEnabled = true;
 
-      // Mostrar mensaje informativo
       this.showToast({
         severity: 'info',
         summary: 'Modo edición activado',
@@ -184,66 +183,22 @@ export default {
         life: 5000
       });
 
-      // Scroll a la sección correspondiente según el tipo de observación
       this.$nextTick(() => {
-        let targetSection = null;
-
-        switch(observation.observationType) {
-          // Observaciones relacionadas con documentos
-          case 'DOCUMENTO_IDENTIDAD_BORROSO':
-          case 'RECIBO_SERVICIO_BORROSO':
-          case 'FOTO_FACHADA_BORROSA':
-          case 'DOCUMENTO_IDENTIDAD':
-          case 'RECIBO_SERVICIO':
-            targetSection = document.querySelector('[data-section="documents-details"]');
-            break;
-
-          // Observaciones relacionadas con datos del cliente
-          case 'DATOS_CLIENTE_INCOMPLETOS':
-            targetSection = document.querySelector('[data-section="client-details"]');
-            break;
-
-          // Observaciones relacionadas con datos del arrendador
-          case 'DATOS_ARRENDADOR_INCOMPLETOS':
-            targetSection = document.querySelector('[data-section="landlord-details"]');
-            break;
-
-          // Observaciones relacionadas con ubicación
-          case 'UBICACION_INCORRECTA':
-            targetSection = document.querySelector('[data-section="location-details"]');
-            break;
-
-          default:
-            // Si no se encuentra una sección específica, ir a datos del cliente
-            targetSection = document.querySelector('[data-section="client-details"]');
-        }
-
+        const sectionName = OBSERVATION_SECTION_MAP[observation.observationType] || 'client-details';
+        const targetSection = document.querySelector(`[data-section="${sectionName}"]`);
+        
         if (targetSection) {
           targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       });
     },
 
-    // Obtener etiqueta del tipo de observación
     getObservationTypeLabel(type) {
-      const labels = {
-        'DOCUMENTO_IDENTIDAD_BORROSO': 'Documento de identidad - Borroso o ilegible',
-        'RECIBO_SERVICIO_BORROSO': 'Recibo de servicio - Borroso o ilegible',
-        'FOTO_FACHADA_BORROSA': 'Foto fachada vivienda - Borrosa o ilegible',
-        'UBICACION_INCORRECTA': 'Ubicación en mapa - Enlace incorrecto',
-        'DATOS_CLIENTE_INCOMPLETOS': 'Datos del cliente - Incorrectos',
-        'DATOS_ARRENDADOR_INCOMPLETOS': 'Datos del arrendador - Incorrectos',
-        // Mantener compatibilidad con valores antiguos
-        'DOCUMENTO_IDENTIDAD': 'Documento de identidad',
-        'RECIBO_SERVICIO': 'Recibo de servicio'
-      };
-      return labels[type] || type;
+      return OBSERVATION_TYPE_LABELS[type] || type;
     },
 
-    // Cancelar modo edición
     cancelEditMode() {
-      this.editModeEnabled = false;
-      this.currentObservation = null;
+      Object.assign(this, { editModeEnabled: false, currentObservation: null });
     },
 
     // Guardar cambios de subsanación (método principal orquestador)
@@ -393,34 +348,23 @@ export default {
       );
     },
 
-    // Limpiar archivos seleccionados en el componente de documentos
     clearDocumentSelections(documentsComponent) {
       if (!documentsComponent) return;
-
-      documentsComponent.selectedFiles = {};
-      documentsComponent.previewUrls = {};
+      Object.assign(documentsComponent, { selectedFiles: {}, previewUrls: {} });
     },
 
-    // Obtener mensaje de error específico para subsanación
     getSubsanacionErrorMessage(error) {
-      let errorMessage = 'No se pudieron guardar los cambios. Por favor, intente nuevamente.';
-
-      if (error.response) {
-        const status = error.response.status;
-        const backendMessage = error.response.data?.message || '';
-
-        if (status === 400) {
-          errorMessage = 'Los datos ingresados no son válidos. Por favor, verifique la información.';
-        } else if (status === 404) {
-          errorMessage = 'No se encontró la solicitud o el documento a actualizar.';
-        } else if (status === 500) {
-          errorMessage = 'Error en el servidor. Por favor, contacte al administrador.';
-        } else if (backendMessage) {
-          errorMessage = backendMessage;
-        }
-      }
-
-      return errorMessage;
+      if (!error.response) return 'No se pudieron guardar los cambios. Por favor, intente nuevamente.';
+      
+      const { status, data } = error.response;
+      const backendMessage = data?.message || '';
+      
+      if (backendMessage) return backendMessage;
+      if (status === 400) return 'Los datos ingresados no son válidos. Por favor, verifique la información.';
+      if (status === 404) return 'No se encontró la solicitud o el documento a actualizar.';
+      if (status === 500) return 'Error en el servidor. Por favor, contacte al administrador.';
+      
+      return 'No se pudieron guardar los cambios. Por favor, intente nuevamente.';
     },
 
     // =============================
@@ -585,11 +529,11 @@ export default {
 
   created() {
     const orderId = this.$route.query.id;
-
-    this.verificationRequestsApi = new VerificationRequestsApi('/orders');
-    this.requestObservationsApiService = new RequestObservationsApiService('/orders');
-    this.downloadReportApiService = new DownloadReportApiService('/reports');
     this.getRequestDetailsByOrderId(orderId);
+  },
+
+  beforeUnmount() {
+    this.clearLoadingInterval();
   }
 }
 </script>

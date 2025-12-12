@@ -1003,7 +1003,7 @@ export default {
 
 <template>
   <!-- Detalles de la orden de servicio (se divide en cards tipo grid)-->
-  <div class="order-container flex flex-column p-4 h-full w-full overflow-auto ">
+  <div class="flex flex-column p-4 h-full w-full overflow-auto ">
 
     <!-- Indicador de carga minimalista -->
     <div v-if="loading" class="loading-container">
@@ -1037,8 +1037,7 @@ export default {
         </router-link>
         <span class="text-gray-500 font-bold"> / </span>
         <span class="text-blue-700 font-bold hover:underline cursor-pointer">
-        detalle del reporte de verificación
-      </span>
+        detalle del reporte de verificación </span>
       </div>
 
       <!-- Número de orden a la izquierda y fecha de solicitud a la derecha -->

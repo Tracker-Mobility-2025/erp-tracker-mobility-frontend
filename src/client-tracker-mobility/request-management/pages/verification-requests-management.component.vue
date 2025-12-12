@@ -5,6 +5,45 @@ import {VerificationRequestsApi} from "../services/verification-requests-api.ser
 import {useAuthenticationStore} from "../../../tracker-mobility/security/services/authentication.store.js";
 import DataManager from "../../../shared/components/data-manager.component.vue";
 
+// Constants
+const STATUS_OPTIONS = [
+  { label: 'Todos', value: null },
+  { label: 'Pendiente', value: 'PENDIENTE' },
+  { label: 'Asignado', value: 'ASIGNADO' },
+  { label: 'En Proceso', value: 'EN_PROCESO' },
+  { label: 'Completada', value: 'COMPLETADA' },
+  { label: 'Cancelada', value: 'CANCELADA' },
+  { label: 'Observado', value: 'OBSERVADO' },
+  { label: 'Subsanada', value: 'SUBSANADA' },
+  { label: 'Ent Faltante', value: 'ENTREVISTA_ARRENDADOR_FALTANTE' }
+]
+
+const STATUS_MAP = {
+  'PENDIENTE': 'status-pendiente',
+  'ASIGNADO': 'status-asignado', 
+  'EN_PROCESO': 'status-en-proceso',
+  'COMPLETADA': 'status-completada',
+  'CANCELADA': 'status-cancelada',
+  'OBSERVADO': 'status-observado',
+  'SUBSANADA': 'status-subsanada',
+  'ENTREVISTA_ARRENDADOR_FALTANTE': 'status-entrevista-arrendador-faltante'
+}
+
+const COLUMNS = [
+  { field: 'orderCode', header: 'Código de solicitud', sortable: true, style: 'width: 160px;' },
+  { field: 'requestDate', header: 'Fecha de solicitud', sortable: true, template: 'requestDate', style: 'width: 150px;' },
+  { field: 'status', header: 'Estado', sortable: true, template: 'status', style: 'width: 120px;' },
+  { field: 'observations', header: 'Obs. Pendientes', sortable: false, template: 'pendingObservations', style: 'width: 140px;' },
+  { field: 'homeVisitDetails.visitDate', header: 'Visita', sortable: true, template: 'visitDate', style: 'width: 130px;' },
+  { field: 'clientName', header: 'Cliente', sortable: true, template: 'clientName', style: 'width: 180px;' },
+  { field: 'client.phoneNumber', header: 'Contacto', sortable: true, style: 'width: 140px;' }
+]
+
+const TITLE = {
+  singular: 'Solicitud de verificación',
+  plural: 'Solicitud de verificación'
+}
+
 export default {
   name: 'verification-requests-management',
 
@@ -14,116 +53,55 @@ export default {
 
   data() {
     return {
-
-      // Servicio para obtener las solicitudes de verificación
       verificationRequestsApi: null,
-
-      // Array de órdenes de verificación
       itemsArray: [],
-
-      columns: [
-        { field: 'orderCode', header: 'Código de solicitud', sortable: true, style: 'width: 160px;' },
-        { field: 'requestDate', header: 'Fecha de solicitud', sortable: true, template: 'requestDate', style: 'width: 150px;' },
-        { field: 'status', header: 'Estado', sortable: true, template: 'status', style: 'width: 120px;' },
-        { field: 'observations', header: 'Obs. Pendientes', sortable: false, template: 'pendingObservations', style: 'width: 140px;' },
-        { field: 'homeVisitDetails.visitDate', header: 'Visita', sortable: true, template: 'visitDate', style: 'width: 130px;' },
-        { field: 'clientName', header: 'Cliente', sortable: true, template: 'clientName', style: 'width: 180px;' },
-        { field: 'client.phoneNumber', header: 'Contacto', sortable: true, style: 'width: 140px;' }
-      ],
-
-
-      globalFilterValue: '', // Valor del filtro global de búsqueda
-      selectedDate: null, // Fecha seleccionada en el filtro
-      selectedStatus: null, // Filtro de estado seleccionado
-      statusOptions: [
-        { label: 'Todos', value: null },
-        { label: 'Pendiente', value: 'PENDIENTE' },
-        { label: 'Asignado', value: 'ASIGNADO' },
-        { label: 'En Proceso', value: 'EN_PROCESO' },
-        { label: 'Completada', value: 'COMPLETADA' },
-        { label: 'Cancelada', value: 'CANCELADA' },
-        { label: 'Observado', value: 'OBSERVADO' },
-        { label: 'Subsanada', value: 'SUBSANADA' },
-        { label: 'Ent Faltante', value: 'ENTREVISTA_ARRENDADOR_FALTANTE' }
-      ],
-      title: {
-        singular: 'Solicitud de verificación',
-        plural: 'Solicitud de verificación'
-      },
+      columns: COLUMNS,
+      globalFilterValue: '',
+      selectedDate: null,
+      selectedStatus: null,
+      statusOptions: STATUS_OPTIONS,
+      title: TITLE,
       loading: false
-
     };
   },
 
   computed: {
-
-
-
-    // Filtro combinado que aplica todos los filtros activos
-    // Filtros basados en las columnas visibles del DataTable:
-    // 1. Código de solicitud
-    // 2. Fecha de solicitud
-    // 3. Estado
-    // 4. Cliente (nombre completo)
-    // 5. Contacto (teléfono)
     filteredItemsArray() {
       let filtered = [...this.itemsArray];
 
-      // Filtro por búsqueda global - busca en todas las columnas visibles
-      if (this.globalFilterValue && this.globalFilterValue.trim().length > 0) {
+      // Filtro por búsqueda global
+      if (this.globalFilterValue?.trim().length > 0) {
         const searchTerm = this.globalFilterValue.toLowerCase().trim();
+        const safeSearch = (value) => value && String(value).toLowerCase().trim().includes(searchTerm);
         
         filtered = filtered.filter(order => {
-          // Helper para buscar de forma segura
-          const safeSearch = (value) => {
-            if (!value) return false;
-            return String(value).toLowerCase().trim().includes(searchTerm);
-          };
-
-          // 1. Buscar en Código de solicitud
-          const orderCodeMatch = safeSearch(order.orderCode);
-
-          // 2. Buscar en Fecha de solicitud (formato dd/mm/aaaa)
-          const requestDateMatch = order.requestDate && safeSearch(this.formatDate(order.requestDate));
-
-          // 3. Buscar en Estado (normalizar guiones bajos)
-          const statusMatch = order.status && safeSearch(order.status.replace(/_/g, ' '));
-
-          // 4. Buscar en Cliente (nombre completo)
-          const clientNameMatch = order.client?.getFullName && safeSearch(order.client.getFullName());
-
-          // 5. Buscar en Contacto (teléfono del cliente)
-          const phoneMatch = safeSearch(order.client?.phoneNumber);
-
-          return orderCodeMatch || requestDateMatch || statusMatch || clientNameMatch || phoneMatch;
+          return safeSearch(order.orderCode) ||
+                 safeSearch(this.formatDate(order.requestDate)) ||
+                 safeSearch(order.status?.replace(/_/g, ' ')) ||
+                 safeSearch(order.client?.getFullName()) ||
+                 safeSearch(order.client?.phoneNumber);
         });
       }
 
-      // Filtro por estado seleccionado
+      // Filtro por estado
       if (this.selectedStatus) {
         filtered = filtered.filter(order => order.status === this.selectedStatus);
       }
 
-      // Filtro por fecha de solicitud (sin problemas de zona horaria)
+      // Filtro por fecha
       if (this.selectedDate) {
         const selectedDateStr = this.formatDateForComparison(this.selectedDate);
-
         filtered = filtered.filter(order => {
-          if (order.requestDate) {
-            try {
-              const requestDateStr = this.formatDateForComparison(order.requestDate);
-              return requestDateStr === selectedDateStr;
-            } catch (error) {
-              return false;
-            }
+          try {
+            return order.requestDate && this.formatDateForComparison(order.requestDate) === selectedDateStr;
+          } catch {
+            return false;
           }
-          return false;
         });
       }
 
       return filtered;
     },
-
 
     currentUser() {
       const authStore = useAuthenticationStore();
@@ -133,9 +111,6 @@ export default {
         isSignedIn: authStore.isSignedIn
       };
     }
-
-
-
   },
 
   methods: {
@@ -169,11 +144,13 @@ export default {
       });
     },
 
-    // Limpia todos los filtros (global, estado, fecha)
+    // Limpia todos los filtros
     onClearFilters() {
-      this.globalFilterValue = '';
-      this.selectedStatus = null;
-      this.selectedDate = null;
+      Object.assign(this, {
+        globalFilterValue: '',
+        selectedStatus: null,
+        selectedDate: null
+      });
     },
 
     // Actualiza el valor del filtro global
@@ -181,19 +158,9 @@ export default {
       this.globalFilterValue = value;
     },
 
-    // Retorna la clase CSS para el estado (definidas en src/style.css)
+    // Retorna la clase CSS para el estado
     getStatusClass(status) {
-      const statusMap = {
-        'PENDIENTE': 'status-pendiente',
-        'ASIGNADO': 'status-asignado', 
-        'EN_PROCESO': 'status-en-proceso',
-        'COMPLETADA': 'status-completada',
-        'CANCELADA': 'status-cancelada',
-        'OBSERVADO': 'status-observado',
-        'SUBSANADA': 'status-subsanada',
-        'ENTREVISTA_ARRENDADOR_FALTANTE': 'status-entrevista-arrendador-faltante'
-      };
-      return statusMap[status] || 'status-default';
+      return STATUS_MAP[status] || 'status-default';
     },
 
     // Contar observaciones pendientes de una solicitud
@@ -230,50 +197,30 @@ export default {
       }
     },
 
-    // Formatear fecha a formato dd/mm/aaaa para visualización
+    // Formatear fecha a dd/mm/aaaa
     formatDate(dateString) {
       if (!dateString) return 'N/A';
       
       try {
-        // Usar parseLocalDate para evitar problemas de zona horaria
         const date = this.parseLocalDate(dateString);
-        
-        // Verificar si la fecha es válida
         if (!date || isNaN(date.getTime())) return 'Fecha inválida';
         
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        
-        return `${day}/${month}/${year}`;
-      } catch (error) {
+        return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
+      } catch {
         return 'Error';
       }
     },
 
-    // Formatear fecha para comparación (aaaa-mm-dd) sin conversión de zona horaria
+    // Formatear fecha para comparación (aaaa-mm-dd)
     formatDateForComparison(dateInput) {
       if (!dateInput) return null;
       
       try {
-        let date;
-        
-        // Si es un objeto Date del calendar de PrimeVue
-        if (dateInput instanceof Date) {
-          date = dateInput;
-        } else {
-          // Si es un string, parsearlo como fecha local
-          date = this.parseLocalDate(dateInput);
-        }
-        
+        const date = dateInput instanceof Date ? dateInput : this.parseLocalDate(dateInput);
         if (!date || isNaN(date.getTime())) return null;
         
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        
-        return `${year}-${month}-${day}`;
-      } catch (error) {
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      } catch {
         return null;
       }
     },
@@ -328,34 +275,28 @@ export default {
 
 
     // Recuperar las solicitudes de verificación por empleado de empresa
-    getVerificationRequestsByCompanyEmployee() {
-
+    async getVerificationRequestsByCompanyEmployee() {
       this.loading = true;
-      this.verificationRequestsApi.getVerificationRequestsByEmployeeEmail(this.currentUser.username).then(response => {
-
+      try {
+        const response = await this.verificationRequestsApi.getVerificationRequestsByEmployeeEmail(this.currentUser.username);
+        
         this.validateServerResponse(response, 'solicitudes de verificación');
-
-        // Mapear los datos recibidos a entidades VerificationRequest
+        
         this.itemsArray = response.data.map(item => new VerificationRequest(item));
 
         // Ordenar por fecha de solicitud (más reciente primero)
         this.itemsArray.sort((a, b) => {
           const dateA = this.parseLocalDate(a.requestDate);
           const dateB = this.parseLocalDate(b.requestDate);
-
-          // Si alguna fecha es null, mover al final
           if (!dateA) return 1;
           if (!dateB) return -1;
-
-          // Ordenar descendente (más reciente primero)
           return dateB.getTime() - dateA.getTime();
         });
-
-      }).catch(error => {
+      } catch (error) {
         this.handleServerError(error, 'solicitudes de verificación');
-      }).finally(() => {
+      } finally {
         this.loading = false;
-      });
+      }
     }
 
   },

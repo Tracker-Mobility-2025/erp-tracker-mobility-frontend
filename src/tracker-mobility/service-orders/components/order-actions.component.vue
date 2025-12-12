@@ -498,10 +498,10 @@ export default {
 </script>
 
 <template>
-  <div class="flex flex-column gap-4 w-full">
+  <div class="flex flex-column gap-4">
 
     <!-- ====================== Card -> Asignar a verificador ====================== -->
-    <pv-card class="w-full">
+    <pv-card>
       <template #header>
         <div class="flex align-items-center gap-2 px-3 py-2" style="background-color: #4A60D0; color: white;">
           <i class="pi pi-user-plus" style="color: white;"></i>
@@ -612,7 +612,7 @@ export default {
     </pv-card>
 
     <!-- ====================== Card -> Estado del Servicio ====================== -->
-    <pv-card class="w-full">
+    <pv-card>
       <template #header>
         <div class="flex align-items-center gap-2 px-3 py-2" style="background-color: #4A60D0; color: white;">
           <i class="pi pi-flag" style="color: white;"></i>

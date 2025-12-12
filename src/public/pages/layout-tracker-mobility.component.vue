@@ -64,7 +64,7 @@ export default {
 
 .content-area {
   flex: 1;
-  overflow: hidden;
+  overflow: auto;
   background-color: var(--color-background);
   display: flex;
   flex-direction: column;

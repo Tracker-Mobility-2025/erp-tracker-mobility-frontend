@@ -310,10 +310,10 @@ export default {
 
 <template>
 
-  <div class="flex flex-column pb-4 gap-4">
+  <div class="flex flex-column gap-4">
 
     <!-- ====================== Card -> Datos del solicitante ====================== -->
-    <pv-card class="w-full">
+    <pv-card>
       <template #header>
         <div class="flex align-items-center gap-2 px-3 py-2" style="background-color: #4A60D0; color: white;">
           <i class="pi pi-briefcase" style="color: white;"></i>
@@ -369,7 +369,7 @@ export default {
 
 
     <!-- ====================== Card -> Datos del cliente ====================== -->
-    <pv-card class="w-full">
+    <pv-card>
       <template #header>
         <div class="flex align-items-center gap-2 px-3 py-2" style="background-color: #4A60D0; color: white;">
           <i class="pi pi-user-plus" style="color: white;"></i>

@@ -168,7 +168,7 @@ export default {
 <template>
 
   <!-- Detalles de la orden de servicio (se divide en cards tipo grid)-->
-  <div class="order-container flex flex-column p-4 h-full w-full overflow-auto ">
+  <div class="flex flex-column p-4 h-full w-full">
 
     <!-- Breadcrumb -->
     <div class="text-base">
@@ -185,7 +185,7 @@ export default {
     </div>
 
     <!-- Número de orden a la izquierda y fecha de solicitud a la derecha -->
-    <div class="flex align-content-center justify-content-between  mt-4 mb-2" v-if="item">
+    <div class="flex align-content-center justify-content-between mt-4 mb-2" v-if="item">
       <!-- Izquierda -->
       <h2 class="text-2xl xl:font-bold font-extrabold text-gray-900">
         Orden:<span class="text-blue-700 xl:font-bold "> {{ item.orderCode || 'No disponible' }}</span>
@@ -218,7 +218,7 @@ export default {
     </div>
 
     <!-- Estado de error -->
-    <div v-else-if="hasError" class="flex justify-content-center align-items-center h-20rem">
+    <div v-else-if="hasError" class="flex justify-content-center align-items-center ">
       <pv-message severity="error" :closable="false">
         <template #default>
           <div class="flex flex-column align-items-center">
@@ -236,18 +236,18 @@ export default {
     </div>
 
     <!-- Grid de detalles de la orden (con dos columnas: izquierda más ancha, derecha más estrecha) -->
-    <div v-else-if="item" class="grid">
+    <div v-else-if="item" class="flex flex-wrap gap-3">
 
-      <!-- Columna izquierda (2/3 del ancho) -->
-      <div class="col-16 lg:col-8" >
+      <!-- Columna izquierda (60% del ancho) -->
+      <div class="flex-1" style="min-width: 300px; max-width: 100%;">
         <order-description
             :item="item"
             @download-document="onDownloadDocument"
         />
       </div>
 
-      <!-- Columna derecha (1/3 del ancho) -->
-      <div class="col-16 lg:col-4" >
+      <!-- Columna derecha (40% del ancho) -->
+      <div class="flex-none" style="width: 450px; min-width: 300px;">
         <order-actions
             :item="item"
             :verifiers-list="verifiersArray"
