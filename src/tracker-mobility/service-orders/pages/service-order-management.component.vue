@@ -5,6 +5,7 @@ import {OrderRequestApi} from "../services/order-request-api.service.js";
 import {VerifierApi} from "../services/verifier-api.service.js";
 import {NotificationMixin} from "../../../shared/utils/notification.utils.js";
 import {OrderService} from "../models/order-service.entity.js";
+import {useAuthenticationStore} from "../../security/services/authentication.store.js";
 
 // Constantes de configuración
 const STATUS_OPTIONS = [
@@ -104,6 +105,17 @@ export default {
       }
 
       return filtered;
+    },
+
+    // Verificar si el usuario actual es MASTER_ADMIN
+    isMasterAdmin() {
+      const authStore = useAuthenticationStore();
+      return authStore.currentRole === 'MASTER_ADMIN';
+    },
+
+    // Habilitar eliminación solo para MASTER_ADMIN
+    canDelete() {
+      return this.isMasterAdmin;
     }
   },
 
@@ -393,7 +405,7 @@ export default {
       :loading="loading"
       :dynamic="true"
       :show-new="false"
-      :show-delete="false"
+      :show-delete="canDelete"
       :show-export="false"
       :show-selection="true"
       :show-actions="true"

@@ -121,6 +121,19 @@ export default {
       // Limpiar query parameters
       this.$router.replace({ name: 'sign-in' });
     }
+
+    // Mostrar mensaje si la sesión expiró (token JWT expirado)
+    if (this.$route.query.error === 'session-expired') {
+      this.showToast({
+        severity: 'warn',
+        summary: 'Sesión Expirada',
+        detail: this.$route.query.message || 'Su sesión ha expirado. Por favor, inicie sesión nuevamente.',
+        life: 6000
+      });
+      
+      // Limpiar query parameters
+      this.$router.replace({ name: 'sign-in' });
+    }
   }
 }
 

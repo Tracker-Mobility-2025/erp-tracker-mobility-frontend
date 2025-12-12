@@ -122,14 +122,14 @@ export default {
   computed: {
     items() {
       return [
-        { role: 'COMPANY_EMPLOYEE', label: 'Nueva Solicitud', icon: 'pi pi-fw pi-plus-circle', to:
+        { roles: ['COMPANY_EMPLOYEE'], label: 'Nueva Solicitud', icon: 'pi pi-fw pi-plus-circle', to:
               `/app/applicant-company/management-request-form` },
-        { role: 'COMPANY_EMPLOYEE', label: 'Mis Órdenes', icon: 'pi pi-fw pi-file-edit', to: `/app/applicant-company/my-service-orders` },
-        //{ role: 'ADMIN', label: 'Dashboard', icon: 'pi pi-fw pi-chart-line', to: `/app/admin/dashboard` },
-        { role: 'ADMIN', label: 'Órdenes', icon: 'pi pi-fw pi-file-edit', to: `/app/admin/service-orders` },
-        { role: 'ADMIN', label: 'Verificadores', icon: 'pi pi-fw pi-users', to: `/app/admin/verifiers` },
-        { role: 'ADMIN', label: 'Reportes', icon: 'pi pi-fw pi-chart-bar', to: `/app/admin/verification-reports` },
-        { role: 'ADMIN', label: 'Clientes', icon: 'pi pi-fw pi-user', to: `/app/admin/clients` },
+        { roles: ['COMPANY_EMPLOYEE'], label: 'Mis Órdenes', icon: 'pi pi-fw pi-file-edit', to: `/app/applicant-company/my-service-orders` },
+        //{ roles: ['ADMIN', 'MASTER_ADMIN'], label: 'Dashboard', icon: 'pi pi-fw pi-chart-line', to: `/app/admin/dashboard` },
+        { roles: ['ADMIN', 'MASTER_ADMIN'], label: 'Órdenes', icon: 'pi pi-fw pi-file-edit', to: `/app/admin/service-orders` },
+        { roles: ['ADMIN', 'MASTER_ADMIN'], label: 'Verificadores', icon: 'pi pi-fw pi-users', to: `/app/admin/verifiers` },
+        { roles: ['ADMIN', 'MASTER_ADMIN'], label: 'Reportes', icon: 'pi pi-fw pi-chart-bar', to: `/app/admin/verification-reports` },
+        { roles: ['ADMIN', 'MASTER_ADMIN'], label: 'Clientes', icon: 'pi pi-fw pi-user', to: `/app/admin/clients` },
       ];
     },
 
@@ -144,7 +144,7 @@ export default {
 
     filteredItems() {
       if (!this.currentUser.isSignedIn) return [];
-      return this.items.filter(i => i.role === this.currentUser.role);
+      return this.items.filter(i => i.roles.includes(this.currentUser.role));
     }
   },
 

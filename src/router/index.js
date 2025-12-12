@@ -45,7 +45,7 @@ const router = createRouter({
             component: LayoutTrackerMobilityComponent,
             meta: {
                 title: 'Tracker Mobility',
-                roles: ['ADMIN', 'COMPANY_EMPLOYEE'] // Ambos roles pueden acceder al layout
+                roles: ['ADMIN', 'MASTER_ADMIN', 'COMPANY_EMPLOYEE'] // Todos los roles autorizados
             },
             children: [
 
@@ -77,7 +77,7 @@ const router = createRouter({
                     component: DashboardManagementComponent,
                     meta: {
                         title: 'Dashboard',
-                        roles: ['ADMIN']
+                        roles: ['ADMIN', 'MASTER_ADMIN']
                     }
                 },
 
@@ -88,7 +88,7 @@ const router = createRouter({
                     component: ServiceOrderManagementComponent,
                     meta: {
                         title: 'Ordenes de servicio',
-                        roles: ['ADMIN', 'COMPANY_EMPLOYEE'] // Ambos roles pueden ver órdenes
+                        roles: ['ADMIN', 'MASTER_ADMIN', 'COMPANY_EMPLOYEE'] // Todos pueden ver órdenes
                     }
                 },
                 {
@@ -97,7 +97,7 @@ const router = createRouter({
                     component: OrderDetailManagementComponent,
                     meta: {
                         title: 'Detalles de la orden',
-                        roles: ['ADMIN', 'COMPANY_EMPLOYEE'] // Ambos roles pueden ver detalles
+                        roles: ['ADMIN', 'MASTER_ADMIN', 'COMPANY_EMPLOYEE'] // Todos pueden ver detalles
                     }
                 },
 
@@ -108,7 +108,7 @@ const router = createRouter({
                     component: VerifiersManagementComponent,
                     meta: {
                         title: 'Verificadores',
-                        roles: ['ADMIN']
+                        roles: ['ADMIN', 'MASTER_ADMIN']
                     }
                 },
                 {
@@ -117,7 +117,7 @@ const router = createRouter({
                     component: VerifiersDetailsManagementComponent,
                     meta: {
                         title: 'Detalles del verificador',
-                        roles: ['ADMIN']
+                        roles: ['ADMIN', 'MASTER_ADMIN']
                     }
                 },
 
@@ -128,7 +128,7 @@ const router = createRouter({
                     component: VerificationReportsManagementComponent,
                     meta: {
                         title: 'Reportes de verificación',
-                        roles: ['ADMIN']
+                        roles: ['ADMIN', 'MASTER_ADMIN']
                     }
                 },
                 {
@@ -137,7 +137,7 @@ const router = createRouter({
                     component: DetailsHomeVerificationReportComponent,
                     meta: {
                         title: 'Detalles del reporte de verificación',
-                        roles: ['ADMIN']
+                        roles: ['ADMIN', 'MASTER_ADMIN']
                     }
                 },
 
@@ -148,7 +148,7 @@ const router = createRouter({
                     component: ClientManagementComponent,
                     meta: {
                         title: 'Clientes',
-                        roles: ['ADMIN']
+                        roles: ['ADMIN', 'MASTER_ADMIN']
                     }
                 },
                 {
@@ -157,7 +157,7 @@ const router = createRouter({
                     component: ClientDetailsManagementComponent,
                     meta: {
                         title: 'Detalle del cliente',
-                        roles: ['ADMIN']
+                        roles: ['ADMIN', 'MASTER_ADMIN']
                     }
                 },
 

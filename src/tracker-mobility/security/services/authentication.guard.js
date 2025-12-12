@@ -36,7 +36,7 @@ export const authenticationGuard = (to, from, next) => {
 
         // Verificar que solo usuarios con roles autorizados puedan acceder al sistema
         if (store.isSignedIn) {
-            const authorizedRoles = ['ADMIN', 'COMPANY_EMPLOYEE'];
+            const authorizedRoles = ['ADMIN', 'MASTER_ADMIN', 'COMPANY_EMPLOYEE'];
             if (!authorizedRoles.includes(store.currentRole)) {
                 console.error(`[GUARD] Rol no autorizado detectado: ${store.currentRole}`);
                 // Cerrar sesión y redirigir
@@ -107,8 +107,8 @@ export const authenticationGuard = (to, from, next) => {
             }
         }
 
-        // Si el usuario es ADMIN y está tratando de acceder a rutas de COMPANY_EMPLOYEE, permitir
-        // (Eliminamos la restricción anterior que impedía a ADMIN acceder a estas rutas)
+        // Si el usuario es ADMIN o MASTER_ADMIN, tienen acceso completo a todas las rutas
+        // (Ambos roles tienen permisos totales en el sistema)
 
         console.log('[GUARD] Acceso permitido');
         next();

@@ -166,11 +166,12 @@ export const useAuthenticationStore = defineStore('authentication', {
             // Definir rutas por defecto según rol
             const defaultRoutesByRole = {
                 'ADMIN': '/app/admin/service-orders',
+                'MASTER_ADMIN': '/app/admin/service-orders',
                 'COMPANY_EMPLOYEE': '/app/applicant-company/management-request-form'
             };
             
             // ⚠️ Verificar que el rol está autorizado para hacer login
-            if (!['ADMIN', 'COMPANY_EMPLOYEE'].includes(userRole)) {
+            if (!['ADMIN', 'MASTER_ADMIN', 'COMPANY_EMPLOYEE'].includes(userRole)) {
                 console.error(`❌ [REDIRECT] Rol no autorizado: ${userRole}`);
                 
                 // Limpiar datos de autenticación
@@ -223,7 +224,7 @@ export const useAuthenticationStore = defineStore('authentication', {
          * @returns {boolean} - True if accessible, false otherwise
          */
         isRouteAccessibleForRole(routePath, userRole) {
-            // Rutas de ADMIN (requieren rol ADMIN)
+            // Rutas de ADMIN (requieren rol ADMIN o MASTER_ADMIN)
             if (routePath.startsWith('/app/admin/')) {
                 // COMPANY_EMPLOYEE puede ver órdenes (solo lectura)
                 const allowedForCompanyEmployee = [
@@ -235,7 +236,7 @@ export const useAuthenticationStore = defineStore('authentication', {
                     return allowedForCompanyEmployee.some(route => routePath.startsWith(route));
                 }
                 
-                return userRole === 'ADMIN';
+                return userRole === 'ADMIN' || userRole === 'MASTER_ADMIN';
             }
             
             // Rutas de solicitud de servicio (requieren rol COMPANY_EMPLOYEE)
