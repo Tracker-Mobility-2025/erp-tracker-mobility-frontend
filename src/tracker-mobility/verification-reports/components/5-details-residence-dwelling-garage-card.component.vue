@@ -7,33 +7,8 @@ export default {
     item: {
       type: Object,
       required: false,
-      default: () => ({
-        livesWith: 'Vive con su pareja e hijos',
-        resides: 'Sí',
-        residenceTime: '5 años',
-        housingRented: 'Alquilado',
-        housingType: 'Departamento',
-        floorsQuantity: '5 pisos',
-        floorLives: '5 piso',
-        facadeColor: 'Verde',
-        material: 'Noble',
-        state: 'Bueno',
-        zone: 'Urbana',
-        housingStatus: 'Amoblada',
-        roofType: 'Techada',
-        zoneCharacteristic: 'Vigilada',
-        housingAccess: 'Fácil',
-        zoneRisk: 'Ninguna',
-        garageIs: 'Alquilado',
-        garageDistance: 'Ubicada dentro de la vivienda',
-        realDirection: 'Calle 27 las praderas Mz K Lote 46 Santa Anita',
-        familiarReferences: [
-          { name: 'Lucila', contact: '999 666 777', relationship: 'Arrendador' },
-          { name: 'Meleni', contact: '999 666 777', relationship: 'Esposa' },
-          { name: 'José', contact: '999 666 777', relationship: 'Primo' }
-        ]
-      })
-    },
+      default: () => ({})
+    }
   },
 
   computed: {
@@ -101,7 +76,7 @@ export default {
                 <i class="pi pi-key text-primary"></i>
                 Vivienda es:
               </label>
-              <p class="font-semibold text-dark m-0">{{ item?.housingRented || 'No especificado' }}</p>
+              <p class="font-semibold text-dark m-0">{{ item?.residenceType || 'No especificado' }}</p>
             </div>
             
             <div class="field col-12 md:col-3">

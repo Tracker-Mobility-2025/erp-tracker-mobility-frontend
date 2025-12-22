@@ -166,7 +166,7 @@ export default {
         livesWith: residence?.livesWith || 'No especificado',
         resides: residence?.isResident ? 'Sí' : (residence?.isResident === false ? 'No' : 'No especificado'),
         residenceTime: client?.timeLivingText || (residence?.time ? `${residence.time} ${residence.timeType || ''}` : 'No especificado'),
-        housingRented: client?.isTenant ? 'Alquilado' : 'Propio',
+        residenceType: residence?.residenceType || 'No especificado',
         housingType: dwelling?.dwellingType || 'No especificado',
         floorsQuantity: client?.apartmentInformation || 'No especificado',
         floorLives: dwelling?.floorOccupied || 'No especificado',
