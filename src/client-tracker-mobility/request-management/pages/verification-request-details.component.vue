@@ -34,7 +34,8 @@ const OBSERVATION_TYPE_LABELS = {
   'DATOS_CLIENTE_INCOMPLETOS': 'Datos del cliente - Incorrectos',
   'DATOS_ARRENDADOR_INCOMPLETOS': 'Datos del arrendador - Incorrectos',
   'DOCUMENTO_IDENTIDAD': 'Documento de identidad',
-  'RECIBO_SERVICIO': 'Recibo de servicio'
+  'RECIBO_SERVICIO': 'Recibo de servicio',
+  'OTROS': 'Otros'
 };
 
 const OBSERVATION_SECTION_MAP = {
@@ -46,6 +47,7 @@ const OBSERVATION_SECTION_MAP = {
   'DATOS_CLIENTE_INCOMPLETOS': 'client-details',
   'DATOS_ARRENDADOR_INCOMPLETOS': 'landlord-details',
   'UBICACION_INCORRECTA': 'location-details'
+  //'OTROS': 'client-details'
 };
 
 const LOADING_STEPS = [

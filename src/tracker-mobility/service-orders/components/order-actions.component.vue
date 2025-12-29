@@ -95,7 +95,8 @@ export default {
         { label: 'Foto fachada vivienda - Borrosa o ilegible', value: 'FOTO_FACHADA_BORROSA' },
         { label: 'Ubicación en mapa - Enlace incorrecto', value: 'UBICACION_INCORRECTA' },
         { label: 'Datos del cliente - Incorrectos', value: 'DATOS_CLIENTE_INCOMPLETOS' },
-        { label: 'Datos del arrendador - Incorrectos', value: 'DATOS_ARRENDADOR_INCOMPLETOS' }
+        { label: 'Datos del arrendador - Incorrectos', value: 'DATOS_ARRENDADOR_INCOMPLETOS' },
+        { label: 'Otros', value: 'OTROS' }
       ];
 
       // Si el cliente NO es inquilino (isTenant === false), filtrar la opción de arrendador

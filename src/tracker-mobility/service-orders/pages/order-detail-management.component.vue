@@ -84,7 +84,7 @@ export default {
         this.item = new OrderService(response.data);
         this.loadingStep = this.loadingSteps.length;
         
-        await new Promise(resolve => setTimeout(resolve, 300));
+        await new Promise(resolve => setTimeout(resolve, 200));
         this.isLoading = false;
         console.log('Detalles de la orden obtenidos:', this.item);
       } catch (error) {
@@ -106,7 +106,7 @@ export default {
         } else {
           this.clearLoadingInterval();
         }
-      }, 600);
+      }, 200);
       setTimeout(() => this.clearLoadingInterval(), 4000);
     },
 

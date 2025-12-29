@@ -21,6 +21,7 @@ export default {
         'UBICACION_INCORRECTA': 'Ubicación en mapa - Enlace incorrecto',
         'DATOS_CLIENTE_INCOMPLETOS': 'Datos del cliente - Incorrectos',
         'DATOS_ARRENDADOR_INCOMPLETOS': 'Datos del arrendador - Incorrectos',
+        'OTROS': 'Otros',
         // Mantener compatibilidad con valores antiguos
         'DOCUMENTO_IDENTIDAD': 'Documento de identidad',
         'RECIBO_SERVICIO': 'Recibo de servicio'
