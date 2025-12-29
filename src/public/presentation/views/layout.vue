@@ -1,8 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import SidebarTrackerMobility from '../components/sidebar-tracker-mobility.component.vue'
-
-
+import Toolbar from '../components/toolbar.vue'
+import Sidebar from '../components/sidebar.vue'
 
 // Estado reactivo del sidebar
 const sidebarOpen = ref(true)
@@ -40,7 +39,7 @@ onMounted(() => {
 <template>
   <div class="layout-container">
     <!-- Sidebar fijo a la izquierda -->
-    <SidebarTrackerMobility
+    <Sidebar
         :items="menuItems"
         @sidebar-toggle="handleSidebarToggle"
         @menu-selected="handleMenuSelected"
@@ -48,7 +47,9 @@ onMounted(() => {
 
     <!-- Contenedor principal -->
     <div class="main-wrapper" :class="{ 'sidebar-closed': !sidebarOpen }">
-    
+      <!-- Toolbar superior -->
+      <Toolbar :title="currentPageTitle" />
+
       <!-- Área de contenido -->
       <main class="content-area">
         <div class="content-wrapper">

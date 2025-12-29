@@ -1,0 +1,225 @@
+/**
+ * Variables Corporativas - ERP Tracker Mobility
+ * Sobrescribe y extiende las variables de PrimeFlex con la paleta corporativa
+ */
+
+/* ========== FUENTE GOOGLE ========== */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap');
+
+:root {
+    /* ========== PALETA CORPORATIVA ========== */
+    
+    /* Primary (Azul) */
+    --primary-50: #EFF6FF;
+    --primary-100: #DBEAFE;       /* Azul Claro - Fondos de información */
+    --primary-200: #BFDBFE;
+    --primary-300: #93C5FD;
+    --primary-400: #60A5FA;
+    --primary-500: #3B82F6;       /* Azul Primario - Enlaces, botones primarios */
+    --primary-600: #2563EB;       /* Azul Hover - Hover states */
+    --primary-700: #1D4ED8;
+    --primary-800: #1E40AF;
+    --primary-900: #1E3A8A;
+    
+    /* Success (Verde) */
+    --green-50: #ECFDF5;
+    --green-100: #D1FAE5;         /* Verde Claro - Fondos de estados activos */
+    --green-200: #A7F3D0;
+    --green-300: #6EE7B7;
+    --green-400: #34D399;
+    --green-500: #10B981;         /* Verde Éxito - Estados completados */
+    --green-600: #059669;         /* Verde Hover - Hover de botones verdes */
+    --green-700: #047857;
+    --green-800: #065F46;
+    --green-900: #064E3B;
+    
+    /* Danger (Rojo) */
+    --red-50: #FEF2F2;
+    --red-100: #FEE2E2;           /* Rojo Claro - Fondos de alertas */
+    --red-200: #FECACA;
+    --red-300: #FCA5A5;
+    --red-400: #F87171;
+    --red-500: #EF4444;           /* Rojo Peligro - Eliminación, errores */
+    --red-600: #DC2626;           /* Rojo Hover - Hover de botones rojos */
+    --red-700: #B91C1C;
+    --red-800: #991B1B;
+    --red-900: #7F1D1D;
+    
+    /* Warning (Amarillo) */
+    --yellow-50: #FFFBEB;
+    --yellow-100: #FEF3C7;        /* Amarillo Claro - Fondos de advertencias */
+    --yellow-200: #FDE68A;
+    --yellow-300: #FCD34D;
+    --yellow-400: #FBBF24;
+    --yellow-500: #F59E0B;        /* Amarillo Advertencia - Observaciones */
+    --yellow-600: #D97706;        /* Amarillo Hover - Hover de botones amarillos */
+    --yellow-700: #B45309;
+    --yellow-800: #92400E;
+    --yellow-900: #78350F;
+    
+    /* Purple (Púrpura) */
+    --purple-50: #FAF5FF;
+    --purple-100: #F3E8FF;
+    --purple-200: #E9D5FF;
+    --purple-300: #D8B4FE;
+    --purple-400: #C084FC;
+    --purple-500: #8B5CF6;        /* Púrpura - Entrevista arrendador faltante */
+    --purple-600: #7C3AED;
+    --purple-700: #6D28D9;
+    --purple-800: #5B21B6;
+    --purple-900: #4C1D95;
+    
+    /* Neutrales (Grises) */
+    --surface-0: #FFFFFF;         /* Blanco - Fondos de tarjetas */
+    --surface-50: #F1F5F9;        /* Gris Muy Claro - Fondos de página */
+    --surface-100: #E2E8F0;       /* Gris Claro - Bordes, separadores */
+    --surface-200: #CBD5E1;
+    --surface-300: #94A3B8;       /* Gris Medio - Textos deshabilitados */
+    --surface-400: #64748B;
+    --surface-500: #475569;       /* Gris Oscuro - Textos secundarios */
+    --surface-600: #334155;       /* Pizarra - Backgrounds de headers */
+    --surface-700: #1E293B;       /* Océano Profundo - Sidebar, headers oscuros */
+    --surface-800: #0F172A;
+    --surface-900: #020617;
+    
+    /* ========== ALIASES PARA COMPATIBILIDAD ========== */
+    
+    /* Colores principales */
+    --color-primary: var(--primary-500);
+    --color-primary-hover: var(--primary-600);
+    --color-primary-light: var(--primary-100);
+    --color-background: var(--surface-50);
+    --color-white: var(--surface-0);
+    --color-black: var(--surface-700);
+    
+    /* Success */
+    --color-success: var(--green-500);
+    --color-success-hover: var(--green-600);
+    --color-success-light: var(--green-100);
+    
+    /* Danger */
+    --color-danger: var(--red-500);
+    --color-danger-hover: var(--red-600);
+    --color-danger-light: var(--red-100);
+    --color-error: var(--red-500);
+    
+    /* Warning */
+    --color-warning: var(--yellow-500);
+    --color-warning-hover: var(--yellow-600);
+    --color-warning-light: var(--yellow-100);
+    
+    /* Info */
+    --color-info: var(--primary-500);
+    --color-info-light: var(--primary-100);
+    
+    /* Neutrales */
+    --color-light: var(--surface-50);
+    --color-dark: var(--surface-700);
+    --color-slate: var(--surface-600);
+    --color-muted: var(--surface-300);
+    --color-text-gray: var(--surface-500);
+    --color-border: var(--surface-100);
+    --color-border-cards: var(--surface-100);
+    --color-card-background: var(--surface-0);
+    
+    /* Estados */
+    --color-hover: var(--primary-600);
+    --color-focus: var(--primary-500);
+    --color-active: var(--primary-600);
+    --color-disabled: var(--surface-300);
+    --color-valid: var(--green-500);
+    --color-invalid: var(--red-500);
+    --color-pending: var(--yellow-500);
+    
+    /* ========== TIPOGRAFÍA ========== */
+    
+    --font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    --font-weight-light: 300;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    
+    /* ========== ESPACIADO ========== */
+    /* PrimeFlex usa escala 0-8, alineamos con eso */
+    --spacing-xs: 0.25rem;    /* Similar a p-1 */
+    --spacing-sm: 0.5rem;     /* Similar a p-2 */
+    --spacing-md: 1rem;       /* Similar a p-3 */
+    --spacing-lg: 1.5rem;     /* Similar a p-4 */
+    --spacing-xl: 2rem;       /* Similar a p-5 */
+    --spacing-2xl: 3rem;      /* Similar a p-6 */
+    
+    /* ========== BORDES ========== */
+    
+    --border-radius-sm: 4px;
+    --border-radius: 8px;
+    --border-radius-lg: 12px;
+    --border-width: 1px;
+    --border-width-thick: 2px;
+    
+    /* ========== SOMBRAS ========== */
+    
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
+    
+    /* ========== TABLAS ========== */
+    
+    --table-header-bg: var(--surface-600);
+    --table-header-text: var(--surface-0);
+    --table-header-border: var(--surface-100);
+    --table-row-even: var(--surface-50);
+    --table-row-odd: var(--surface-0);
+    --table-row-hover: var(--primary-100);
+    --table-row-selected: var(--primary-100);
+    --table-border: var(--surface-100);
+    --table-border-strong: var(--surface-300);
+    --table-cell-padding: 0.75rem;
+    --table-cell-padding-sm: 0.5rem;
+    --table-header-font-weight: 600;
+    
+    /* ========== CONTRASTE Y ACCESIBILIDAD ========== */
+    
+    --contrast-bg-primary: var(--surface-50);
+    --contrast-bg-secondary: var(--surface-600);
+    --contrast-text-primary: var(--surface-700);
+    --contrast-text-secondary: var(--surface-500);
+    --contrast-border-light: var(--surface-100);
+    --contrast-border-medium: var(--surface-300);
+    
+    --focus-ring-color: rgba(59, 130, 246, 0.2);
+    --focus-ring-width: 3px;
+    --row-highlight-intensity: 0.08;
+    --selection-intensity: 0.12;
+    
+    /* ========== CONFIGURACIÓN BASE ========== */
+    
+    font-family: var(--font-family), serif;
+    line-height: 1.6;
+    font-weight: var(--font-weight-normal);
+    color: var(--color-text-gray);
+    background-color: var(--color-background);
+    
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ========== RESET BÁSICO ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    font-family: var(--font-family), serif;
+    color-scheme: light !important;
+    background-color: var(--color-background);
+    color: var(--color-text-gray);
+    min-height: 100vh;
+    overflow: hidden;
+}

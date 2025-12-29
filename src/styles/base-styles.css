@@ -1,0 +1,279 @@
+/**
+ * Estilos Base - ERP Tracker Mobility
+ * Estilos fundamentales que complementan PrimeFlex
+ */
+
+/* ========== TIPOGRAFÍA ========== */
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0 0 var(--spacing-md) 0;
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.2;
+    color: var(--color-primary);
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: var(--font-weight-bold);
+}
+
+h2 {
+    font-size: 2rem;
+}
+
+h3 {
+    font-size: 1.5rem;
+}
+
+p {
+    margin: 0 0 var(--spacing-md) 0;
+    line-height: 1.6;
+}
+
+/* ========== COMPONENTES BASE ========== */
+
+/* Tarjetas custom (complementan .p-card) */
+.card {
+    background-color: var(--color-card-background);
+    border: var(--border-width) solid var(--color-border-cards);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* ========== ALERTAS Y NOTIFICACIONES ========== */
+
+.alert {
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    border: var(--border-width) solid;
+    margin-bottom: var(--spacing-md);
+    font-weight: var(--font-weight-medium);
+}
+
+.alert-success {
+    background-color: var(--color-success-light);
+    border-color: var(--green-500);
+    color: var(--color-success);
+}
+
+.alert-error {
+    background-color: var(--color-danger-light);
+    border-color: var(--red-500);
+    color: var(--color-error);
+}
+
+.alert-warning {
+    background-color: var(--color-warning-light);
+    border-color: var(--yellow-500);
+    color: var(--yellow-600);
+}
+
+.alert-info {
+    background-color: var(--color-info-light);
+    border-color: var(--primary-500);
+    color: var(--color-info);
+}
+
+/* ========== FORMULARIOS (COMPLEMENTO A PRIMEVUE) ========== */
+
+input, textarea, select {
+    border: var(--border-width) solid var(--color-muted);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-sm);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--color-focus);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+input.valid, textarea.valid, select.valid {
+    border-color: var(--color-valid);
+}
+
+input.invalid, textarea.invalid, select.invalid {
+    border-color: var(--color-invalid);
+}
+
+input:disabled, textarea:disabled, select:disabled {
+    background-color: var(--color-light);
+    color: var(--color-disabled);
+    cursor: not-allowed;
+}
+
+/* ========== ESTADOS DE CARGA ========== */
+
+.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--color-light);
+    border-top: 2px solid var(--color-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ========== BADGES ========== */
+
+.badge {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.75rem;
+    font-weight: var(--font-weight-semibold);
+    border-radius: var(--border-radius-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-success {
+    background-color: var(--color-success);
+    color: var(--color-white);
+}
+
+.badge-error {
+    background-color: var(--color-error);
+    color: var(--color-white);
+}
+
+.badge-warning {
+    background-color: var(--color-warning);
+    color: var(--color-dark);
+}
+
+.badge-info {
+    background-color: var(--color-info);
+    color: var(--color-white);
+}
+
+.badge-pending {
+    background-color: var(--color-pending);
+    color: var(--color-white);
+}
+
+/* ========== CLASES UTILITARIAS DE TEXTO ========== */
+
+.text-primary-local {
+    color: var(--color-primary) !important;
+}
+
+.text-success {
+    color: var(--color-success);
+}
+
+.text-danger {
+    color: var(--color-danger);
+}
+
+.text-error {
+    color: var(--color-error);
+}
+
+.text-warning {
+    color: var(--color-warning);
+}
+
+.text-info {
+    color: var(--color-info);
+}
+
+.text-muted {
+    color: var(--color-muted);
+}
+
+.text-light {
+    color: var(--color-light);
+}
+
+.text-dark {
+    color: var(--color-dark);
+}
+
+/* ========== CLASES UTILITARIAS DE FONDO ========== */
+
+.bg-success {
+    background-color: var(--color-success);
+}
+
+.bg-error {
+    background-color: var(--color-error);
+}
+
+.bg-warning {
+    background-color: var(--color-warning);
+}
+
+.bg-info {
+    background-color: var(--color-info);
+}
+
+.bg-light {
+    background-color: var(--color-light);
+}
+
+.bg-dark {
+    background-color: var(--color-dark);
+}
+
+/* ========== CLASES CUSTOM CORPORATIVAS ========== */
+
+.bg-primary-custom {
+    background-color: var(--color-primary) !important;
+}
+
+.bg-secondary-custom {
+    background-color: var(--color-border-cards) !important;
+}
+
+.bg-card-custom {
+    background-color: var(--color-card-background) !important;
+}
+
+.border-primary-custom {
+    border-color: var(--color-primary) !important;
+}
+
+.border-cards-custom {
+    border-color: var(--color-border-cards) !important;
+}
+
+.hover-primary:hover {
+    background-color: var(--color-primary-hover) !important;
+    color: var(--color-white) !important;
+}
+
+/* ========== UTILIDADES DE VISIBILIDAD ========== */
+
+.hidden {
+    display: none;
+}
+
+.invisible {
+    visibility: hidden;
+}
+
+.opacity-50 {
+    opacity: 0.5;
+}
+
+.opacity-75 {
+    opacity: 0.75;
+}

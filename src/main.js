@@ -1,13 +1,29 @@
 import {createApp} from 'vue'
-import './style.css'
 import App from './App.vue'
+
+// === ESTILOS CORPORATIVOS (Orden de carga optimizado) ===
+
+// 1. PrimeFlex - Framework CSS utilitario
+import 'primeflex/primeflex.css';
+
+// 2. Variables y tema corporativo
+import './styles/theme-variables.css';
+
+// 3. Estilos base personalizados
+import './styles/base-styles.css';
+
+// 4. Overrides de PrimeVue
+import './styles/primevue-overrides.css';
+
+// 5. Estados de workflow
+import './styles/workflow-states.css';
+
+// 6. Responsive design
+import './styles/responsive.css';
 
 //PrimeVue
 import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
-
-//PrimeFlex
-import 'primeflex/primeflex.css';
 
 // PrimeIcons
 import "primeicons/primeicons.css";
