@@ -18,7 +18,10 @@ import './styles/primevue-overrides.css';
 // 5. Estados de workflow
 import './styles/workflow-states.css';
 
-// 6. Responsive design
+// 6. Componentes UI reutilizables
+import './styles/ui-components.css';
+
+// 7. Responsive design
 import './styles/responsive.css';
 
 //PrimeVue

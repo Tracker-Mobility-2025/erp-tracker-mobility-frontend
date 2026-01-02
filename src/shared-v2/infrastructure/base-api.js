@@ -1,6 +1,8 @@
 import axios from "axios";
+import {authenticationInterceptor, authenticationResponseInterceptor, authenticationErrorInterceptor} from "../../tracker-mobility/security/services/authentication.interceptor.js";
 
-const platformApi = 'http://localhost:8080/api/v1';
+
+const platformApi = import.meta.env.VITE_API_BASE_URL;;
 
 /**
  * @class BaseApi
@@ -30,7 +32,7 @@ export class BaseApi {
     );
 
     // Auth interceptor goes here
-    // this.#http.interceptors.request.use(iamInterceptor);
+    this.#http.interceptors.request.use(authenticationInterceptor);
   }
 
   get http() {

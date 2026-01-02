@@ -1,0 +1,323 @@
+/**
+ * Componentes UI Reutilizables - ERP Tracker Mobility
+ * Estilos comunes para componentes de interfaz que se repiten en múltiples vistas
+ */
+
+/* ========== BREADCRUMBS ========== */
+
+.breadcrumb {
+  margin-bottom: var(--spacing-md);
+  font-size: 0.9375rem;
+}
+
+.breadcrumb-link {
+  color: var(--surface-700);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  font-weight: var(--font-weight-semibold);
+}
+
+.breadcrumb-link:hover {
+  color: var(--primary-600);
+  text-decoration: underline;
+}
+
+.breadcrumb-separator {
+  color: var(--surface-400);
+  margin: 0 var(--spacing-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.breadcrumb-current {
+  color: var(--primary-600);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+}
+
+.breadcrumb-current:hover {
+  text-decoration: underline;
+}
+
+/* ========== LOADING STATES ========== */
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  background: var(--surface-50);
+  border-radius: var(--border-radius);
+  margin: var(--spacing-lg) 0;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--spacing-lg);
+}
+
+.loading-spinner {
+  opacity: 0.8;
+}
+
+.loading-text {
+  max-width: 300px;
+}
+
+.loading-title {
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--surface-600);
+  margin: 0;
+  letter-spacing: -0.025em;
+}
+
+.loading-subtitle {
+  font-size: 0.875rem;
+  color: var(--surface-400);
+  margin: 0;
+  font-weight: var(--font-weight-normal);
+  transition: opacity 0.3s ease;
+}
+
+.loading-message {
+  font-size: 0.875rem;
+  color: var(--surface-500);
+  margin: 0;
+}
+
+/* Variante inline (para secciones dentro de una vista) */
+.loading-inline {
+  min-height: 20vh;
+  padding: var(--spacing-xl) 0;
+}
+
+/* ========== ERROR STATES ========== */
+
+.error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 40vh;
+  padding: var(--spacing-xl);
+}
+
+.error-content {
+  text-align: center;
+  max-width: 500px;
+}
+
+.error-icon {
+  color: var(--color-warning);
+  margin-bottom: var(--spacing-md);
+}
+
+.error-title {
+  color: var(--surface-600);
+  margin-bottom: var(--spacing-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.error-message {
+  color: var(--surface-400);
+  margin-bottom: var(--spacing-lg);
+  line-height: 1.6;
+}
+
+/* Variante inline (para errores en secciones) */
+.error-inline {
+  min-height: 15vh;
+  padding: var(--spacing-lg) 0;
+}
+
+/* ========== EMPTY STATES ========== */
+
+.empty-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 40vh;
+  padding: var(--spacing-xl);
+}
+
+.empty-content {
+  text-align: center;
+  max-width: 400px;
+}
+
+.empty-icon {
+  color: var(--surface-300);
+  margin-bottom: var(--spacing-md);
+}
+
+.empty-title {
+  color: var(--surface-600);
+  margin-bottom: var(--spacing-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.empty-message {
+  color: var(--surface-400);
+  margin-bottom: var(--spacing-lg);
+  line-height: 1.6;
+}
+
+/* ========== SECTION TITLES ========== */
+
+.section-title {
+  color: var(--surface-700);
+  font-weight: var(--font-weight-semibold);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.section-title i {
+  color: var(--primary-500);
+}
+
+.section-subtitle {
+  color: var(--surface-500);
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-normal);
+  margin-top: var(--spacing-xs);
+}
+
+/* ========== CONTAINER WRAPPERS ========== */
+
+.page-container {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-lg);
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+}
+
+.content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-lg);
+}
+
+/* ========== CARD VARIANTS ========== */
+/* Base .card y .p-card están en base-styles.css y primevue-overrides.css */
+
+.info-card {
+  background: var(--primary-100);
+  border-color: var(--primary-300);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius);
+  border: var(--border-width) solid;
+}
+
+.info-card-icon {
+  color: var(--primary-600);
+}
+
+.warning-card {
+  background: var(--yellow-100);
+  border-color: var(--yellow-300);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius);
+  border: var(--border-width) solid;
+}
+
+.warning-card-icon {
+  color: var(--yellow-600);
+}
+
+.success-card {
+  background: var(--green-100);
+  border-color: var(--green-300);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius);
+  border: var(--border-width) solid;
+}
+
+.success-card-icon {
+  color: var(--green-600);
+}
+
+.data-card {
+  background: var(--surface-0);
+  border: var(--border-width) solid var(--surface-100);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.data-card-header {
+  color: var(--surface-700);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: var(--border-width) solid var(--surface-100);
+}
+
+.data-card-body {
+  color: var(--surface-600);
+}
+
+.data-card-footer {
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-sm);
+  border-top: var(--border-width) solid var(--surface-100);
+  color: var(--surface-400);
+  font-size: 0.875rem;
+}
+
+/* ========== RESPONSIVE ADJUSTMENTS ========== */
+
+@media (max-width: 768px) {
+  .loading-container {
+    min-height: 40vh;
+    margin: var(--spacing-sm) 0;
+  }
+  
+  .loading-title {
+    font-size: 1.125rem;
+  }
+  
+  .loading-subtitle {
+    font-size: 0.8125rem;
+  }
+  
+  .breadcrumb {
+    font-size: 0.875rem;
+  }
+  
+  .page-container {
+    padding: var(--spacing-md);
+  }
+  
+  .error-container,
+  .empty-container {
+    min-height: 30vh;
+    padding: var(--spacing-md);
+  }
+  
+  .section-title {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .loading-container {
+    min-height: 30vh;
+    padding: var(--spacing-md);
+  }
+  
+  .page-container {
+    padding: var(--spacing-sm);
+  }
+  
+  .breadcrumb {
+    font-size: 0.8125rem;
+  }
+}

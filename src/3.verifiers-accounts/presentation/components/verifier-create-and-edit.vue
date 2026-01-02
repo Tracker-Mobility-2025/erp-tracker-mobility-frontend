@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
+import { VerifierValidators } from '../../domain/validators/verifier.validators.js';
 import CreateAndEdit from "../../../shared/components/create-and-edit.component.vue";
 
 const props = defineProps({
@@ -43,42 +44,41 @@ watch(() => props.verifier, (newVerifier) => {
   }
 }, { immediate: true, deep: true });
 
-// Validation methods
-const isValidEmail = (email) => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-};
+// Validaciones reactivas usando validadores del dominio
+const emailValidation = computed(() => 
+  VerifierValidators.validateEmail(verifierEntity.value.email)
+);
 
-const isValidPassword = (password) => {
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-  return passwordRegex.test(password);
-};
+const passwordValidation = computed(() => 
+  !props.isEdit 
+    ? VerifierValidators.validatePassword(verifierEntity.value.password)
+    : { valid: true }
+);
 
-const isValidName = (name) => {
-  const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,}$/;
-  return nameRegex.test(name.trim());
-};
+const nameValidation = computed(() => 
+  VerifierValidators.validateName(verifierEntity.value.name, 'Nombre')
+);
 
-const isValidPhoneNumber = (phone) => {
-  const phoneRegex = /^[0-9]{9,15}$/;
-  return phoneRegex.test(phone);
-};
+const lastNameValidation = computed(() => 
+  VerifierValidators.validateName(verifierEntity.value.lastName, 'Apellido')
+);
 
-const isValidAgenda = (agenda) => {
-  return agenda && agenda.trim().length >= 10;
-};
+const phoneValidation = computed(() => 
+  VerifierValidators.validatePhoneNumber(verifierEntity.value.phoneNumber)
+);
 
-const isFormValid = computed(() => {
-  const emailValid = verifierEntity.value.email && isValidEmail(verifierEntity.value.email);
-  const passwordValid = !props.isEdit ? 
-    (verifierEntity.value.password && isValidPassword(verifierEntity.value.password)) : true;
-  const nameValid = verifierEntity.value.name && isValidName(verifierEntity.value.name);
-  const lastNameValid = verifierEntity.value.lastName && isValidName(verifierEntity.value.lastName);
-  const phoneValid = verifierEntity.value.phoneNumber && isValidPhoneNumber(verifierEntity.value.phoneNumber);
-  const agendaValid = verifierEntity.value.agenda && isValidAgenda(verifierEntity.value.agenda);
-  
-  return emailValid && passwordValid && nameValid && lastNameValid && phoneValid && agendaValid;
-});
+const agendaValidation = computed(() => 
+  VerifierValidators.validateAgenda(verifierEntity.value.agenda)
+);
+
+const isFormValid = computed(() => 
+  emailValidation.value.valid &&
+  passwordValidation.value.valid &&
+  nameValidation.value.valid &&
+  lastNameValidation.value.valid &&
+  phoneValidation.value.valid &&
+  agendaValidation.value.valid
+);
 
 // Methods
 const cancelRequested = () => {
@@ -135,13 +135,10 @@ const resetForm = () => {
               class="w-full"
               size="small"
               placeholder="Ingrese el nombre"
-              :class="{ 'p-invalid': submitted && (!verifierEntity.name || !isValidName(verifierEntity.name)) }"
+              :class="{ 'p-invalid': submitted && !nameValidation.valid }"
             />
-            <small v-if="submitted && !verifierEntity.name" class="p-error">
-              El nombre es requerido
-            </small>
-            <small v-else-if="submitted && verifierEntity.name && !isValidName(verifierEntity.name)" class="p-error">
-              El nombre debe tener al menos 2 caracteres y solo contener letras
+            <small v-if="submitted && !nameValidation.valid" class="p-error">
+              {{ nameValidation.message }}
             </small>
           </div>
         </div>
@@ -157,13 +154,10 @@ const resetForm = () => {
               class="w-full"
               size="small"
               placeholder="Ingrese los apellidos"
-              :class="{ 'p-invalid': submitted && (!verifierEntity.lastName || !isValidName(verifierEntity.lastName)) }"
+              :class="{ 'p-invalid': submitted && !lastNameValidation.valid }"
             />
-            <small v-if="submitted && !verifierEntity.lastName" class="p-error">
-              Los apellidos son requeridos
-            </small>
-            <small v-else-if="submitted && verifierEntity.lastName && !isValidName(verifierEntity.lastName)" class="p-error">
-              Los apellidos deben tener al menos 2 caracteres y solo contener letras
+            <small v-if="submitted && !lastNameValidation.valid" class="p-error">
+              {{ lastNameValidation.message }}
             </small>
           </div>
         </div>
@@ -180,13 +174,10 @@ const resetForm = () => {
               class="w-full"
               size="small"
               placeholder="912345678"
-              :class="{ 'p-invalid': submitted && (!verifierEntity.phoneNumber || !isValidPhoneNumber(verifierEntity.phoneNumber)) }"
+              :class="{ 'p-invalid': submitted && !phoneValidation.valid }"
             />
-            <small v-if="submitted && !verifierEntity.phoneNumber" class="p-error">
-              El teléfono es requerido
-            </small>
-            <small v-else-if="submitted && verifierEntity.phoneNumber && !isValidPhoneNumber(verifierEntity.phoneNumber)" class="p-error">
-              Ingrese un número de teléfono válido (9-15 dígitos, solo números)
+            <small v-if="submitted && !phoneValidation.valid" class="p-error">
+              {{ phoneValidation.message }}
             </small>
           </div>
         </div>
@@ -202,13 +193,10 @@ const resetForm = () => {
               class="w-full"
               size="small"
               placeholder="Lunes a viernes, 8:00-16:00"
-              :class="{ 'p-invalid': submitted && (!verifierEntity.agenda || !isValidAgenda(verifierEntity.agenda)) }"
+              :class="{ 'p-invalid': submitted && !agendaValidation.valid }"
             />
-            <small v-if="submitted && !verifierEntity.agenda" class="p-error">
-              El horario de trabajo es requerido
-            </small>
-            <small v-else-if="submitted && verifierEntity.agenda && !isValidAgenda(verifierEntity.agenda)" class="p-error">
-              El horario debe tener al menos 10 caracteres (ej: Lunes 8:00-16:00)
+            <small v-if="submitted && !agendaValidation.valid" class="p-error">
+              {{ agendaValidation.message }}
             </small>
           </div>
         </div>
@@ -226,13 +214,10 @@ const resetForm = () => {
               class="w-full"
               size="small"
               placeholder="Ingrese su email corporativo"
-              :class="{ 'p-invalid': submitted && (!verifierEntity.email || !isValidEmail(verifierEntity.email)) }"
+              :class="{ 'p-invalid': submitted && !emailValidation.valid }"
             />
-            <small v-if="submitted && !verifierEntity.email" class="p-error">
-              El email es requerido
-            </small>
-            <small v-else-if="submitted && verifierEntity.email && !isValidEmail(verifierEntity.email)" class="p-error">
-              Ingrese un email válido (ejemplo@dominio.com)
+            <small v-if="submitted && !emailValidation.valid" class="p-error">
+              {{ emailValidation.message }}
             </small>
           </div>
         </div>
@@ -252,13 +237,10 @@ const resetForm = () => {
               :feedback="false"
               placeholder="Ingrese una contraseña segura"
               :inputStyle="{ width: '100%' }"
-              :class="{ 'p-invalid': submitted && (!verifierEntity.password || !isValidPassword(verifierEntity.password)) }"
+              :class="{ 'p-invalid': submitted && !passwordValidation.valid }"
             />
-            <small v-if="submitted && !verifierEntity.password" class="p-error">
-              La contraseña es requerida
-            </small>
-            <small v-else-if="submitted && verifierEntity.password && !isValidPassword(verifierEntity.password)" class="p-error">
-              La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas y números
+            <small v-if="submitted && !passwordValidation.valid" class="p-error">
+              {{ passwordValidation.message }}
             </small>
           </div>
         </div>

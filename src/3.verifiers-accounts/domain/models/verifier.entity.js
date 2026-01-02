@@ -1,43 +1,56 @@
-import { VerifierStatus, VerifierRole, VerifierMessages } from '../constants/verifier.constants.js';
+import { VerifierStatus, VerifierRoles, VerifierMessages } from '../constants/verifier.constants.js';
+import { Email } from '../value-objects/email.vo.js';
+import { PhoneNumber } from '../value-objects/phone-number.vo.js';
+import { WorkSchedule } from '../value-objects/work-schedule.vo.js';
 
 /**
  * Representa un verificador en el sistema de verificación domiciliaria.
+ * Rich Domain Model con comportamiento de negocio encapsulado.
  * @class Verifier
  */
 export class Verifier {
   /**
-   * Crea una instancia de Verifier.
+   * Crea una instancia de Verifier con validación obligatoria.
    * @param {Object} params - Parámetros del verificador
-   * @param {number} [params.id=null] - Identificador único del verificador
-   * @param {string} [params.email=''] - Correo electrónico del verificador
-   * @param {string} [params.role=''] - Rol del verificador (FIELD_VERIFIER, SENIOR_VERIFIER, SUPERVISOR)
-   * @param {string} [params.status=''] - Estado del verificador (ACTIVE, INACTIVE, SUSPENDED)
-   * @param {string} [params.name=''] - Nombre del verificador
-   * @param {string} [params.lastName=''] - Apellido del verificador
-   * @param {string} [params.phoneNumber=''] - Número telefónico del verificador
-   * @param {string} [params.agenda=''] - Horario de trabajo del verificador
-   * @param {number} [params.adminId=null] - ID del administrador asociado
+   * @param {number} params.id - Identificador único del verificador
+   * @param {string} params.email - Correo electrónico del verificador
+   * @param {string} params.phoneNumber - Número telefónico del verificador
+   * @param {string} params.agenda - Horario de trabajo del verificador
+   * @param {string} [params.role] - Rol del verificador
+   * @param {string} [params.status] - Estado del verificador
+   * @param {string} params.name - Nombre del verificador
+   * @param {string} params.lastName - Apellido del verificador
+   * @param {number} params.adminId - ID del administrador asociado
+   * @throws {Error} Si los parámetros son inválidos
    */
   constructor({
-    id = null,
-    email = '',
-    role = '',
-    status = '',
-    name = '',
-    lastName = '',
-    phoneNumber = '',
-    agenda = '',
-    adminId = null
-  } = {}) {
+    id,
+    email,
+    phoneNumber,
+    agenda,
+    role,
+    status,
+    name,
+    lastName,
+    adminId
+  }) {
+    // Validación obligatoria de campos requeridos
+    if (!id) throw new Error(VerifierMessages.ID_REQUIRED);
+    if (!name || name.trim().length < 2) {
+      throw new Error(VerifierMessages.INVALID_NAME);
+    }
+    
     this.id = id;
-    this.email = email;
-    this.role = role;
-    this.status = status;
-    this.name = name;
-    this.lastName = lastName;
-    this.phoneNumber = phoneNumber;
-    this.agenda = agenda;
+    this.name = name.trim();
+    this.lastName = lastName?.trim() || '';
+    this.role = role || VerifierRoles.FIELD_VERIFIER;
+    this.status = status || VerifierStatus.INACTIVE;
     this.adminId = adminId;
+    
+    // Usar Value Objects con validación automática
+    this.email = new Email(email);
+    this.phoneNumber = new PhoneNumber(phoneNumber);
+    this.workSchedule = new WorkSchedule(agenda);
   }
 
   /**
@@ -45,7 +58,7 @@ export class Verifier {
    * @returns {boolean} True si el estado es ACTIVE
    */
   get isActive() {
-    return this.status?.toUpperCase() === VerifierStatus.ACTIVE;
+    return this.status === VerifierStatus.ACTIVE;
   }
 
   /**
@@ -53,30 +66,81 @@ export class Verifier {
    * @returns {string} Nombre completo concatenado
    */
   get fullName() {
-    return `${this.name} ${this.lastName}`.trim() || VerifierMessages.NO_NAME;
+    return `${this.name} ${this.lastName}`.trim();
   }
 
   /**
-   * Obtiene el email del verificador o mensaje predeterminado.
+   * Obtiene el valor del email.
    * @returns {string} Email
    */
-  get emailDisplay() {
-    return this.email || VerifierMessages.NO_EMAIL;
+  get emailValue() {
+    return this.email.value;
   }
 
   /**
-   * Obtiene el teléfono del verificador o mensaje predeterminado.
+   * Obtiene el valor del teléfono.
    * @returns {string} Teléfono
    */
-  get phoneDisplay() {
-    return this.phoneNumber || VerifierMessages.NO_PHONE;
+  get phoneValue() {
+    return this.phoneNumber.value;
   }
 
   /**
-   * Obtiene el horario de trabajo o mensaje predeterminado.
+   * Obtiene el valor del horario de trabajo.
    * @returns {string} Horario de trabajo
    */
-  get workSchedule() {
-    return this.agenda || VerifierMessages.NO_SCHEDULE;
+  get workScheduleValue() {
+    return this.workSchedule.value;
+  }
+
+  /**
+   * Activa el verificador.
+   * @throws {Error} Si el verificador ya está activo
+   */
+  activate() {
+    if (this.isActive) {
+      throw new Error(VerifierMessages.ALREADY_ACTIVE);
+    }
+    this.status = VerifierStatus.ACTIVE;
+  }
+
+  /**
+   * Desactiva el verificador.
+   * @throws {Error} Si el verificador ya está inactivo
+   */
+  deactivate() {
+    if (!this.isActive) {
+      throw new Error(VerifierMessages.ALREADY_INACTIVE);
+    }
+    this.status = VerifierStatus.INACTIVE;
+  }
+
+  /**
+   * Actualiza la información de contacto del verificador.
+   * @param {string} email - Nuevo email
+   * @param {string} phone - Nuevo teléfono
+   * @throws {Error} Si los valores son inválidos
+   */
+  updateContactInfo(email, phone) {
+    this.email = new Email(email);
+    this.phoneNumber = new PhoneNumber(phone);
+  }
+
+  /**
+   * Actualiza el horario de trabajo.
+   * @param {string} agenda - Nuevo horario
+   * @throws {Error} Si el horario es inválido
+   */
+  updateSchedule(agenda) {
+    this.workSchedule = new WorkSchedule(agenda);
+  }
+
+  /**
+   * Verifica si el verificador puede trabajar en una fecha/hora específica.
+   * @param {Date} dateTime - Fecha y hora a verificar
+   * @returns {boolean} True si puede trabajar
+   */
+  canWorkAt(dateTime) {
+    return this.isActive && this.workSchedule.isAvailableAt(dateTime);
   }
 }

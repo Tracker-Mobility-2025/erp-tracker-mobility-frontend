@@ -1,144 +1,187 @@
-import { VerifierApi } from "../infrastructure/verifier.api.js";
 import { defineStore } from "pinia";
-import { computed, ref } from "vue";
-import { VerifierAssembler } from "../infrastructure/verifier.assembler.js";
-
-const verifierApi = new VerifierApi();
+import { ref } from "vue";
+import { VerifierHttpRepository } from "../infrastructure/repositories/verifier-http.repository.js";
+import { CreateVerifierUseCase } from "./use-cases/create-verifier.use-case.js";
+import { UpdateVerifierUseCase } from "./use-cases/update-verifier.use-case.js";
+import { DeleteVerifierUseCase } from "./use-cases/delete-verifier.use-case.js";
+import { ListVerifiersUseCase } from "./use-cases/list-verifiers.use-case.js";
+import { useNotification } from "../../shared-v2/composables/use-notification.js";
+import { useAuthenticationStore } from "../../tracker-mobility/security/services/authentication.store.js";
 
 /**
  * Store de Pinia para funcionalidad de verificadores.
- * Gestiona los datos de verificadores, incluyendo operaciones CRUD.
+ * Arquitectura refactorizada: Presentation → Store → Use Cases → Repository → API
+ * El Store ahora delega la lógica de negocio a Use Cases y solo gestiona estado reactivo.
  */
 const useVerifierStore = defineStore('verifier', () => {
-    // State
+    // State (solo para UI reactivity)
     const verifiers = ref([]);
-    const errors = ref([]);
-    const verifiersLoaded = ref(false);
 
-    // Properties
-    const verifiersCount = computed(() => {
-        return verifiersLoaded.value ? verifiers.value.length : 0;
-    });
+    // Dependencies (inyección de dependencias)
+    const repository = new VerifierHttpRepository();
+    const { showSuccess, showError, showWarning } = useNotification();
+    const authStore = useAuthenticationStore();
 
-    const activeVerifiers = computed(() => {
-        return verifiers.value.filter(verifier => verifier.isActive);
-    });
+    // Use Cases (orquestadores de lógica de negocio)
+    const createUseCase = new CreateVerifierUseCase(repository, { showSuccess, showError, showWarning }, authStore);
+    const updateUseCase = new UpdateVerifierUseCase(repository, { showSuccess, showError, showWarning });
+    const deleteUseCase = new DeleteVerifierUseCase(repository, { showSuccess, showError, showWarning });
+    const listUseCase = new ListVerifiersUseCase(repository, { showSuccess, showError, showWarning });
 
-    const activeVerifiersCount = computed(() => {
-        return activeVerifiers.value.length;
-    });
-
-    // Actions
+    // Actions (delegación a Use Cases)
     /**
-     * Obtiene todos los verificadores desde el API.
-     * @returns {Promise} Una promesa que se resuelve cuando se obtienen los verificadores.
+     * Obtiene todos los verificadores.
+     * @returns {Promise<Object>} Resultado { success, data?, message, code }
      */
-    function fetchVerifiers() {
-        return verifierApi.getVerifiers().then(response => {
-            verifiers.value = VerifierAssembler.toEntitiesFromResponse(response);
-            verifiersLoaded.value = true;
-            console.log('verifiersLoaded', verifiersLoaded.value);
-            console.log(verifiers.value);
-        }).catch(error => {
-            errors.value.push(error);
-        });
+    async function fetchAll() {
+        const result = await listUseCase.execute();
+        
+        if (result.success) {
+            verifiers.value = result.data;
+        }
+        
+        return result;
     }
 
     /**
      * Obtiene los verificadores de un administrador específico.
      * @param {number} adminId - El ID del administrador.
-     * @returns {Promise} Una promesa que se resuelve cuando se obtienen los verificadores.
+     * @returns {Promise<Object>} Resultado { success, data?, message, code }
      */
-    function fetchVerifiersByAdminId(adminId) {
-        return verifierApi.getVerifiersByAdminId(adminId).then(response => {
-            verifiers.value = VerifierAssembler.toEntitiesFromResponse(response);
-            verifiersLoaded.value = true;
-        }).catch(error => {
-            errors.value.push(error);
-        });
+    async function fetchByAdminId(adminId) {
+        const result = await listUseCase.executeByAdminId(adminId);
+        
+        if (result.success) {
+            verifiers.value = result.data;
+        }
+        
+        return result;
     }
 
     /**
      * Obtiene un verificador por su ID.
      * @param {string|number} id - El ID del verificador.
-     * @returns {Verifier|null} La entidad verificador o null si no se encuentra.
+     * @returns {Promise<Object>} Resultado { success, data?, message, code }
      */
-    function getVerifierById(id) {
-        let idInt = parseInt(id);
-        return verifiers.value.find(verifier => verifier["id"] === idInt);
+    async function fetchById(id) {
+        const idInt = parseInt(id);
+        
+        // Primero buscar en estado local
+        const cached = verifiers.value.find(v => v.id === idInt);
+        if (cached) {
+            return {
+                success: true,
+                data: cached,
+                message: 'Verificador en caché',
+                code: 'CACHED'
+            };
+        }
+        
+        // Si no está en cache, buscar en repositorio
+        return await listUseCase.executeById(idInt);
     }
 
     /**
-     * Agrega un nuevo verificador.
-     * @param {Object} verifierCommand - El comando para crear el verificador.
+     * Crea un nuevo verificador.
+     * @param {CreateVerifierCommand} command - El comando para crear el verificador.
+     * @returns {Promise<Object>} Resultado { success, data?, message, code }
      */
-    function addVerifier(verifierCommand) {
-        verifierApi.createVerifier(verifierCommand).then(response => {
-            const resource = response.data;
-            const newVerifier = VerifierAssembler.toEntityFromResource(resource);
-            verifiers.value.push(newVerifier);
-        }).catch(error => {
-            errors.value.push(error);
-        });
+    async function create(command) {
+        const result = await createUseCase.execute(command);
+        
+        if (result.success) {
+            verifiers.value.push(result.data);
+        }
+        
+        return result;
     }
 
     /**
      * Actualiza un verificador existente.
-     * @param {Object} verifierCommand - El comando para actualizar el verificador.
+     * @param {UpdateVerifierCommand} command - El comando para actualizar el verificador.
+     * @returns {Promise<Object>} Resultado { success, data?, message, code }
      */
-    function updateVerifier(verifierCommand) {
-        verifierApi.updateVerifier(verifierCommand).then(response => {
-            const resource = response.data;
-            const updatedVerifier = VerifierAssembler.toEntityFromResource(resource);
-            const index = verifiers.value.findIndex(v => v["id"] === updatedVerifier.id);
-            if (index !== -1) verifiers.value[index] = updatedVerifier;
-        }).catch(error => {
-            errors.value.push(error);
-        });
+    async function update(command) {
+        const result = await updateUseCase.execute(command);
+        
+        if (result.success) {
+            const index = verifiers.value.findIndex(v => v.id === result.data.id);
+            if (index !== -1) {
+                verifiers.value[index] = result.data;
+            }
+        }
+        
+        return result;
     }
 
     /**
      * Elimina un verificador.
      * @param {number} verifierId - El ID del verificador a eliminar.
+     * @param {string} verifierName - Nombre del verificador (opcional, para notificación)
+     * @returns {Promise<Object>} Resultado { success, message, code }
      */
-    function deleteVerifier(verifierId) {
-        verifierApi.deleteVerifier(verifierId).then(response => {
-            const index = verifiers.value.findIndex(v => v["id"] === verifierId);
-            if (index !== -1) verifiers.value.splice(index, 1);
-        }).catch(error => {
-            errors.value.push(error);
-        });
+    async function remove(verifierId, verifierName = '') {
+        const result = await deleteUseCase.execute(verifierId, verifierName);
+        
+        if (result.success) {
+            verifiers.value = verifiers.value.filter(v => v.id !== verifierId);
+        }
+        
+        return result;
+    }
+
+    /**
+     * Elimina múltiples verificadores.
+     * @param {Array<Object>} selectedVerifiers - Array de verificadores a eliminar
+     * @returns {Promise<Object>} Resultado con conteo de éxitos/fallos
+     */
+    async function removeMultiple(selectedVerifiers) {
+        const verifiersToDelete = selectedVerifiers.map(v => ({
+            id: v.id,
+            name: v.fullName || `${v.name} ${v.lastName}`
+        }));
+        
+        const result = await deleteUseCase.executeMultiple(verifiersToDelete);
+        
+        if (result.success) {
+            // Eliminar todos los verificadores que fueron eliminados exitosamente
+            const deletedIds = result.results
+                .filter(r => r.result.success)
+                .map(r => r.verifier.id);
+            
+            verifiers.value = verifiers.value.filter(v => !deletedIds.includes(v.id));
+        }
+        
+        return result;
     }
 
     /**
      * Obtiene las órdenes asignadas a un verificador.
      * @param {number} verifierId - El ID del verificador.
-     * @returns {Promise} Una promesa con las órdenes asignadas.
+     * @returns {Promise<Array>} Las órdenes asignadas
      */
-    function fetchAssignedOrders(verifierId) {
-        return verifierApi.getAssignedOrders(verifierId).then(response => {
-            return response.data;
-        }).catch(error => {
-            errors.value.push(error);
+    async function fetchAssignedOrders(verifierId) {
+        try {
+            return await repository.findAssignedOrders(verifierId);
+        } catch (err) {
+            showError('Error al obtener órdenes asignadas', 'Error', 3000);
             return [];
-        });
+        }
     }
 
     return {
+        // State
         verifiers,
-        errors,
-        verifiersLoaded,
-        verifiersCount,
-        activeVerifiers,
-        activeVerifiersCount,
-        fetchVerifiers,
-        fetchVerifiersByAdminId,
-        getVerifierById,
-        addVerifier,
-        updateVerifier,
-        deleteVerifier,
+        // Actions
+        fetchAll,
+        fetchByAdminId,
+        fetchById,
+        create,
+        update,
+        remove,
+        removeMultiple,
         fetchAssignedOrders
-    }
+    };
 });
 
 export default useVerifierStore;

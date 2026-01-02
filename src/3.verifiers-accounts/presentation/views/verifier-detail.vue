@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useToast } from 'primevue/usetoast';
+import { useNotification } from '../../../shared-v2/composables/use-notification.js';
 import { useConfirm } from 'primevue/useconfirm';
 import VerifierDataAndEdit from "../../../tracker-mobility/verifier-management/components/verifier-data-and-edit.component.vue";
 import ListAssignedOrders from "../../../tracker-mobility/verifier-management/components/list-assigned-orders.component.vue";
@@ -11,7 +11,7 @@ import { UpdateVerifierCommand } from "../../domain/commands/update-verifier.com
 // Composables
 const route = useRoute();
 const router = useRouter();
-const toast = useToast();
+const { showSuccess, showError } = useNotification();
 const confirm = useConfirm();
 const verifierStore = useVerifierStore();
 
@@ -40,8 +40,6 @@ const loadingSteps = [
 
 // Methods
 const onSaveVerifier = (updatedData) => {
-  console.log('Guardando verificador:', updatedData);
-  
   const updateCommand = new UpdateVerifierCommand({
     id: item.value.id,
     ...updatedData
@@ -53,21 +51,17 @@ const onSaveVerifier = (updatedData) => {
   update();
 };
 
-const update = () => {
-  verifierStore.updateVerifier(itemUpdate.value);
+const update = async () => {
+  const result = await verifierStore.update(itemUpdate.value);
   
-  // Actualizar item local
-  item.value = {
-    ...item.value,
-    ...itemUpdate.value
-  };
-  
-  toast.add({
-    severity: 'success',
-    summary: 'Éxito',
-    detail: 'Verificador actualizado correctamente',
-    life: 3000
-  });
+  if (result.success) {
+    // Actualizar item local con los datos retornados
+    item.value = {
+      ...item.value,
+      ...result.data
+    };
+    // El use case ya muestra la notificación de éxito
+  }
 };
 
 const OnCancelEdit = () => {
@@ -76,8 +70,6 @@ const OnCancelEdit = () => {
 };
 
 const onRemoveOrder = async (order) => {
-  console.log('Removiendo orden del verificador:', order);
-  
   // TODO: Implementar actualización de orden para remover verificador
   // Esto debería estar en un OrderStore separado
   const updateOrder = {
@@ -90,23 +82,13 @@ const onRemoveOrder = async (order) => {
   
   try {
     // Por ahora simulamos la actualización
-    toast.add({
-      severity: 'success',
-      summary: 'Éxito',
-      detail: 'Orden removida del verificador correctamente',
-      life: 3000
-    });
+    showSuccess('Orden removida del verificador correctamente', 'Éxito');
     
     // Actualizar la lista localmente
     assignedOrders.value = assignedOrders.value.filter(o => o.id !== order.id);
   } catch (error) {
     console.error('Error al actualizar orden:', error);
-    toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: 'No se pudo remover la orden del verificador',
-      life: 3000
-    });
+    showError('No se pudo remover la orden del verificador');
   }
 };
 
@@ -159,27 +141,20 @@ const retryLoadingOrders = () => {
 
 const getVerifierById = async (verifierId) => {
   try {
-    // Buscar en el store
-    let verifier = verifierStore.getVerifierById(verifierId);
+    // Buscar en el store o API con fetchById
+    const result = await verifierStore.fetchById(verifierId);
     
-    // Si no está en el store, buscarlo en la API
-    if (!verifier) {
-      await verifierStore.fetchVerifiers();
-      verifier = verifierStore.getVerifierById(verifierId);
-    }
-    
-    if (verifier) {
-      item.value = { ...verifier };
+    if (result.success && result.data) {
+      item.value = { ...result.data };
       isLoadingVerifier.value = false;
-      console.log('Verificador recuperado:', item.value);
     } else {
-      throw new Error('Verificador no encontrado');
+      throw new Error(result.message || 'Verificador no encontrado');
     }
   } catch (error) {
     console.error('Error al recuperar verificador:', error);
     hasVerifierError.value = true;
     isLoadingVerifier.value = false;
-    verifierErrorMessage.value = 'No se pudo cargar la información del verificador. Intente nuevamente.';
+    verifierErrorMessage.value = error.message || 'No se pudo cargar la información del verificador. Intente nuevamente.';
   }
 };
 
@@ -190,8 +165,6 @@ const getAssignedOrdersByVerifierId = async (verifierId) => {
     
     loadingStep.value = loadingSteps.length;
     isLoadingOrders.value = false;
-    
-    console.log('Órdenes asignadas recuperadas:', assignedOrders.value);
   } catch (error) {
     console.error('Error al recuperar órdenes asignadas:', error);
     hasOrdersError.value = true;
@@ -228,15 +201,15 @@ onMounted(async () => {
 
   <div class="order-container flex flex-column p-4 h-full w-full overflow-auto">
     <!-- Breadcrumb -->
-    <div class="text-base">
+    <div class="text-base breadcrumb">
       <router-link
         :to="{ name: 'verifiers' }"
-        class="font-bold text-gray-900 no-underline hover:underline cursor-pointer"
+        class="font-bold breadcrumb-link no-underline hover:underline cursor-pointer"
       >
         Verificadores
       </router-link>
-      <span class="text-gray-500 font-bold"> / </span>
-      <span class="text-blue-700 font-bold hover:underline cursor-pointer">
+      <span class="breadcrumb-separator font-bold"> / </span>
+      <span class="breadcrumb-current font-bold hover:underline cursor-pointer">
         {{ item.name }}
       </span>
     </div>
@@ -261,9 +234,9 @@ onMounted(async () => {
     <!-- Estado de error para datos del verificador -->
     <div v-else-if="hasVerifierError" class="flex justify-content-center align-items-center" style="min-height: 50vh;">
       <div class="text-center">
-        <i class="pi pi-exclamation-triangle text-6xl text-orange-500 mb-3"></i>
-        <h3 class="text-xl text-gray-700">Error al cargar verificador</h3>
-        <p class="text-gray-500 mb-4">{{ verifierErrorMessage }}</p>
+        <i class="pi pi-exclamation-triangle text-6xl error-icon mb-3"></i>
+        <h3 class="text-xl error-title">Error al cargar verificador</h3>
+        <p class="error-message mb-4">{{ verifierErrorMessage }}</p>
         <pv-button 
           label="Reintentar" 
           icon="pi pi-refresh" 
@@ -286,8 +259,8 @@ onMounted(async () => {
 
       <!-- Sección de órdenes asignadas -->
       <div class="w-full flex-1 flex-column gap-3">
-        <h3 class="text-xlg font-bold mb-3 flex align-items-center gap-2">
-          <i class="pi pi-clipboard-list text-blue-500"></i>
+        <h3 class="text-xlg font-bold mb-3 flex align-items-center gap-2 section-title">
+          <i class="pi pi-clipboard-list"></i>
           Órdenes asignadas
         </h3>
 
@@ -300,16 +273,16 @@ onMounted(async () => {
               animation-duration="1.2s" 
               class="mb-3"
             />
-            <p class="text-gray-600">Cargando órdenes asignadas...</p>
+            <p class="loading-message">Cargando órdenes asignadas...</p>
           </div>
         </div>
 
         <!-- Estado de error para órdenes -->
         <div v-else-if="hasOrdersError" class="flex justify-content-center align-items-center py-6">
           <div class="text-center">
-            <i class="pi pi-exclamation-triangle text-4xl text-orange-500 mb-3"></i>
-            <h4 class="text-lg text-gray-700">Error al cargar órdenes</h4>
-            <p class="text-gray-500 mb-4">{{ ordersErrorMessage }}</p>
+            <i class="pi pi-exclamation-triangle text-4xl error-icon mb-3"></i>
+            <h4 class="text-lg error-title">Error al cargar órdenes</h4>
+            <p class="error-message mb-4">{{ ordersErrorMessage }}</p>
             <pv-button 
               label="Reintentar" 
               icon="pi pi-refresh" 
@@ -331,60 +304,6 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.loading-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 50vh;
-  background: #fafafa;
-  border-radius: 8px;
-  margin: 1rem 0;
-}
-
-.loading-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 1.5rem;
-}
-
-.loading-spinner {
-  opacity: 0.8;
-}
-
-.loading-text {
-  max-width: 300px;
-}
-
-.loading-title {
-  font-size: 1.25rem;
-  font-weight: 500;
-  color: #374151;
-  margin: 0;
-  letter-spacing: -0.025em;
-}
-
-.loading-subtitle {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin: 0;
-  font-weight: 400;
-  transition: opacity 0.3s ease;
-}
-
-@media (max-width: 768px) {
-  .loading-container {
-    min-height: 40vh;
-    margin: 0.5rem 0;
-  }
-  
-  .loading-title {
-    font-size: 1.125rem;
-  }
-  
-  .loading-subtitle {
-    font-size: 0.8125rem;
-  }
-}
+/* Estilos específicos del componente (solo si son únicos y no reutilizables) */
+/* Los estilos comunes (breadcrumb, loading, error, section-title) se usan desde ui-components.css */
 </style>
