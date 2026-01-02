@@ -513,13 +513,13 @@ button.p-button.p-button-outlined:focus-visible,
 
 .p-dropdown, .p-select {
     background: var(--color-card-background);
-    border: var(--border-width) solid var(--color-muted);
+    border: 1px solid var(--surface-300);
     border-radius: var(--border-radius);
     color: var(--color-text-gray);
 }
 
 .p-dropdown:not(.p-disabled):hover, .p-select:not(.p-disabled):hover {
-    border-color: var(--color-primary);
+    border-color: var(--surface-500);
 }
 
 .p-dropdown:not(.p-disabled).p-focus, 
@@ -555,15 +555,18 @@ button.p-button.p-button-outlined:focus-visible,
 /* ========== CALENDAR / DATEPICKER ========== */
 
 .p-calendar .p-inputtext {
-    background: var(--color-card-background);
-    border: var(--border-width) solid var(--color-muted);
+    background: var(--color-white);
+    border: 1px solid var(--surface-300);
     color: var(--color-text-gray);
     border-radius: var(--border-radius);
+    padding: var(--spacing-sm) var(--spacing-md);
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
 }
 
 .p-calendar .p-inputtext:focus {
-    border-color: var(--color-focus);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2);
 }
 
 .p-datepicker {
@@ -597,17 +600,20 @@ button.p-button.p-button-outlined:focus-visible,
 /* ========== TEXTAREA ========== */
 
 .p-inputtextarea {
-    background: var(--color-card-background);
-    border: var(--border-width) solid var(--color-muted);
+    background: var(--color-white);
+    border: 1px solid var(--surface-300);
     color: var(--color-text-gray);
     border-radius: var(--border-radius);
+    padding: var(--spacing-sm) var(--spacing-md);
     font-family: var(--font-family), serif;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
     resize: vertical;
 }
 
 .p-inputtextarea:focus {
-    border-color: var(--color-focus);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2);
 }
 
 .p-inputtextarea::placeholder {
@@ -689,10 +695,12 @@ button.p-button.p-button-outlined:focus-visible,
 .p-textarea,
 .p-calendar input,
 .p-dropdown,
-.p-inputnumber input {
+.p-inputnumber input,
+.p-password input,
+.p-inputtextarea {
     background: var(--color-white) !important;
     color: var(--color-text-gray) !important;
-    border: 1px solid var(--color-light) !important;
+    border: 1px solid var(--surface-300) !important;
     border-radius: var(--border-radius) !important;
     padding: var(--spacing-sm) var(--spacing-md) !important;
     transition: all 0.2s ease !important;
@@ -704,7 +712,9 @@ button.p-button.p-button-outlined:focus-visible,
 .p-textarea:focus,
 .p-dropdown:focus,
 .p-calendar:focus-within,
-.p-inputnumber:focus-within {
+.p-inputnumber:focus-within,
+.p-password:focus-within,
+.p-inputtextarea:focus {
     border-color: var(--color-primary) !important;
     box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2) !important;
     outline: none !important;
@@ -714,15 +724,21 @@ button.p-button.p-button-outlined:focus-visible,
 .p-inputtext:hover:not(:disabled),
 .p-textarea:hover:not(:disabled),
 .p-dropdown:hover:not(:disabled),
-.p-calendar:hover:not(:disabled) {
-    border-color: var(--surface-400) !important;
+.p-calendar:hover:not(:disabled),
+.p-inputnumber:hover:not(:disabled),
+.p-password:hover:not(:disabled),
+.p-inputtextarea:hover:not(:disabled) {
+    border-color: var(--surface-500) !important;
 }
 
 /* Disabled State */
 .p-inputtext:disabled,
 .p-textarea:disabled,
 .p-dropdown.p-disabled,
-.p-calendar.p-disabled {
+.p-calendar.p-disabled,
+.p-inputnumber:disabled,
+.p-password.p-disabled,
+.p-inputtextarea:disabled {
     background: var(--surface-100) !important;
     color: var(--surface-400) !important;
     cursor: not-allowed !important;
