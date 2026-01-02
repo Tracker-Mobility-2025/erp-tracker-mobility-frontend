@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useNotification } from '../../../shared-v2/composables/use-notification.js';
 import { useConfirm } from 'primevue/useconfirm';
+import Toolbar from '../../../shared-v2/presentation/components/toolbar.vue';
 import VerifierDataAndEdit from "../../../tracker-mobility/verifier-management/components/verifier-data-and-edit.component.vue";
 import ListAssignedOrders from "../../../tracker-mobility/verifier-management/components/list-assigned-orders.component.vue";
 import useVerifierStore from "../../application/verifier.store.js";
@@ -199,23 +200,17 @@ onMounted(async () => {
   <pv-confirm-dialog/>
   <pv-toast/>
 
-  <div class="order-container flex flex-column p-4 h-full w-full overflow-auto">
-    <!-- Breadcrumb -->
-    <div class="text-base breadcrumb">
-      <router-link
-        :to="{ name: 'verifiers' }"
-        class="font-bold breadcrumb-link no-underline hover:underline cursor-pointer"
-      >
-        Verificadores
-      </router-link>
-      <span class="breadcrumb-separator font-bold"> / </span>
-      <span class="breadcrumb-current font-bold hover:underline cursor-pointer">
-        {{ item.name }}
-      </span>
-    </div>
+  <div class="h-full w-full flex flex-column">
+    <toolbar 
+      :title="item.name || 'Detalle del Verificador'"
+      description="Información completa y órdenes asignadas"
+      :back-route="{ name: 'verifiers' }"
+    />
 
-    <!-- Estado de carga para datos del verificador -->
-    <div v-if="isLoadingVerifier" class="loading-container">
+    <div class="flex-1 p-4 overflow-auto">
+      <div>
+        <!-- Estado de carga para datos del verificador -->
+        <div v-if="isLoadingVerifier" class="loading-container">
       <div class="loading-content">
         <pv-progress-spinner 
           size="48" 
@@ -300,10 +295,7 @@ onMounted(async () => {
         />
       </div>
     </div>
+      </div>
+    </div>
   </div>
 </template>
-
-<style scoped>
-/* Estilos específicos del componente (solo si son únicos y no reutilizables) */
-/* Los estilos comunes (breadcrumb, loading, error, section-title) se usan desde ui-components.css */
-</style>

@@ -69,30 +69,3 @@ const handleClick = (item) => {
     </ol>
   </nav>
 </template>
-
-<style scoped>
-.breadcrumb-link {
-  color: var(--text-secondary);
-  font-size: var(--font-size-body-small);
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-
-.breadcrumb-link:hover {
-  color: var(--action-primary);
-  text-decoration: underline;
-}
-
-.breadcrumb-current {
-  color: var(--text-primary);
-  font-size: var(--font-size-body-small);
-  font-weight: var(--font-weight-medium);
-}
-
-.breadcrumb-divider {
-  color: var(--text-secondary);
-  opacity: 0.6;
-  font-size: var(--font-size-body-small);
-  user-select: none;
-}
-</style>

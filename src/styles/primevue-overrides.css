@@ -55,6 +55,17 @@
     /* Focus ring */
     --p-focus-ring-color: var(--focus-ring-color) !important;
     --p-focus-ring-width: var(--focus-ring-width) !important;
+    
+    /* Button focus - Sobrescribir colores de Aura */
+    --p-button-primary-focus-ring-color: rgba(59, 130, 246, 0.2) !important;
+    --p-button-success-focus-ring-color: rgba(59, 130, 246, 0.2) !important;
+    --p-button-danger-focus-ring-color: rgba(59, 130, 246, 0.2) !important;
+    --p-button-secondary-focus-ring-color: rgba(59, 130, 246, 0.2) !important;
+    --p-button-outlined-focus-ring-color: rgba(59, 130, 246, 0.2) !important;
+    
+    /* Dropdown/Select focus - Sobrescribir colores de Aura */
+    --p-select-focus-ring-color: rgba(59, 130, 246, 0.2) !important;
+    --p-select-focus-ring-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2) !important;
 }
 
 /* ========== DATATABLES ========== */
@@ -203,6 +214,7 @@
 
 /* ========== BOTONES ========== */
 
+/* Base Button */
 .p-button {
     font-family: var(--font-family) !important;
     font-weight: var(--font-weight-medium) !important;
@@ -211,21 +223,50 @@
     gap: var(--spacing-xs) !important;
 }
 
+/* Tamaños */
 .p-button-sm {
     padding: var(--spacing-xs) var(--spacing-md);
     font-size: 0.875rem;
 }
 
+.p-button-lg {
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: 1.125rem;
+}
+
+/* Primary Button */
 .p-button-primary {
     background: var(--color-primary) !important;
     border-color: var(--color-primary) !important;
+    color: var(--color-white) !important;
 }
 
 .p-button-primary:hover {
     background: var(--color-primary-hover) !important;
     border-color: var(--color-primary-hover) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
+.p-button-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Secondary Button */
+.p-button-secondary {
+    background: var(--surface-100) !important;
+    border-color: var(--surface-200) !important;
+    color: var(--surface-700) !important;
+}
+
+.p-button-secondary:hover {
+    background: var(--surface-200) !important;
+    border-color: var(--surface-300) !important;
+    transform: translateY(-1px);
+}
+
+/* Warning Button */
 .p-button-warning {
     background: var(--color-warning) !important;
     border-color: var(--color-warning) !important;
@@ -235,36 +276,178 @@
 .p-button-warning:hover {
     background: var(--color-warning-hover) !important;
     border-color: var(--color-warning-hover) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(255, 152, 0, 0.25);
 }
 
+/* Success Button */
 .p-button-success {
-    background: var(--color-success);
-    border-color: var(--color-success);
+    background: var(--color-success) !important;
+    border-color: var(--color-success) !important;
+    color: var(--color-white) !important;
 }
 
 .p-button-success:hover {
-    background: var(--color-success-hover);
-    border-color: var(--color-success-hover);
+    background: var(--color-success-hover) !important;
+    border-color: var(--color-success-hover) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.25);
 }
 
+/* Danger Button */
 .p-button-danger {
-    background: var(--color-danger);
-    border-color: var(--color-danger);
+    background: var(--color-danger) !important;
+    border-color: var(--color-danger) !important;
+    color: var(--color-white) !important;
 }
 
 .p-button-danger:hover {
-    background: var(--color-danger-hover);
-    border-color: var(--color-danger-hover);
+    background: var(--color-danger-hover) !important;
+    border-color: var(--color-danger-hover) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(215, 32, 28, 0.25);
 }
 
+/* Outlined Buttons */
+.p-button-outlined {
+    background: transparent !important;
+    border-width: 2px !important;
+}
+
+.p-button-outlined.p-button-primary {
+    color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
+}
+
+.p-button-outlined.p-button-primary:hover {
+    background: var(--color-primary) !important;
+    color: var(--color-white) !important;
+}
+
+.p-button-outlined.p-button-secondary {
+    color: var(--surface-700) !important;
+    border-color: var(--surface-300) !important;
+}
+
+.p-button-outlined.p-button-secondary:hover {
+    background: var(--surface-100) !important;
+    border-color: var(--surface-400) !important;
+}
+
+.p-button-outlined.p-button-danger {
+    color: var(--color-danger) !important;
+    border-color: var(--color-danger) !important;
+}
+
+.p-button-outlined.p-button-danger:hover {
+    background: var(--color-danger) !important;
+    color: var(--color-white) !important;
+}
+
+/* Text Button */
 .p-button-text {
+    background: transparent !important;
+    border: none !important;
     color: var(--color-primary) !important;
     font-weight: var(--font-weight-medium);
 }
 
 .p-button-text:hover {
-    background: rgba(59, 130, 246, var(--row-highlight-intensity)) !important;
+    background: rgba(59, 130, 246, 0.1) !important;
     color: var(--color-primary-hover) !important;
+}
+
+/* Link Button */
+.p-button-link {
+    background: transparent !important;
+    border: none !important;
+    color: var(--color-primary) !important;
+    text-decoration: underline;
+    font-weight: var(--font-weight-normal);
+}
+
+.p-button-link:hover {
+    color: var(--color-primary-hover) !important;
+    text-decoration: underline;
+}
+
+/* Icon-only Button - Solo aplica si NO tiene clase action-button */
+.p-button-icon-only:not(.action-button):not(.view-button):not(.edit-button):not(.delete-button) {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.p-button-icon-only.p-button-sm:not(.action-button):not(.view-button):not(.edit-button):not(.delete-button) {
+    width: 2rem !important;
+    height: 2rem !important;
+}
+
+/* Loading State */
+.p-button .p-button-loading-icon {
+    margin-right: var(--spacing-xs);
+}
+
+/* Focus State - Consistente con inputs - Máxima especificidad para sobrescribir Aura */
+button.p-button:focus,
+button.p-button:focus-visible,
+.p-button.p-component:focus,
+.p-button.p-component:focus-visible,
+.p-component.p-button:focus,
+.p-component.p-button:focus-visible {
+    outline: none !important;
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Focus específico por tipo de botón - Success */
+button.p-button.p-button-success:focus,
+button.p-button.p-button-success:focus-visible,
+.p-button.p-button-success:focus,
+.p-button.p-button-success:focus-visible,
+.p-button-success.p-component:focus,
+.p-button-success.p-component:focus-visible {
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Focus específico por tipo de botón - Danger */
+button.p-button.p-button-danger:focus,
+button.p-button.p-button-danger:focus-visible,
+.p-button.p-button-danger:focus,
+.p-button.p-button-danger:focus-visible,
+.p-button-danger.p-component:focus,
+.p-button-danger.p-component:focus-visible {
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Focus específico por tipo de botón - Secondary */
+button.p-button.p-button-secondary:focus,
+button.p-button.p-button-secondary:focus-visible,
+.p-button.p-button-secondary:focus,
+.p-button.p-button-secondary:focus-visible,
+.p-button-secondary.p-component:focus,
+.p-button-secondary.p-component:focus-visible {
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Focus específico por tipo de botón - Outlined */
+button.p-button.p-button-outlined:focus,
+button.p-button.p-button-outlined:focus-visible,
+.p-button.p-button-outlined:focus,
+.p-button.p-button-outlined:focus-visible,
+.p-button-outlined.p-component:focus,
+.p-button-outlined.p-component:focus-visible {
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Disabled State */
+.p-button:disabled,
+.p-button.p-disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
 }
 
 /* ========== CARDS ========== */
@@ -339,9 +522,17 @@
     border-color: var(--color-primary);
 }
 
-.p-dropdown:not(.p-disabled).p-focus, .p-select:not(.p-disabled).p-focus {
-    border-color: var(--color-focus);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+.p-dropdown:not(.p-disabled).p-focus, 
+.p-select:not(.p-disabled).p-focus,
+.p-dropdown.p-focus,
+.p-select.p-focus,
+.p-dropdown:focus,
+.p-select:focus,
+.p-dropdown:focus-visible,
+.p-select:focus-visible {
+    border-color: var(--color-focus) !important;
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2) !important;
+    outline: none !important;
 }
 
 .p-dropdown-panel, .p-select-panel {
@@ -493,15 +684,129 @@
 
 /* ========== INPUTS (GENERALES) ========== */
 
-.p-inputtext, .p-textarea, .p-calendar input {
+/* Base Input Styles */
+.p-inputtext,
+.p-textarea,
+.p-calendar input,
+.p-dropdown,
+.p-inputnumber input {
     background: var(--color-white) !important;
     color: var(--color-text-gray) !important;
-    border-color: var(--color-light) !important;
+    border: 1px solid var(--color-light) !important;
+    border-radius: var(--border-radius) !important;
+    padding: var(--spacing-sm) var(--spacing-md) !important;
+    transition: all 0.2s ease !important;
+    font-size: 0.875rem !important;
 }
 
-.p-inputtext:focus, .p-textarea:focus, .p-dropdown:focus, .p-select:focus {
+/* Focus State */
+.p-inputtext:focus,
+.p-textarea:focus,
+.p-dropdown:focus,
+.p-calendar:focus-within,
+.p-inputnumber:focus-within {
     border-color: var(--color-primary) !important;
     box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2) !important;
+    outline: none !important;
+}
+
+/* Hover State */
+.p-inputtext:hover:not(:disabled),
+.p-textarea:hover:not(:disabled),
+.p-dropdown:hover:not(:disabled),
+.p-calendar:hover:not(:disabled) {
+    border-color: var(--surface-400) !important;
+}
+
+/* Disabled State */
+.p-inputtext:disabled,
+.p-textarea:disabled,
+.p-dropdown.p-disabled,
+.p-calendar.p-disabled {
+    background: var(--surface-100) !important;
+    color: var(--surface-400) !important;
+    cursor: not-allowed !important;
+    opacity: 0.6 !important;
+}
+
+/* Error State */
+.p-invalid.p-inputtext,
+.p-invalid .p-inputtext,
+.p-invalid.p-dropdown,
+.p-invalid .p-dropdown,
+.p-invalid.p-calendar,
+.p-invalid .p-calendar input {
+    border-color: var(--color-danger) !important;
+}
+
+.p-invalid.p-inputtext:focus,
+.p-invalid .p-inputtext:focus,
+.p-invalid.p-dropdown:focus,
+.p-invalid .p-dropdown:focus,
+.p-invalid.p-calendar:focus-within {
+    box-shadow: 0 0 0 0.2rem rgba(215, 32, 28, 0.2) !important;
+}
+
+/* Success State */
+.p-valid.p-inputtext,
+.p-valid .p-inputtext,
+.p-valid.p-dropdown,
+.p-valid .p-dropdown {
+    border-color: var(--color-success) !important;
+}
+
+/* Placeholder */
+.p-inputtext::placeholder,
+.p-textarea::placeholder {
+    color: var(--surface-400) !important;
+    opacity: 1;
+}
+
+/* Input Sizes */
+.p-inputtext-sm,
+.p-dropdown-sm {
+    padding: 0.375rem 0.625rem !important;
+    font-size: 0.8125rem !important;
+}
+
+.p-inputtext-lg,
+.p-dropdown-lg {
+    padding: 0.75rem 1rem !important;
+    font-size: 1rem !important;
+}
+
+/* Input with Icons - Soporte para ambas versiones (antigua y nueva) */
+.p-input-icon-left > .p-inputtext,
+.p-input-icon-right > .p-inputtext,
+.p-iconfield .p-inputtext,
+pv-icon-field .p-inputtext,
+pv-icon-field pv-input-text {
+    padding-left: 2.5rem !important;
+}
+
+.p-input-icon-right > .p-inputtext,
+.p-iconfield.p-iconfield-right .p-inputtext,
+pv-icon-field.p-iconfield-right .p-inputtext,
+pv-icon-field.p-iconfield-right pv-input-text {
+    padding-right: 2.5rem !important;
+    padding-left: var(--spacing-md) !important;
+}
+
+/* Error Message */
+.p-error {
+    color: var(--color-danger) !important;
+    font-size: 0.75rem !important;
+    margin-top: 0.25rem !important;
+    display: block;
+}
+
+/* Help Text */
+ small.p-help,
+.p-help-text {
+    color: var(--surface-500) !important;
+    font-size: 0.75rem !important;
+    margin-top: 0.25rem !important;
+    display: block;
 }
 
 /* ========== MODO CLARO FORZADO ========== */

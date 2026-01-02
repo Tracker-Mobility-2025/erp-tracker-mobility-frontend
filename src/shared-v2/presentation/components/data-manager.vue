@@ -204,7 +204,10 @@ const confirmDeleteSelected = () => {
  * Detecta automáticamente el identificador del item (orderNumber, name, id)
  */
 const confirmDeleteItem = (item) => {
+
+
   const itemIdentifier = item.fullName || item.firstName || item.id || ''
+  
   confirm.require({
     message: `¿Está seguro de eliminar ${itemIdentifier ? `"${itemIdentifier}"` : `esta ${props.title.singular}`}?`,
     header: 'Confirmación',
@@ -256,22 +259,23 @@ onMounted(() => initFilters())
   <div class="surface-0 border-round-lg p-4 shadow-2 h-full flex flex-column overflow-hidden" style="border: 1px solid var(--border-medium);">
 
     <!-- Search and Filter Section -->
-    <div class="w-full flex flex-column gap-3 mb-2 border-bottom-1 surface-border">
+    <div class="flex flex-column mb-2 border-bottom-1 surface-border">
 
       <!-- Custom filters slot -->
-      <div class="flex w-full gap-2 mb-4 flex-wrap">
+      <div class="flex gap-2 mb-4 flex-wrap">
         <!-- Global Search Input -->
-        <pv-icon-field class="flex-grow-1">
+        <pv-icon-field class="flex-1">
+      
           <pv-input-icon class="pi pi-search" />
+
           <pv-input-text
               v-model="currentGlobalFilterValue"
               :placeholder="searchPlaceholder"
-              class="w-full h-auto"
               @input="onGlobalFilterChange"
           />
         </pv-icon-field>
 
-        <slot name="filters" :clear-filters="clearFilters" />
+        <slot name="filters" :clear-filters="clearFilters" ></slot>
 
       </div>
 
@@ -279,26 +283,23 @@ onMounted(() => initFilters())
 
     <!-- Action Buttons Section -->
     <div v-if="showActionButtons && (showNew || showDelete || showExport)"
-         class="flex flex-column md:flex-row align-items-stretch md:align-items-left gap-2 mb-4">
+         class="flex flex-column md:flex-row gap-2 mb-4">
 
-      <div class="flex gap-2 flex-1 flex-column md:flex-row align-items-stretch md:align-items-left">
+      <div class="flex gap-2 flex-1 flex-column md:flex-row">
         <pv-button
             v-if="showNew"
             icon="pi pi-plus"
             :label="newButtonLabel"
-            severity="success"
-            size="small"
-            class="w-full md:w-auto"
+            class="p-button-success w-full md:w-auto"
             @click="newItem"
         />
+        
         <pv-button
             v-if="showDelete && showSelection"
             :disabled="!selectedItems || !selectedItems.length"
             icon="pi pi-trash"
             :label="deleteButtonLabel"
-            severity="danger"
-            size="small"
-            class="w-full md:w-auto"
+            class="p-button-danger w-full md:w-auto"
             @click="confirmDeleteSelected"
         />
       </div>
@@ -307,10 +308,7 @@ onMounted(() => initFilters())
         v-if="showExport"
         icon="pi pi-download" 
         :label="exportButtonLabel" 
-        severity="help" 
-        size="small"
-        outlined
-        class="w-full md:w-auto"
+        class="p-button-secondary p-button-outlined w-full md:w-auto"
         @click="exportToCsv" 
       />
     </div>
@@ -345,8 +343,7 @@ onMounted(() => initFilters())
             :exportable="false"
             selection-mode="multiple"
             header-style="width: 3rem; text-align: center"
-            body-style="text-align: center; justify-content: center;"
-
+            body-style="text-align: center"
         />
 
         <!-- Custom Slot Columns -->
@@ -382,18 +379,12 @@ onMounted(() => initFilters())
               <pv-button
                   v-if="showViewAction && !viewActionIconOnly"
                   :label="viewButtonLabel"
-                  severity="info"
-                  text
-                  size="small"
                   class="p-button-link"
                   @click="emit('view-item-requested-manager', slotProps.data)"
               />
               <pv-button
                   v-if="showViewAction && viewActionIconOnly"
                   icon="pi pi-eye"
-                  severity="info"
-                  rounded
-                  size="small"
                   class="action-button view-button"
                   v-tooltip.top="viewButtonLabel"
                   @click="emit('view-item-requested-manager', slotProps.data)"
@@ -401,9 +392,6 @@ onMounted(() => initFilters())
               <pv-button
                   v-if="showEditAction"
                   icon="pi pi-pencil"
-                  severity="warning"
-                  rounded
-                  size="small"
                   class="action-button edit-button"
                   v-tooltip.top="editButtonLabel"
                   @click="emit('edit-item-requested-manager', slotProps.data)"
@@ -411,9 +399,6 @@ onMounted(() => initFilters())
               <pv-button
                   v-if="showDeleteAction"
                   icon="pi pi-trash"
-                  severity="danger"
-                  rounded
-                  size="small"
                   class="action-button delete-button"
                   v-tooltip.top="deleteActionLabel"
                   @click="confirmDeleteItem(slotProps.data)"
@@ -424,218 +409,20 @@ onMounted(() => initFilters())
 
         <!-- Empty State -->
         <template #empty>
-          <div class="text-center py-6">
+          <div class="text-center p-4">
             <i class="pi pi-search text-4xl text-400 mb-3"></i>
-            <p class="text-600 mb-0">No se encontraron registros</p>
+            <p class="text-600">No se encontraron registros</p>
           </div>
         </template>
 
         <!-- Loading State -->
         <template #loading>
-          <div class="text-center py-6">
+          <div class="text-center p-4">
             <pv-progress-spinner style="width:50px;height:50px" stroke-width="4" />
-            <p class="text-600 mt-3 mb-0">Cargando datos...</p>
+            <p class="text-600 mt-3">Cargando datos...</p>
           </div>
         </template>
       </pv-data-table>
     </div>
   </div>
 </template>
-
-<style scoped>
-/* Tabla con scroll optimizado */
-:deep(.data-table-custom) {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-:deep(.data-table-custom .p-datatable-wrapper) {
-  flex: 1;
-  overflow: auto;
-}
-
-:deep(.data-table-custom .p-datatable-thead) {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: var(--surface-default);
-}
-
-:deep(.data-table-custom .p-datatable-tbody) {
-  flex: 1;
-}
-
-:deep(.data-table-custom .p-datatable-tbody > tr) {
-  height: 46px;
-}
-
-/* Paginador sticky */
-:deep(.data-table-custom .p-paginator) {
-  position: sticky;
-  bottom: 0;
-  z-index: 2;
-  background: var(--surface-default);
-  border-top: 1px solid var(--border-medium);
-  padding: 0.75rem 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/* Botones navegación paginador */
-:deep(.data-table-custom .p-paginator .p-paginator-first,
-       .data-table-custom .p-paginator .p-paginator-prev,
-       .data-table-custom .p-paginator .p-paginator-next,
-       .data-table-custom .p-paginator .p-paginator-last) {
-  min-width: 2.5rem;
-  height: 2.5rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-medium);
-  background: var(--surface-default);
-  color: var(--text-primary);
-  transition: all 0.2s ease;
-}
-
-:deep(.data-table-custom .p-paginator .p-paginator-first:not(.p-disabled):hover,
-       .data-table-custom .p-paginator .p-paginator-prev:not(.p-disabled):hover,
-       .data-table-custom .p-paginator .p-paginator-next:not(.p-disabled):hover,
-       .data-table-custom .p-paginator .p-paginator-last:not(.p-disabled):hover) {
-  background: var(--surface-subtle);
-  border-color: var(--border-dark);
-}
-
-/* Botones de página */
-:deep(.data-table-custom .p-paginator .p-paginator-page) {
-  min-width: 2.5rem;
-  height: 2.5rem;
-  border-radius: var(--radius-md);
-  border: 1px solid transparent;
-  background: transparent;
-  color: var(--text-primary);
-  font-weight: var(--font-weight-medium);
-  transition: all 0.2s ease;
-  margin: 0 0.125rem;
-}
-
-:deep(.data-table-custom .p-paginator .p-paginator-page:hover) {
-  background: var(--surface-subtle);
-  border-color: var(--border-medium);
-}
-
-:deep(.data-table-custom .p-paginator .p-paginator-page.p-highlight) {
-  background: var(--action-primary);
-  border-color: var(--action-primary);
-  color: var(--text-inverse);
-}
-
-:deep(.data-table-custom .p-paginator .p-paginator-page.p-highlight:hover) {
-  background: var(--action-primary-hover);
-  border-color: var(--action-primary-hover);
-}
-
-/* Texto reporte actual */
-:deep(.data-table-custom .p-paginator .p-paginator-current) {
-  color: var(--text-secondary);
-  font-size: var(--font-size-body-small);
-  font-weight: var(--font-weight-medium);
-  margin-right: auto;
-  padding: 0 0.5rem;
-}
-
-/* Dropdown filas por página */
-:deep(.data-table-custom .p-paginator .p-dropdown) {
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-md);
-  height: 2.5rem;
-  background: var(--surface-default);
-  transition: all 0.2s ease;
-}
-
-:deep(.data-table-custom .p-paginator .p-dropdown:hover) {
-  border-color: var(--border-dark);
-}
-
-:deep(.data-table-custom .p-paginator .p-dropdown:focus) {
-  border-color: var(--action-primary);
-  box-shadow: 0 0 0 3px rgba(215, 32, 28, 0.1);
-}
-
-:deep(.data-table-custom .p-paginator .p-disabled) {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-/* Botones de acción */
-:deep(.action-button) {
-  width: 2rem !important;
-  height: 2rem !important;
-  min-width: 2rem !important;
-  padding: 0 !important;
-  margin: 0.125rem !important;
-  transition: all 0.2s ease-in-out !important;
-  border: 1px solid transparent !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-:deep(.action-button .p-button-icon) {
-  font-size: 0.875rem !important;
-  margin: 0 !important;
-}
-
-:deep(.view-button) {
-  background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
-  color: var(--text-inverse) !important;
-  border-color: #2563eb !important;
-}
-
-:deep(.view-button:hover) {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
-  transform: translateY(-1px) !important;
-  box-shadow: var(--shadow-md) !important;
-  border-color: #1d4ed8 !important;
-}
-
-:deep(.view-button:active) {
-  transform: translateY(0) !important;
-  box-shadow: var(--shadow-sm) !important;
-}
-
-:deep(.edit-button) {
-  background: var(--warning-base) !important;
-  color: var(--text-inverse) !important;
-  border-color: var(--warning-base) !important;
-}
-
-:deep(.edit-button:hover) {
-  background: #FF8F00 !important;
-  transform: translateY(-1px) !important;
-  box-shadow: var(--shadow-md) !important;
-  border-color: #FF8F00 !important;
-}
-
-:deep(.edit-button:active) {
-  transform: translateY(0) !important;
-  box-shadow: var(--shadow-sm) !important;
-}
-
-:deep(.delete-button) {
-  background: var(--error-base) !important;
-  color: var(--text-inverse) !important;
-  border-color: var(--error-base) !important;
-}
-
-:deep(.delete-button:hover) {
-  background: #B01A17 !important;
-  transform: translateY(-1px) !important;
-  box-shadow: var(--shadow-md) !important;
-  border-color: #B01A17 !important;
-}
-
-:deep(.delete-button:active) {
-  transform: translateY(0) !important;
-  box-shadow: var(--shadow-sm) !important;
-}
-</style>

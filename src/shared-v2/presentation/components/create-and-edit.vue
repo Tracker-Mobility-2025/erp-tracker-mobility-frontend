@@ -123,6 +123,3 @@ onMounted(() => {
     </template>
   </pv-dialog>
 </template>
-
-<style scoped>
-</style>

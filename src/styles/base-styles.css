@@ -277,3 +277,116 @@ input:disabled, textarea:disabled, select:disabled {
 .opacity-75 {
     opacity: 0.75;
 }
+
+/* ========== CLASES DE UTILIDAD PARA FORMULARIOS ========== */
+
+/* Labels */
+.form-label {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+    color: var(--surface-700);
+    font-weight: var(--font-weight-medium);
+    font-size: 0.875rem;
+}
+
+.form-label-required::after {
+    content: ' *';
+    color: var(--color-danger);
+}
+
+/* Input Groups */
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-md);
+}
+
+.input-group-horizontal {
+    flex-direction: row;
+    align-items: center;
+}
+
+/* Validation Messages */
+.validation-message {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    line-height: 1.4;
+}
+
+.validation-message-error {
+    color: var(--color-danger);
+}
+
+.validation-message-success {
+    color: var(--color-success);
+}
+
+.validation-message-warning {
+    color: var(--color-warning);
+}
+
+.validation-message-info {
+    color: var(--primary-500);
+}
+
+/* Field States */
+.field-error {
+    border-color: var(--color-danger) !important;
+}
+
+.field-success {
+    border-color: var(--color-success) !important;
+}
+
+.field-warning {
+    border-color: var(--color-warning) !important;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--surface-100);
+}
+
+.form-actions-end {
+    justify-content: flex-end;
+}
+
+.form-actions-center {
+    justify-content: center;
+}
+
+.form-actions-between {
+    justify-content: space-between;
+}
+
+/* Helper Text */
+.helper-text {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--surface-500);
+    line-height: 1.4;
+}
+
+/* Character Counter */
+.char-counter {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--surface-400);
+    text-align: right;
+}
+
+.char-counter-warning {
+    color: var(--color-warning);
+}
+
+.char-counter-error {
+    color: var(--color-danger);
+}

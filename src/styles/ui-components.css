@@ -3,6 +3,58 @@
  * Estilos comunes para componentes de interfaz que se repiten en múltiples vistas
  */
 
+/* ========== ICON FIELD (Input con íconos) ========== */
+
+/* Contenedor principal - debe ser relativo para posicionar el ícono */
+.p-iconfield,
+pv-icon-field {
+  position: relative !important;
+  display: flex !important;
+  width: 100% !important;
+}
+
+/* Input dentro del icon field debe ocupar todo el ancho */
+.p-iconfield .p-inputtext,
+pv-icon-field pv-input-text,
+pv-icon-field .p-inputtext {
+  width: 100% !important;
+  padding-left: 2.5rem !important;
+}
+
+/* Ícono posicionado absolutamente a la izquierda */
+.p-iconfield .p-input-icon,
+pv-icon-field pv-input-icon,
+pv-icon-field .p-input-icon {
+  position: absolute !important;
+  top: 50% !important;
+  left: 0.75rem !important;
+  transform: translateY(-50%) !important;
+  color: var(--p-iconfield-icon-color, var(--surface-400)) !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+/* Variante con ícono a la derecha */
+.p-iconfield.p-iconfield-right .p-inputtext,
+pv-icon-field.p-iconfield-right pv-input-text,
+pv-icon-field.p-iconfield-right .p-inputtext {
+  padding-left: 0.75rem !important;
+  padding-right: 2.5rem !important;
+}
+
+.p-iconfield.p-iconfield-right .p-input-icon,
+pv-icon-field.p-iconfield-right pv-input-icon,
+pv-icon-field.p-iconfield-right .p-input-icon {
+  left: auto !important;
+  right: 0.75rem !important;
+}
+
+/* Asegurar que el input no colapse */
+.p-inputtext {
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+}
+
 /* ========== BREADCRUMBS ========== */
 
 .breadcrumb {
@@ -11,14 +63,16 @@
 }
 
 .breadcrumb-link {
-  color: var(--surface-700);
-  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: var(--font-size-body-small);
+  cursor: pointer;
   transition: color 0.2s ease;
+  text-decoration: none;
   font-weight: var(--font-weight-semibold);
 }
 
 .breadcrumb-link:hover {
-  color: var(--primary-600);
+  color: var(--action-primary);
   text-decoration: underline;
 }
 
@@ -29,13 +83,21 @@
 }
 
 .breadcrumb-current {
-  color: var(--primary-600);
-  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  font-size: var(--font-size-body-small);
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
 }
 
 .breadcrumb-current:hover {
   text-decoration: underline;
+}
+
+.breadcrumb-divider {
+  color: var(--text-secondary);
+  opacity: 0.6;
+  font-size: var(--font-size-body-small);
+  user-select: none;
 }
 
 /* ========== LOADING STATES ========== */
@@ -318,6 +380,554 @@
   }
   
   .breadcrumb {
+    font-size: 0.8125rem;
+  }
+}
+
+/* ========== TOOLBAR ========== */
+
+.toolbar-gradient {
+  background: linear-gradient(135deg, var(--surface-700) 0%, var(--surface-600) 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ========== DATA TABLE ========== */
+
+/* Tabla con scroll optimizado */
+.data-table-custom {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.data-table-custom .p-datatable-wrapper {
+  flex: 1;
+  overflow: auto;
+}
+
+.data-table-custom .p-datatable-thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-default);
+}
+
+.data-table-custom .p-datatable-tbody {
+  flex: 1;
+}
+
+.data-table-custom .p-datatable-tbody > tr {
+  height: 46px;
+}
+
+/* Paginador sticky */
+.data-table-custom .p-paginator {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  background: var(--surface-default);
+  border-top: 1px solid var(--border-medium);
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Botones navegación paginador */
+.data-table-custom .p-paginator .p-paginator-first,
+.data-table-custom .p-paginator .p-paginator-prev,
+.data-table-custom .p-paginator .p-paginator-next,
+.data-table-custom .p-paginator .p-paginator-last {
+  min-width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-medium);
+  background: var(--surface-default);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.data-table-custom .p-paginator .p-paginator-first:not(.p-disabled):hover,
+.data-table-custom .p-paginator .p-paginator-prev:not(.p-disabled):hover,
+.data-table-custom .p-paginator .p-paginator-next:not(.p-disabled):hover,
+.data-table-custom .p-paginator .p-paginator-last:not(.p-disabled):hover {
+  background: var(--surface-subtle);
+  border-color: var(--border-dark);
+}
+
+/* Botones de página */
+.data-table-custom .p-paginator .p-paginator-page {
+  min-width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+  transition: all 0.2s ease;
+  margin: 0 0.125rem;
+}
+
+.data-table-custom .p-paginator .p-paginator-page:hover {
+  background: var(--surface-subtle);
+  border-color: var(--border-medium);
+}
+
+.data-table-custom .p-paginator .p-paginator-page.p-highlight {
+  background: var(--action-primary);
+  border-color: var(--action-primary);
+  color: var(--text-inverse);
+}
+
+.data-table-custom .p-paginator .p-paginator-page.p-highlight:hover {
+  background: var(--action-primary-hover);
+  border-color: var(--action-primary-hover);
+}
+
+/* Texto reporte actual */
+.data-table-custom .p-paginator .p-paginator-current {
+  color: var(--text-secondary);
+  font-size: var(--font-size-body-small);
+  font-weight: var(--font-weight-medium);
+  margin-right: auto;
+  padding: 0 0.5rem;
+}
+
+/* Dropdown filas por página */
+.data-table-custom .p-paginator .p-dropdown {
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  height: 2.5rem;
+  background: var(--surface-default);
+  transition: all 0.2s ease;
+}
+
+.data-table-custom .p-paginator .p-dropdown:hover {
+  border-color: var(--border-dark);
+}
+
+.data-table-custom .p-paginator .p-dropdown:focus {
+  border-color: var(--action-primary);
+  box-shadow: 0 0 0 3px rgba(215, 32, 28, 0.1);
+}
+
+.data-table-custom .p-paginator .p-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Botones de acción en tablas */
+/* Máxima especificidad para sobrescribir PrimeVue Aura theme */
+button.p-component.p-button.action-button[data-pc-name="button"],
+button.p-button.p-component.action-button,
+.p-component.p-button.action-button,
+.p-button.action-button {
+  width: 2rem !important;
+  height: 2rem !important;
+  min-width: 2rem !important;
+  max-width: 2rem !important;
+  max-height: 2rem !important;
+  padding: 0 !important;
+  margin: 0.125rem !important;
+  transition: all 0.2s ease-in-out !important;
+  border: 1px solid transparent !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  font-size: 0.875rem !important;
+  gap: 0 !important;
+}
+
+button.p-component.p-button.action-button .p-button-icon,
+button.p-button.p-component.action-button .p-button-icon,
+.p-component.p-button.action-button .p-button-icon,
+.p-button.action-button .p-button-icon {
+  font-size: 0.875rem !important;
+  margin: 0 !important;
+}
+
+/* Variantes de tamaño */
+button.p-button.action-button-sm,
+.p-button.action-button-sm {
+  width: 1.75rem !important;
+  height: 1.75rem !important;
+  min-width: 1.75rem !important;
+  max-width: 1.75rem !important;
+  max-height: 1.75rem !important;
+}
+
+button.p-button.action-button-sm .p-button-icon,
+.p-button.action-button-sm .p-button-icon {
+  font-size: 0.75rem !important;
+}
+
+button.p-button.action-button-lg,
+.p-button.action-button-lg {
+  width: 2.5rem !important;
+  height: 2.5rem !important;
+  min-width: 2.5rem !important;
+  max-width: 2.5rem !important;
+  max-height: 2.5rem !important;
+}
+
+button.p-button.action-button-lg .p-button-icon,
+.p-button.action-button-lg .p-button-icon {
+  font-size: 1rem !important;
+}
+
+/* View Button - Azul */
+button.p-component.p-button.view-button,
+button.p-button.view-button,
+.p-component.p-button.view-button,
+.p-button.view-button {
+  background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+}
+
+button.p-component.p-button.view-button:hover,
+button.p-button.view-button:hover,
+.p-component.p-button.view-button:hover,
+.p-button.view-button:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4) !important;
+  border-color: #1d4ed8 !important;
+}
+
+button.p-component.p-button.view-button:active,
+button.p-button.view-button:active,
+.p-component.p-button.view-button:active,
+.p-button.view-button:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3) !important;
+}
+
+/* Edit Button - Naranja/Amarillo */
+button.p-component.p-button.edit-button,
+button.p-button.edit-button,
+.p-component.p-button.edit-button,
+.p-button.edit-button {
+  background: #FFA726 !important;
+  color: #ffffff !important;
+  border-color: #FFA726 !important;
+}
+
+button.p-component.p-button.edit-button:hover,
+button.p-button.edit-button:hover,
+.p-component.p-button.edit-button:hover,
+.p-button.edit-button:hover {
+  background: #FF8F00 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4) !important;
+  border-color: #FF8F00 !important;
+}
+
+button.p-component.p-button.edit-button:active,
+button.p-button.edit-button:active,
+.p-component.p-button.edit-button:active,
+.p-button.edit-button:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 6px rgba(255, 152, 0, 0.3) !important;
+}
+
+/* Delete Button - Rojo */
+button.p-component.p-button.delete-button,
+button.p-button.delete-button,
+.p-component.p-button.delete-button,
+.p-button.delete-button {
+  background: #D7201C !important;
+  color: #ffffff !important;
+  border-color: #D7201C !important;
+}
+
+button.p-component.p-button.delete-button:hover,
+button.p-button.delete-button:hover,
+.p-component.p-button.delete-button:hover,
+.p-button.delete-button:hover {
+  background: #B01A17 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(215, 32, 28, 0.4) !important;
+  border-color: #B01A17 !important;
+}
+
+button.p-component.p-button.delete-button:active,
+button.p-button.delete-button:active,
+.p-component.p-button.delete-button:active,
+.p-button.delete-button:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 6px rgba(215, 32, 28, 0.3) !important;
+}
+
+/* Add/Create Button - Verde */
+button.p-button.add-button,
+button.p-button.create-button,
+.p-button.add-button,
+.p-button.create-button {
+  background: linear-gradient(135deg, #4CAF50, #388E3C) !important;
+  color: #ffffff !important;
+  border-color: #4CAF50 !important;
+}
+
+button.p-button.add-button:hover,
+button.p-button.create-button:hover,
+.p-button.add-button:hover,
+.p-button.create-button:hover {
+  background: linear-gradient(135deg, #388E3C, #2e7d32) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4) !important;
+}
+
+/* Download/Export Button - Gris oscuro */
+button.p-button.download-button,
+button.p-button.export-button,
+.p-button.download-button,
+.p-button.export-button {
+  background: linear-gradient(135deg, #64748b, #475569) !important;
+  color: #ffffff !important;
+  border-color: #64748b !important;
+}
+
+button.p-button.download-button:hover,
+button.p-button.export-button:hover,
+.p-button.download-button:hover,
+.p-button.export-button:hover {
+  background: linear-gradient(135deg, #475569, #334155) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(71, 85, 105, 0.4) !important;
+}
+
+/* Info Button - Cyan/Azul claro */
+button.p-button.info-button,
+.p-button.info-button {
+  background: linear-gradient(135deg, #06b6d4, #0891b2) !important;
+  color: #ffffff !important;
+  border-color: #0891b2 !important;
+}
+
+button.p-button.info-button:hover,
+.p-button.info-button:hover {
+  background: linear-gradient(135deg, #0891b2, #0e7490) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4) !important;
+}
+
+/* Settings/Config Button - Morado */
+button.p-button.settings-button,
+button.p-button.config-button,
+.p-button.settings-button,
+.p-button.config-button {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
+  color: #ffffff !important;
+  border-color: #7c3aed !important;
+}
+
+button.p-button.settings-button:hover,
+button.p-button.config-button:hover,
+.p-button.settings-button:hover,
+.p-button.config-button:hover {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4) !important;
+}
+
+/* Print Button - Gris */
+button.p-button.print-button,
+.p-button.print-button {
+  background: linear-gradient(135deg, #64748b, #475569) !important;
+  color: #ffffff !important;
+  border-color: #475569 !important;
+}
+
+button.p-button.print-button:hover,
+.p-button.print-button:hover {
+  background: linear-gradient(135deg, #475569, #334155) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(71, 85, 105, 0.4) !important;
+}
+
+/* Disabled State para action buttons */
+button.p-button.action-button:disabled,
+button.p-button.action-button.p-disabled,
+.p-button.action-button:disabled,
+.p-button.action-button.p-disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+}
+
+button.p-button.action-button:disabled:hover,
+button.p-button.action-button.p-disabled:hover,
+.p-button.action-button:disabled:hover,
+.p-button.action-button.p-disabled:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  background: inherit !important;
+}
+
+/* ========== FILE UPLOADER ========== */
+
+/* Input nativo oculto pero accesible */
+.file-uploader__input {
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap;
+  border: 0;
+  padding: 0;
+  margin: -1px;
+}
+
+/* Dropzone */
+.file-uploader__dropzone {
+  min-height: 144px;
+  padding: 1.25rem;
+  border: 2px dashed #E5E7EB;
+  border-radius: 12px;
+  background: #fff;
+  transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+
+.file-uploader__dropzone:hover:not(.file-uploader__dropzone--disabled),
+.file-uploader__dropzone--drag-over {
+  border-color: #cbd5e1;
+  background: #fafafa;
+}
+
+.file-uploader__dropzone:focus {
+  box-shadow: 0 0 0 3px rgba(46, 61, 180, 0.15);
+  border-color: #9aa7ff;
+}
+
+.file-uploader__dropzone--filled {
+  border-style: solid;
+  border-color: #D1D5DB;
+  background: #fff;
+  min-height: auto;
+  padding: 1rem;
+}
+
+.file-uploader__dropzone--disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  background: #f9fafb;
+}
+
+/* Iconos y textos */
+.file-uploader__icon {
+  font-size: 1.5rem;
+  color: #c1c8d2;
+}
+
+.file-uploader__cta {
+  font-size: 1.1rem;
+  line-height: 1.2;
+}
+
+.file-uploader__link {
+  color: #2E3DB4;
+}
+
+.file-uploader__muted {
+  color: #9CA3AF;
+}
+
+.file-uploader__hint {
+  color: #B1B6BE;
+}
+
+/* Preview y file icon */
+.file-uploader__preview {
+  width: 60px;
+  height: 60px;
+}
+
+.file-uploader__preview img {
+  object-fit: cover;
+  display: block;
+}
+
+.file-uploader__file-icon {
+  width: 60px;
+  height: 60px;
+  background: #f3f4f6;
+}
+
+.file-uploader__type-icon {
+  font-size: 1.5rem;
+  color: #6b7280;
+}
+
+/* Filename truncate */
+.file-uploader__filename {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-break: break-all;
+}
+
+/* Botones de acción */
+.file-uploader__action-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: #2E3DB4;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.file-uploader__action-link:hover {
+  text-decoration: underline;
+}
+
+.file-uploader__action-link--danger {
+  color: #dc2626;
+}
+
+.file-uploader__separator {
+  color: #9CA3AF;
+  user-select: none;
+}
+
+/* Responsive file uploader */
+@media (max-width: 640px) {
+  .file-uploader__dropzone {
+    min-height: 120px;
+    padding: 1rem;
+  }
+  
+  .file-uploader__dropzone--filled {
+    padding: 0.875rem;
+  }
+  
+  .file-uploader__icon {
+    font-size: 1.25rem;
+  }
+  
+  .file-uploader__cta {
+    font-size: 1rem;
+  }
+  
+  .file-uploader__preview,
+  .file-uploader__file-icon {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .file-uploader__type-icon {
+    font-size: 1.25rem;
+  }
+  
+  .file-uploader__action-link {
     font-size: 0.8125rem;
   }
 }

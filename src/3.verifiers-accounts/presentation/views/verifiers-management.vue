@@ -12,6 +12,7 @@ import {
   StatusClassMap,
   VerifierUILabels
 } from "../constants/verifier-ui.constants.js";
+import Toolbar from '../../../shared-v2/presentation/components/toolbar.vue';
 
 // Store
 const verifierStore = useVerifierStore();
@@ -98,47 +99,83 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="h-full flex flex-column gap-3">
-    <data-manager
-      :items="verifierStore.verifiers"
-      :filtered-items="filteredVerifiers"
-      :global-filter-value="globalFilterValue"
-      :columns="columns"
-      :title="title"
-      :loading="loading"
-      :dynamic="true"
-      :show-new="true"
-      :show-delete="true"
-      :show-export="true"
-      :show-selection="true"
-      :show-actions="true"
-      :show-action-buttons="true"
-      :show-view-action="true"
-      :show-edit-action="true"
-      :show-delete-action="true"
-      :view-action-icon-only="true"
-      :rows="10"
-      :rows-per-page-options="[10, 20, 30, 50]"
-      new-button-label="Nuevo Verificador"
-      delete-button-label="Eliminar"
-      export-button-label="Exportar"
-      search-placeholder="Busca por nombre, apellido, email o teléfono..."
-      @new-item-requested-manager="onCreateItem"
-      @delete-selected-items-requested-manager="onDeleteSelectedItems"
-      @delete-item-requested-manager="onDeleteItem"
-      @view-item-requested-manager="onViewItem"
-      @edit-item-requested-manager="onEditItem"
-      @global-filter-change="onGlobalFilterChange"
-      @clear-filters="onClearFilters"
-    >
-      <template #status="slotProps">
-        <pv-tag
-          :value="StatusTranslations[slotProps.data.status]"
-          :severity="getStatusItemsArray(slotProps.data.status)"
-          :class="getStatusClass(slotProps.data.status)"
-        />
-      </template>
-    </data-manager>
+  
+  <div class="h-full w-full flex flex-column">
+
+    <toolbar 
+      :title="'Gestion de Verificadores'" 
+      :description="'contacto, credenciales y asignación de órdenes'" 
+      :show-back-button="false"
+    />
+
+    <div class="flex-1 p-4 overflow-auto">
+      <div>
+       
+        <data-manager
+          :items="verifierStore.verifiers"
+          :filtered-items="filteredVerifiers"
+          :global-filter-value="globalFilterValue"
+          :columns="columns"
+          :title="title"
+          :loading="loading"
+          :dynamic="true"
+          :show-new="true"
+          :show-delete="true"
+          :show-export="true"
+          :show-selection="true"
+          :show-actions="true"
+          :show-action-buttons="true"
+          :show-view-action="true"
+          :show-edit-action="true"
+          :show-delete-action="true"
+          :view-action-icon-only="true"
+          :rows="10"
+          :rows-per-page-options="[10, 20, 30, 50]"
+          new-button-label="Nuevo Verificador"
+          delete-button-label="Eliminar"
+          export-button-label="Exportar"
+          search-placeholder="Busca por nombre, apellido, email o teléfono..."
+          @new-item-requested-manager="onCreateItem"
+          @delete-selected-items-requested-manager="onDeleteSelectedItems"
+          @delete-item-requested-manager="onDeleteItem"
+          @view-item-requested-manager="onViewItem"
+          @edit-item-requested-manager="onEditItem"
+          @global-filter-change="onGlobalFilterChange"
+          @clear-filters="onClearFilters"
+        >
+          <!-- Filtro personalizado para el estado -->
+          <template #filters="{ clearFilters }">
+            
+            <!-- Filtros personalizados -->
+            <pv-dropdown
+              v-model="selectedStatus"
+              :options="statusOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Filtrar por estado"
+              class="w-full md:w-auto"
+              @change="updateStatusFilter(selectedStatus)"
+            />
+            <pv-button
+              label="Limpiar filtros"
+              icon="pi pi-filter-slash"
+              class="p-button-secondary p-button-outlined w-full md:w-auto"
+              @click="onClearFilters"
+            />
+            
+          </template>
+
+
+          <template #status="slotProps">
+            <pv-tag
+              :value="StatusTranslations[slotProps.data.status]"
+              :severity="getStatusItemsArray(slotProps.data.status)"
+              :class="getStatusClass(slotProps.data.status)"
+            />
+            </template>
+        </data-manager>
+      </div>
+    </div>
 
     <!-- Diálogo de Crear/Editar -->
     <verifier-create-and-edit
@@ -150,15 +187,3 @@ onMounted(async () => {
     />
   </div>
 </template>
-
-<style scoped>
-.status-activo {
-  background-color: var(--green-100);
-  color: var(--green-800);
-}
-
-.status-inactivo {
-  background-color: var(--red-100);
-  color: var(--red-800);
-}
-</style>

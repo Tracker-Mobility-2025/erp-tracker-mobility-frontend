@@ -248,6 +248,3 @@ const resetForm = () => {
     </template>
   </create-and-edit>
 </template>
-
-<style scoped>
-</style>
