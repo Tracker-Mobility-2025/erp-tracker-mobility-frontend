@@ -35,14 +35,38 @@ const statusOptions = ['ACTIVO', 'INACTIVO'];
 // Methods
 function editVerifier() {
   isEdit.value = true;
+  
+  // Extraer valores correctamente de los value objects
+  const emailValue = props.verifier.emailValue || 
+                     (props.verifier.email?.value) || 
+                     (typeof props.verifier.email === 'string' ? props.verifier.email : '') || 
+                     '';
+  
+  const phoneValue = props.verifier.phoneValue || 
+                     (props.verifier.phoneNumber?.value) || 
+                     (typeof props.verifier.phoneNumber === 'string' ? props.verifier.phoneNumber : '') || 
+                     '';
+  
+  const agendaValue = props.verifier.workScheduleValue || 
+                      (props.verifier.workSchedule?.value) ||
+                      (props.verifier.agenda?.value) ||
+                      (typeof props.verifier.agenda === 'string' ? props.verifier.agenda : '') || 
+                      '';
+  
+  console.log('🔍 [VERIFIER-DATA-CARD] Valores extraídos:');
+  console.log('  - email:', emailValue);
+  console.log('  - phone:', phoneValue);
+  console.log('  - agenda:', agendaValue);
+  console.log('  - verifier original:', props.verifier);
+  
   // Clonar datos actuales para edición
   editableData.value = {
     name: props.verifier.name || '',
     lastName: props.verifier.lastName || '',
-    email: props.verifier.emailValue || props.verifier.email || '',
+    email: emailValue,
     password: '', // Siempre vacío, solo se envía si el usuario escribe algo
-    phoneNumber: props.verifier.phoneValue || props.verifier.phoneNumber || '',
-    agenda: props.verifier.workScheduleValue || props.verifier.agenda || '',
+    phoneNumber: phoneValue,
+    agenda: agendaValue,
     status: props.verifier.status === 'ACTIVE' ? 'ACTIVO' : 'INACTIVO',
   };
 }
@@ -61,6 +85,8 @@ function saveVerifier() {
     delete dataToSave.password;
   }
 
+  console.log('📤 [VERIFIER-DATA-CARD] Datos a guardar:', dataToSave);
+
   emit('save', dataToSave);
   isEdit.value = false;
 }
@@ -69,16 +95,33 @@ function cancelEdit() {
   isEdit.value = false;
   emit('cancel');
 }
+
+// Computed para obtener valores display
+function getAgendaDisplay() {
+  return props.verifier?.workScheduleValue || 
+         props.verifier?.workSchedule?.value ||
+         props.verifier?.agenda?.value ||
+         (typeof props.verifier?.agenda === 'string' ? props.verifier?.agenda : '') || 
+         'N/A';
+}
 </script>
 
 <template>
   <pv-card class="w-full">
     <template #header>
-      <div class="bg-primary text-white p-3">
+      <div class="bg-primary text-white p-3 flex align-items-center justify-content-between">
         <h3 class="text-lg font-bold flex align-items-center gap-2 m-0">
           <i class="pi pi-user-edit"></i>
           Datos del verificador
         </h3>
+        <pv-button
+          v-if="!isEdit && editable"
+          label="Editar"
+          icon="pi pi-pencil"
+          class="p-button-warning"
+          size="small"
+          @click="editVerifier"
+        />
       </div>
     </template>
 
@@ -188,7 +231,7 @@ function cancelEdit() {
             Agenda
           </label>
           <div v-if="!isEdit">
-            <p class="font-semibold text-dark m-0">{{ verifier?.workScheduleValue || verifier?.agenda || 'N/A' }}</p>
+            <p class="font-semibold text-dark m-0">{{ getAgendaDisplay() }}</p>
           </div>
           <div v-else>
             <pv-input-text v-model="editableData.agenda" class="w-full" />
@@ -198,23 +241,14 @@ function cancelEdit() {
     </template>
 
     <template #footer>
-      <div class="flex justify-content-center gap-3">
+      <div v-if="isEdit" class="flex justify-content-center gap-3">
         <pv-button
-          v-if="!isEdit && editable"
-          label="Editar"
-          icon="pi pi-pencil"
-          class="p-button-warning w-10rem"
-          @click="editVerifier"
-        />
-        <pv-button
-          v-if="isEdit"
           label="Guardar"
           icon="pi pi-save"
           class="p-button-primary w-10rem"
           @click="saveVerifier"
         />
         <pv-button
-          v-if="isEdit"
           label="Cancelar"
           icon="pi pi-times"
           class="p-button-secondary w-10rem"

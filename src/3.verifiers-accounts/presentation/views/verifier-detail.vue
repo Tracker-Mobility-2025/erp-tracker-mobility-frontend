@@ -4,8 +4,8 @@ import { useRoute, useRouter } from 'vue-router';
 import { useNotification } from '../../../shared-v2/composables/use-notification.js';
 import { useConfirm } from 'primevue/useconfirm';
 import Toolbar from '../../../shared-v2/presentation/components/toolbar.vue';
-import VerifierDataAndEdit from "../../../tracker-mobility/verifier-management/components/verifier-data-and-edit.component.vue";
-import ListAssignedOrders from "../../../tracker-mobility/verifier-management/components/list-assigned-orders.component.vue";
+import VerifierDataCard from "../components/verifier-data-card.vue";
+import VerifierAssignedOrdersList from "../components/verifier-assigned-orders-list.vue";
 import useVerifierStore from "../../application/verifier.store.js";
 import { UpdateVerifierCommand } from "../../domain/commands/update-verifier.command.js";
 
@@ -18,9 +18,6 @@ const verifierStore = useVerifierStore();
 
 // State
 const item = ref({});
-const itemUpdate = ref({});
-const isEdit = ref(false);
-const submitted = ref(false);
 const assignedOrders = ref([]);
 
 // Loading states
@@ -40,34 +37,22 @@ const loadingSteps = [
 ];
 
 // Methods
-const onSaveVerifier = (updatedData) => {
+const onSaveVerifier = async (updatedData) => {
   const updateCommand = new UpdateVerifierCommand({
     id: item.value.id,
     ...updatedData
   });
   
-  itemUpdate.value = updateCommand;
-  isEdit.value = false;
-  submitted.value = true;
-  update();
-};
-
-const update = async () => {
-  const result = await verifierStore.update(itemUpdate.value);
+  const result = await verifierStore.update(updateCommand);
   
-  if (result.success) {
-    // Actualizar item local con los datos retornados
-    item.value = {
-      ...item.value,
-      ...result.data
-    };
-    // El use case ya muestra la notificación de éxito
+  if (result.success && result.data) {
+    // Actualizar item local con los datos retornados del servidor
+    item.value = { ...result.data };
   }
 };
 
-const OnCancelEdit = () => {
-  isEdit.value = false;
-  submitted.value = false;
+const onCancelEdit = () => {
+  // No es necesario hacer nada, el componente maneja su propio estado
 };
 
 const onRemoveOrder = async (order) => {
@@ -243,13 +228,12 @@ onMounted(async () => {
 
     <!-- Contenido principal -->
     <div v-else class="flex-1 flex flex-column gap-4 mt-4">
-      <verifier-data-and-edit
-        :item="item"
-        :cant-orders="assignedOrders.length"
-        :edit="isEdit"
-        :submitted="submitted"
-        @save-verifier="onSaveVerifier($event)"
-        @cancel-edit="OnCancelEdit"
+      <verifier-data-card
+        :verifier="item"
+        :assigned-orders-count="assignedOrders.length"
+        :editable="true"
+        @save="onSaveVerifier"
+        @cancel="onCancelEdit"
       />
 
       <!-- Sección de órdenes asignadas -->
@@ -288,9 +272,9 @@ onMounted(async () => {
         </div>
 
         <!-- Lista de ordenes asignadas -->
-        <list-assigned-orders
+        <verifier-assigned-orders-list
           v-else
-          :items="assignedOrders"
+          :orders="assignedOrders"
           @remove-order="confirmRemoveOrder"
         />
       </div>

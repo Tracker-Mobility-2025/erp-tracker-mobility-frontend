@@ -29,6 +29,10 @@ export class UpdateVerifierCommandAssembler {
         if (command.agenda !== undefined) resource.agenda = command.agenda;
         if (command.status !== undefined) resource.status = command.status;
         if (command.role !== undefined) resource.role = command.role;
+        if (command.password !== undefined) resource.password = command.password;
+
+        console.log('📦 [ASSEMBLER] Command recibido:', command);
+        console.log('📤 [ASSEMBLER] Resource a enviar al API:', resource);
 
         return resource;
     }
