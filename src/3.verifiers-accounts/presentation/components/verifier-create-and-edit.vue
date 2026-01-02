@@ -27,22 +27,61 @@ const verifierEntity = ref({
   name: '',
   lastName: '',
   phoneNumber: '',
-  agenda: ''
+  agenda: '',
+  status: 'INACTIVE'
 });
+
+const statusOptions = ['ACTIVO', 'INACTIVO'];
 
 // Watch para sincronizar props con el formulario
 watch(() => props.verifier, (newVerifier) => {
   if (newVerifier) {
+    // Resetear submitted cuando se cargan nuevos datos
+    submitted.value = false;
+    
+    // Mapear status de inglés a español para el formulario
+    let statusValue = 'INACTIVO';
+    if (newVerifier.status === 'ACTIVE') {
+      statusValue = 'ACTIVO';
+    } else if (newVerifier.status === 'INACTIVE') {
+      statusValue = 'INACTIVO';
+    }
+    
+    // Extraer valores string de los value objects
+    const emailValue = newVerifier.emailValue || 
+                       (newVerifier.email?.value) || 
+                       (typeof newVerifier.email === 'string' ? newVerifier.email : '') || 
+                       '';
+    
+    const phoneValue = newVerifier.phoneValue || 
+                       (newVerifier.phoneNumber?.value) || 
+                       (typeof newVerifier.phoneNumber === 'string' ? newVerifier.phoneNumber : '') || 
+                       '';
+    
+    const agendaValue = newVerifier.workScheduleValue || 
+                        (newVerifier.workSchedule?.value) ||
+                        (newVerifier.agenda?.value) ||
+                        (typeof newVerifier.agenda === 'string' ? newVerifier.agenda : '') || 
+                        '';
+    
     verifierEntity.value = {
-      email: newVerifier.email || '',
-      password: newVerifier.password || '',
+      email: emailValue,
+      password: '', // Siempre vacío en edición
       name: newVerifier.name || '',
       lastName: newVerifier.lastName || '',
-      phoneNumber: newVerifier.phoneNumber || '',
-      agenda: newVerifier.agenda || ''
+      phoneNumber: phoneValue,
+      agenda: agendaValue,
+      status: statusValue
     };
   }
 }, { immediate: true, deep: true });
+
+// Watch para resetear submitted cuando se abre/cierra el diálogo
+watch(() => props.visible, (newVisible) => {
+  if (newVisible) {
+    submitted.value = false;
+  }
+});
 
 // Validaciones reactivas usando validadores del dominio
 const emailValidation = computed(() => 
@@ -91,8 +130,34 @@ const cancelRequested = () => {
 const saveRequested = () => {
   submitted.value = true;
   
+  console.log('🔍 Verificando formulario antes de guardar:');
+  console.log('verifierEntity:', verifierEntity.value);
+  console.log('isEdit:', props.isEdit);
+  console.log('Validaciones:');
+  console.log('  - email:', emailValidation.value);
+  console.log('  - password:', passwordValidation.value);
+  console.log('  - name:', nameValidation.value);
+  console.log('  - lastName:', lastNameValidation.value);
+  console.log('  - phone:', phoneValidation.value);
+  console.log('  - agenda:', agendaValidation.value);
+  console.log('isFormValid:', isFormValid.value);
+  
   if (isFormValid.value) {
-    emit('save', { ...verifierEntity.value });
+    const dataToSave = { ...verifierEntity.value };
+    
+    // Convertir estado de español a inglés
+    if (dataToSave.status === 'ACTIVO') {
+      dataToSave.status = 'ACTIVE';
+    } else if (dataToSave.status === 'INACTIVO') {
+      dataToSave.status = 'INACTIVE';
+    }
+    
+    // Si estamos en modo edición y la contraseña está vacía, no incluirla
+    if (props.isEdit && (!dataToSave.password || dataToSave.password.trim() === '')) {
+      delete dataToSave.password;
+    }
+    
+    emit('save', dataToSave);
     resetForm();
     emit('update:visible', false);
   }
@@ -105,7 +170,8 @@ const resetForm = () => {
     name: '',
     lastName: '',
     phoneNumber: '',
-    agenda: ''
+    agenda: '',
+    status: 'INACTIVE'
   };
   submitted.value = false;
 };
@@ -222,10 +288,10 @@ const resetForm = () => {
           </div>
         </div>
 
-        <div v-if="!isEdit" class="col-12 md:col-6 px-2 pb-1">
+        <div class="col-12 md:col-6 px-2 pb-1">
           <div class="field">
             <label for="password" class="block text-900 font-medium mb-2">
-              <i class="pi pi-key mr-2"></i>Contraseña *
+              <i class="pi pi-key mr-2"></i>Contraseña {{ isEdit ? '' : '*' }}
             </label>
             <pv-password
               id="password"
@@ -235,13 +301,32 @@ const resetForm = () => {
               size="small"
               toggleMask
               :feedback="false"
-              placeholder="Ingrese una contraseña segura"
+              :placeholder="isEdit ? 'Dejar vacío para no cambiar' : 'Ingrese una contraseña segura'"
               :inputStyle="{ width: '100%' }"
               :class="{ 'p-invalid': submitted && !passwordValidation.valid }"
             />
             <small v-if="submitted && !passwordValidation.valid" class="p-error">
               {{ passwordValidation.message }}
             </small>
+            <small v-if="isEdit" class="text-500 block mt-1">
+              Dejar vacío para mantener la contraseña actual
+            </small>
+          </div>
+        </div>
+
+        <!-- Fila 4: Estado (solo en edición) -->
+        <div v-if="isEdit" class="col-12 md:col-6 px-2 pb-1">
+          <div class="field">
+            <label for="status" class="block text-900 font-medium mb-2">
+              <i class="pi pi-check-circle mr-2"></i>Estado
+            </label>
+            <pv-dropdown
+              id="status"
+              v-model="verifierEntity.status"
+              :options="statusOptions"
+              class="w-full"
+              size="small"
+            />
           </div>
         </div>
       </div>

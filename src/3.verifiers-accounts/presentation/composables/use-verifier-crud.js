@@ -67,33 +67,20 @@ export function useVerifierCrud() {
 
   /**
    * Maneja la solicitud de eliminación de un verificador.
+   * La confirmación ya fue manejada por el data-manager.
    * @param {Object} verifier - Verificador a eliminar
    */
-  function onDeleteItem(verifier) {
-    confirmDelete(
-      'el verificador',
-      verifier.fullName || `${verifier.name} ${verifier.lastName}`,
-      async () => {
-        await verifierStore.remove(verifier.id, verifier.fullName);
-      }
-    );
+  async function onDeleteItem(verifier) {
+    await verifierStore.remove(verifier.id, verifier.fullName);
   }
 
   /**
    * Maneja la solicitud de eliminación de múltiples verificadores.
+   * La confirmación ya fue manejada por el data-manager.
    * @param {Array} selectedItemsArray - Array de verificadores seleccionados
    */
-  function onDeleteSelectedItems(selectedItemsArray) {
-    const count = selectedItemsArray.length;
-    
-    confirmDeleteMultiple(
-      'verificador',
-      'verificadores',
-      count,
-      async () => {
-        await verifierStore.removeMultiple(selectedItemsArray);
-      }
-    );
+  async function onDeleteSelectedItems(selectedItemsArray) {
+    await verifierStore.removeMultiple(selectedItemsArray);
   }
 
   /**
