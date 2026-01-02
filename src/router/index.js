@@ -1,15 +1,11 @@
 import {createRouter, createWebHistory} from "vue-router";
 import ServiceOrderManagementComponent
     from "../tracker-mobility/service-orders/pages/service-order-management.component.vue";
-import VerifiersManagementComponent
-    from "../tracker-mobility/verifier-management/pages/verifiers-management.component.vue";
 import VerificationReportsManagementComponent
     from "../tracker-mobility/verification-reports/pages/verification-reports-management.component.vue";
 import OrderDetailManagementComponent from "../tracker-mobility/service-orders/pages/order-detail-management.component.vue";
 import SignInComponent from "../tracker-mobility/security/pages/sign-in.component.vue";
 import LayoutTrackerMobilityComponent from "../public/pages/layout-tracker-mobility.component.vue";
-import VerifiersDetailsManagementComponent
-    from "../tracker-mobility/verifier-management/pages/verifiers-details.management.component.vue";
 import DetailsHomeVerificationReportComponent
     from "../tracker-mobility/verification-reports/pages/details-home-verification-report.component.vue";
 import DashboardManagementComponent from "../tracker-mobility/dashboard/pages/dashboard-management.component.vue";
@@ -23,6 +19,9 @@ import VerificationRequestsManagementComponent
     from "../client-tracker-mobility/request-management/pages/verification-requests-management.component.vue";
 import VerificationRequestDetailsComponent
     from "../client-tracker-mobility/request-management/pages/verification-request-details.component.vue";
+
+// Importar rutas de verificadores (nueva arquitectura)
+import { verifierRoutes } from "../3.verifiers-accounts/presentation/verifier.routes.js";
 
 
 
@@ -101,24 +100,11 @@ const router = createRouter({
                     }
                 },
 
-                // Verificadores
+                // Verificadores (nueva arquitectura - Bounded Context: 3.verifiers-accounts)
                 {
                     path: 'admin/verifiers',
-                    name: 'verifiers',
-                    component: VerifiersManagementComponent,
-                    meta: {
-                        title: 'Verificadores',
-                        roles: ['ADMIN', 'MASTER_ADMIN']
-                    }
-                },
-                {
-                    path: 'admin/verifier-details',
-                    name: 'verifier-details',
-                    component: VerifiersDetailsManagementComponent,
-                    meta: {
-                        title: 'Detalles del verificador',
-                        roles: ['ADMIN', 'MASTER_ADMIN']
-                    }
+                    name: 'verifiers-module',
+                    children: verifierRoutes
                 },
 
                 // Reportes de verificación
