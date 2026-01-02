@@ -109,181 +109,174 @@ function getAgendaDisplay() {
 <template>
   <pv-card class="w-full">
     <template #header>
-      <div class="bg-primary text-white p-3 flex align-items-center justify-content-between">
-        <h3 class="text-lg font-bold flex align-items-center gap-2 m-0">
-          <i class="pi pi-user-edit"></i>
-          Datos del verificador
-        </h3>
-        <pv-button
-          v-if="!isEdit && editable"
-          label="Editar"
-          icon="pi pi-pencil"
-          class="p-button-warning"
-          size="small"
-          @click="editVerifier"
-        />
+      <div class="flex align-items-center justify-content-between p-3 border-bottom-1 border-200">
+        <div class="flex align-items-center gap-2">
+          <pv-avatar icon="pi pi-user" class="bg-purple-500" size="large" shape="circle" />
+          <h3 class="font-bold text-xl m-0">Información Personal</h3>
+        </div>
+        <div v-if="!isEdit && editable">
+          <pv-button
+            label="Editar Información"
+            icon="pi pi-pencil"
+            class="p-button-warning"
+            @click="editVerifier"
+          />
+        </div>
+        <div v-else-if="isEdit" class="flex gap-2">
+          <pv-button
+            label="Guardar"
+            icon="pi pi-save"
+            class="p-button-primary"
+            @click="saveVerifier"
+          />
+          <pv-button
+            label="Cancelar"
+            icon="pi pi-times"
+            class="p-button-secondary"
+            @click="cancelEdit"
+          />
+        </div>
       </div>
     </template>
 
     <template #content>
       <div class="grid">
-        <!-- Fila 1: Nombre, Apellidos, Teléfono, Estado, Cantidad de órdenes -->
-        <div class="field col-12 md:col-2">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-user text-blue-500"></i>
-            Nombres
-          </label>
-          <div v-if="!isEdit">
-            <p class="font-semibold text-dark m-0">{{ verifier?.name || 'N/A' }}</p>
-          </div>
-          <div v-else>
-            <pv-input-text v-model="editableData.name" class="w-full" />
-          </div>
-        </div>
-
-        <div class="field col-12 md:col-2">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-users text-blue-500"></i>
-            Apellidos
-          </label>
-          <div v-if="!isEdit">
-            <p class="font-semibold text-dark m-0">{{ verifier?.lastName || 'N/A' }}</p>
-          </div>
-          <div v-else>
-            <pv-input-text v-model="editableData.lastName" class="w-full" />
+        <!-- Fila 1: Nombres, Apellidos, Número de Contacto, Estado de Cuenta -->
+        <div class="col-12 lg:col-3">
+          <div class="p-3 border-round border-2 surface-border bg-blue-50 h-full">
+            <label class="text-xs font-semibold text-blue-700 uppercase mb-2 flex align-items-center gap-2">
+              <i class="pi pi-user text-blue-600"></i>
+              Nombres
+            </label>
+            <div v-if="!isEdit">
+              <p class="text-base font-bold text-900 m-0">{{ verifier?.name || 'N/A' }}</p>
+            </div>
+            <div v-else>
+              <pv-input-text v-model="editableData.name" class="w-full" />
+            </div>
           </div>
         </div>
 
-        <div class="field col-12 md:col-3">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-phone text-blue-500"></i>
-            Contacto
-          </label>
-          <div v-if="!isEdit">
-            <p class="font-semibold text-dark m-0">{{ verifier?.phoneValue || verifier?.phoneNumber || 'N/A' }}</p>
-          </div>
-          <div v-else>
-            <pv-input-text v-model="editableData.phoneNumber" class="w-full" />
-          </div>
-        </div>
-
-        <div class="field col-12 md:col-2">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-check-circle text-blue-500"></i>
-            Estado
-          </label>
-          <div v-if="!isEdit">
-            <p class="font-semibold text-dark m-0">{{ verifier?.status === 'ACTIVE' ? 'ACTIVO' : 'INACTIVO' }}</p>
-          </div>
-          <div v-else>
-            <pv-dropdown
-              v-model="editableData.status"
-              :options="statusOptions"
-              class="w-full"
-            />
+        <div class="col-12 lg:col-3">
+          <div class="p-3 border-round border-2 surface-border bg-blue-50 h-full">
+            <label class="text-xs font-semibold text-blue-700 uppercase mb-2 flex align-items-center gap-2">
+              <i class="pi pi-users text-blue-600"></i>
+              Apellidos
+            </label>
+            <div v-if="!isEdit">
+              <p class="text-base font-bold text-900 m-0">{{ verifier?.lastName || 'N/A' }}</p>
+            </div>
+            <div v-else>
+              <pv-input-text v-model="editableData.lastName" class="w-full" />
+            </div>
           </div>
         </div>
 
-        <div class="field col-12 md:col-3">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-list text-blue-500"></i>
-            Cant. órdenes
-          </label>
-          <p class="font-semibold text-dark m-0">{{ assignedOrdersCount }}</p>
-        </div>
-
-        <!-- Fila 2: Email, Contraseña, Agenda -->
-        <div class="field col-12 md:col-4">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-envelope text-blue-500"></i>
-            Correo
-          </label>
-          <div v-if="!isEdit">
-            <p class="font-semibold text-dark m-0">{{ verifier?.emailValue || verifier?.email || 'N/A' }}</p>
-          </div>
-          <div v-else>
-            <pv-input-text v-model="editableData.email" type="email" class="w-full" />
+        <div class="col-12 lg:col-3">
+          <div class="p-3 border-round border-1 surface-border bg-green-50 h-full">
+            <label class="text-xs font-semibold text-green-700 uppercase mb-2 flex align-items-center gap-2">
+              <i class="pi pi-phone text-green-600"></i>
+              Número de Contacto
+            </label>
+            <div v-if="!isEdit">
+              <p class="text-base font-bold text-900 m-0">{{ verifier?.phoneValue || verifier?.phoneNumber || 'N/A' }}</p>
+            </div>
+            <div v-else>
+              <pv-input-text 
+                v-model="editableData.phoneNumber" 
+                class="w-full" 
+                maxlength="9"
+                @keypress="(e) => { if (!/[0-9]/.test(e.key)) e.preventDefault(); }"
+              />
+            </div>
           </div>
         </div>
 
-        <div class="field col-12 md:col-4">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-lock text-blue-500"></i>
-            Contraseña
-          </label>
-          <div v-if="!isEdit">
-            <p class="font-semibold text-dark m-0">*************</p>
-          </div>
-          <div v-else>
-            <pv-password 
-              v-model="editableData.password" 
-              toggle-mask 
-              :feedback="false"
-              class="w-full"
-              placeholder="Dejar vacío para no cambiar"
-            />
+        <div class="col-12 lg:col-3">
+          <div class="p-3 border-round border-2 surface-border bg-cyan-50 h-full">
+            <label class="text-xs font-semibold text-cyan-700 uppercase mb-2 flex align-items-center gap-2">
+              <i class="pi pi-briefcase text-cyan-600"></i>
+              Estado de Cuenta
+            </label>
+            <div v-if="!isEdit">
+              <pv-tag 
+                :value="verifier?.status === 'ACTIVE' ? 'Activo' : 'Inactivo'" 
+                :severity="verifier?.status === 'ACTIVE' ? 'success' : 'danger'"
+                class="text-base font-bold"
+              />
+            </div>
+            <div v-else>
+              <pv-dropdown
+                v-model="editableData.status"
+                :options="statusOptions"
+                class="w-full"
+              />
+            </div>
           </div>
         </div>
 
-        <div class="field col-12 md:col-4">
-          <label class="font-semibold text-color-secondary flex align-items-center gap-2">
-            <i class="pi pi-calendar text-blue-500"></i>
-            Agenda
-          </label>
-          <div v-if="!isEdit">
-            <p class="font-semibold text-dark m-0">{{ getAgendaDisplay() }}</p>
-          </div>
-          <div v-else>
-            <pv-input-text v-model="editableData.agenda" class="w-full" />
+        <!-- Fila 2: Órdenes Asignadas, Email, Contraseña, Agenda -->
+        <div class="col-12 lg:col-3">
+          <div class="p-3 border-round border-2 surface-border bg-purple-50 h-full">
+            <label class="text-xs font-semibold text-purple-700 uppercase mb-2 flex align-items-center gap-2">
+              <i class="pi pi-circle text-purple-600"></i>
+              Órdenes Asignadas
+            </label>
+            <p class="text-4xl font-bold text-purple-700 m-0">{{ assignedOrdersCount }}</p>
           </div>
         </div>
-      </div>
-    </template>
 
-    <template #footer>
-      <div v-if="isEdit" class="flex justify-content-center gap-3">
-        <pv-button
-          label="Guardar"
-          icon="pi pi-save"
-          class="p-button-primary w-10rem"
-          @click="saveVerifier"
-        />
-        <pv-button
-          label="Cancelar"
-          icon="pi pi-times"
-          class="p-button-secondary w-10rem"
-          @click="cancelEdit"
-        />
+        <div class="col-12 lg:col-3">
+          <div class="p-3 border-round border-2 surface-border bg-orange-50 h-full">
+            <label class="text-xs font-semibold text-orange-700 uppercase mb-2 flex align-items-center gap-2">
+              <i class="pi pi-envelope text-orange-600"></i>
+              Correo Electrónico
+            </label>
+            <div v-if="!isEdit">
+              <p class="text-base font-semibold text-900 m-0 word-break-all">{{ verifier?.emailValue || verifier?.email || 'N/A' }}</p>
+            </div>
+            <div v-else>
+              <pv-input-text v-model="editableData.email" type="email" class="w-full" />
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 lg:col-3">
+          <div class="p-3 border-round border-2 surface-border bg-pink-50 h-full">
+            <label class="text-xs font-semibold text-pink-700 uppercase mb-2 flex align-items-center gap-2">
+              <i class="pi pi-shield text-pink-600"></i>
+              Contraseña
+            </label>
+            <div v-if="!isEdit">
+              <p class="text-xl font-bold text-900 m-0" style="letter-spacing: 3px;">••••••••••••</p>
+            </div>
+            <div v-else>
+              <pv-password 
+                v-model="editableData.password" 
+                toggle-mask 
+                :feedback="false"
+                class="w-full"
+                placeholder="Dejar vacío para no cambiar"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 lg:col-3">
+          <div class="p-3 border-round border-2 surface-border bg-cyan-50 h-full">
+            <label class="text-xs font-semibold text-cyan-700 uppercase mb-2 flex align-items-center gap-2">
+              <i class="pi pi-calendar text-cyan-600"></i>
+              Agenda de Trabajo
+            </label>
+            <div v-if="!isEdit">
+              <p class="text-base font-bold text-900 m-0">{{ getAgendaDisplay() }}</p>
+            </div>
+            <div v-else>
+              <pv-input-text v-model="editableData.agenda" class="w-full" />
+            </div>
+          </div>
+        </div>
       </div>
     </template>
   </pv-card>
 </template>
-
-<style scoped>
-:deep(.p-card-content) {
-  padding: 0.5rem;
-}
-
-:deep(.p-inputtext) {
-  width: 100%;
-}
-
-:deep(.p-password) {
-  width: 100%;
-}
-
-:deep(.p-password input) {
-  width: 100%;
-}
-
-:deep(.p-card-header) {
-  background-color: #4A60D0;
-  border-radius: 0.375rem 0.375rem 0 0;
-  overflow: hidden;
-}
-
-:deep(.p-card) {
-  overflow: hidden;
-  border-radius: 0.375rem;
-}
-</style>

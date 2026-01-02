@@ -59,6 +59,8 @@ import Toolbar from "primevue/toolbar";
 import TabList from "primevue/tablist";
 import Tab from "primevue/tab";
 import TabPanel from "primevue/tabpanel";
+import {Avatar} from "primevue";
+
 
 
 import Toast from "primevue/toast";
@@ -205,6 +207,6 @@ app.component('pv-button', Button)
     .component('pv-chip', Chip)
     .component('pv-message', Message)
     .component('pv-paginator', Paginator)
-    .component('pv-confirm-dialog', ConfirmDialog);
-
+    .component('pv-confirm-dialog', ConfirmDialog)
+.component('pv-avatar', Avatar);
 app.mount('#app')

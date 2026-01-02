@@ -212,16 +212,16 @@ onMounted(async () => {
     </div>
 
     <!-- Estado de error para datos del verificador -->
-    <div v-else-if="hasVerifierError" class="flex justify-content-center align-items-center" style="min-height: 50vh;">
-      <div class="text-center">
-        <i class="pi pi-exclamation-triangle text-6xl error-icon mb-3"></i>
-        <h3 class="text-xl error-title">Error al cargar verificador</h3>
-        <p class="error-message mb-4">{{ verifierErrorMessage }}</p>
+    <div v-else-if="hasVerifierError" class="error-container">
+      <div class="error-content">
+        <i class="pi pi-exclamation-triangle text-6xl error-icon"></i>
+        <h3 class="error-title">Error al cargar verificador</h3>
+        <p class="error-message">{{ verifierErrorMessage }}</p>
         <pv-button 
           label="Reintentar" 
           icon="pi pi-refresh" 
+          outlined
           @click="retryLoadingVerifier"
-          class="p-button-outlined"
         />
       </div>
     </div>
@@ -238,35 +238,36 @@ onMounted(async () => {
 
       <!-- Sección de órdenes asignadas -->
       <div class="w-full flex-1 flex-column gap-3">
-        <h3 class="text-xlg font-bold mb-3 flex align-items-center gap-2 section-title">
+        <h3 class="section-title">
           <i class="pi pi-clipboard-list"></i>
           Órdenes asignadas
         </h3>
 
         <!-- Estado de carga para órdenes -->
-        <div v-if="isLoadingOrders" class="flex justify-content-center align-items-center py-6">
-          <div class="text-center">
+        <div v-if="isLoadingOrders" class="loading-inline">
+          <div class="loading-content">
             <pv-progress-spinner 
               size="32" 
               stroke-width="4" 
-              animation-duration="1.2s" 
-              class="mb-3"
+              animation-duration="1.2s"
+              class="loading-spinner"
             />
             <p class="loading-message">Cargando órdenes asignadas...</p>
           </div>
         </div>
 
         <!-- Estado de error para órdenes -->
-        <div v-else-if="hasOrdersError" class="flex justify-content-center align-items-center py-6">
-          <div class="text-center">
-            <i class="pi pi-exclamation-triangle text-4xl error-icon mb-3"></i>
-            <h4 class="text-lg error-title">Error al cargar órdenes</h4>
-            <p class="error-message mb-4">{{ ordersErrorMessage }}</p>
+        <div v-else-if="hasOrdersError" class="error-inline">
+          <div class="error-content">
+            <i class="pi pi-exclamation-triangle text-4xl error-icon"></i>
+            <h4 class="error-title">Error al cargar órdenes</h4>
+            <p class="error-message">{{ ordersErrorMessage }}</p>
             <pv-button 
               label="Reintentar" 
               icon="pi pi-refresh" 
+              outlined
+              size="small"
               @click="retryLoadingOrders"
-              class="p-button-outlined p-button-sm"
             />
           </div>
         </div>

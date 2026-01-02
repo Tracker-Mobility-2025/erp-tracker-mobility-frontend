@@ -240,6 +240,8 @@ const resetForm = () => {
               class="w-full"
               size="small"
               placeholder="912345678"
+              maxlength="9"
+              @keypress="(e) => { if (!/[0-9]/.test(e.key)) e.preventDefault(); }"
               :class="{ 'p-invalid': submitted && !phoneValidation.valid }"
             />
             <small v-if="submitted && !phoneValidation.valid" class="p-error">
