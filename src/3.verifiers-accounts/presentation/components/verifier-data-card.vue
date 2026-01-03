@@ -53,12 +53,6 @@ function editVerifier() {
                       (typeof props.verifier.agenda === 'string' ? props.verifier.agenda : '') || 
                       '';
   
-  console.log('🔍 [VERIFIER-DATA-CARD] Valores extraídos:');
-  console.log('  - email:', emailValue);
-  console.log('  - phone:', phoneValue);
-  console.log('  - agenda:', agendaValue);
-  console.log('  - verifier original:', props.verifier);
-  
   // Clonar datos actuales para edición
   editableData.value = {
     name: props.verifier.name || '',
@@ -84,8 +78,6 @@ function saveVerifier() {
   if (!dataToSave.password || dataToSave.password.trim() === '') {
     delete dataToSave.password;
   }
-
-  console.log('📤 [VERIFIER-DATA-CARD] Datos a guardar:', dataToSave);
 
   emit('save', dataToSave);
   isEdit.value = false;

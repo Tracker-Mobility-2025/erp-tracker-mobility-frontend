@@ -44,14 +44,12 @@ export class VerifierAssembler {
         try {
           return this.toEntity(resource);
         } catch (error) {
-          console.warn('Verificador inválido omitido:', error.message, resource);
+          console.warn('[VerifierAssembler] Verificador inválido omitido:', error.message);
           return null;
         }
       })
       .filter(verifier => verifier !== null);
     
-    console.log('🔧 [VerifierAssembler.toEntities] Output entities count:', entities.length);
-    console.log('🔧 [VerifierAssembler.toEntities] Output entities:', entities);
     return entities;
   }
 }

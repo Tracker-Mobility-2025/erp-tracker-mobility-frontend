@@ -136,11 +136,14 @@ export class Verifier {
   }
 
   /**
-   * Verifica si el verificador puede trabajar en una fecha/hora específica.
-   * @param {Date} dateTime - Fecha y hora a verificar
-   * @returns {boolean} True si puede trabajar
+   * Verifica si el verificador puede trabajar en una fecha específica.
+   * @param {Date} date - Fecha a verificar
+   * @returns {boolean} True si puede trabajar en esa fecha
    */
-  canWorkAt(dateTime) {
-    return this.isActive && this.workSchedule.isAvailableAt(dateTime);
+  canWorkAt(date) {
+    if (!this.isActive) {
+      return false;
+    }
+    return this.workSchedule.isAvailableOn(date);
   }
 }

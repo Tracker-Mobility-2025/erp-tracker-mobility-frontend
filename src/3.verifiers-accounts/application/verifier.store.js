@@ -1,46 +1,48 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { VerifierHttpRepository } from "../infrastructure/repositories/verifier-http.repository.js";
-import { CreateVerifierUseCase } from "./use-cases/create-verifier.use-case.js";
-import { UpdateVerifierUseCase } from "./use-cases/update-verifier.use-case.js";
-import { DeleteVerifierUseCase } from "./use-cases/delete-verifier.use-case.js";
-import { ListVerifiersUseCase } from "./use-cases/list-verifiers.use-case.js";
+import { AdminHttpRepository } from "../infrastructure/repositories/admin-http.repository.js";
+import { CreateVerifierCommand } from "../domain/commands/create-verifier.command.js";
+import { DefaultRole, DefaultStatus } from "../domain/constants/verifier.constants.js";
+import { VerifierErrorHandler } from "./error-handlers/verifier-error.handler.js";
 import { useNotification } from "../../shared-v2/composables/use-notification.js";
 import { useAuthenticationStore } from "../../tracker-mobility/security/services/authentication.store.js";
 
 /**
  * Store de Pinia para funcionalidad de verificadores.
- * Arquitectura refactorizada: Presentation → Store → Use Cases → Repository → API
- * El Store ahora delega la lógica de negocio a Use Cases y solo gestiona estado reactivo.
+ * Arquitectura simplificada: Presentation → Store → Repository → API
+ * El Store contiene la lógica de negocio y gestiona estado reactivo.
  */
 const useVerifierStore = defineStore('verifier', () => {
-    // State (solo para UI reactivity)
+    // State
     const verifiers = ref([]);
 
-    // Dependencies (inyección de dependencias)
-    const repository = new VerifierHttpRepository();
+    // Dependencies
+    const verifierRepository = new VerifierHttpRepository();
+    const adminRepository = new AdminHttpRepository();
     const { showSuccess, showError, showWarning } = useNotification();
     const authStore = useAuthenticationStore();
+    const errorHandler = new VerifierErrorHandler({ showSuccess, showError, showWarning });
 
-    // Use Cases (orquestadores de lógica de negocio)
-    const createUseCase = new CreateVerifierUseCase(repository, { showSuccess, showError, showWarning }, authStore);
-    const updateUseCase = new UpdateVerifierUseCase(repository, { showSuccess, showError, showWarning });
-    const deleteUseCase = new DeleteVerifierUseCase(repository, { showSuccess, showError, showWarning });
-    const listUseCase = new ListVerifiersUseCase(repository, { showSuccess, showError, showWarning });
-
-    // Actions (delegación a Use Cases)
+    // Actions
     /**
      * Obtiene todos los verificadores.
      * @returns {Promise<Object>} Resultado { success, data?, message, code }
      */
     async function fetchAll() {
-        const result = await listUseCase.execute();
-        
-        if (result.success) {
-            verifiers.value = result.data;
+        try {
+            const data = await verifierRepository.findAll();
+            verifiers.value = data;
+
+            return {
+                success: true,
+                data,
+                message: `${data.length} verificador${data.length !== 1 ? 'es' : ''} cargado${data.length !== 1 ? 's' : ''}`,
+                code: 'SUCCESS'
+            };
+        } catch (error) {
+            return errorHandler.handle(error, 'cargar los verificadores');
         }
-        
-        return result;
     }
 
     /**
@@ -49,13 +51,27 @@ const useVerifierStore = defineStore('verifier', () => {
      * @returns {Promise<Object>} Resultado { success, data?, message, code }
      */
     async function fetchByAdminId(adminId) {
-        const result = await listUseCase.executeByAdminId(adminId);
-        
-        if (result.success) {
-            verifiers.value = result.data;
+        try {
+            if (!adminId) {
+                return {
+                    success: false,
+                    message: 'ID de administrador requerido',
+                    code: 'INVALID_PARAMS'
+                };
+            }
+
+            const data = await verifierRepository.findByAdminId(adminId);
+            verifiers.value = data;
+
+            return {
+                success: true,
+                data,
+                message: `${data.length} verificador${data.length !== 1 ? 'es' : ''} cargado${data.length !== 1 ? 's' : ''}`,
+                code: 'SUCCESS'
+            };
+        } catch (error) {
+            return errorHandler.handle(error, 'cargar los verificadores del administrador');
         }
-        
-        return result;
     }
 
     /**
@@ -64,36 +80,113 @@ const useVerifierStore = defineStore('verifier', () => {
      * @returns {Promise<Object>} Resultado { success, data?, message, code }
      */
     async function fetchById(id) {
-        const idInt = parseInt(id);
-        
-        // Primero buscar en estado local
-        const cached = verifiers.value.find(v => v.id === idInt);
-        if (cached) {
+        try {
+            const verifierId = parseInt(id);
+            
+            if (!verifierId) {
+                return {
+                    success: false,
+                    message: 'ID de verificador requerido',
+                    code: 'INVALID_PARAMS'
+                };
+            }
+
+            const data = await verifierRepository.findById(verifierId);
+
+            if (!data) {
+                showWarning('Verificador no encontrado', 'No encontrado', 3000);
+                return {
+                    success: false,
+                    message: 'Verificador no encontrado',
+                    code: 'NOT_FOUND'
+                };
+            }
+
             return {
                 success: true,
-                data: cached,
-                message: 'Verificador en caché',
-                code: 'CACHED'
+                data,
+                message: 'Verificador cargado',
+                code: 'SUCCESS'
             };
+        } catch (error) {
+            return errorHandler.handle(error, 'cargar el verificador');
         }
-        
-        // Si no está en cache, buscar en repositorio
-        return await listUseCase.executeById(idInt);
     }
 
     /**
      * Crea un nuevo verificador.
-     * @param {CreateVerifierCommand} command - El comando para crear el verificador.
+     * @param {Object} formData - Datos del formulario
+     * @param {number} userId - ID del usuario (para resolver adminId)
      * @returns {Promise<Object>} Resultado { success, data?, message, code }
      */
-    async function create(command) {
-        const result = await createUseCase.execute(command);
-        
-        if (result.success) {
-            verifiers.value.push(result.data);
+    async function create(formData, userId) {
+        try {
+            // 1. Validar permisos
+            if (!authStore.currentUserId) {
+                return {
+                    success: false,
+                    message: 'No tiene permisos para crear verificadores',
+                    code: 'UNAUTHORIZED'
+                };
+            }
+
+            // 2. Resolver adminId desde userId
+            let adminId = formData.adminId;
+            
+            if (!adminId && userId) {
+                const admin = await adminRepository.findByUserId(userId);
+                
+                if (!admin || !admin.id) {
+                    showError('No se encontró administrador para el usuario', 'Error', 4000);
+                    return {
+                        success: false,
+                        message: 'No se encontró administrador',
+                        code: 'ADMIN_NOT_FOUND'
+                    };
+                }
+                
+                adminId = admin.id;
+            }
+
+            if (!adminId) {
+                return {
+                    success: false,
+                    message: 'adminId o userId es requerido',
+                    code: 'INVALID_PARAMS'
+                };
+            }
+
+            // 3. Construir command con adminId y defaults
+            const command = new CreateVerifierCommand({
+                ...formData,
+                adminId,
+                role: formData.role || DefaultRole,
+                status: formData.status || DefaultStatus
+            });
+
+            // 4. Ejecutar persistencia
+            const verifier = await verifierRepository.save(command);
+
+            // 5. Actualizar estado reactivo
+            verifiers.value.push(verifier);
+
+            // 6. Notificar éxito
+            showSuccess(
+                `El verificador ${verifier.fullName} ha sido creado exitosamente`,
+                'Verificador creado',
+                4000
+            );
+
+            // 7. Retornar resultado
+            return {
+                success: true,
+                data: verifier,
+                message: 'Verificador creado exitosamente',
+                code: 'CREATED'
+            };
+        } catch (error) {
+            return errorHandler.handle(error, 'crear el verificador');
         }
-        
-        return result;
     }
 
     /**
@@ -102,16 +195,49 @@ const useVerifierStore = defineStore('verifier', () => {
      * @returns {Promise<Object>} Resultado { success, data?, message, code }
      */
     async function update(command) {
-        const result = await updateUseCase.execute(command);
-        
-        if (result.success) {
-            const index = verifiers.value.findIndex(v => v.id === result.data.id);
-            if (index !== -1) {
-                verifiers.value[index] = result.data;
+        try {
+            // 1. Validar que el verificador existe
+            const existingVerifier = await verifierRepository.findById(command.id);
+            
+            if (!existingVerifier) {
+                showWarning(
+                    'El verificador que intenta actualizar no existe',
+                    'Verificador no encontrado',
+                    4000
+                );
+                return {
+                    success: false,
+                    message: 'Verificador no encontrado',
+                    code: 'NOT_FOUND'
+                };
             }
+
+            // 2. Ejecutar actualización
+            const updatedVerifier = await verifierRepository.update(command);
+
+            // 3. Actualizar estado reactivo
+            const index = verifiers.value.findIndex(v => v.id === updatedVerifier.id);
+            if (index !== -1) {
+                verifiers.value[index] = updatedVerifier;
+            }
+
+            // 4. Notificar éxito
+            showSuccess(
+                `El verificador ${updatedVerifier.fullName} ha sido actualizado exitosamente`,
+                'Verificador actualizado',
+                4000
+            );
+
+            // 5. Retornar resultado
+            return {
+                success: true,
+                data: updatedVerifier,
+                message: 'Verificador actualizado exitosamente',
+                code: 'UPDATED'
+            };
+        } catch (error) {
+            return errorHandler.handle(error, 'actualizar el verificador');
         }
-        
-        return result;
     }
 
     /**
@@ -121,13 +247,46 @@ const useVerifierStore = defineStore('verifier', () => {
      * @returns {Promise<Object>} Resultado { success, message, code }
      */
     async function remove(verifierId, verifierName = '') {
-        const result = await deleteUseCase.execute(verifierId, verifierName);
-        
-        if (result.success) {
+        try {
+            // 1. Validar que el verificador existe
+            const existingVerifier = await verifierRepository.findById(verifierId);
+            
+            if (!existingVerifier) {
+                showWarning(
+                    'El verificador que intenta eliminar no existe',
+                    'Verificador no encontrado',
+                    4000
+                );
+                return {
+                    success: false,
+                    message: 'Verificador no encontrado',
+                    code: 'NOT_FOUND'
+                };
+            }
+
+            // 2. Ejecutar eliminación
+            await verifierRepository.delete(verifierId);
+
+            // 3. Actualizar estado reactivo
             verifiers.value = verifiers.value.filter(v => v.id !== verifierId);
+
+            // 4. Notificar éxito
+            const displayName = verifierName || existingVerifier.fullName;
+            showSuccess(
+                `El verificador ${displayName} ha sido eliminado exitosamente`,
+                'Verificador eliminado',
+                4000
+            );
+
+            // 5. Retornar resultado
+            return {
+                success: true,
+                message: 'Verificador eliminado exitosamente',
+                code: 'DELETED'
+            };
+        } catch (error) {
+            return errorHandler.handle(error, 'eliminar el verificador');
         }
-        
-        return result;
     }
 
     /**
@@ -141,18 +300,38 @@ const useVerifierStore = defineStore('verifier', () => {
             name: v.fullName || `${v.name} ${v.lastName}`
         }));
         
-        const result = await deleteUseCase.executeMultiple(verifiersToDelete);
+        const results = [];
         
-        if (result.success) {
-            // Eliminar todos los verificadores que fueron eliminados exitosamente
-            const deletedIds = result.results
-                .filter(r => r.result.success)
-                .map(r => r.verifier.id);
-            
-            verifiers.value = verifiers.value.filter(v => !deletedIds.includes(v.id));
+        for (const verifier of verifiersToDelete) {
+            const result = await remove(verifier.id, verifier.name);
+            results.push({ verifier, result });
         }
-        
-        return result;
+
+        const successCount = results.filter(r => r.result.success).length;
+        const failureCount = results.filter(r => !r.result.success).length;
+
+        if (successCount > 0 && failureCount === 0) {
+            showSuccess(
+                `${successCount} verificador${successCount !== 1 ? 'es' : ''} eliminado${successCount !== 1 ? 's' : ''} exitosamente`,
+                'Operación completada',
+                4000
+            );
+        } else if (failureCount > 0) {
+            showWarning(
+                `${failureCount} de ${verifiersToDelete.length} operaciones fallaron`,
+                'Operación parcial',
+                4000
+            );
+        }
+
+        return {
+            success: failureCount === 0,
+            successCount,
+            failureCount,
+            results,
+            message: `${successCount} exitoso${successCount !== 1 ? 's' : ''}, ${failureCount} fallido${failureCount !== 1 ? 's' : ''}`,
+            code: failureCount === 0 ? 'ALL_DELETED' : 'PARTIAL_DELETE'
+        };
     }
 
     /**
@@ -162,7 +341,7 @@ const useVerifierStore = defineStore('verifier', () => {
      */
     async function fetchAssignedOrders(verifierId) {
         try {
-            return await repository.findAssignedOrders(verifierId);
+            return await verifierRepository.findAssignedOrders(verifierId);
         } catch (err) {
             showError('Error al obtener órdenes asignadas', 'Error', 3000);
             return [];

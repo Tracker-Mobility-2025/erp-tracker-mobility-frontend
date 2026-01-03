@@ -2,17 +2,22 @@ import { Email } from '../value-objects/email.vo.js';
 import { PhoneNumber } from '../value-objects/phone-number.vo.js';
 import { WorkSchedule } from '../value-objects/work-schedule.vo.js';
 import { BusinessRules, VerifierMessages } from '../constants/verifier.constants.js';
+import { useInputValidation } from '../../../shared-v2/composables/use-input-validation.js';
+
+// Instanciar validadores compartidos una sola vez
+const { isValidEmail, validateRequired } = useInputValidation();
 
 /**
  * Validadores centralizados del dominio de verificadores.
  * Fuente única de verdad para reglas de validación.
- * Evita duplicación de lógica entre Commands, VOs y capa de presentación.
+ * Combina validaciones básicas reutilizables (shared) con reglas de negocio específicas (domain).
  * 
  * @class VerifierValidators
  */
 export class VerifierValidators {
   /**
    * Valida un email.
+   * Combina validación básica de formato (shared) con reglas de dominio (Value Object).
    * @param {string} email - Email a validar
    * @returns {{ valid: boolean, message?: string }} Resultado de validación
    */
@@ -21,6 +26,12 @@ export class VerifierValidators {
       return { valid: false, message: VerifierMessages.EMAIL_REQUIRED };
     }
 
+    // Primera capa: validación básica de formato (reutilizable)
+    if (!isValidEmail(email)) {
+      return { valid: false, message: 'Formato de email inválido' };
+    }
+
+    // Segunda capa: validación de dominio con Value Object
     try {
       new Email(email);
       return { valid: true };
@@ -60,14 +71,18 @@ export class VerifierValidators {
 
   /**
    * Valida un número de teléfono.
+   * Usa Value Object para aplicar reglas de dominio específicas.
    * @param {string} phoneNumber - Teléfono a validar
    * @returns {{ valid: boolean, message?: string }} Resultado de validación
    */
   static validatePhoneNumber(phoneNumber) {
-    if (!phoneNumber || typeof phoneNumber !== 'string') {
-      return { valid: false, message: VerifierMessages.PHONE_REQUIRED };
+    // Validación de campo requerido (reutilizable)
+    const requiredError = validateRequired(phoneNumber, 'Teléfono');
+    if (requiredError) {
+      return { valid: false, message: requiredError };
     }
 
+    // Validación de dominio con Value Object
     try {
       new PhoneNumber(phoneNumber);
       return { valid: true };
@@ -78,13 +93,16 @@ export class VerifierValidators {
 
   /**
    * Valida un nombre o apellido.
+   * Combina validación básica (shared) con reglas de negocio del dominio.
    * @param {string} name - Nombre a validar
    * @param {string} fieldName - Nombre del campo (para mensajes de error)
    * @returns {{ valid: boolean, message?: string }} Resultado de validación
    */
   static validateName(name, fieldName = 'Nombre') {
-    if (!name || typeof name !== 'string') {
-      return { valid: false, message: `${fieldName} es requerido` };
+    // Validación de campo requerido (reutilizable)
+    const requiredError = validateRequired(name, fieldName);
+    if (requiredError) {
+      return { valid: false, message: requiredError };
     }
 
     const trimmed = name.trim();
@@ -109,12 +127,15 @@ export class VerifierValidators {
 
   /**
    * Valida una agenda/horario de trabajo.
+   * Usa Value Object para aplicar reglas complejas del dominio.
    * @param {string} agenda - Agenda a validar
    * @returns {{ valid: boolean, message?: string }} Resultado de validación
    */
   static validateAgenda(agenda) {
-    if (!agenda || typeof agenda !== 'string') {
-      return { valid: false, message: 'La agenda es requerida' };
+    // Validación de campo requerido (reutilizable)
+    const requiredError = validateRequired(agenda, 'La agenda');
+    if (requiredError) {
+      return { valid: false, message: requiredError };
     }
 
     const trimmed = agenda.trim();

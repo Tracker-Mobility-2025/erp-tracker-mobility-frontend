@@ -130,18 +130,6 @@ const cancelRequested = () => {
 const saveRequested = () => {
   submitted.value = true;
   
-  console.log('🔍 Verificando formulario antes de guardar:');
-  console.log('verifierEntity:', verifierEntity.value);
-  console.log('isEdit:', props.isEdit);
-  console.log('Validaciones:');
-  console.log('  - email:', emailValidation.value);
-  console.log('  - password:', passwordValidation.value);
-  console.log('  - name:', nameValidation.value);
-  console.log('  - lastName:', lastNameValidation.value);
-  console.log('  - phone:', phoneValidation.value);
-  console.log('  - agenda:', agendaValidation.value);
-  console.log('isFormValid:', isFormValid.value);
-  
   if (isFormValid.value) {
     const dataToSave = { ...verifierEntity.value };
     

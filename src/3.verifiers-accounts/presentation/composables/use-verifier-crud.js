@@ -2,9 +2,7 @@ import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useConfirmDialog } from '../../../shared-v2/composables/use-confirm-dialog.js';
 import useVerifierStore from '../../application/verifier.store.js';
-import { CreateVerifierCommand } from '../../domain/commands/create-verifier.command.js';
 import { UpdateVerifierCommand } from '../../domain/commands/update-verifier.command.js';
-import { DefaultRole, DefaultStatus } from '../../domain/constants/verifier.constants.js';
 import { useAuthenticationStore } from '../../../tracker-mobility/security/services/authentication.store.js';
 
 /**
@@ -28,7 +26,6 @@ export function useVerifierCrud() {
   const item = ref(null);
 
   // Computed
-  const adminId = computed(() => authStore.currentUserId);
   const currentItem = computed(() => {
     return isEdit.value ? item.value : createItem.value;
   });
@@ -107,14 +104,9 @@ export function useVerifierCrud() {
       });
       await verifierStore.update(updateCommand);
     } else {
-      // Crear nuevo verificador
-      const createCommand = new CreateVerifierCommand({
-        ...formData,
-        adminId: adminId.value,
-        role: DefaultRole,
-        status: DefaultStatus
-      });
-      await verifierStore.create(createCommand);
+      // Crear nuevo verificador - delegar resolución de adminId al use case
+      const userId = authStore.currentUserId;
+      await verifierStore.create(formData, userId);
     }
 
     createAndEditDialogIsVisible.value = false;
