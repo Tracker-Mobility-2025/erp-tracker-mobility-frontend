@@ -141,104 +141,99 @@ export default {
 
 <template>
 
-  <div class="flex h-screen w-screen flex-1 flex-column align-items-center justify-content-center ">
+  <div class="flex h-screen w-screen flex-column align-items-center justify-content-center" 
+       style="background: var(--color-background);">
 
-    <div class="flex flex-column w-30rem shadow-6 p-6 border-round-lg bg-white">
+    <div class="card flex flex-column w-30rem shadow-6 p-6 border-round-lg">
 
-      <!--  Formulario de inicio de sesión -->
-      <div class="form-sign-in">
+      <h1 class="font-bold text-center text-primary-dark mb-4">Tracker Mobility</h1>
 
-        <h1 class="font-bold text-center">Tracker Mobility</h1>
-
-        <h3 class="flex justify-content-center font-bold ">Acceso al sistema</h3>
-        <p class="text-center  mb-3">Optimice la verificación domiciliaria con nuestra solución
-          integrada</p>
+      <h3 class="text-center font-semibold text-primary-dark mb-2">Acceso al sistema</h3>
+      <p class="text-center text-muted mb-4">Optimice la verificación domiciliaria con nuestra solución
+        integrada</p>
 
 
-        <form @submit.prevent="onSignIn" class="content-form">
-          <div class="p-fluid">
+      <form @submit.prevent="onSignIn">
+        <div class="p-fluid">
 
-            <!-- Campo de entrada para el nombre de usuario -->
-            <div class="field mb-4">
-              <label for="username" class="">Nombre de usuario</label>
-              <pv-icon-field>
-                <pv-input-icon class="pi pi-user"></pv-input-icon>
-                <pv-input-text
-                    id="username"
-                    v-model="username"
-                    :class="['w-full', 'input-color-custom', {'p-invalid': !username}]"
-                    autocomplete="username"
-                    placeholder="Ingrese su nombre de usuario"
-                    :disabled="isLoading"
-                />
-              </pv-icon-field>
-            </div>
-
-            <!-- Campo de entrada para la contraseña -->
-            <div class="field mb-4">
-
-              <label for="password" class="">Contraseña</label>
-              <pv-icon-field>
-                <pv-input-icon class="pi pi-lock"></pv-input-icon>
-                <pv-password
-                    id="password"
-                    v-model="password"
-                    :class="{'p-invalid': !password}"
-                    class="w-full"
-                    input-class="w-full"
-                    autocomplete="current-password"
-                    :feedback="false"
-                    toggle-mask
-                    placeholder="Ingrese su contraseña"
-                    :disabled="isLoading"
-                />
-              </pv-icon-field>
-            </div>
-
-            <!-- Opción de "Recordar sesión y ¿Necesita ayuda?" -->
-            <div class="flex justify-content-between mb-4 text-sm">
-              <!-- Checkbox + label alineados -->
-              <label for="rememberSession" class="flex items-center cursor-pointer align-items-center justify-content-center ">
-                <pv-checkbox
-                    inputId="rememberSession"
-                    v-model="rememberSession"
-                    binary
-                    class="mr-2"
-                />
-                <span class="text-black">Recordar sesión</span>
-              </label>
-
-              <!-- Enlace estilo texto -->
-              <span class="text-blue-600 hover:underline font-bold cursor-pointer" @click="onForgotPassword">
-                ¿Olvidó su contraseña?
-              </span>
-            </div>
-
-
-            <!-- Botón de inicio de sesión -->
-            <div class="flex flex-column p-field" >
-              <div class="justify-center">
-
-                <pv-button type="submit"
-                           class="w-full text-black font-bold border border-red-900 p-button-primary"
-                           :loading="isLoading"
-                           :disabled="isLoading" >
-                  <span v-if="!isLoading">Iniciar sesión</span>
-                  <span v-else>Iniciando sesión...</span>
-                </pv-button>
-              </div>
-            </div>
-
-
-            <!-- Mensaje de Acceso seguro y encriptado -->
-            <div class="text-center text-sm text-gray-500 mt-4 border-top">
-              <i class="pi pi-lock" style="font-size: 1rem;"></i>
-              Acceso seguro y encriptado
-            </div>
-
+          <!-- Campo de entrada para el nombre de usuario -->
+          <div class="input-group">
+            <label for="username" class="form-label form-label-required">Nombre de usuario</label>
+            <pv-icon-field>
+              <pv-input-icon class="pi pi-user" />
+              <pv-input-text
+                  id="username"
+                  v-model="username"
+                  class="w-full"
+                  autocomplete="username"
+                  placeholder="Ingrese su nombre de usuario"
+                  :disabled="isLoading"
+              />
+            </pv-icon-field>
           </div>
-        </form>
-      </div>
+
+          <!-- Campo de entrada para la contraseña -->
+          <div class="input-group">
+            <label for="password" class="form-label form-label-required">Contraseña</label>
+            <pv-icon-field>
+              <pv-input-icon class="pi pi-lock" />
+              <pv-password
+                  id="password"
+                  v-model="password"
+                  class="w-full"
+                  input-class="w-full"
+                  autocomplete="current-password"
+                  :feedback="false"
+                  toggle-mask
+                  placeholder="Ingrese su contraseña"
+                  :disabled="isLoading"
+              />
+            </pv-icon-field>
+          </div>
+
+          <!-- Opción de "Recordar sesión y ¿Necesita ayuda?" -->
+          <div class="flex justify-content-between align-items-center mb-4">
+            <label for="rememberSession" class="flex align-items-center cursor-pointer">
+              <pv-checkbox
+                  inputId="rememberSession"
+                  v-model="rememberSession"
+                  binary
+                  class="mr-2"
+              />
+              <span class="text-sm text-dark">Recordar sesión</span>
+            </label>
+
+            <span class="text-sm text-primary-local font-semibold cursor-pointer hover-primary" 
+                  @click="onForgotPassword">
+              ¿Olvidó su contraseña?
+            </span>
+          </div>
+
+
+          <!-- Botón de inicio de sesión -->
+          <div class="form-actions form-actions-center">
+            <pv-button 
+              type="submit"
+              label="Iniciar sesión"
+              class="w-full font-semibold btn-primary-dark"
+              severity="primary"
+              :loading="isLoading"
+              :disabled="isLoading"
+              icon="pi pi-sign-in"
+              iconPos="left" />
+          </div>
+
+
+          <!-- Mensaje de Acceso seguro y encriptado -->
+          <div class="text-center mt-4 pt-3" style="border-top: 1px solid var(--surface-100);">
+            <span class="text-muted helper-text">
+              <i class="pi pi-lock mr-1" style="font-size: 0.875rem;"></i>
+              Acceso seguro y encriptado
+            </span>
+          </div>
+
+        </div>
+      </form>
 
     </div>
 

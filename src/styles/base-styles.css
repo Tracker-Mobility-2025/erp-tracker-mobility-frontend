@@ -175,6 +175,21 @@ input:disabled, textarea:disabled, select:disabled {
     color: var(--color-primary) !important;
 }
 
+.text-primary-dark {
+    color: var(--color-primary-dark) !important;
+}
+
+/* Botón con color primary-dark */
+.btn-primary-dark {
+    background: var(--color-primary-dark) !important;
+    border-color: var(--color-primary-dark) !important;
+}
+
+.btn-primary-dark:hover:not(:disabled) {
+    background: var(--primary-800) !important;
+    border-color: var(--primary-800) !important;
+}
+
 .text-success {
     color: var(--color-success);
 }

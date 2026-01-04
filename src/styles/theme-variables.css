@@ -81,6 +81,8 @@
     --surface-700: #1E293B;       /* Océano Profundo - Sidebar, headers oscuros */
     --surface-800: #0F172A;
     --surface-900: #020617;
+
+
     
     /* ========== ALIASES PARA COMPATIBILIDAD ========== */
     
@@ -88,6 +90,7 @@
     --color-primary: var(--primary-500);
     --color-primary-hover: var(--primary-600);
     --color-primary-light: var(--primary-100);
+    --color-primary-dark: var(--primary-900);
     --color-background: var(--surface-50);
     --color-white: var(--surface-0);
     --color-black: var(--surface-700);

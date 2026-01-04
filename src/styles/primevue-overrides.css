@@ -248,6 +248,28 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
+/* Primary Dark Button - Mayor especificidad */
+.p-button.btn-primary-dark,
+.p-button.btn-primary-dark:not(:disabled) {
+    background: var(--color-primary-dark) !important;
+    border-color: var(--color-primary-dark) !important;
+    color: var(--color-white) !important;
+}
+
+.p-button.btn-primary-dark:hover:not(:disabled),
+.p-button.btn-primary-dark:focus:not(:disabled) {
+    background: var(--primary-800) !important;
+    border-color: var(--primary-800) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(30, 58, 138, 0.3);
+}
+
+.p-button.btn-primary-dark:active:not(:disabled) {
+    background: var(--primary-900) !important;
+    border-color: var(--primary-900) !important;
+}
+
+
 .p-button-primary:active {
     transform: translateY(0);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
