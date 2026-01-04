@@ -30,19 +30,19 @@ const handleSidebarToggle = (isOpen) => {
     />
 
     <!-- Contenedor principal -->
-    <main class="flex-1 overflow-hidden main-wrapper " :class="{ 'sidebar-closed': !sidebarOpen }" style="background-color: var(--color-background);">
+    <main class="flex-1 overflow-hidden main-content" :class="{ 'content-expanded': !sidebarOpen }" style="background-color: var(--color-background);">
       <router-view />
     </main>
   </div>
 </template>
 
 <style scoped>
-.main-wrapper {
+.main-content {
   margin-left: 260px;
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.main-wrapper.sidebar-closed {
+.main-content.content-expanded {
   margin-left: 0;
 }
 
