@@ -1,51 +1,120 @@
-// Customer API Service
-// Infrastructure layer - HTTP client for customers
+import { BaseApi } from "../../shared-v2/infrastructure/base-api.js";
+import { BaseEndpoint } from "../../shared-v2/infrastructure/base-endpoint.js";
+import { CreateCustomerCommandAssembler } from "./assemblers/create-customer-command.assembler.js";
+import { UpdateCustomerCommandAssembler } from "./assemblers/update-customer-command.assembler.js";
 
-import http from '../../shared/services/http-common.js';
+const customerEndpointPath = '/applicant-companies';
+const employeeEndpointPath = '/company-employees';
 
-export class CustomerApiService {
+/**
+ * Servicio API para gestionar recursos de Customer.
+ * Extiende BaseApi para proporcionar operaciones CRUD para clientes y sus colaboradores.
+ * 
+ * @class CustomerApi
+ * @extends {BaseApi}
+ */
+export class CustomerApi extends BaseApi {
+
+    #customerEndpoint;
+
     constructor() {
-        this.endpoint = '/applicant-companies';
+        super();
+        this.#customerEndpoint = new BaseEndpoint(this, customerEndpointPath);
     }
 
-    async getAll() {
-        return await http.get(this.endpoint);
+    /**
+     * Obtiene todos los clientes desde la API.
+     * @returns {Promise} Una promesa que se resuelve con la respuesta de clientes.
+     */
+    getCustomers() {
+        return this.#customerEndpoint.getAll();
     }
 
-    async getAllByAdminId(adminId) {
-        return await http.get(`${this.endpoint}?adminId=${adminId}`);
+    /**
+     * Obtiene un cliente por ID.
+     * @param {string|number} id - El ID del cliente.
+     * @returns {Promise} Una promesa que se resuelve con la respuesta del cliente.
+     */
+    getCustomerById(id) {
+        return this.#customerEndpoint.getById(id);
     }
 
-    async getById(id) {
-        return await http.get(`${this.endpoint}/${id}`);
+    /**
+     * Obtiene todos los clientes asociados a un administrador específico.
+     * @param {string|number} adminId - El ID del administrador.
+     * @returns {Promise} Una promesa que se resuelve con la respuesta de clientes del admin.
+     */
+    getCustomersByAdminId(adminId) {
+        return this.http.get(`${customerEndpointPath}?adminId=${adminId}`);
     }
 
-    async create(customerData) {
-        return await http.post(this.endpoint, customerData);
+    /**
+     * Crea un nuevo cliente usando un CreateCustomerCommand.
+     * @param {CreateCustomerCommand} command - El comando de creación de cliente.
+     * @returns {Promise} Una promesa que se resuelve con la respuesta del cliente creado.
+     */
+    createCustomer(command) {
+        const resource = CreateCustomerCommandAssembler.toResourceFromCommand(command);
+        console.log('[API] Creating customer with resource:', resource);
+        return this.#customerEndpoint.create(resource);
     }
 
-    async update(id, customerData) {
-        return await http.put(`${this.endpoint}/${id}`, customerData);
+    /**
+     * Actualiza un cliente existente usando un UpdateCustomerCommand.
+     * @param {UpdateCustomerCommand} command - El comando de actualización de cliente.
+     * @returns {Promise} Una promesa que se resuelve con la respuesta del cliente actualizado.
+     */
+    updateCustomer(command) {
+        const resource = UpdateCustomerCommandAssembler.toResourceFromCommand(command);
+        console.log('[API] Updating customer with resource:', resource);
+        return this.#customerEndpoint.update(command.id, resource);
     }
 
-    async delete(id) {
-        return await http.delete(`${this.endpoint}/${id}`);
+    /**
+     * Elimina un cliente por ID.
+     * @param {string|number} id - El ID del cliente a eliminar.
+     * @returns {Promise} Una promesa que se resuelve cuando el cliente es eliminado.
+     */
+    deleteCustomer(id) {
+        return this.#customerEndpoint.delete(id);
     }
 
-    // Employee endpoints
-    async getEmployeesByCustomerId(customerId) {
-        return await http.get(`${this.endpoint}/${customerId}/employees`);
+    // ========== Employee Endpoints ==========
+
+    /**
+     * Obtiene todos los colaboradores de un cliente específico.
+     * @param {string|number} customerId - El ID del cliente.
+     * @returns {Promise} Una promesa que se resuelve con los colaboradores del cliente.
+     */
+    getEmployeesByCustomerId(customerId) {
+        return this.http.get(`${employeeEndpointPath}/applicant-company/${customerId}`);
     }
 
-    async createEmployee(customerId, employeeData) {
-        return await http.post(`${this.endpoint}/${customerId}/employees`, employeeData);
+    /**
+     * Crea un nuevo colaborador para un cliente.
+     * @param {Object} employeeData - Los datos del colaborador.
+     * @returns {Promise} Una promesa que se resuelve con la respuesta del colaborador creado.
+     */
+    createEmployee(employeeData) {
+        return this.http.post(employeeEndpointPath, employeeData);
     }
 
-    async updateEmployee(customerId, employeeId, employeeData) {
-        return await http.put(`${this.endpoint}/${customerId}/employees/${employeeId}`, employeeData);
+    /**
+     * Actualiza un colaborador existente.
+     * @param {string|number} employeeId - El ID del colaborador.
+     * @param {Object} employeeData - Los datos actualizados del colaborador.
+     * @returns {Promise} Una promesa que se resuelve con la respuesta del colaborador actualizado.
+     */
+    updateEmployee(employeeId, employeeData) {
+        return this.http.put(`${employeeEndpointPath}/${employeeId}`, employeeData);
     }
 
-    async deleteEmployee(customerId, employeeId) {
-        return await http.delete(`${this.endpoint}/${customerId}/employees/${employeeId}`);
+    /**
+     * Elimina un colaborador por ID.
+     * @param {string|number} employeeId - El ID del colaborador a eliminar.
+     * @returns {Promise} Una promesa que se resuelve cuando el colaborador es eliminado.
+     */
+    deleteEmployee(employeeId) {
+        return this.http.delete(`${employeeEndpointPath}/${employeeId}`);
     }
 }

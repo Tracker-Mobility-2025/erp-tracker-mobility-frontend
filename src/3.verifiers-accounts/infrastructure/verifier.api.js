@@ -1,7 +1,7 @@
 import {BaseApi} from "../../shared-v2/infrastructure/base-api.js";
 import {BaseEndpoint} from "../../shared-v2/infrastructure/base-endpoint.js";
-import {CreateVerifierCommandAssembler} from "./create-verifier-command.assembler.js";
-import {UpdateVerifierCommandAssembler} from "./update-verifier-command.assembler.js";
+import {CreateVerifierCommandAssembler} from "./assemblers/create-verifier-command.assembler.js";
+import {UpdateVerifierCommandAssembler} from "./assemblers/update-verifier-command.assembler.js";
 
 const verifierEndpointPath = '/verifiers';
 

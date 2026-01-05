@@ -1,8 +1,8 @@
 // Customer Assembler
 // Infrastructure layer - DTO to Domain Entity mapper
 
-import { Customer } from '../domain/models/customer.entity.js';
-import { EmployeeCollaborator } from '../domain/models/employee-collaborator.entity.js';
+import { Customer } from '../../domain/models/customer.entity.js';
+import { EmployeeCollaborator } from '../../domain/models/employee-collaborator.entity.js';
 
 export class CustomerAssembler {
     /**
@@ -24,13 +24,31 @@ export class CustomerAssembler {
     }
 
     /**
+     * Alias para compatibilidad con código existente.
+     * @param {Object} resource - API response data
+     * @returns {Customer} Customer entity
+     */
+    static toEntity(resource) {
+        return this.toDomain(resource);
+    }
+
+    /**
      * Convert array of DTOs to Customer entities
      * @param {Array} dtos - Array of API response data
      * @returns {Array<Customer>} Array of Customer entities
      */
     static toDomainCollection(dtos) {
         if (!Array.isArray(dtos)) return [];
-        return dtos.map(dto => this.toDomain(dto));
+        return dtos.map(dto => this.toDomain(dto)).filter(entity => entity !== null);
+    }
+
+    /**
+     * Alias para compatibilidad con código existente.
+     * @param {Array} resources - Array of API response data
+     * @returns {Array<Customer>} Array of Customer entities
+     */
+    static toEntities(resources) {
+        return this.toDomainCollection(resources);
     }
 
     /**

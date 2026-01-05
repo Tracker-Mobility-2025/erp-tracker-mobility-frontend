@@ -78,7 +78,8 @@ export const EmployeeUILabels = {
     edit: 'Editar',
     delete: 'Eliminar',
     save: 'Guardar',
-    cancel: 'Cancelar'
+    cancel: 'Cancelar',
+    clearFilters: 'Limpiar filtros'
   },
   messages: {
     noEmployees: 'No hay colaboradores registrados',

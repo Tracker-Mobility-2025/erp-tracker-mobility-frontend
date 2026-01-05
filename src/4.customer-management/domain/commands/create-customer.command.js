@@ -3,13 +3,12 @@
  * Self-validating: garantiza que los datos sean válidos al momento de construcción.
  */
 import { CustomerValidators } from '../validators/customer.validators.js';
-import { CustomerStatus } from '../constants/customer.constants.js';
 
 export class CreateCustomerCommand {
     constructor({
         ruc,
         companyName,
-        status = CustomerStatus.ACTIVE
+        password
     }) {
         // Validación obligatoria
         const rucValidation = CustomerValidators.validateRuc(ruc);
@@ -22,15 +21,15 @@ export class CreateCustomerCommand {
             throw new Error(companyNameValidation.message);
         }
 
-        const statusValidation = CustomerValidators.validateStatus(status);
-        if (!statusValidation.valid) {
-            throw new Error(statusValidation.message);
+        // Password validation
+        if (!password || password.trim().length === 0) {
+            throw new Error('La contraseña es requerida');
         }
 
         // Asignar propiedades validadas
         this.ruc = ruc.trim();
         this.companyName = companyName.trim();
-        this.status = status;
+        this.password = password.trim();
     }
 
     /**
@@ -41,7 +40,7 @@ export class CreateCustomerCommand {
         return {
             ruc: this.ruc,
             companyName: this.companyName,
-            status: this.status
+            password: this.password
         };
     }
 }

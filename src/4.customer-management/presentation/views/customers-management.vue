@@ -80,10 +80,13 @@ const onCancelRequested = () => {
 };
 
 const onSaveRequested = async (customerData) => {
+    console.log('[Component] onSaveRequested called at', new Date().toISOString());
     try {
         if (isEdit.value) {
+            console.log('[Component] Calling updateCustomer');
             await updateCustomer(customerData);
         } else {
+            console.log('[Component] Calling createCustomer');
             await createCustomer(customerData);
         }
         createAndEditDialogIsVisible.value = false;
@@ -137,10 +140,7 @@ const resetPage = () => {
 </script>
 
 <template>
-    <!-- Dialogs -->
-    <pv-confirm-dialog />
-    <pv-toast />
-
+  
     <div class="h-full w-full flex flex-column">
         <!-- Toolbar -->
         <toolbar
@@ -198,8 +198,9 @@ const resetPage = () => {
                     <pv-button
                         :label="CustomerUILabels.buttons.clearFilters"
                         icon="pi pi-filter-slash"
+                        class="p-button-secondary p-button-outlined w-full"
+                        style="white-space: nowrap;"
                         @click="onClearFilters"
-                        class="p-button-secondary p-button-outlined w-full md:w-auto"
                     />
                 </div>
 
@@ -211,6 +212,7 @@ const resetPage = () => {
                         severity="success"
                         @click="onNewItem"
                         class="w-full md:w-auto"
+                        style="white-space: nowrap;"
                     />
                 </div>
             </div>

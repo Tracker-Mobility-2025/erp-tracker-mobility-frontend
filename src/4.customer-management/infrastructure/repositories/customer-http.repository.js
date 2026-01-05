@@ -1,8 +1,8 @@
 import { ICustomerRepository } from '../../domain/repositories/customer.repository.interface.js';
-import { CustomerApiService } from '../customer.api.js';
-import { CustomerAssembler, EmployeeCollaboratorAssembler } from '../customer.assembler.js';
-import { CreateCustomerCommandAssembler } from '../create-customer-command.assembler.js';
-import { UpdateCustomerCommandAssembler } from '../update-customer-command.assembler.js';
+import { CustomerApi } from '../customer.api.js';
+import { CustomerAssembler, EmployeeCollaboratorAssembler } from '../assemblers/customer.assembler.js';
+import { CreateCustomerCommand } from '../../domain/commands/create-customer.command.js';
+import { UpdateCustomerCommand } from '../../domain/commands/update-customer.command.js';
 
 /**
  * Implementación HTTP del repositorio de clientes.
@@ -16,7 +16,7 @@ export class CustomerHttpRepository extends ICustomerRepository {
 
     constructor() {
         super();
-        this.#api = new CustomerApiService();
+        this.#api = new CustomerApi();
     }
 
     /**
@@ -24,7 +24,7 @@ export class CustomerHttpRepository extends ICustomerRepository {
      * @returns {Promise<Array<Customer>>}
      */
     async findAll() {
-        const response = await this.#api.getAll();
+        const response = await this.#api.getCustomers();
         return CustomerAssembler.toDomainCollection(response.data);
     }
 
@@ -33,8 +33,8 @@ export class CustomerHttpRepository extends ICustomerRepository {
      * @param {number} adminId - Admin user ID
      * @returns {Promise<Array<Customer>>}
      */
-    async findAllByAdminId(adminId) {
-        const response = await this.#api.getAllByAdminId(adminId);
+    async findByAdminId(adminId) {
+        const response = await this.#api.getCustomersByAdminId(adminId);
         return CustomerAssembler.toDomainCollection(response.data);
     }
 
@@ -44,7 +44,7 @@ export class CustomerHttpRepository extends ICustomerRepository {
      * @returns {Promise<Customer>}
      */
     async findById(id) {
-        const response = await this.#api.getById(id);
+        const response = await this.#api.getCustomerById(id);
         return CustomerAssembler.toDomain(response.data);
     }
 
@@ -53,20 +53,19 @@ export class CustomerHttpRepository extends ICustomerRepository {
      * @param {CreateCustomerCommand} command - Create customer command
      * @returns {Promise<Customer>}
      */
-    async save(command) {
-        const dto = CreateCustomerCommandAssembler.toResource(command);
-        const response = await this.#api.create(dto);
+    async create(command) {
+        const response = await this.#api.createCustomer(command);
         return CustomerAssembler.toDomain(response.data);
     }
 
     /**
      * Update existing customer
+     * @param {number} id - Customer ID
      * @param {UpdateCustomerCommand} command - Update customer command
      * @returns {Promise<Customer>}
      */
-    async update(command) {
-        const dto = UpdateCustomerCommandAssembler.toResource(command);
-        const response = await this.#api.update(command.id, dto);
+    async update(id, command) {
+        const response = await this.#api.updateCustomer(command);
         return CustomerAssembler.toDomain(response.data);
     }
 
@@ -76,8 +75,10 @@ export class CustomerHttpRepository extends ICustomerRepository {
      * @returns {Promise<void>}
      */
     async delete(id) {
-        await this.#api.delete(id);
+        await this.#api.deleteCustomer(id);
     }
+
+    // ========== Employee Methods ==========
 
     /**
      * Get employees by customer ID
@@ -91,41 +92,34 @@ export class CustomerHttpRepository extends ICustomerRepository {
 
     /**
      * Create new employee for customer
+     * @param {number} customerId - Customer ID
      * @param {Object} employeeData - Employee data
      * @returns {Promise<EmployeeCollaborator>}
      */
-    async createEmployee(employeeData) {
-        const { applicantCompanyId, ...data } = employeeData;
-        const response = await this.#api.createEmployee(applicantCompanyId, data);
+    async createEmployee(customerId, employeeData) {
+        const response = await this.#api.createEmployee(employeeData);
         return EmployeeCollaboratorAssembler.toDomain(response.data);
     }
 
     /**
      * Update existing employee
+     * @param {number} customerId - Customer ID
      * @param {number} employeeId - Employee ID
      * @param {Object} employeeData - Employee data
      * @returns {Promise<EmployeeCollaborator>}
      */
-    async updateEmployee(employeeId, employeeData) {
-        const { applicantCompanyId, ...data } = employeeData;
-        const response = await this.#api.updateEmployee(applicantCompanyId, employeeId, data);
+    async updateEmployee(customerId, employeeId, employeeData) {
+        const response = await this.#api.updateEmployee(employeeId, employeeData);
         return EmployeeCollaboratorAssembler.toDomain(response.data);
     }
 
     /**
      * Delete employee
+     * @param {number} customerId - Customer ID
      * @param {number} employeeId - Employee ID
      * @returns {Promise<void>}
      */
-    async deleteEmployee(employeeId) {
-        // Extract customer ID from employee data if needed
-        // For now, assume it's available in the context
-        const employee = this.employees?.find(e => e.id === employeeId);
-        if (employee) {
-            await this.#api.deleteEmployee(employee.applicantCompanyId, employeeId);
-        } else {
-            throw new Error('Employee not found or customer ID not available');
-        }
+    async deleteEmployee(customerId, employeeId) {
+        await this.#api.deleteEmployee(employeeId);
     }
 }
-

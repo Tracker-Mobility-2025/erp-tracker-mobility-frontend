@@ -89,32 +89,30 @@ const onCancelRequested = () => {
 };
 
 const onSaveRequested = async (employeeData) => {
-    try {
-        if (isEdit.value) {
-            await customerStore.updateEmployee(employeeData.id, employeeData);
-            toast.add({
-                severity: 'success',
-                summary: 'Colaborador actualizado',
-                detail: `El colaborador ${employeeData.name} ${employeeData.lastName} ha sido actualizado exitosamente`,
-                life: 4000
-            });
-        } else {
-            await customerStore.createEmployee(employeeData);
-            toast.add({
-                severity: 'success',
-                summary: 'Colaborador creado',
-                detail: `El colaborador ${employeeData.name} ${employeeData.lastName} ha sido creado exitosamente`,
-                life: 4000
-            });
-        }
+    let result;
+    
+    if (isEdit.value) {
+        result = await customerStore.updateEmployee(customerId.value, employeeData.id, employeeData);
+    } else {
+        result = await customerStore.createEmployee(customerId.value, employeeData);
+    }
+    
+    if (result.success) {
+        const action = isEdit.value ? 'actualizado' : 'creado';
+        toast.add({
+            severity: 'success',
+            summary: `Colaborador ${action}`,
+            detail: `El colaborador ${employeeData.name} ${employeeData.lastName} ha sido ${action} exitosamente`,
+            life: 4000
+        });
         createAndEditDialogIsVisible.value = false;
         isEdit.value = false;
         itemEmployee.value = null;
-    } catch (error) {
+    } else {
         toast.add({
             severity: 'error',
             summary: 'Error',
-            detail: error.message || 'No se pudo guardar el colaborador',
+            detail: result.message || 'No se pudo guardar el colaborador',
             life: 4000
         });
     }
@@ -141,19 +139,20 @@ const onDeleteItem = (employee) => {
         acceptLabel: 'Eliminar',
         acceptClass: 'p-button-danger',
         accept: async () => {
-            try {
-                await customerStore.deleteEmployee(employee.id);
+            const result = await customerStore.deleteEmployee(customerId.value, employee.id);
+            
+            if (result.success) {
                 toast.add({
                     severity: 'success',
                     summary: 'Colaborador eliminado',
                     detail: 'El colaborador ha sido eliminado exitosamente',
                     life: 4000
                 });
-            } catch (error) {
+            } else {
                 toast.add({
                     severity: 'error',
                     summary: 'Error al eliminar',
-                    detail: error.message || 'No se pudo eliminar el colaborador',
+                    detail: result.message || 'No se pudo eliminar el colaborador',
                     life: 4000
                 });
             }
@@ -172,17 +171,14 @@ onMounted(async () => {
 </script>
 
 <template>
-    <!-- Dialogs -->
-    <pv-confirm-dialog />
-    <pv-toast />
-
+  
     <div class="h-full w-full flex flex-column">
         <!-- Toolbar -->
         <toolbar
             :title="customer ? `Gestión de Colaboradores - ${customer.companyName}` : 'Gestión de Colaboradores'"
             :description="customer ? 'Credenciales y contacto de colaboradores' : 'Cargando información del cliente...'"
             :show-back-button="true"
-            :back-route="{ name: 'customers-management' }"
+            :back-route="{ name: 'customers' }"
         >
             <template #actions>
                 <!-- Customer Status Badge -->
@@ -244,8 +240,9 @@ onMounted(async () => {
                     <pv-button
                         :label="EmployeeUILabels.buttons.clearFilters"
                         icon="pi pi-filter-slash"
+                        class="p-button-secondary p-button-outlined w-full"
+                        style="white-space: nowrap;"
                         @click="onClearFilters"
-                        class="p-button-secondary p-button-outlined w-full md:w-auto"
                     />
                 </div>
 
@@ -257,6 +254,7 @@ onMounted(async () => {
                         severity="success"
                         @click="onNewItem"
                         class="w-full md:w-auto"
+                        style="white-space: nowrap;"
                     />
                 </div>
             </div>

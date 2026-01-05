@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { CustomerValidators } from '../../domain/validators/customer.validators.js';
-import CreateAndEdit from '../../../shared/components/create-and-edit.component.vue';
+import CreateAndEdit from '../../../shared-v2/presentation/components/create-and-edit.vue';
 
 const props = defineProps({
     edit: Boolean,
@@ -16,14 +16,17 @@ const submitted = ref(false);
 const customerForm = ref({
     ruc: '',
     companyName: '',
-    status: 'ACTIVE'
+    password: '',
+    status: 'ACTIVE' // Solo se usa en edición
 });
 
 // Computed
 const isFormValid = computed(() => {
     const rucValid = customerForm.value.ruc && validateRuc(customerForm.value.ruc);
     const companyNameValid = customerForm.value.companyName && validateCompanyName(customerForm.value.companyName);
-    return rucValid && companyNameValid;
+    // Password obligatorio solo en creación
+    const passwordValid = props.edit || (customerForm.value.password && customerForm.value.password.trim().length > 0);
+    return rucValid && companyNameValid && passwordValid;
 });
 
 // Status options
@@ -69,6 +72,12 @@ const saveRequested = () => {
             customerData.id = props.item.id;
         }
         
+        // Si estamos en modo edición y la contraseña está vacía, no incluirla
+        if (props.edit && (!customerData.password || customerData.password.trim() === '')) {
+            delete customerData.password;
+        }
+        
+        console.log('[Dialog] Emitting customerData:', customerData);
         emit('save-requested', customerData);
         resetForm();
     }
@@ -78,6 +87,7 @@ const resetForm = () => {
     customerForm.value = {
         ruc: '',
         companyName: '',
+        password: '',
         status: 'ACTIVE'
     };
     submitted.value = false;
@@ -89,6 +99,7 @@ watch(() => props.visible, (newValue) => {
         customerForm.value = {
             ruc: props.item.ruc || '',
             companyName: props.item.companyName || '',
+            password: '', // No mostrar password en edición
             status: props.item.status || 'ACTIVE'
         };
     } else if (newValue && !props.edit) {
@@ -157,7 +168,34 @@ watch(() => props.visible, (newValue) => {
                 </div>
             </div>
 
-            <!-- Fila 2: Estado (solo en modo edición) -->
+            <!-- Fila 2: Contraseña -->
+            <div class="col-12 md:col-6 px-2 pb-1">
+                <div class="field">
+                    <label for="password" class="block text-900 font-medium mb-2">
+                        <i class="pi pi-lock mr-2"></i>Contraseña {{ edit ? '' : '*' }}
+                    </label>
+                    <pv-password
+                        id="password"
+                        v-model="customerForm.password"
+                        class="w-full"
+                        inputClass="w-full"
+                        size="small"
+                        :placeholder="edit ? 'Dejar vacío para no cambiar' : 'Ingrese la contraseña'"
+                        :feedback="false"
+                        toggleMask
+                        :inputStyle="{ width: '100%' }"
+                        :class="{ 'p-invalid': submitted && !edit && (!customerForm.password || customerForm.password.trim().length === 0) }"
+                    />
+                    <small v-if="submitted && !edit && (!customerForm.password || customerForm.password.trim().length === 0)" class="p-error">
+                        La contraseña es requerida
+                    </small>
+                    <small v-if="edit" class="text-500 block mt-1">
+                        Dejar vacío para mantener la contraseña actual
+                    </small>
+                </div>
+            </div>
+
+            <!-- Fila 3: Estado (solo en modo edición) -->
             <div v-if="edit" class="col-12 md:col-6 px-2 pb-1">
                 <div class="field">
                     <label for="status" class="block text-900 font-medium mb-2">

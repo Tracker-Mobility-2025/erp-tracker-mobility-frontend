@@ -1,6 +1,6 @@
 import { IVerifierRepository } from '../../domain/repositories/verifier.repository.interface.js';
 import { VerifierApi } from '../verifier.api.js';
-import { VerifierAssembler } from '../verifier.assembler.js';
+import { VerifierAssembler } from '../assemblers/verifier.assembler.js';
 
 /**
  * Implementación HTTP del repositorio de verificadores.

@@ -6,7 +6,9 @@
  */
 export class CustomerErrorHandler {
   constructor(notificationService) {
-    this.notificationService = notificationService;
+    this.showSuccess = notificationService.showSuccess;
+    this.showError = notificationService.showError;
+    this.showWarning = notificationService.showWarning;
   }
 
   handle(error, context = 'operación') {
@@ -17,7 +19,7 @@ export class CustomerErrorHandler {
 
     // Errores de red
     if (error.request) {
-      this.notificationService.showError(
+      this.showError(
         'No se pudo conectar con el servidor',
         'Error de conexión',
         5000
@@ -27,7 +29,7 @@ export class CustomerErrorHandler {
     }
 
     // Error desconocido
-    this.notificationService.showError(
+    this.showError(
       `Error inesperado al ${context}`,
       'Error',
       4000
@@ -41,18 +43,18 @@ export class CustomerErrorHandler {
     const data = error.response.data;
 
     if (status === 404) {
-      this.notificationService.showWarning('Recurso no encontrado', 'No encontrado', 4000);
+      this.showWarning('Recurso no encontrado', 'No encontrado', 4000);
       return { success: false, message: 'No encontrado', code: 'NOT_FOUND' };
     }
 
     if (status >= 500) {
-      this.notificationService.showError('Error del servidor', 'Error', 5000);
+      this.showError('Error del servidor', 'Error', 5000);
       console.error(`[CustomerErrorHandler] Error al ${context}:`, error);
       return { success: false, message: 'Error del servidor', code: 'SERVER_ERROR' };
     }
 
     const message = data.message || `Error al ${context}`;
-    this.notificationService.showError(message, 'Error', 4000);
+    this.showError(message, 'Error', 4000);
     return { success: false, message, code: 'HTTP_ERROR' };
   }
 }

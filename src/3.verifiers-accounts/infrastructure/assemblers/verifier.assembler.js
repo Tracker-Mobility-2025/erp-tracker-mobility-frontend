@@ -1,4 +1,4 @@
-import { Verifier } from '../domain/models/verifier.entity.js';
+import { Verifier } from '../../domain/models/verifier.entity.js';
 
 /**
  * Assembler para transformar recursos HTTP a entidades de dominio.

@@ -19,23 +19,28 @@ export function useCustomerCrud() {
      * @returns {Promise<Customer>}
      */
     const createCustomer = async (customerData) => {
-        try {
-            const customer = await customerStore.create(customerData);
+        console.log('[CRUD Composable] createCustomer called at', new Date().toISOString());
+        const result = await customerStore.create(customerData);
+        console.log('[CRUD Composable] create result:', result);
+        
+        if (result.success) {
+            console.log('[CRUD Composable] Showing success toast for create');
             toast.add({
                 severity: 'success',
                 summary: 'Cliente creado',
                 detail: `El cliente ${customerData.companyName} ha sido creado exitosamente`,
                 life: 4000
             });
-            return customer;
-        } catch (error) {
+            return result.data;
+        } else {
+            console.log('[CRUD Composable] Showing error toast for create');
             toast.add({
                 severity: 'error',
                 summary: 'Error al crear',
-                detail: error.message || 'No se pudo crear el cliente',
+                detail: result.message || 'No se pudo crear el cliente',
                 life: 4000
             });
-            throw error;
+            throw new Error(result.message);
         }
     };
 
@@ -45,23 +50,27 @@ export function useCustomerCrud() {
      * @returns {Promise<Customer>}
      */
     const updateCustomer = async (customerData) => {
-        try {
-            const customer = await customerStore.update(customerData);
+        console.log('[CRUD Composable] updateCustomer called at', new Date().toISOString());
+        const result = await customerStore.update(customerData.id, customerData);
+        console.log('[CRUD Composable] result:', result);
+        
+        if (result.success) {
+            console.log('[CRUD Composable] Showing success toast');
             toast.add({
                 severity: 'success',
                 summary: 'Cliente actualizado',
                 detail: `El cliente ${customerData.companyName} ha sido actualizado exitosamente`,
                 life: 4000
             });
-            return customer;
-        } catch (error) {
+            return result.data;
+        } else {
             toast.add({
                 severity: 'error',
                 summary: 'Error al actualizar',
-                detail: error.message || 'No se pudo actualizar el cliente',
+                detail: result.message || 'No se pudo actualizar el cliente',
                 life: 4000
             });
-            throw error;
+            throw new Error(result.message);
         }
     };
 
@@ -81,8 +90,9 @@ export function useCustomerCrud() {
                 acceptLabel: 'Eliminar',
                 acceptClass: 'p-button-danger',
                 accept: async () => {
-                    try {
-                        await customerStore.delete(customer.id);
+                    const result = await customerStore.delete(customer.id);
+                    
+                    if (result.success) {
                         toast.add({
                             severity: 'success',
                             summary: 'Cliente eliminado',
@@ -90,14 +100,14 @@ export function useCustomerCrud() {
                             life: 4000
                         });
                         resolve();
-                    } catch (error) {
+                    } else {
                         toast.add({
                             severity: 'error',
                             summary: 'Error al eliminar',
-                            detail: error.message || 'No se pudo eliminar el cliente',
+                            detail: result.message || 'No se pudo eliminar el cliente',
                             life: 4000
                         });
-                        reject(error);
+                        reject(new Error(result.message));
                     }
                 },
                 reject: () => {

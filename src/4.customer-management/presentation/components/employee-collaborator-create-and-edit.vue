@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { EmployeeCollaboratorValidators } from '../../domain/validators/customer.validators.js';
-import CreateAndEdit from '../../../shared/components/create-and-edit.component.vue';
+import CreateAndEdit from '../../../shared-v2/presentation/components/create-and-edit.vue';
 
 const props = defineProps({
     edit: Boolean,
@@ -21,6 +21,7 @@ const employeeForm = ref({
     name: '',
     lastName: '',
     email: '',
+    password: '',
     phoneNumber: '',
     status: 'ACTIVE'
 });
@@ -70,10 +71,12 @@ const validatePhoneNumber = (phoneNumber) => {
 
 // Computed
 const isFormValid = computed(() => {
+    const passwordValid = props.edit || (employeeForm.value.password && employeeForm.value.password.trim().length > 0);
     return validateName(employeeForm.value.name) &&
            validateLastName(employeeForm.value.lastName) &&
            validateEmail(employeeForm.value.email) &&
-           validatePhoneNumber(employeeForm.value.phoneNumber);
+           validatePhoneNumber(employeeForm.value.phoneNumber) &&
+           passwordValid;
 });
 
 // Methods
@@ -97,6 +100,11 @@ const saveRequested = () => {
             employeeData.id = props.item.id;
         }
         
+        // Si estamos en modo edición y la contraseña está vacía, no incluirla
+        if (props.edit && (!employeeData.password || employeeData.password.trim() === '')) {
+            delete employeeData.password;
+        }
+        
         emit('save-requested', employeeData);
         resetForm();
     }
@@ -107,6 +115,7 @@ const resetForm = () => {
         name: '',
         lastName: '',
         email: '',
+        password: '',
         phoneNumber: '',
         status: 'ACTIVE'
     };
@@ -120,6 +129,7 @@ watch(() => props.visible, (newValue) => {
             name: props.item.name || '',
             lastName: props.item.lastName || '',
             email: props.item.email || '',
+            password: '', // No mostrar password en edición
             phoneNumber: props.item.phoneNumber || '',
             status: props.item.status || 'ACTIVE'
         };
@@ -235,7 +245,34 @@ watch(() => props.visible, (newValue) => {
                 </div>
             </div>
 
-            <!-- Fila 3: Estado (solo en modo edición) -->
+            <!-- Fila 3: Contraseña -->
+            <div class="col-12 md:col-6 px-2 pb-1">
+                <div class="field">
+                    <label for="password" class="block text-900 font-medium mb-2">
+                        <i class="pi pi-lock mr-2"></i>Contraseña {{ edit ? '' : '*' }}
+                    </label>
+                    <pv-password
+                        id="password"
+                        v-model="employeeForm.password"
+                        class="w-full"
+                        inputClass="w-full"
+                        size="small"
+                        :placeholder="edit ? 'Dejar vacío para no cambiar' : 'Ingrese la contraseña'"
+                        :feedback="false"
+                        toggleMask
+                        :inputStyle="{ width: '100%' }"
+                        :class="{ 'p-invalid': submitted && !edit && (!employeeForm.password || employeeForm.password.trim().length === 0) }"
+                    />
+                    <small v-if="submitted && !edit && (!employeeForm.password || employeeForm.password.trim().length === 0)" class="p-error">
+                        La contraseña es requerida
+                    </small>
+                    <small v-if="edit" class="text-500 block mt-1">
+                        Dejar vacío para mantener la contraseña actual
+                    </small>
+                </div>
+            </div>
+
+            <!-- Fila 4: Estado (solo en modo edición) -->
             <div v-if="edit" class="col-12 md:col-6 px-2 pb-1">
                 <div class="field">
                     <label for="status" class="block text-900 font-medium mb-2">

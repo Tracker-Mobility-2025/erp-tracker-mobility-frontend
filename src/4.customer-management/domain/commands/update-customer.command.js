@@ -8,6 +8,7 @@ export class UpdateCustomerCommand {
         id,
         ruc,
         companyName,
+        password,
         status
     }) {
         if (!id) {
@@ -31,6 +32,11 @@ export class UpdateCustomerCommand {
             this.companyName = companyName.trim();
         }
 
+        // Password is optional for updates
+        if (password !== undefined && password !== null && password.trim().length > 0) {
+            this.password = password.trim();
+        }
+
         if (status !== undefined) {
             const statusValidation = CustomerValidators.validateStatus(status);
             if (!statusValidation.valid) {
@@ -51,6 +57,7 @@ export class UpdateCustomerCommand {
         
         if (this.ruc !== undefined) dto.ruc = this.ruc;
         if (this.companyName !== undefined) dto.companyName = this.companyName;
+        if (this.password !== undefined) dto.password = this.password;
         if (this.status !== undefined) dto.status = this.status;
         
         return dto;
