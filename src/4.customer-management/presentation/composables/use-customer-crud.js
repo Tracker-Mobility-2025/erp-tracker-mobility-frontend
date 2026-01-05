@@ -1,85 +1,154 @@
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import useCustomerStore from '../../application/customer.store.js';
-import { UpdateCustomerCommand } from '../../domain/commands/update-customer.command.js';
+// Customer CRUD Composable
+// Provides CRUD operations with UI feedback
+
+import { useCustomerStore } from '../../application/customer.store.js';
+import { useToast } from 'primevue/usetoast';
+import { useConfirm } from 'primevue/useconfirm';
 
 /**
  * Composable para gestionar operaciones CRUD de clientes.
  */
 export function useCustomerCrud() {
-  const router = useRouter();
-  const store = useCustomerStore();
+    const customerStore = useCustomerStore();
+    const toast = useToast();
+    const confirm = useConfirm();
 
-  const createAndEditDialogIsVisible = ref(false);
-  const isEdit = ref(false);
-  const submitted = ref(false);
-  const createItem = ref({});
-  const item = ref(null);
+    /**
+     * Create a new customer
+     * @param {Object} customerData - Customer data
+     * @returns {Promise<Customer>}
+     */
+    const createCustomer = async (customerData) => {
+        try {
+            const customer = await customerStore.create(customerData);
+            toast.add({
+                severity: 'success',
+                summary: 'Cliente creado',
+                detail: `El cliente ${customerData.companyName} ha sido creado exitosamente`,
+                life: 4000
+            });
+            return customer;
+        } catch (error) {
+            toast.add({
+                severity: 'error',
+                summary: 'Error al crear',
+                detail: error.message || 'No se pudo crear el cliente',
+                life: 4000
+            });
+            throw error;
+        }
+    };
 
-  const currentItem = computed(() => {
-    return isEdit.value ? item.value : createItem.value;
-  });
+    /**
+     * Update an existing customer
+     * @param {Object} customerData - Customer data with id
+     * @returns {Promise<Customer>}
+     */
+    const updateCustomer = async (customerData) => {
+        try {
+            const customer = await customerStore.update(customerData);
+            toast.add({
+                severity: 'success',
+                summary: 'Cliente actualizado',
+                detail: `El cliente ${customerData.companyName} ha sido actualizado exitosamente`,
+                life: 4000
+            });
+            return customer;
+        } catch (error) {
+            toast.add({
+                severity: 'error',
+                summary: 'Error al actualizar',
+                detail: error.message || 'No se pudo actualizar el cliente',
+                life: 4000
+            });
+            throw error;
+        }
+    };
 
-  function onCreateItem() {
-    createItem.value = {};
-    isEdit.value = false;
-    submitted.value = false;
-    createAndEditDialogIsVisible.value = true;
-  }
+    /**
+     * Delete a customer with confirmation
+     * @param {Object} customer - Customer to delete
+     * @returns {Promise<void>}
+     */
+    const deleteCustomer = (customer) => {
+        return new Promise((resolve, reject) => {
+            confirm.require({
+                message: `¿Está seguro de eliminar el cliente ${customer.companyName}?`,
+                header: 'Confirmación',
+                icon: 'pi pi-exclamation-triangle',
+                rejectClass: 'p-button-secondary p-button-outlined',
+                rejectLabel: 'Cancelar',
+                acceptLabel: 'Eliminar',
+                acceptClass: 'p-button-danger',
+                accept: async () => {
+                    try {
+                        await customerStore.delete(customer.id);
+                        toast.add({
+                            severity: 'success',
+                            summary: 'Cliente eliminado',
+                            detail: 'El cliente ha sido eliminado exitosamente',
+                            life: 4000
+                        });
+                        resolve();
+                    } catch (error) {
+                        toast.add({
+                            severity: 'error',
+                            summary: 'Error al eliminar',
+                            detail: error.message || 'No se pudo eliminar el cliente',
+                            life: 4000
+                        });
+                        reject(error);
+                    }
+                },
+                reject: () => {
+                    resolve(); // Resolve on cancel (no error)
+                }
+            });
+        });
+    };
 
-  function onEditItem(customer) {
-    item.value = { ...customer };
-    isEdit.value = true;
-    submitted.value = false;
-    createAndEditDialogIsVisible.value = true;
-  }
+    /**
+     * Fetch all customers
+     * @returns {Promise<Array<Customer>>}
+     */
+    const fetchAllCustomers = async () => {
+        try {
+            return await customerStore.fetchAll();
+        } catch (error) {
+            toast.add({
+                severity: 'error',
+                summary: 'Error al cargar',
+                detail: error.message || 'No se pudieron cargar los clientes',
+                life: 4000
+            });
+            throw error;
+        }
+    };
 
-  function onViewItem(customer) {
-    router.push({
-      name: 'customer-details', // TODO: Ajustar nombre de ruta
-      query: { id: customer.id }
-    });
-  }
+    /**
+     * Fetch customer by ID
+     * @param {number} id - Customer ID
+     * @returns {Promise<Customer>}
+     */
+    const fetchCustomerById = async (id) => {
+        try {
+            return await customerStore.fetchById(id);
+        } catch (error) {
+            toast.add({
+                severity: 'error',
+                summary: 'Error al cargar',
+                detail: error.message || 'No se pudo cargar el cliente',
+                life: 4000
+            });
+            throw error;
+        }
+    };
 
-  async function onDeleteItem(customer) {
-    await store.remove(customer.id);
-  }
-
-  function onCancelRequested() {
-    createAndEditDialogIsVisible.value = false;
-    submitted.value = false;
-    isEdit.value = false;
-  }
-
-  async function onSaveRequested(formData) {
-    submitted.value = true;
-
-    if (isEdit.value) {
-      const updateCommand = new UpdateCustomerCommand({
-        id: item.value.id,
-        ...formData
-      });
-      await store.update(updateCommand);
-    } else {
-      await store.create(formData);
-    }
-
-    createAndEditDialogIsVisible.value = false;
-    isEdit.value = false;
-  }
-
-  return {
-    createAndEditDialogIsVisible,
-    isEdit,
-    submitted,
-    createItem,
-    item,
-    currentItem,
-    onCreateItem,
-    onEditItem,
-    onViewItem,
-    onDeleteItem,
-    onCancelRequested,
-    onSaveRequested
-  };
+    return {
+        createCustomer,
+        updateCustomer,
+        deleteCustomer,
+        fetchAllCustomers,
+        fetchCustomerById
+    };
 }

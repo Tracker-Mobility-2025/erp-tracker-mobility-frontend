@@ -6,12 +6,7 @@ import VerificationReportsManagementComponent
 import OrderDetailManagementComponent from "../tracker-mobility/service-orders/pages/order-detail-management.component.vue";
 import SignInComponent from "../tracker-mobility/security/pages/sign-in.component.vue";
 import LayoutTrackerMobilityComponent from "../public/pages/layout-tracker-mobility.component.vue";
-import DetailsHomeVerificationReportComponent
-    from "../tracker-mobility/verification-reports/pages/details-home-verification-report.component.vue";
 import DashboardManagementComponent from "../tracker-mobility/dashboard/pages/dashboard-management.component.vue";
-import ClientManagementComponent from "../tracker-mobility/client-management/pages/client-management.component.vue";
-import ClientDetailsManagementComponent
-    from "../tracker-mobility/client-management/pages/client-details-management.component.vue";
 import {authenticationGuard} from "../tracker-mobility/security/services/authentication.guard.js";
 import ManagementRequestFormComponent
     from "../client-tracker-mobility/order-request/pages/management-request-form.component.vue";
@@ -22,6 +17,9 @@ import VerificationRequestDetailsComponent
 
 // Importar rutas de verificadores (nueva arquitectura)
 import { verifierRoutes } from "../3.verifiers-accounts/presentation/verifier.routes.js";
+
+// Importar rutas de clientes (nueva arquitectura)
+import { customerRoutes } from "../4.customer-management/presentation/customer.routes.js";
 
 
 
@@ -107,6 +105,13 @@ const router = createRouter({
                     children: verifierRoutes
                 },
 
+                // Clientes (nueva arquitectura - Bounded Context: 4.customer-management)
+                {
+                    path: 'admin/clients',
+                    name: 'clients-module',
+                    children: customerRoutes
+                },
+
                 // Reportes de verificación
                 {
                     path: 'admin/verification-reports',
@@ -114,35 +119,6 @@ const router = createRouter({
                     component: VerificationReportsManagementComponent,
                     meta: {
                         title: 'Reportes de verificación',
-                        roles: ['ADMIN', 'MASTER_ADMIN']
-                    }
-                },
-                {
-                    path: 'admin/verification-reports-details',
-                    name: 'verification-reports-details',
-                    component: DetailsHomeVerificationReportComponent,
-                    meta: {
-                        title: 'Detalles del reporte de verificación',
-                        roles: ['ADMIN', 'MASTER_ADMIN']
-                    }
-                },
-
-                // Clientes
-                {
-                    path: 'admin/clients',
-                    name: 'clients',
-                    component: ClientManagementComponent,
-                    meta: {
-                        title: 'Clientes',
-                        roles: ['ADMIN', 'MASTER_ADMIN']
-                    }
-                },
-                {
-                    path: 'admin/client-detail',
-                    name: 'client-detail',
-                    component: ClientDetailsManagementComponent,
-                    meta: {
-                        title: 'Detalle del cliente',
                         roles: ['ADMIN', 'MASTER_ADMIN']
                     }
                 },

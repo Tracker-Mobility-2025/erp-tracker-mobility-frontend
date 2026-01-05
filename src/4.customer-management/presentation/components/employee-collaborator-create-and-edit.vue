@@ -1,0 +1,263 @@
+<script setup>
+import { ref, computed, watch } from 'vue';
+import { EmployeeCollaboratorValidators } from '../../domain/validators/customer.validators.js';
+import CreateAndEdit from '../../../shared/components/create-and-edit.component.vue';
+
+const props = defineProps({
+    edit: Boolean,
+    item: Object,
+    visible: Boolean,
+    customerId: {
+        type: [String, Number],
+        required: true
+    }
+});
+
+const emit = defineEmits(['cancel-requested', 'save-requested']);
+
+// State
+const submitted = ref(false);
+const employeeForm = ref({
+    name: '',
+    lastName: '',
+    email: '',
+    phoneNumber: '',
+    status: 'ACTIVE'
+});
+
+// Status options
+const statusOptions = [
+    { label: 'Activo', value: 'ACTIVE' },
+    { label: 'Inactivo', value: 'INACTIVE' }
+];
+
+// Validation methods
+const validateName = (name) => {
+    try {
+        EmployeeCollaboratorValidators.validateName(name);
+        return true;
+    } catch {
+        return false;
+    }
+};
+
+const validateLastName = (lastName) => {
+    try {
+        EmployeeCollaboratorValidators.validateLastName(lastName);
+        return true;
+    } catch {
+        return false;
+    }
+};
+
+const validateEmail = (email) => {
+    try {
+        EmployeeCollaboratorValidators.validateEmail(email);
+        return true;
+    } catch {
+        return false;
+    }
+};
+
+const validatePhoneNumber = (phoneNumber) => {
+    try {
+        EmployeeCollaboratorValidators.validatePhoneNumber(phoneNumber);
+        return true;
+    } catch {
+        return false;
+    }
+};
+
+// Computed
+const isFormValid = computed(() => {
+    return validateName(employeeForm.value.name) &&
+           validateLastName(employeeForm.value.lastName) &&
+           validateEmail(employeeForm.value.email) &&
+           validatePhoneNumber(employeeForm.value.phoneNumber);
+});
+
+// Methods
+const cancelRequested = () => {
+    submitted.value = false;
+    resetForm();
+    emit('cancel-requested');
+};
+
+const saveRequested = () => {
+    submitted.value = true;
+    
+    if (isFormValid.value) {
+        const employeeData = {
+            ...employeeForm.value,
+            applicantCompanyId: props.customerId
+        };
+        
+        // Include ID if editing
+        if (props.edit && props.item) {
+            employeeData.id = props.item.id;
+        }
+        
+        emit('save-requested', employeeData);
+        resetForm();
+    }
+};
+
+const resetForm = () => {
+    employeeForm.value = {
+        name: '',
+        lastName: '',
+        email: '',
+        phoneNumber: '',
+        status: 'ACTIVE'
+    };
+    submitted.value = false;
+};
+
+// Watch for dialog open
+watch(() => props.visible, (newValue) => {
+    if (newValue && props.edit && props.item) {
+        employeeForm.value = {
+            name: props.item.name || '',
+            lastName: props.item.lastName || '',
+            email: props.item.email || '',
+            phoneNumber: props.item.phoneNumber || '',
+            status: props.item.status || 'ACTIVE'
+        };
+    } else if (newValue && !props.edit) {
+        resetForm();
+    }
+});
+</script>
+
+<template>
+    <create-and-edit
+        :entity="employeeForm"
+        :visible="visible"
+        entity-name="Colaborador"
+        :edit="edit"
+        size="standard"
+        @canceled-shared="cancelRequested"
+        @saved-shared="saveRequested"
+    >
+        <template #content>
+
+        <div class="grid p-2">
+            <!-- Fila 1: Nombres y Apellidos -->
+            <div class="col-12 md:col-6 px-2 pb-1">
+                <div class="field">
+                    <label for="name" class="block text-900 font-medium mb-2">
+                        <i class="pi pi-user mr-2"></i>Nombres *
+                    </label>
+                    <pv-input-text
+                        id="name"
+                        v-model="employeeForm.name"
+                        class="w-full"
+                        size="small"
+                        placeholder="Ingrese los nombres"
+                        :class="{ 'p-invalid': submitted && (!employeeForm.name || !validateName(employeeForm.name)) }"
+                    />
+                    <small v-if="submitted && !employeeForm.name" class="p-error">
+                        Los nombres son requeridos
+                    </small>
+                    <small v-else-if="submitted && employeeForm.name && !validateName(employeeForm.name)" class="p-error">
+                        Los nombres deben tener al menos 2 caracteres
+                    </small>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-6 px-2 pb-1">
+                <div class="field">
+                    <label for="lastName" class="block text-900 font-medium mb-2">
+                        <i class="pi pi-users mr-2"></i>Apellidos *
+                    </label>
+                    <pv-input-text
+                        id="lastName"
+                        v-model="employeeForm.lastName"
+                        class="w-full"
+                        size="small"
+                        placeholder="Ingrese los apellidos"
+                        :class="{ 'p-invalid': submitted && (!employeeForm.lastName || !validateLastName(employeeForm.lastName)) }"
+                    />
+                    <small v-if="submitted && !employeeForm.lastName" class="p-error">
+                        Los apellidos son requeridos
+                    </small>
+                    <small v-else-if="submitted && employeeForm.lastName && !validateLastName(employeeForm.lastName)" class="p-error">
+                        Los apellidos deben tener al menos 2 caracteres
+                    </small>
+                </div>
+            </div>
+
+            <!-- Fila 2: Email y Teléfono -->
+            <div class="col-12 md:col-6 px-2 pb-1">
+                <div class="field">
+                    <label for="email" class="block text-900 font-medium mb-2">
+                        <i class="pi pi-envelope mr-2"></i>Email *
+                    </label>
+                    <pv-input-text
+                        id="email"
+                        v-model="employeeForm.email"
+                        class="w-full"
+                        size="small"
+                        type="email"
+                        placeholder="ejemplo@correo.com"
+                        :class="{ 'p-invalid': submitted && (!employeeForm.email || !validateEmail(employeeForm.email)) }"
+                    />
+                    <small v-if="submitted && !employeeForm.email" class="p-error">
+                        El email es requerido
+                    </small>
+                    <small v-else-if="submitted && employeeForm.email && !validateEmail(employeeForm.email)" class="p-error">
+                        Ingrese un email válido
+                    </small>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-6 px-2 pb-1">
+                <div class="field">
+                    <label for="phoneNumber" class="block text-900 font-medium mb-2">
+                        <i class="pi pi-phone mr-2"></i>Teléfono *
+                    </label>
+                    <pv-input-text
+                        id="phoneNumber"
+                        v-model="employeeForm.phoneNumber"
+                        class="w-full"
+                        size="small"
+                        placeholder="999 999 999"
+                        maxlength="15"
+                        @keypress="(e) => { if (!/[0-9+\s]/.test(e.key)) e.preventDefault(); }"
+                        :class="{ 'p-invalid': submitted && (!employeeForm.phoneNumber || !validatePhoneNumber(employeeForm.phoneNumber)) }"
+                    />
+                    <small v-if="submitted && !employeeForm.phoneNumber" class="p-error">
+                        El teléfono es requerido
+                    </small>
+                    <small v-else-if="submitted && employeeForm.phoneNumber && !validatePhoneNumber(employeeForm.phoneNumber)" class="p-error">
+                        El teléfono debe tener entre 9 y 15 dígitos
+                    </small>
+                </div>
+            </div>
+
+            <!-- Fila 3: Estado (solo en modo edición) -->
+            <div v-if="edit" class="col-12 md:col-6 px-2 pb-1">
+                <div class="field">
+                    <label for="status" class="block text-900 font-medium mb-2">
+                        <i class="pi pi-check-circle mr-2"></i>Estado
+                    </label>
+                    <pv-select
+                        id="status"
+                        v-model="employeeForm.status"
+                        :options="statusOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Seleccione el estado"
+                        class="w-full"
+                        size="small"
+                    />
+                </div>
+            </div>
+        </div>
+        </template>
+    </create-and-edit>
+</template>
+
+<style scoped>
+/* Using corporate design system */
+</style>

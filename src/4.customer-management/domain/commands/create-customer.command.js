@@ -1,14 +1,47 @@
 /**
  * Command para crear un nuevo cliente.
  * Self-validating: garantiza que los datos sean válidos al momento de construcción.
- * 
- * @class CreateCustomerCommand
  */
+import { CustomerValidators } from '../validators/customer.validators.js';
+import { CustomerStatus } from '../constants/customer.constants.js';
+
 export class CreateCustomerCommand {
-  constructor({
-    // TODO: Agregar parámetros del comando
-  }) {
-    // TODO: Validación obligatoria
-    // TODO: Usar VOs para validar formato
-  }
+    constructor({
+        ruc,
+        companyName,
+        status = CustomerStatus.ACTIVE
+    }) {
+        // Validación obligatoria
+        const rucValidation = CustomerValidators.validateRuc(ruc);
+        if (!rucValidation.valid) {
+            throw new Error(rucValidation.message);
+        }
+
+        const companyNameValidation = CustomerValidators.validateCompanyName(companyName);
+        if (!companyNameValidation.valid) {
+            throw new Error(companyNameValidation.message);
+        }
+
+        const statusValidation = CustomerValidators.validateStatus(status);
+        if (!statusValidation.valid) {
+            throw new Error(statusValidation.message);
+        }
+
+        // Asignar propiedades validadas
+        this.ruc = ruc.trim();
+        this.companyName = companyName.trim();
+        this.status = status;
+    }
+
+    /**
+     * Convierte el command a un objeto plano para envío a la API
+     * @returns {Object}
+     */
+    toDTO() {
+        return {
+            ruc: this.ruc,
+            companyName: this.companyName,
+            status: this.status
+        };
+    }
 }

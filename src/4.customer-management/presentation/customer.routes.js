@@ -1,23 +1,30 @@
 /**
- * Rutas del módulo de clientes.
+ * Configuración de rutas para el módulo de clientes
+ * Bounded Context: 4.customer-management
  */
+import CustomersManagement from './views/customers-management.vue';
+import CustomerDetail from './views/customer-detail.vue';
+
 export const customerRoutes = [
-  {
-    path: '/customers',
-    name: 'customers',
-    component: () => import('./views/customers-management.vue'),
-    meta: {
-      title: 'Clientes',
-      requiresAuth: true
+    {
+        path: '',
+        name: 'customers',
+        component: CustomersManagement,
+        meta: {
+            title: 'Clientes',
+            roles: ['ADMIN', 'MASTER_ADMIN']
+        }
+    },
+    {
+        path: 'details',
+        name: 'customer-detail',
+        component: CustomerDetail,
+        meta: {
+            title: 'Detalle del cliente',
+            roles: ['ADMIN', 'MASTER_ADMIN']
+        }
     }
-  },
-  {
-    path: '/customers/:id',
-    name: 'customer-details',
-    component: () => import('./views/customer-detail.vue'),
-    meta: {
-      title: 'Detalle de Cliente',
-      requiresAuth: true
-    }
-  }
 ];
+
+export default customerRoutes;
+
