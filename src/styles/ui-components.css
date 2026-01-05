@@ -768,6 +768,63 @@ button.p-button.action-button.p-disabled:hover,
   background: inherit !important;
 }
 
+/* ========== OUTLINED ACTION BUTTONS ========== */
+/* Botones rectangulares con fondo de color y bordes */
+
+/* View Button Outlined - Azul */
+button.p-button.p-button-outlined.btn-view,
+.p-button.p-button-outlined.btn-view {
+  background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+  border-width: 2px !important;
+}
+
+button.p-button.p-button-outlined.btn-view:hover,
+.p-button.p-button-outlined.btn-view:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+  color: #ffffff !important;
+  border-color: #1d4ed8 !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Edit Button Outlined - Naranja */
+button.p-button.p-button-outlined.btn-edit,
+.p-button.p-button-outlined.btn-edit {
+  background: #FFA726 !important;
+  color: #ffffff !important;
+  border-color: #FFA726 !important;
+  border-width: 2px !important;
+}
+
+button.p-button.p-button-outlined.btn-edit:hover,
+.p-button.p-button-outlined.btn-edit:hover {
+  background: #FF8F00 !important;
+  color: #ffffff !important;
+  border-color: #FF8F00 !important;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Delete Button Outlined - Rojo */
+button.p-button.p-button-outlined.btn-delete,
+.p-button.p-button-outlined.btn-delete {
+  background: #D7201C !important;
+  color: #ffffff !important;
+  border-color: #D7201C !important;
+  border-width: 2px !important;
+}
+
+button.p-button.p-button-outlined.btn-delete:hover,
+.p-button.p-button-outlined.btn-delete:hover {
+  background: #B01A17 !important;
+  color: #ffffff !important;
+  border-color: #B01A17 !important;
+  box-shadow: 0 4px 12px rgba(215, 32, 28, 0.4) !important;
+  transform: translateY(-1px) !important;
+}
+
 /* ========== FILE UPLOADER ========== */
 
 /* Input nativo oculto pero accesible */

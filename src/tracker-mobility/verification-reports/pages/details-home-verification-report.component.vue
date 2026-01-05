@@ -26,7 +26,7 @@ import {LandlordInterviewApiService} from "../services/landlord-interview-api.se
 import {Email} from "../models/email.entity.js";
 import {DownloadReport} from "../models/download-report.entity.js";
 import {NotificationMixin} from "../../../shared/utils/notification.utils.js";
-import {VerifierApiService} from "../../verifier-management/services/verifier-api.service.js";
+import {VerifierApiService} from "../../../3.verifiers-accounts/infrastructure/verifier.api.js";
 
 export default {
   name:'details-home-verification-report',

@@ -214,13 +214,13 @@ onMounted(async () => {
 
                 <!-- Status Filter -->
                 <div class="w-full md:w-auto" style="min-width: 200px">
-                    <pv-select
+                    <pv-dropdown
                         v-model="selectStatus"
                         :options="statusOptions"
                         optionLabel="label"
                         optionValue="value"
-                        placeholder="Estado: Todos"
-                        class="w-full"
+                        placeholder="Filtrar por estado"
+                        class="w-full md:w-auto"
                     >
                         <template #option="slotProps">
                             <div class="flex align-items-center justify-content-between w-full">
@@ -236,7 +236,7 @@ onMounted(async () => {
                                 </span>
                             </div>
                         </template>
-                    </pv-select>
+                    </pv-dropdown>
                 </div>
 
                 <!-- Clear Filters -->
@@ -245,7 +245,7 @@ onMounted(async () => {
                         :label="EmployeeUILabels.buttons.clearFilters"
                         icon="pi pi-filter-slash"
                         @click="onClearFilters"
-                        class="p-button-secondary w-full md:w-auto"
+                        class="p-button-secondary p-button-outlined w-full md:w-auto"
                     />
                 </div>
 
@@ -300,22 +300,20 @@ onMounted(async () => {
                 </pv-column>
                 <pv-column header="Acciones" style="min-width: 120px">
                     <template #body="{ data }">
-                        <div class="flex gap-2">
+                        <div class="flex gap-2 justify-content-center">
                             <pv-button
                                 icon="pi pi-pencil"
-                                severity="warning"
-                                outlined
+                                class="p-button-outlined btn-edit"
                                 size="small"
                                 @click="onEditItem(data)"
-                                v-tooltip="'Editar'"
+                                v-tooltip.top="'Editar'"
                             />
                             <pv-button
                                 icon="pi pi-trash"
-                                severity="danger"
-                                outlined
+                                class="p-button-outlined btn-delete"
                                 size="small"
                                 @click="onDeleteItem(data)"
-                                v-tooltip="'Eliminar'"
+                                v-tooltip.top="'Eliminar'"
                             />
                         </div>
                     </template>

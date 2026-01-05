@@ -167,13 +167,13 @@ const resetPage = () => {
 
                 <!-- Status Filter -->
                 <div class="w-full md:w-auto" style="min-width: 200px">
-                    <pv-select
+                    <pv-dropdown
                         v-model="selectStatus"
                         :options="statusOptions"
                         optionLabel="label"
                         optionValue="value"
-                        placeholder="Estado: Todos"
-                        class="w-full"
+                        placeholder="Filtrar por estado"
+                        class="w-full md:w-auto"
                         @change="resetPage"
                     >
                         <template #option="slotProps">
@@ -190,7 +190,7 @@ const resetPage = () => {
                                 </span>
                             </div>
                         </template>
-                    </pv-select>
+                    </pv-dropdown>
                 </div>
 
                 <!-- Clear Filters -->
@@ -199,7 +199,7 @@ const resetPage = () => {
                         :label="CustomerUILabels.buttons.clearFilters"
                         icon="pi pi-filter-slash"
                         @click="onClearFilters"
-                        class="p-button-secondary w-full md:w-auto"
+                        class="p-button-secondary p-button-outlined w-full md:w-auto"
                     />
                 </div>
 
@@ -252,30 +252,24 @@ const resetPage = () => {
                         <div class="flex gap-2">
                             <pv-button
                                 icon="pi pi-eye"
-                                severity="info"
-                                outlined
+                                class="p-button-outlined btn-view flex-1"
                                 size="small"
                                 @click="onViewItem(customer)"
-                                v-tooltip="'Ver detalles'"
-                                class="flex-1"
+                                v-tooltip.top="'Ver detalles'"
                             />
                             <pv-button
                                 icon="pi pi-pencil"
-                                severity="warning"
-                                outlined
+                                class="p-button-outlined btn-edit flex-1"
                                 size="small"
                                 @click="onEditItem(customer)"
-                                v-tooltip="'Editar cliente'"
-                                class="flex-1"
+                                v-tooltip.top="'Editar cliente'"
                             />
                             <pv-button
                                 icon="pi pi-trash"
-                                severity="danger"
-                                outlined
+                                class="p-button-outlined btn-delete flex-1"
                                 size="small"
                                 @click="onDeleteItem(customer)"
-                                v-tooltip="'Eliminar cliente'"
-                                class="flex-1"
+                                v-tooltip.top="'Eliminar cliente'"
                             />
                         </div>
                     </div>
