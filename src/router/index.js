@@ -1,11 +1,6 @@
 import {createRouter, createWebHistory} from "vue-router";
-import ServiceOrderManagementComponent
-    from "../tracker-mobility/service-orders/pages/service-order-management.component.vue";
-import VerificationReportsManagementComponent
-    from "../tracker-mobility/verification-reports/pages/verification-reports-management.component.vue";
-import OrderDetailManagementComponent from "../tracker-mobility/service-orders/pages/order-detail-management.component.vue";
-import SignInComponent from "../tracker-mobility/security/pages/sign-in.component.vue";
 import LayoutTrackerMobilityComponent from "../public/pages/layout-tracker-mobility.component.vue";
+import SignInComponent from "../tracker-mobility/security/pages/sign-in.component.vue";
 import DashboardManagementComponent from "../tracker-mobility/dashboard/pages/dashboard-management.component.vue";
 import {authenticationGuard} from "../tracker-mobility/security/services/authentication.guard.js";
 import ManagementRequestFormComponent
@@ -14,12 +9,13 @@ import VerificationRequestsManagementComponent
     from "../client-tracker-mobility/request-management/pages/verification-requests-management.component.vue";
 import VerificationRequestDetailsComponent
     from "../client-tracker-mobility/request-management/pages/verification-request-details.component.vue";
+import VerificationReportsManagementComponent
+    from "../tracker-mobility/verification-reports/pages/verification-reports-management.component.vue";
 
-// Importar rutas de verificadores (nueva arquitectura)
+// Importar rutas de módulos con nueva arquitectura (Bounded Contexts)
 import { verifierRoutes } from "../3.verifiers-accounts/presentation/verifier.routes.js";
-
-// Importar rutas de clientes (nueva arquitectura)
 import { customerRoutes } from "../4.customer-management/presentation/customer.routes.js";
+import { verificationOrderRoutes } from "../1.verification-orders/presentation/verification-order.routes.js";
 
 
 
@@ -59,8 +55,8 @@ const router = createRouter({
                             return { name: 'management-requests-form' };
                         }
                         
-                        // ADMIN y otros roles van a service-orders
-                        return { name: 'service-orders' };
+                        // ADMIN y otros roles van a verification-orders
+                        return { name: 'verification-orders-list' };
                     }
                 },
 
@@ -78,23 +74,14 @@ const router = createRouter({
                     }
                 },
 
-                // Órdenes de servicio
+                // Órdenes de Verificación (nueva arquitectura - Bounded Context: 1.verification-orders)
                 {
-                    path: 'admin/service-orders',
-                    name: 'service-orders',
-                    component: ServiceOrderManagementComponent,
+                    path: 'admin/verification-orders',
+                    name: 'verification-orders-module',
+                    children: verificationOrderRoutes,
                     meta: {
-                        title: 'Ordenes de servicio',
-                        roles: ['ADMIN', 'MASTER_ADMIN', 'COMPANY_EMPLOYEE'] // Todos pueden ver órdenes
-                    }
-                },
-                {
-                    path: 'admin/order-details',
-                    name: 'order-details',
-                    component: OrderDetailManagementComponent,
-                    meta: {
-                        title: 'Detalles de la orden',
-                        roles: ['ADMIN', 'MASTER_ADMIN', 'COMPANY_EMPLOYEE'] // Todos pueden ver detalles
+                        title: 'Órdenes de Verificación',
+                        roles: ['ADMIN', 'MASTER_ADMIN']
                     }
                 },
 
@@ -102,14 +89,22 @@ const router = createRouter({
                 {
                     path: 'admin/verifiers',
                     name: 'verifiers-module',
-                    children: verifierRoutes
+                    children: verifierRoutes,
+                    meta: {
+                        title: 'Gestión de Verificadores',
+                        roles: ['ADMIN', 'MASTER_ADMIN']
+                    }
                 },
 
                 // Clientes (nueva arquitectura - Bounded Context: 4.customer-management)
                 {
                     path: 'admin/clients',
                     name: 'clients-module',
-                    children: customerRoutes
+                    children: customerRoutes,
+                    meta: {
+                        title: 'Gestión de Clientes',
+                        roles: ['ADMIN', 'MASTER_ADMIN']
+                    }
                 },
 
                 // Reportes de verificación

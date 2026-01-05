@@ -165,8 +165,8 @@ export const useAuthenticationStore = defineStore('authentication', {
             
             // Definir rutas por defecto según rol
             const defaultRoutesByRole = {
-                'ADMIN': '/app/admin/service-orders',
-                'MASTER_ADMIN': '/app/admin/service-orders',
+                'ADMIN': '/app/admin/verification-orders',
+                'MASTER_ADMIN': '/app/admin/verification-orders',
                 'COMPANY_EMPLOYEE': '/app/applicant-company/management-request-form'
             };
             
@@ -228,8 +228,8 @@ export const useAuthenticationStore = defineStore('authentication', {
             if (routePath.startsWith('/app/admin/')) {
                 // COMPANY_EMPLOYEE puede ver órdenes (solo lectura)
                 const allowedForCompanyEmployee = [
-                    '/app/admin/service-orders',
-                    '/app/admin/order-details'
+                    '/app/admin/verification-orders',
+                    '/app/admin/verification-orders/'
                 ];
                 
                 if (userRole === 'COMPANY_EMPLOYEE') {

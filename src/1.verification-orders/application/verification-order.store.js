@@ -76,13 +76,116 @@ const useVerificationOrderStore = defineStore('verificationOrder', () => {
         }
     }
 
+    /**
+     * Asigna un verificador a una orden
+     * @param {number} orderId - ID de la orden
+     * @param {number} verifierId - ID del verificador
+     * @param {Date} visitDate - Fecha de visita
+     * @param {string} visitTime - Hora de visita
+     * @returns {Promise<{success: boolean, data?, message?, code}>}
+     */
+    async function assignVerifier(orderId, verifierId, visitDate, visitTime) {
+        try {
+            const data = await repository.assignVerifier(orderId, verifierId, visitDate, visitTime);
+            const index = verificationOrders.value.findIndex(o => o.id === orderId);
+            if (index !== -1) verificationOrders.value[index] = data;
+            showSuccess('Verificador asignado exitosamente', 'Éxito', 4000);
+            return { success: true, data, code: 'VERIFIER_ASSIGNED' };
+        } catch (error) {
+            return errorHandler.handle(error, 'asignar verificador');
+        }
+    }
+
+    /**
+     * Actualiza el estado de una orden
+     * @param {number} orderId - ID de la orden
+     * @param {string} newStatus - Nuevo estado
+     * @returns {Promise<{success: boolean, data?, message?, code}>}
+     */
+    async function updateStatus(orderId, newStatus) {
+        try {
+            const data = await repository.updateStatus(orderId, newStatus);
+            const index = verificationOrders.value.findIndex(o => o.id === orderId);
+            if (index !== -1) verificationOrders.value[index] = data;
+            showSuccess('Estado actualizado exitosamente', 'Éxito', 4000);
+            return { success: true, data, code: 'STATUS_UPDATED' };
+        } catch (error) {
+            return errorHandler.handle(error, 'actualizar estado');
+        }
+    }
+
+    /**
+     * Actualiza la información de la vivienda
+     * @param {number} orderId - ID de la orden
+     * @param {Object} dwellingData - Datos de la vivienda
+     * @returns {Promise<{success: boolean, data?, message?, code}>}
+     */
+    async function updateDwelling(orderId, dwellingData) {
+        try {
+            const data = await repository.updateDwelling(orderId, dwellingData);
+            const index = verificationOrders.value.findIndex(o => o.id === orderId);
+            if (index !== -1 && verificationOrders.value[index].dwelling) {
+                verificationOrders.value[index].dwelling = data;
+            }
+            showSuccess('Información de vivienda actualizada', 'Éxito', 4000);
+            return { success: true, data, code: 'DWELLING_UPDATED' };
+        } catch (error) {
+            return errorHandler.handle(error, 'actualizar información de vivienda');
+        }
+    }
+
+    /**
+     * Actualiza la información de la zona
+     * @param {number} orderId - ID de la orden
+     * @param {Object} zoneData - Datos de la zona
+     * @returns {Promise<{success: boolean, data?, message?, code}>}
+     */
+    async function updateZone(orderId, zoneData) {
+        try {
+            const data = await repository.updateZone(orderId, zoneData);
+            const index = verificationOrders.value.findIndex(o => o.id === orderId);
+            if (index !== -1 && verificationOrders.value[index].zone) {
+                verificationOrders.value[index].zone = data;
+            }
+            showSuccess('Información de zona actualizada', 'Éxito', 4000);
+            return { success: true, data, code: 'ZONE_UPDATED' };
+        } catch (error) {
+            return errorHandler.handle(error, 'actualizar información de zona');
+        }
+    }
+
+    /**
+     * Actualiza la información de ubicación
+     * @param {number} orderId - ID de la orden
+     * @param {Object} locationData - Datos de ubicación
+     * @returns {Promise<{success: boolean, data?, message?, code}>}
+     */
+    async function updateLocation(orderId, locationData) {
+        try {
+            const data = await repository.updateLocation(orderId, locationData);
+            const index = verificationOrders.value.findIndex(o => o.id === orderId);
+            if (index !== -1 && verificationOrders.value[index].location) {
+                verificationOrders.value[index].location = data;
+            }
+            showSuccess('Información de ubicación actualizada', 'Éxito', 4000);
+            return { success: true, data, code: 'LOCATION_UPDATED' };
+        } catch (error) {
+            return errorHandler.handle(error, 'actualizar información de ubicación');
+        }
+    }
+
     return {
         verificationOrders,
         fetchAll,
         fetchById,
         create,
         update,
-        remove
+        remove,
+        assignVerifier,
+        updateStatus,
+        updateDwelling,
+        updateZone,
+        updateLocation
     };
 });
 
