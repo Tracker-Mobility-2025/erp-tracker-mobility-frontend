@@ -4,7 +4,7 @@ import DataManager from "../../../shared/components/data-manager.component.vue";
 import {OrderRequestApi} from "../services/order-request-api.service.js";
 import {VerifierApi} from "../services/verifier-api.service.js";
 import {NotificationMixin} from "../../../shared/utils/notification.utils.js";
-import {OrderService} from "../models/order-service.entity.js";
+import {ServiceOrderSummary} from "../models/service-order-summary.entity.js";
 import {useAuthenticationStore} from "../../security/services/authentication.store.js";
 
 // Constantes de configuración
@@ -31,11 +31,11 @@ const STATUS_CLASSES = {
 
 const COLUMNS_CONFIG = [
   { field: 'orderCode', header: 'Código de orden', sortable: true, style: 'width: 120px;' },
-  { field: 'cliente', header: 'Cliente', sortable: true, template: 'cliente', style: 'width: 200px;' },
+  { field: 'clientName', header: 'Cliente', sortable: true, style: 'width: 200px;' },
   { field: 'status', header: 'Estado', sortable: true, template: 'status', style: 'width: 120px;' },
-  { field: 'applicantCompany.companyName', header: 'Solicitante', sortable: true, style: 'width: 150px;' },
-  { field: 'verificador', header: 'Verificador', sortable: true, template: 'verificador', style: 'width: 150px;' },
-  { field: 'programacion', header: 'Programación', sortable: true, template: 'programacion', style: 'width: 140px;' }
+  { field: 'companyName', header: 'Solicitante', sortable: true, style: 'width: 150px;' },
+  { field: 'verifierName', header: 'Verificador', sortable: true, template: 'verificador', style: 'width: 150px;' },
+  { field: 'visitDate', header: 'Programación', sortable: true, template: 'programacion', style: 'width: 140px;' }
 ];
 
 const LOADING_TIMEOUT_DURATION = 15000;
@@ -50,9 +50,7 @@ export default {
   data() {
     return {
       orderRequestApi: new OrderRequestApi('/orders'),
-      verifierApi: new VerifierApi('/verifiers'),
       itemsArray: [],
-      verifiersArray: [],
       columns: COLUMNS_CONFIG,
       globalFilterValue: '',
       selectedDate: null,
@@ -74,10 +72,10 @@ export default {
       if (this.globalFilterValue?.trim()) {
         const searchTerm = this.normalizeText(this.globalFilterValue);
         filtered = filtered.filter(order => {
-          const orderCode = order.orderCode ? this.normalizeText(order.orderCode) : '';
-          const company = order.applicantCompany?.companyName ? this.normalizeText(order.applicantCompany.companyName) : '';
-          const verifier = order.homeVisitDetails?.verifierId ? this.normalizeText(this.getVerifierById(order.homeVisitDetails.verifierId)) : '';
-          const client = order.client ? this.normalizeText(this.getClientFullName(order.client)) : '';
+          const orderCode = this.normalizeText(order.orderCode || '');
+          const company = this.normalizeText(order.companyName || '');
+          const verifier = this.normalizeText(order.verifierName || '');
+          const client = this.normalizeText(order.clientName || '');
 
           return orderCode.includes(searchTerm) || company.includes(searchTerm) || 
                  verifier.includes(searchTerm) || client.includes(searchTerm);
@@ -93,12 +91,12 @@ export default {
       if (this.selectedDate) {
         const selectedDateStr = this.formatDateToLocal(this.selectedDate);
         filtered = filtered.filter(order => {
-          if (!order.homeVisitDetails?.visitDate) return false;
+          if (!order.visitDate) return false;
           try {
-            const visitDateStr = this.formatDateToLocal(new Date(order.homeVisitDetails.visitDate + 'T00:00:00'));
+            const visitDateStr = this.formatDateToLocal(new Date(order.visitDate + 'T00:00:00'));
             return visitDateStr === selectedDateStr;
           } catch (error) {
-            console.warn('Error parsing visitDate:', order.homeVisitDetails.visitDate, error);
+            console.warn('Error parsing visitDate:', order.visitDate, error);
             return false;
           }
         });
@@ -125,20 +123,18 @@ export default {
       return text.toLowerCase().trim().replace(/\s+/g, ' ');
     },
 
-    getClientFullName(client) {
-      if (!client?.name || !client?.lastName) return 'Sin datos';
-      return client.getFullName?.() || `${client.name} ${client.lastName}`;
+    getVerifierDisplay(order) {
+      return order.verifierName || 'PENDIENTE';
     },
 
-    getVerifierById(verifierId) {
-      if (!verifierId || !this.verifiersArray.length) return 'PENDIENTE';
-      return this.verifiersArray.find(v => v.id === verifierId)?.name || 'PENDIENTE';
-    },
-
-    getVisitDate(homeVisitDetails) {
-      if (!homeVisitDetails?.visitDate) return 'PENDIENTE';
-      const date = new Date(homeVisitDetails.visitDate + 'T00:00:00');
-      return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    getVisitDateFormatted(order) {
+      if (!order.visitDate) return 'PENDIENTE';
+      try {
+        const date = new Date(order.visitDate + 'T00:00:00');
+        return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      } catch (error) {
+        return 'PENDIENTE';
+      }
     },
 
     formatDateToLocal(date) {
@@ -262,36 +258,16 @@ export default {
 
     async getAllOrders() {
       try {
-        const response = await this.orderRequestApi.getAll();
+        const response = await this.orderRequestApi.getAllSummary();
         this.validateServerResponse(response, 'órdenes');
         
-        this.itemsArray = response.data
-          .map(orderData => new OrderService(orderData))
-          .sort((a, b) => {
-            const dateA = this.parseLocalDate(a.requestDate);
-            const dateB = this.parseLocalDate(b.requestDate);
-            if (!dateA) return 1;
-            if (!dateB) return -1;
-            return dateB.getTime() - dateA.getTime();
-          });
+        this.itemsArray = response.data.map(orderData => new ServiceOrderSummary(orderData));
         
-        console.log('Órdenes cargadas:', this.itemsArray.length);
+        console.log('Órdenes resumidas cargadas:', this.itemsArray.length);
       } catch (error) {
         this.itemsArray = [];
         this.handleServerError(error, 'las órdenes');
         throw error;
-      }
-    },
-
-    async getAllVerifiers() {
-      try {
-        const response = await this.verifierApi.getAll();
-        this.validateServerResponse(response, 'verificadores');
-        this.verifiersArray = response.data;
-        console.log('Verificadores cargados:', this.verifiersArray.length);
-      } catch (error) {
-        this.verifiersArray = [];
-        this.handleServerError(error, 'los verificadores');
       }
     },
 
@@ -307,7 +283,7 @@ export default {
       }, LOADING_TIMEOUT_DURATION);
 
       try {
-        await Promise.all([this.getAllOrders(), this.getAllVerifiers()]);
+        await this.getAllOrders();
         this.hasLoadingError = false;
       } catch (error) {
         this.hasLoadingError = true;
@@ -482,28 +458,17 @@ export default {
         </span>
       </template>
 
-      <!-- Custom Cliente Column -->
-      <template #cliente="{ data }">
-        <span :class="{ 'text-gray-500 font-italic': !data.client }">
-          {{ data.client ? getClientFullName(data.client) : 'Sin datos' }}
-        </span>
-      </template>
-
       <!-- Custom Verificador Column -->
       <template #verificador="{ data }">
-        <span :class="{ 'text-orange-500 font-medium': !data.homeVisitDetails || !data.homeVisitDetails.verifierId }">
-          {{ data.homeVisitDetails && data.homeVisitDetails.verifierId
-              ? getVerifierById(data.homeVisitDetails.verifierId)
-              : 'PENDIENTE' }}
+        <span :class="{ 'text-orange-500 font-medium': !data.verifierName }">
+          {{ getVerifierDisplay(data) }}
         </span>
       </template>
 
       <!-- Custom Programacion Column -->
       <template #programacion="{ data }">
-        <span :class="{ 'text-orange-500 font-medium': !data.homeVisitDetails || !data.homeVisitDetails.visitDate }">
-          {{ data.homeVisitDetails && data.homeVisitDetails.visitDate
-              ? getVisitDate(data.homeVisitDetails)
-              : 'PENDIENTE' }}
+        <span :class="{ 'text-orange-500 font-medium': !data.visitDate }">
+          {{ getVisitDateFormatted(data) }}
         </span>
       </template>
 

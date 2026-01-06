@@ -7,10 +7,6 @@ export class OrderRequestApi {
         this.resourceEndpoint = _resourceEndpoint;
     }
 
-    getAll() {
-        return http.get(this.resourceEndpoint);
-    }
-
     getById(id) {
         return http.get(`${this.resourceEndpoint}/${id}`);
     }
@@ -25,6 +21,11 @@ export class OrderRequestApi {
 
     delete(id) {
         return http.delete(`${this.resourceEndpoint}/${id}`);
+    }
+
+    // Obtener todas las órdenes en formato resumido
+    getAllSummary() {
+        return http.get(`${this.resourceEndpoint}/summary`);
     }
 
     // Asignar un verificador a una orden de servicio
