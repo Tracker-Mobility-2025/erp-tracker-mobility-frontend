@@ -1,22 +1,38 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { VerificationOrderHttpRepository } from "../infrastructure/repositories/verification-order-http.repository.js";
 import { CreateVerificationOrderCommand } from "../domain/commands/create-verification-order.command.js";
 import { VerificationOrderErrorHandler } from "./error-handlers/verification-order-error.handler.js";
 import { useNotification } from "../../shared-v2/composables/use-notification.js";
+import { OrderApi } from "../infrastructure/order.api.js";
+import { ServiceOrderSummaryAssembler } from "../infrastructure/assemblers/service-order-summary.assembler.js";
 
 /**
  * Store de Pinia para funcionalidad de órdenes de verificación.
  * Arquitectura: Presentation → Store → Repository → API
+ * Store único consolidado que maneja órdenes, observaciones y documentos.
  */
 const useVerificationOrderStore = defineStore('verificationOrder', () => {
     // State
     const verificationOrders = ref([]);
+    const orderSummaries = ref([]);
+    const currentOrder = ref(null);
 
     // Dependencies
     const repository = new VerificationOrderHttpRepository();
+    const orderApi = new OrderApi();
     const { showSuccess, showError, showWarning } = useNotification();
     const errorHandler = new VerificationOrderErrorHandler({ showSuccess, showError, showWarning });
+
+    // Computed
+    const currentObservations = computed(() => currentOrder.value?.observations || []);
+    const currentDocuments = computed(() => currentOrder.value?.documents || []);
+    const pendingObservations = computed(() => 
+        currentObservations.value.filter(obs => obs.isPending)
+    );
+    const resolvedObservations = computed(() => 
+        currentObservations.value.filter(obs => obs.isResolved)
+    );
 
     // Actions
     async function fetchAll() {
@@ -29,12 +45,33 @@ const useVerificationOrderStore = defineStore('verificationOrder', () => {
         }
     }
 
+    /**
+     * Obtiene todas las órdenes en formato resumido
+     * @returns {Promise<{success: boolean, data?, message?, code}>}
+     */
+    async function fetchAllSummaries() {
+        try {
+            const response = await orderApi.getAllSummary();
+            const data = ServiceOrderSummaryAssembler.toEntities(response.data || []);
+            orderSummaries.value = data;
+            return {
+                success: true,
+                data,
+                message: `${data.length} orden${data.length !== 1 ? 'es' : ''} cargada${data.length !== 1 ? 's' : ''}`,
+                code: 'SUCCESS'
+            };
+        } catch (error) {
+            return errorHandler.handle(error, 'cargar las órdenes');
+        }
+    }
+
     async function fetchById(id) {
         try {
             const data = await repository.findById(parseInt(id));
             if (!data) {
                 return { success: false, message: 'No encontrado', code: 'NOT_FOUND' };
             }
+            currentOrder.value = data;
             return { success: true, data, code: 'SUCCESS' };
         } catch (error) {
             return errorHandler.handle(error, 'cargar la orden');
@@ -175,8 +212,20 @@ const useVerificationOrderStore = defineStore('verificationOrder', () => {
     }
 
     return {
+        // State
         verificationOrders,
+        orderSummaries,
+        currentOrder,
+        
+        // Computed
+        currentObservations,
+        currentDocuments,
+        pendingObservations,
+        resolvedObservations,
+        
+        // Actions
         fetchAll,
+        fetchAllSummaries,
         fetchById,
         create,
         update,

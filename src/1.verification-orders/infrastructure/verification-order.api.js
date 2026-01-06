@@ -1,7 +1,7 @@
 import { BaseApi } from "../../shared-v2/infrastructure/base-api.js";
 import { BaseEndpoint } from "../../shared-v2/infrastructure/base-endpoint.js";
-import { CreateVerificationOrderCommandAssembler } from "./create-verification-order-command.assembler.js";
-import { UpdateVerificationOrderCommandAssembler } from "./update-verification-order-command.assembler.js";
+import { CreateVerificationOrderCommandAssembler } from "./assemblers/create-verification-order-command.assembler.js";
+import { UpdateVerificationOrderCommandAssembler } from "./assemblers/update-verification-order-command.assembler.js";
 
 /**
  * Servicio API para gestionar recursos de Verification Order.

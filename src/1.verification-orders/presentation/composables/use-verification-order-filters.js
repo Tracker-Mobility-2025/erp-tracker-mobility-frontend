@@ -31,8 +31,8 @@ export function useVerificationOrderFilters(orders) {
     if (globalFilterValue.value && globalFilterValue.value.trim().length > 0) {
       const searchTerm = globalFilterValue.value.toLowerCase().trim().replace(/\s+/g, ' ');
       filtered = filtered.filter(order =>
-        (order.orderCodeValue && order.orderCodeValue.toLowerCase().includes(searchTerm)) ||
-        (order.clientFullName && order.clientFullName.toLowerCase().includes(searchTerm)) ||
+        (order.orderCode && order.orderCode.toLowerCase().includes(searchTerm)) ||
+        (order.clientName && order.clientName.toLowerCase().includes(searchTerm)) ||
         (order.companyName && order.companyName.toLowerCase().includes(searchTerm)) ||
         (order.verifierName && order.verifierName.toLowerCase().includes(searchTerm))
       );
@@ -48,7 +48,8 @@ export function useVerificationOrderFilters(orders) {
       const [startDate, endDate] = dateRange.value;
       if (startDate && endDate) {
         filtered = filtered.filter(order => {
-          const orderDate = new Date(order.requestDate);
+          if (!order.visitDate) return false;
+          const orderDate = new Date(order.visitDate);
           return orderDate >= startDate && orderDate <= endDate;
         });
       }

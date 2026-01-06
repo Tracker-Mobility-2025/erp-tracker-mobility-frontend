@@ -12,19 +12,17 @@ import CreateObservationDialog from '../components/create-observation-dialog.vue
 import ObservationsList from '../components/observations-list.vue';
 import ReportView from '../components/report-view.vue';
 import useVerificationOrderStore from '../../application/verification-order.store.js';
-import useObservationStore from '../../application/observation.store.js';
 import { 
   UILabels, 
-  StatusColors
-} from '../verification-order-ui.constants.js';
-import { OrderStatusTranslations } from '../../domain/constants/verification-order.constants.js';
+  StatusColors,
+  OrderStatusTranslations
+} from '../constants/verification-order-ui.constants.js';
 
 // Router y stores
 const route = useRoute();
 const router = useRouter();
 const confirm = useConfirm();
 const store = useVerificationOrderStore();
-const observationStore = useObservationStore();
 
 // Estados locales
 const loading = ref(false);
@@ -35,8 +33,7 @@ const activeView = ref('basic'); // 'basic' o 'report'
 // Computed
 const orderId = computed(() => parseInt(route.query.id));
 
-const observations = computed(() => observationStore.observations);
-const observationsLoading = computed(() => observationStore.loading);
+const observations = computed(() => store.currentObservations);
 
 // Métodos
 async function loadOrder() {
@@ -45,7 +42,6 @@ async function loadOrder() {
     const result = await store.fetchById(orderId.value);
     if (result.success) {
       order.value = result.data;
-      await loadObservations();
     } else {
       router.push({ name: 'verification-orders-list' });
     }
@@ -54,49 +50,33 @@ async function loadOrder() {
   }
 }
 
-async function loadObservations() {
-  if (orderId.value) {
-    await observationStore.fetchByOrder(orderId.value);
-  }
-}
-
 function openCreateObservationDialog() {
   createObservationDialogVisible.value = true;
 }
 
 async function onObservationCreated(observationData) {
-  const result = await observationStore.create(observationData);
-  if (result.success) {
-    await loadObservations();
-  }
+  // Las observaciones se crean mediante el proceso principal de actualización de la orden
+  await loadOrder();
 }
 
 async function onResolveObservation(observation) {
-  const result = await observationStore.resolve(orderId.value, observation.id);
-  if (result.success) {
-    await loadObservations();
-  }
+  // El estado se actualiza mediante el proceso principal de actualización de la orden
+  await loadOrder();
 }
 
 async function onRejectObservation(observation) {
-  const result = await observationStore.reject(orderId.value, observation.id);
-  if (result.success) {
-    await loadObservations();
-  }
+  // El estado se actualiza mediante el proceso principal de actualización de la orden
+  await loadOrder();
 }
 
 async function onReopenObservation(observation) {
-  const result = await observationStore.reopen(orderId.value, observation.id);
-  if (result.success) {
-    await loadObservations();
-  }
+  // El estado se actualiza mediante el proceso principal de actualización de la orden
+  await loadOrder();
 }
 
 async function onDeleteObservation(observation) {
-  const result = await observationStore.remove(orderId.value, observation.id);
-  if (result.success) {
-    await loadObservations();
-  }
+  // La eliminación se maneja mediante el proceso principal de actualización de la orden
+  await loadOrder();
 }
 
 function getStatusColor(status) {

@@ -271,7 +271,7 @@ import ContactReferences from './contact-references.vue';
 import DwellingFormDialog from './dwelling-form-dialog.vue';
 import ZoneFormDialog from './zone-form-dialog.vue';
 import LocationFormDialog from './location-form-dialog.vue';
-import { OrderStatusTranslations, OrderStatusColors } from '../../domain/constants/verification-order.constants.js';
+import { OrderStatusTranslations, OrderStatusColors } from '../constants/verification-order-ui.constants.js';
 
 const props = defineProps({
   order: {

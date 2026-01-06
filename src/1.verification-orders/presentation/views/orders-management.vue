@@ -16,9 +16,9 @@ import {
   StatusColors,
   StatusIcons,
   StatusFilterOptions,
-  DataManagerActions
-} from '../verification-order-ui.constants.js';
-import { OrderStatusTranslations } from '../../domain/constants/verification-order.constants.js';
+  DataManagerActions,
+  OrderStatusTranslations
+} from '../constants/verification-order-ui.constants.js';
 
 // Store y composables
 const store = useVerificationOrderStore();
@@ -36,14 +36,16 @@ const {
   updateStatusFilter,
   updateDateRangeFilter,
   getCountByStatus
-} = useVerificationOrderFilters(() => store.verificationOrders);
+} = useVerificationOrderFilters(() => store.orderSummaries);
 
 // Estados locales
 const loading = ref(false);
+const assignDialogVisible = ref(false);
+const selectedOrderForAssign = ref(null);
 
 // Configuración
 const statusOptions = StatusFilterOptions;
-const title = UILabels.title;
+const title = { singular: UILabels.singular, plural: UILabels.title };
 
 // Métodos
 function onGlobalFilterChange(value) {
@@ -83,7 +85,7 @@ async function onVerifierAssigned(assignmentData) {
 
 function onDelete(order) {
   confirm.require({
-    message: `¿Está seguro de eliminar la orden ${order.orderCodeValue}?`,
+    message: `¿Está seguro de eliminar la orden ${order.orderCode}?`,
     header: 'Confirmar eliminación',
     icon: 'pi pi-exclamation-triangle',
     acceptLabel: 'Sí, eliminar',
@@ -99,7 +101,7 @@ function onDelete(order) {
 async function getAllOrders() {
   loading.value = true;
   try {
-    await store.fetchAll();
+    await store.fetchAllSummaries();
   } finally {
     loading.value = false;
   }
@@ -123,7 +125,7 @@ onMounted(async () => {
     <div class="flex-1 p-4 overflow-auto">
       <div>
         <data-manager
-          :items="store.verificationOrders"
+          :items="store.orderSummaries"
           :filtered-items="filteredOrders"
           :global-filter-value="globalFilterValue"
           :columns="TableColumns"

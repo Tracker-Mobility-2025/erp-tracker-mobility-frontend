@@ -1,16 +1,17 @@
-import { VerificationOrder } from '../domain/models/verification-order.entity.js';
-import { OrderCode } from '../domain/value-objects/order-code.vo.js';
-import { Dwelling } from '../domain/models/dwelling.entity.js';
-import { Zone } from '../domain/models/zone.entity.js';
-import { Location } from '../domain/models/location.entity.js';
-import { Residence } from '../domain/models/residence.entity.js';
-import { ContactReference } from '../domain/models/contact-reference.entity.js';
-import { Document } from '../domain/models/document.entity.js';
-import { Landlord } from '../domain/models/landlord.entity.js';
+import { VerificationOrder } from '../../domain/models/verification-order.entity.js';
+import { OrderCode } from '../../domain/value-objects/order-code.vo.js';
+import { Dwelling } from '../../domain/models/dwelling.entity.js';
+import { Zone } from '../../domain/models/zone.entity.js';
+import { Location } from '../../domain/models/location.entity.js';
+import { Residence } from '../../domain/models/residence.entity.js';
+import { ContactReference } from '../../domain/models/contact-reference.entity.js';
+import { Document } from '../../domain/models/document.entity.js';
+import { Landlord } from '../../domain/models/landlord.entity.js';
 
 /**
  * Assembler para transformar recursos HTTP a entidades de dominio.
- * Transforma los datos del backend al formato de la entidad VerificationOrder.
+ * Responsabilidad única: mapping bidireccional (resource ↔ entity).
+ * NO maneja errores HTTP, NO toma decisiones de negocio.
  */
 export class VerificationOrderAssembler {
   /**
@@ -105,7 +106,7 @@ export class VerificationOrderAssembler {
         try {
           return this.toEntity(resource);
         } catch (error) {
-          console.warn('[VerificationOrderAssembler] Registro inválido omitido:', error.message, resource);
+          console.warn('[VerificationOrderAssembler] Registro inválido omitido:', error.message);
           return null;
         }
       })

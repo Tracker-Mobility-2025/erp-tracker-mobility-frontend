@@ -1,7 +1,8 @@
-import { Observation } from '../domain/models/observation.entity.js';
+import { Observation } from '../../domain/models/observation.entity.js';
 
 /**
  * Assembler para transformar recursos HTTP a entidades de dominio de observaciones.
+ * Responsabilidad única: mapping bidireccional (resource ↔ entity).
  */
 export class ObservationAssembler {
   /**
@@ -27,8 +28,8 @@ export class ObservationAssembler {
 
   /**
    * Convierte un array de recursos a entidades
-   * @param {Array} resources - Array de objetos del backend
-   * @returns {Observation[]}
+   * @param {Array<Object>} resources - Array de objetos del backend
+   * @returns {Array<Observation>}
    */
   static toEntities(resources) {
     if (!Array.isArray(resources)) {
@@ -40,7 +41,7 @@ export class ObservationAssembler {
         try {
           return this.toEntity(resource);
         } catch (error) {
-          console.warn('[ObservationAssembler] Registro inválido omitido:', error.message, resource);
+          console.warn('[ObservationAssembler] Registro inválido omitido:', error.message);
           return null;
         }
       })

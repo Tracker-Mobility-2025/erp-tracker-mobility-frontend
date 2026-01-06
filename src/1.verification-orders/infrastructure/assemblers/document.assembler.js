@@ -1,11 +1,14 @@
-import { Document } from '../domain/models/document.entity.js';
+import { Document } from '../../domain/models/document.entity.js';
 
 /**
- * Assembler para transformar documentos entre HTTP y entidades de dominio
+ * Assembler para transformar documentos entre HTTP y entidades de dominio.
+ * Responsabilidad única: mapping bidireccional (resource ↔ entity).
  */
 export class DocumentAssembler {
   /**
    * Convierte un recurso HTTP a entidad Document
+   * @param {Object} resource - Recurso del backend
+   * @returns {Document}
    */
   static toEntity(resource) {
     if (!resource) {
@@ -27,6 +30,8 @@ export class DocumentAssembler {
 
   /**
    * Convierte un array de recursos a entidades
+   * @param {Array<Object>} resources - Array de recursos del backend
+   * @returns {Array<Document>}
    */
   static toEntities(resources) {
     if (!Array.isArray(resources)) {
@@ -38,7 +43,7 @@ export class DocumentAssembler {
         try {
           return this.toEntity(resource);
         } catch (error) {
-          console.warn('[DocumentAssembler] Registro inválido omitido:', error.message, resource);
+          console.warn('[DocumentAssembler] Registro inválido omitido:', error.message);
           return null;
         }
       })
@@ -47,6 +52,8 @@ export class DocumentAssembler {
 
   /**
    * Convierte una entidad a formato HTTP
+   * @param {Document} entity - Entidad de dominio
+   * @returns {Object}
    */
   static toResource(entity) {
     return {

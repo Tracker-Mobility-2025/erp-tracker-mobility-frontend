@@ -1,6 +1,6 @@
 import { IVerificationOrderRepository } from '../../domain/repositories/verification-order.repository.interface.js';
 import { VerificationOrderApi } from '../verification-order.api.js';
-import { VerificationOrderAssembler } from '../verification-order.assembler.js';
+import { VerificationOrderAssembler } from '../assemblers/verification-order.assembler.js';
 
 /**
  * Implementación HTTP del repositorio de órdenes de verificación.
