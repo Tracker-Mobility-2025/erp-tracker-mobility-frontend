@@ -92,58 +92,5 @@ export class Verifier {
   get workScheduleValue() {
     return this.workSchedule.value;
   }
-
-  /**
-   * Activa el verificador.
-   * @throws {Error} Si el verificador ya está activo
-   */
-  activate() {
-    if (this.isActive) {
-      throw new Error(VerifierMessages.ALREADY_ACTIVE);
-    }
-    this.status = VerifierStatus.ACTIVE;
-  }
-
-  /**
-   * Desactiva el verificador.
-   * @throws {Error} Si el verificador ya está inactivo
-   */
-  deactivate() {
-    if (!this.isActive) {
-      throw new Error(VerifierMessages.ALREADY_INACTIVE);
-    }
-    this.status = VerifierStatus.INACTIVE;
-  }
-
-  /**
-   * Actualiza la información de contacto del verificador.
-   * @param {string} email - Nuevo email
-   * @param {string} phone - Nuevo teléfono
-   * @throws {Error} Si los valores son inválidos
-   */
-  updateContactInfo(email, phone) {
-    this.email = new Email(email);
-    this.phoneNumber = new PhoneNumber(phone);
-  }
-
-  /**
-   * Actualiza el horario de trabajo.
-   * @param {string} agenda - Nuevo horario
-   * @throws {Error} Si el horario es inválido
-   */
-  updateSchedule(agenda) {
-    this.workSchedule = new WorkSchedule(agenda);
-  }
-
-  /**
-   * Verifica si el verificador puede trabajar en una fecha específica.
-   * @param {Date} date - Fecha a verificar
-   * @returns {boolean} True si puede trabajar en esa fecha
-   */
-  canWorkAt(date) {
-    if (!this.isActive) {
-      return false;
-    }
-    return this.workSchedule.isAvailableOn(date);
-  }
+ 
 }

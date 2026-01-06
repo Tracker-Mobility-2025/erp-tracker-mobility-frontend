@@ -2,7 +2,7 @@ import axios from "axios";
 import {authenticationInterceptor, authenticationResponseInterceptor, authenticationErrorInterceptor} from "../../tracker-mobility/security/services/authentication.interceptor.js";
 
 
-const platformApi = import.meta.env.VITE_API_BASE_URL;;
+const platformApi = import.meta.env.VITE_API_BASE_URL;
 
 /**
  * @class BaseApi

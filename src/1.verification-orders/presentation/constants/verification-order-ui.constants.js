@@ -36,13 +36,13 @@ export const OrderStatusColors = Object.freeze({
  * Iconos por estado (PrimeIcons)
  */
 export const OrderStatusIcons = Object.freeze({
-  [OrderStatus.PENDIENTE]: 'pi-clock',
-  [OrderStatus.ASIGNADO]: 'pi-user',
-  [OrderStatus.EN_PROCESO]: 'pi-spinner',
-  [OrderStatus.COMPLETADA]: 'pi-check-circle',
-  [OrderStatus.CANCELADA]: 'pi-times-circle',
-  [OrderStatus.OBSERVADO]: 'pi-exclamation-triangle',
-  [OrderStatus.SUBSANADA]: 'pi-check'
+  [OrderStatus.PENDIENTE]: 'pi pi-clock',
+  [OrderStatus.ASIGNADO]: 'pi pi-user',
+  [OrderStatus.EN_PROCESO]: 'pi pi-spinner',
+  [OrderStatus.COMPLETADA]: 'pi pi-check-circle',
+  [OrderStatus.CANCELADA]: 'pi pi-times-circle',
+  [OrderStatus.OBSERVADO]: 'pi pi-exclamation-triangle',
+  [OrderStatus.SUBSANADA]: 'pi pi-check'
 });
 
 /**
@@ -50,6 +50,7 @@ export const OrderStatusIcons = Object.freeze({
  */
 export const UILabels = Object.freeze({
   MODULE_TITLE: 'Órdenes de Verificación',
+  MODULE_DESCRIPTION: 'Gestión y seguimiento de órdenes de verificación',
   title: 'Órdenes de Verificación',
   singular: 'Orden de Verificación',
   createButton: 'Nueva Orden',
@@ -65,10 +66,10 @@ export const UILabels = Object.freeze({
 export const TableColumns = Object.freeze([
   { field: 'orderCode', header: 'Código', sortable: true },
   { field: 'clientName', header: 'Cliente', sortable: true },
-  { field: 'status', header: 'Estado', sortable: true },
+  { field: 'status', header: 'Estado', sortable: true, template: 'status' },
   { field: 'companyName', header: 'Empresa', sortable: true },
   { field: 'verifierName', header: 'Verificador', sortable: true },
-  { field: 'visitDate', header: 'Fecha de Visita', sortable: true }
+  { field: 'visitDateShort', header: 'Fecha de Visita', sortable: true }
 ]);
 
 /**

@@ -1,3 +1,5 @@
+import { DateFormatter } from '../../../shared-v2/utils/date-formatter.js';
+
 /**
  * Entidad de dominio: ServiceOrderSummary
  * Representa un resumen de orden de servicio para listados.
@@ -61,77 +63,10 @@ export class ServiceOrderSummary {
   }
 
   /**
-   * Obtiene la fecha de visita formateada
-   * @returns {string|null} Fecha formateada o null
-   */
-  get visitDateFormatted() {
-    if (!this.visitDate) return null;
-    return this.visitDate.toLocaleDateString('es-PE', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  }
-
-  /**
    * Obtiene la fecha de visita en formato corto (dd/mm/aaaa)
-   * @returns {string|null} Fecha en formato corto o null
+   * @returns {string} Fecha en formato corto o string vacío
    */
   get visitDateShort() {
-    if (!this.visitDate) return null;
-    const day = String(this.visitDate.getDate()).padStart(2, '0');
-    const month = String(this.visitDate.getMonth() + 1).padStart(2, '0');
-    const year = this.visitDate.getFullYear();
-    return `${day}/${month}/${year}`;
-  }
-
-  /**
-   * Verifica si la visita es hoy
-   * @returns {boolean} True si la visita es hoy
-   */
-  get isVisitToday() {
-    if (!this.visitDate) return false;
-    const today = new Date();
-    return this.visitDate.toDateString() === today.toDateString();
-  }
-
-  /**
-   * Verifica si la visita está vencida
-   * @returns {boolean} True si la visita está vencida
-   */
-  get isVisitOverdue() {
-    if (!this.visitDate) return false;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return this.visitDate < today;
-  }
-
-  /**
-   * Obtiene información del verificador
-   * @returns {Object|null} Objeto con info del verificador o null
-   */
-  get verifierInfo() {
-    if (!this.hasVerifier) return null;
-    return {
-      id: this.verifierId,
-      name: this.verifierName || 'Sin nombre'
-    };
-  }
-
-  /**
-   * Convierte la entidad a objeto plano para serialización
-   * @returns {Object}
-   */
-  toJSON() {
-    return {
-      id: this.id,
-      orderCode: this.orderCode,
-      clientName: this.clientName,
-      status: this.status,
-      companyName: this.companyName,
-      verifierId: this.verifierId,
-      verifierName: this.verifierName,
-      visitDate: this.visitDate
-    };
+    return DateFormatter.fromDateObject(this.visitDate);
   }
 }

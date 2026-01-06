@@ -17,11 +17,11 @@ export class OrderApi extends BaseApi {
   }
 
   /**
-   * Obtiene todas las órdenes en formato resumido desde /api/v1/orders/summary
+   * Obtiene todas las órdenes en formato resumido desde /api/v1/web/orders
    * @returns {Promise} Una promesa que se resuelve con la respuesta de órdenes resumidas.
    */
   getAllSummary() {
-    return this.#endpoint.http.get(`${this.#endpoint.endpointPath}/summary`);
+    return this.http.get(`/web${this.#endpoint.endpointPath}`);
   }
 
   /**
@@ -31,5 +31,18 @@ export class OrderApi extends BaseApi {
    */
   getSummaryById(id) {
     return this.#endpoint.http.get(`${this.#endpoint.endpointPath}/summary/${id}`);
+  }
+
+  /**
+   * Obtiene una orden completa por ID desde /api/v1/web/orders/{orderId}
+   * @param {string|number} id - El ID de la orden.
+   * @returns {Promise} Una promesa que se resuelve con la respuesta de la orden completa.
+   */
+  getById(id) {
+    const orderId = parseInt(id, 10);
+    if (isNaN(orderId) || orderId <= 0) {
+      throw new Error('El ID de la orden debe ser un número válido mayor a 0');
+    }
+    return this.http.get(`/web${this.#endpoint.endpointPath}/${orderId}`);
   }
 }

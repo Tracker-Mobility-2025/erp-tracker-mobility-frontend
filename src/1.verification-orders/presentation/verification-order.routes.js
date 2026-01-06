@@ -10,14 +10,5 @@ export const verificationOrderRoutes = [
       title: 'Órdenes de Verificación',
       requiresAuth: true
     }
-  },
-  {
-    path: 'detail',
-    name: 'verification-order-details',
-    component: () => import('./views/order-detail.vue'),
-    meta: {
-      title: 'Detalle de Orden',
-      requiresAuth: true
-    }
   }
 ];

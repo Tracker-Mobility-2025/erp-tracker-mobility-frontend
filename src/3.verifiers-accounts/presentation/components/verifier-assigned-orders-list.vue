@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue';
+import { DateFormatter } from '../../../shared-v2/utils/date-formatter.js';
 
 const props = defineProps({
   orders: {
@@ -48,26 +49,23 @@ function formatDate(date) {
   if (!date) return 'Sin fecha';
   
   try {
-    let dateToFormat;
-    
-    if (date.includes('T')) {
+    // Si es ISO 8601 con timestamp (yyyy-MM-ddTHH:mm:ss)
+    if (typeof date === 'string' && date.includes('T')) {
       const datePart = date.split('T')[0];
-      const [year, month, day] = datePart.split('-');
-      dateToFormat = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-    } else if (date.includes('-')) {
-      const [year, month, day] = date.split('-');
-      dateToFormat = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-    } else {
-      dateToFormat = new Date(date);
+      return DateFormatter.fromBackend(datePart) || 'Fecha inválida';
     }
     
-    if (isNaN(dateToFormat.getTime())) return 'Fecha inválida';
+    // Si es formato backend (yyyy-MM-dd)
+    if (typeof date === 'string' && date.includes('-') && date.split('-').length === 3) {
+      return DateFormatter.fromBackend(date) || 'Fecha inválida';
+    }
     
-    const day = dateToFormat.getDate().toString().padStart(2, '0');
-    const month = (dateToFormat.getMonth() + 1).toString().padStart(2, '0');
-    const year = dateToFormat.getFullYear();
+    // Si es objeto Date
+    if (date instanceof Date) {
+      return DateFormatter.fromDateObject(date) || 'Fecha inválida';
+    }
     
-    return `${day}/${month}/${year}`;
+    return 'Formato no soportado';
   } catch (error) {
     console.error('Error formateando fecha:', error);
     return 'Error en fecha';
