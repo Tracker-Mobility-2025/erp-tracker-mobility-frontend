@@ -20,16 +20,17 @@ export const OrderStatusTranslations = Object.freeze({
 });
 
 /**
- * Colores por estado para componentes PrimeVue
+ * Clases CSS personalizadas por estado (desde workflow-states.css)
+ * Estas clases sobrescriben los estilos de PrimeVue para mantener consistencia visual
  */
-export const OrderStatusColors = Object.freeze({
-  [OrderStatus.PENDIENTE]: 'warning',
-  [OrderStatus.ASIGNADO]: 'info',
-  [OrderStatus.EN_PROCESO]: 'primary',
-  [OrderStatus.COMPLETADA]: 'success',
-  [OrderStatus.CANCELADA]: 'danger',
-  [OrderStatus.OBSERVADO]: 'help',
-  [OrderStatus.SUBSANADA]: 'success'
+export const OrderStatusClasses = Object.freeze({
+  [OrderStatus.PENDIENTE]: 'status-pendiente',
+  [OrderStatus.ASIGNADO]: 'status-asignado',
+  [OrderStatus.EN_PROCESO]: 'status-en-proceso',
+  [OrderStatus.COMPLETADA]: 'status-completada',
+  [OrderStatus.CANCELADA]: 'status-cancelada',
+  [OrderStatus.OBSERVADO]: 'status-observado',
+  [OrderStatus.SUBSANADA]: 'status-subsanada'
 });
 
 /**
@@ -68,15 +69,15 @@ export const TableColumns = Object.freeze([
   { field: 'clientName', header: 'Cliente', sortable: true },
   { field: 'status', header: 'Estado', sortable: true, template: 'status' },
   { field: 'companyName', header: 'Empresa', sortable: true },
-  { field: 'verifierName', header: 'Verificador', sortable: true },
+  { field: 'verifierNameDisplay', header: 'Verificador', sortable: true },
   { field: 'visitDateShort', header: 'Fecha de Visita', sortable: true }
 ]);
 
 /**
  * Alias para compatibilidad
  */
-export const StatusColors = OrderStatusColors;
 export const StatusIcons = OrderStatusIcons;
+export const StatusClasses = OrderStatusClasses;
 
 /**
  * Opciones de filtro por estado

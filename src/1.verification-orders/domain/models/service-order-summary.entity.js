@@ -42,7 +42,7 @@ export class ServiceOrderSummary {
     this.status = status;
     this.companyName = companyName;
     this.verifierId = verifierId;
-    this.verifierName = verifierName;
+    this.verifierName = verifierName || null;
     this.visitDate = visitDate ? new Date(visitDate) : null;
   }
 
@@ -61,12 +61,24 @@ export class ServiceOrderSummary {
   get hasScheduledVisit() {
     return Boolean(this.visitDate);
   }
+  
+  /**
+   * Obtiene el nombre del verificador o "Pendiente" si no hay asignado
+   * @returns {string} Nombre del verificador o "Pendiente"
+   */
+  get verifierNameDisplay() {
+    return this.verifierName && this.verifierName.trim() !== '' 
+      ? this.verifierName 
+      : 'Pendiente';
+  }
 
   /**
-   * Obtiene la fecha de visita en formato corto (dd/mm/aaaa)
-   * @returns {string} Fecha en formato corto o string vacío
+   * Obtiene la fecha de visita en formato corto (dd/mm/aaaa) o "Pendiente"
+   * @returns {string} Fecha en formato corto o "Pendiente"
    */
   get visitDateShort() {
-    return DateFormatter.fromDateObject(this.visitDate);
+    if (!this.visitDate) return 'Pendiente';
+    const formatted = DateFormatter.fromDateObject(this.visitDate);
+    return formatted && formatted.trim() !== '' ? formatted : 'Pendiente';
   }
 }

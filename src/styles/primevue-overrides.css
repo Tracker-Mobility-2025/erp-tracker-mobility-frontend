@@ -480,14 +480,40 @@ button.p-button.p-button-outlined:focus-visible,
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
     transition: all 0.2s ease;
+    overflow: hidden;
 }
 
 .p-card:hover {
     box-shadow: var(--shadow-md);
 }
 
+.p-card .p-card-header {
+    background: linear-gradient(135deg, var(--primary-900) 0%, var(--primary-800) 100%);
+    color: var(--color-white);
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+    padding: 0;
+    border-bottom: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 .p-card .p-card-content {
     padding: var(--spacing-lg);
+    color: var(--color-text-gray);
+}
+
+/* Estilo para textos en negrita dentro de las cards */
+.p-card .p-card-content .font-bold.text-900 {
+    font-weight: var(--font-weight-bold);
+    color: var(--surface-700);
+}
+
+.p-card .p-card-content .font-semibold {
+    font-weight: var(--font-weight-semibold);
+}
+
+.p-card .p-card-content .font-bold {
+    font-weight: var(--font-weight-bold);
 }
 
 /* ========== DIALOGS ========== */
@@ -497,18 +523,28 @@ button.p-button.p-button-outlined:focus-visible,
     border: var(--border-width) solid var(--color-border-cards);
     border-radius: var(--border-radius-lg);
     box-shadow: var(--shadow-lg);
+    max-height: 90vh;
 }
 
 .p-dialog .p-dialog-header {
-    background: var(--color-slate);
-    color: var(--color-white);
+    background: var(--color-card-background);
+    color: var(--color-text-gray);
+    border-bottom: var(--border-width) solid var(--color-border);
     border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
     padding: var(--spacing-lg);
 }
 
 .p-dialog .p-dialog-content {
-    padding: var(--spacing-lg);
+    padding: var(--spacing-md);
     color: var(--color-text-gray);
+    max-height: calc(90vh - 120px);
+    overflow-y: auto;
+}
+
+.p-dialog .p-dialog-footer {
+    border-top: var(--border-width) solid var(--color-border);
+    background: var(--color-white);
+    padding: var(--spacing-md);
 }
 
 /* ========== SIDEBAR ========== */

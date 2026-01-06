@@ -1142,3 +1142,190 @@ button.p-button.p-button-outlined.btn-delete:hover,
     height: 80px; 
   }
 }
+/* ========== CUSTOM SCROLLBARS ========== */
+
+/* Scrollbar genérico con estilo corporativo */
+.custom-scrollbar::-webkit-scrollbar {
+  width: var(--spacing-xs);
+  height: var(--spacing-xs);
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--surface-50);
+  border-radius: var(--border-radius-sm);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--surface-200);
+  border-radius: var(--border-radius-sm);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--surface-300);
+}
+
+/* Scrollbar para listas (ej: observaciones, documentos, etc.) */
+.list-scrollable {
+  max-height: 215px;
+  overflow-y: auto;
+  padding-right: var(--spacing-xs);
+}
+
+.list-scrollable::-webkit-scrollbar {
+  width: var(--spacing-xs);
+}
+
+.list-scrollable::-webkit-scrollbar-track {
+  background: var(--surface-50);
+  border-radius: var(--border-radius-sm);
+}
+
+.list-scrollable::-webkit-scrollbar-thumb {
+  background: var(--surface-200);
+  border-radius: var(--border-radius-sm);
+}
+
+.list-scrollable::-webkit-scrollbar-thumb:hover {
+  background: var(--surface-300);
+}
+
+/* ========== HOVER EFFECTS ========== */
+
+/* Efecto hover para items de lista */
+.list-item-hover {
+  transition: all var(--transition-duration) ease;
+}
+
+.list-item-hover:hover {
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+/* ========== DOCUMENT VIEWER ========== */
+
+/* Contenedor de imagen con zoom */
+.image-viewer .image-container {
+  background: var(--color-white);
+  border-radius: var(--border-radius);
+  overflow: auto;
+  max-height: 60vh;
+  border: var(--border-width) solid var(--color-border);
+}
+
+/* Controles de imagen con hover effect */
+.image-controls .p-button:hover {
+  transform: scale(1.05);
+  transition: transform var(--transition-duration) ease;
+}
+
+/* Preview de documento */
+.document-preview {
+  min-height: 200px;
+  background: var(--color-background);
+  border-radius: var(--border-radius);
+}
+
+/* Visualizador de contenido */
+.document-content-viewer {
+  min-height: 400px;
+}
+
+.content-frame-container {
+  position: relative;
+  height: 500px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.document-content-frame {
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity var(--transition-duration) ease;
+}
+
+.content-header {
+  padding: var(--spacing-sm);
+  background: var(--color-background);
+  border-radius: var(--border-radius);
+  border: var(--border-width) solid var(--color-border);
+}
+
+/* Estilos para zoom de imagen */
+.image-zoom {
+  transform-origin: top left;
+  display: block;
+}
+
+/* Loading overlay para frames */
+.loading-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+/* ========== MODAL FOOTER ========== */
+
+.modal-footer-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: var(--spacing-sm) 0;
+  gap: var(--spacing-md);
+}
+
+.footer-actions-left {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.footer-actions-right {
+  display: flex;
+  align-items: center;
+}
+
+.footer-actions-left .p-button {
+  min-width: 120px;
+}
+
+.footer-actions-right .p-button {
+  min-width: 100px;
+}
+
+.modal-footer-container .p-button:hover {
+  transform: translateY(-1px);
+  transition: all var(--transition-duration) ease;
+}
+
+.modal-footer-container .p-button:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .modal-footer-container {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    align-items: stretch;
+  }
+  
+  .footer-actions-left {
+    justify-content: center;
+    order: 2;
+  }
+  
+  .footer-actions-right {
+    justify-content: center;
+    order: 1;
+  }
+  
+  .footer-actions-left .p-button,
+  .footer-actions-right .p-button {
+    width: 100%;
+    justify-content: center;
+  }
+}

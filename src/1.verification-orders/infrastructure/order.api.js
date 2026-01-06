@@ -25,15 +25,6 @@ export class OrderApi extends BaseApi {
   }
 
   /**
-   * Obtiene una orden resumida por ID
-   * @param {string|number} id - El ID de la orden.
-   * @returns {Promise} Una promesa que se resuelve con la respuesta de la orden.
-   */
-  getSummaryById(id) {
-    return this.#endpoint.http.get(`${this.#endpoint.endpointPath}/summary/${id}`);
-  }
-
-  /**
    * Obtiene una orden completa por ID desde /api/v1/web/orders/{orderId}
    * @param {string|number} id - El ID de la orden.
    * @returns {Promise} Una promesa que se resuelve con la respuesta de la orden completa.
@@ -44,5 +35,25 @@ export class OrderApi extends BaseApi {
       throw new Error('El ID de la orden debe ser un número válido mayor a 0');
     }
     return this.http.get(`/web${this.#endpoint.endpointPath}/${orderId}`);
+  }
+
+  /**
+   * Asigna un verificador a una orden
+   * @param {number} orderId - El ID de la orden
+   * @param {Object} assignmentData - Datos de asignación {verifierId, visitDate, visitTime}
+   * @returns {Promise} Una promesa que se resuelve con la respuesta de la asignación
+   */
+  assignVerifier(orderId, assignmentData) {
+    return this.http.patch(`/web${this.#endpoint.endpointPath}/${orderId}/assignment`, assignmentData);
+  }
+
+  /**
+   * Crea una observación para una orden
+   * @param {number} orderId - El ID de la orden
+   * @param {Object} observationData - Datos de observación {observationType, description}
+   * @returns {Promise} Una promesa que se resuelve con la respuesta de la observación creada
+   */
+  createObservation(orderId, observationData) {
+    return this.http.post(`/web${this.#endpoint.endpointPath}/${orderId}/observations`, observationData);
   }
 }

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import Toolbar from '../../../shared-v2/presentation/components/toolbar.vue';
 import DataManager from '../../../shared-v2/presentation/components/data-manager.vue';
 import useVerificationOrderStore from '../../application/verification-order.store.js';
@@ -7,13 +8,14 @@ import { useVerificationOrderFilters } from '../composables/use-verification-ord
 import { 
   UILabels, 
   TableColumns, 
-  StatusColors,
   StatusIcons,
+  StatusClasses,
   StatusFilterOptions,
   OrderStatusTranslations
 } from '../constants/verification-order-ui.constants.js';
 
-// Store y composables
+// Router y Store
+const router = useRouter();
 const store = useVerificationOrderStore();
 
 const {
@@ -45,15 +47,18 @@ function onClearFilters() {
 }
 
 function getStatusClass(status) {
-  return StatusColors[status] || 'secondary';
-}
-
-function getStatusSeverity(status) {
-  return StatusColors[status] || 'secondary';
+  return StatusClasses[status] || 'status-default';
 }
 
 function getStatusLabel(status) {
   return OrderStatusTranslations[status] || status;
+}
+
+function handleViewDetails(order) {
+  router.push({ 
+    name: 'verification-order-detail', 
+    query: { id: order.id } 
+  });
 }
 
 async function getAllOrders() {
@@ -95,11 +100,14 @@ onMounted(async () => {
           :show-export="false"
           :show-selection="false"
           :show-actions="true"
+          :show-view-action="true"
+          :view-action-icon-only="true"
           :rows="10"
           :rows-per-page-options="[5, 10, 20, 50]"
           search-placeholder="Buscar por código, cliente, empresa o verificador..."
           @global-filter-change="onGlobalFilterChange"
           @clear-filters="onClearFilters"
+          @view-item-requested-manager="handleViewDetails"
         >
           <!-- Filtros personalizados -->
           <template #filters="{ clearFilters }">
@@ -111,7 +119,27 @@ onMounted(async () => {
               placeholder="Filtrar por estado"
               class="w-full md:w-auto"
               @change="updateStatusFilter(selectedStatus)"
-            />
+            >
+              <template #value="slotProps">
+                <span v-if="slotProps.value">
+                  Estado: {{ getStatusLabel(slotProps.value) }}
+                </span>
+                <span v-else>
+                  {{ slotProps.placeholder }}
+                </span>
+              </template>
+              
+              <template #option="slotProps">
+                <div class="flex align-items-center justify-content-between w-full gap-2">
+                  <span>{{ slotProps.option.label }}</span>
+                  <span 
+                    :class="['badge-custom', getStatusClass(slotProps.option.value)]"
+                  >
+                    {{ getCountByStatus(slotProps.option.value) }}
+                  </span>
+                </div>
+              </template>
+            </pv-dropdown>
             
             <pv-calendar
               v-model="dateRange"
@@ -134,12 +162,12 @@ onMounted(async () => {
 
           <!-- Status Column Template -->
           <template #status="slotProps">
-            <pv-tag 
-              :value="getStatusLabel(slotProps.data.status)" 
-              :severity="getStatusSeverity(slotProps.data.status)"
-              :icon="StatusIcons[slotProps.data.status]"
-              :class="getStatusClass(slotProps.data.status)"
-            />
+            <span 
+              :class="['status-tag', getStatusClass(slotProps.data.status)]"
+            >
+              <i :class="StatusIcons[slotProps.data.status]" class="mr-1"></i>
+              {{ getStatusLabel(slotProps.data.status) }}
+            </span>
           </template>
         </data-manager>
       </div>

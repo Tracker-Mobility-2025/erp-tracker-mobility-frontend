@@ -114,10 +114,47 @@ export function useDateFormatter() {
     }
   }
 
+  /**
+   * Convierte una hora al formato backend (HH:mm).
+   * @param {string|Date} time - Hora en formato Date o string
+   * @returns {string} Hora en formato HH:mm o string vacío si no es válida
+   */
+  const formatTimeToBackend = (time) => {
+    if (!time) return ''
+    
+    try {
+      // Si es un objeto Date
+      if (time instanceof Date) {
+        if (isNaN(time.getTime())) return ''
+        
+        const hours = String(time.getHours()).padStart(2, '0')
+        const minutes = String(time.getMinutes()).padStart(2, '0')
+        return `${hours}:${minutes}`
+      }
+      
+      // Si es un string en formato HH:mm
+      if (typeof time === 'string') {
+        // Validar formato HH:mm
+        const timePattern = /^([0-1]?[0-9]|2[0-3]):([0-5][0-9])$/
+        if (timePattern.test(time)) {
+          const [hours, minutes] = time.split(':')
+          return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`
+        }
+        return time
+      }
+      
+      return ''
+    } catch (error) {
+      console.error('Error al convertir hora para backend:', error)
+      return ''
+    }
+  }
+
   return {
     formatFromBackend,
     formatToBackend,
     formatToReadable,
-    parseFromDisplay
+    parseFromDisplay,
+    formatTimeToBackend
   }
 }
