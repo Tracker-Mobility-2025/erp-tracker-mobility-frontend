@@ -33,4 +33,9 @@ export class ReportApiService {
         return http.put(`${this.resourceEndpoint}/${id}`, data);
     }
 
+    // Obtener todos los reportes en formato resumido -> /api/v1/reports/summary
+    getAllSummary() {
+        return http.get(`${this.resourceEndpoint}/summary`);
+    }
+
 }

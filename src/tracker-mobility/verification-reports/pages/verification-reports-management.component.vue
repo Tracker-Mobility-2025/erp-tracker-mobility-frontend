@@ -2,7 +2,7 @@
 
 import DataManager from "../../../shared/components/data-manager.component.vue";
 import {ReportApiService} from "../services/reports-api.service.js";
-import {VerificationReport} from "../models/verification-report.entity.js";
+import {VerificationReportSummary} from "../models/verification-report-summary.entity.js";
 
 export default {
   name: 'verification-reports-management',
@@ -121,7 +121,7 @@ export default {
       // Navegar a vista de detalles pasando el ID del informe
       this.$router.push({ 
         name: 'verification-reports-details', 
-        query: { id: item.id } 
+        query: { id: item.reportId } 
       });
     },
 
@@ -302,7 +302,7 @@ export default {
 
     getAll() {
       this.loading = true;
-      this.reportVerificationManagementApiService.getAll().then(response => {
+      this.reportVerificationManagementApiService.getAllSummary().then(response => {
         // Validar respuesta usando función modular
         this.validateServerResponse(response, 'informes de verificación');
 
@@ -313,29 +313,10 @@ export default {
           return; // Salir sin mostrar error, la tabla mostrará el mensaje "No se encontraron registros"
         }
 
-        // Mapear los datos de la API a la estructura esperada por la tabla
-        this.itemsArray = response.data.map(item => {
-          // Crear el objeto VerificationReport para mantener la estructura del modelo
-          const report = new VerificationReport(item);
-          
-          // Agregar propiedades calculadas para la tabla
-          return {
-            ...report,
-            // Campos para mostrar en la tabla
-            reportCode: item.reportCode || 'N/A',
-            orderCode: item.order?.orderCode || 'N/A',
-            clientName: item.order?.client ? `${item.order.client.name || ''} ${item.order.client.lastName || ''}`.trim() : 'Cliente no especificado',
-            companyName: item.order?.applicantCompany?.companyName || 'Empresa no especificada',
-            requestDate: item.order?.requestDate || '',
-            requestDateNormalized: this.normalizeDateForComparison(item.order?.requestDate), // Fecha normalizada para filtros
-            finalResult: item.finalResult || 'PENDIENTE',
-            
-            // Mantener referencia al objeto completo para usar en detalles
-            fullData: item
-          };
-        });
+        // Mapear los datos de la API usando VerificationReportSummary
+        this.itemsArray = response.data.map(item => new VerificationReportSummary(item));
 
-        console.log('Informes de verificación procesados:', this.itemsArray);
+        console.log('Informes de verificación resumidos cargados:', this.itemsArray.length);
 
       }).catch(error => {
         this.itemsArray = []; // Limpiar datos en caso de error
