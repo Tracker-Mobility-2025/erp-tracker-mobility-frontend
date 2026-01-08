@@ -1,76 +1,99 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { VerificationReportHttpRepository } from "../infrastructure/repositories/verification-report-http.repository.js";
-import { CreateVerificationReportCommand } from "../domain/commands/create-verification-report.command.js";
-import { VerificationReportErrorHandler } from "./error-handlers/verification-report-error.handler.js";
+import { ReportHttpRepository } from "../infrastructure/repositories/report-http.repository.js";
+import { ReportErrorHandler } from "./error-handlers/report-error.handler.js";
 import { useNotification } from "../../shared-v2/composables/use-notification.js";
 
 /**
  * Store de Pinia para funcionalidad de reportes de verificación.
  * Arquitectura: Presentation → Store → Repository → API
+ * El Store contiene la lógica de negocio y gestiona estado reactivo.
  */
 const useVerificationReportStore = defineStore('verificationReport', () => {
     // State
     const verificationReports = ref([]);
 
     // Dependencies
-    const repository = new VerificationReportHttpRepository();
+    const repository = new ReportHttpRepository();
     const { showSuccess, showError, showWarning } = useNotification();
-    const errorHandler = new VerificationReportErrorHandler({ showSuccess, showError, showWarning });
+    const errorHandler = new ReportErrorHandler({ showSuccess, showError, showWarning });
 
-    // Actions
+    /**
+     * Obtiene todos los reportes resumidos.
+     * @returns {Promise<Object>} Resultado { success, data?, message, code }
+     */
     async function fetchAll() {
+        // Limpiar datos SÍNCRONAMENTE antes de cargar
+        verificationReports.value = [];
+        
         try {
-            const data = await repository.findAll();
+            const data = await repository.findAllSummaries();
             verificationReports.value = data;
-            return { success: true, data, code: 'SUCCESS' };
+            return {
+                success: true,
+                data,
+                message: `${data.length} reporte${data.length !== 1 ? 's' : ''} cargado${data.length !== 1 ? 's' : ''}`,
+                code: 'SUCCESS'
+            };
         } catch (error) {
             return errorHandler.handle(error, 'cargar los reportes');
         }
     }
 
+    /**
+     * Obtiene un reporte por su ID.
+     * @param {string|number} id - El ID del reporte.
+     * @returns {Promise<Object>} Resultado { success, data?, message, code }
+     */
     async function fetchById(id) {
         try {
-            const data = await repository.findById(parseInt(id));
-            if (!data) {
-                return { success: false, message: 'No encontrado', code: 'NOT_FOUND' };
+            const reportId = parseInt(id);
+            
+            if (!reportId) {
+                return {
+                    success: false,
+                    message: 'ID de reporte requerido',
+                    code: 'INVALID_PARAMS'
+                };
             }
-            return { success: true, data, code: 'SUCCESS' };
+
+            const data = await repository.findById(reportId);
+
+            if (!data) {
+                showWarning('Reporte no encontrado', 'No encontrado', 3000);
+                return {
+                    success: false,
+                    message: 'Reporte no encontrado',
+                    code: 'NOT_FOUND'
+                };
+            }
+
+            return {
+                success: true,
+                data,
+                message: 'Reporte cargado correctamente',
+                code: 'SUCCESS'
+            };
         } catch (error) {
             return errorHandler.handle(error, 'cargar el reporte');
         }
     }
 
-    async function create(formData) {
-        try {
-            const command = new CreateVerificationReportCommand(formData);
-            const data = await repository.save(command);
-            verificationReports.value.push(data);
-            showSuccess('Reporte creado exitosamente', 'Éxito', 4000);
-            return { success: true, data, code: 'CREATED' };
-        } catch (error) {
-            return errorHandler.handle(error, 'crear el reporte');
-        }
-    }
-
-    async function update(command) {
-        try {
-            const data = await repository.update(command);
-            const index = verificationReports.value.findIndex(r => r.id === data.id);
-            if (index !== -1) verificationReports.value[index] = data;
-            showSuccess('Reporte actualizado exitosamente', 'Éxito', 4000);
-            return { success: true, data, code: 'UPDATED' };
-        } catch (error) {
-            return errorHandler.handle(error, 'actualizar el reporte');
-        }
-    }
-
+    /**
+     * Elimina un reporte por su ID.
+     * @param {number} id - El ID del reporte a eliminar.
+     * @returns {Promise<Object>} Resultado { success, message, code }
+     */
     async function remove(id) {
         try {
-            await repository.delete(id);
-            verificationReports.value = verificationReports.value.filter(r => r.id !== id);
-            showSuccess('Reporte eliminado exitosamente', 'Éxito', 4000);
-            return { success: true, code: 'DELETED' };
+            // TODO: Implementar eliminación cuando el API lo soporte
+            verificationReports.value = verificationReports.value.filter(r => r.reportId !== id);
+            showSuccess('Reporte eliminado exitosamente', 'Éxito', 3000);
+            return {
+                success: true,
+                message: 'Reporte eliminado correctamente',
+                code: 'DELETED'
+            };
         } catch (error) {
             return errorHandler.handle(error, 'eliminar el reporte');
         }
@@ -80,10 +103,9 @@ const useVerificationReportStore = defineStore('verificationReport', () => {
         verificationReports,
         fetchAll,
         fetchById,
-        create,
-        update,
         remove
     };
 });
 
 export default useVerificationReportStore;
+

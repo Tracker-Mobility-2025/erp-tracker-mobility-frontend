@@ -46,9 +46,20 @@ export class VerificationReportErrorHandler {
     }
 
     if (status >= 500) {
-      this.notificationService.showError('Error del servidor', 'Error', 5000);
-      console.error(`[VerificationReportErrorHandler] Error al ${context}:`, error);
-      return { success: false, message: 'Error del servidor', code: 'SERVER_ERROR' };
+      const errorDetails = data?.message || data?.error || 'Error interno del servidor';
+      console.error(`[VerificationReportErrorHandler] Error al ${context}:`, {
+        status,
+        statusText: error.response.statusText,
+        url: error.config?.url,
+        method: error.config?.method,
+        errorData: data
+      });
+      this.notificationService.showError(
+        `Error del servidor: ${errorDetails}`,
+        'Error interno (500)',
+        6000
+      );
+      return { success: false, message: errorDetails, code: 'SERVER_ERROR', status };
     }
 
     const message = data.message || `Error al ${context}`;

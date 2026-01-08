@@ -14,15 +14,16 @@ export function useVerificationReportFilters(getReports) {
     if (globalFilterValue.value && globalFilterValue.value.trim().length > 0) {
       const searchLower = globalFilterValue.value.toLowerCase().trim();
       filtered = filtered.filter(report =>
-        (report.code && report.code.toLowerCase().includes(searchLower)) ||
-        (report.candidateName && report.candidateName.toLowerCase().includes(searchLower)) ||
-        (report.verifierName && report.verifierName.toLowerCase().includes(searchLower))
+        (report.reportCode && report.reportCode.toLowerCase().includes(searchLower)) ||
+        (report.orderCode && report.orderCode.toLowerCase().includes(searchLower)) ||
+        (report.clientName && report.clientName.toLowerCase().includes(searchLower)) ||
+        (report.companyName && report.companyName.toLowerCase().includes(searchLower))
       );
     }
 
     // Filtro por estado
     if (selectedStatus.value) {
-      filtered = filtered.filter(report => report.status === selectedStatus.value);
+      filtered = filtered.filter(report => report.finalResult === selectedStatus.value);
     }
 
     return filtered;
@@ -42,7 +43,7 @@ export function useVerificationReportFilters(getReports) {
   }
 
   function getCountByStatus(status) {
-    return getReports().filter(r => r.status === status).length;
+    return getReports().filter(r => r.finalResult === status).length;
   }
 
   return {

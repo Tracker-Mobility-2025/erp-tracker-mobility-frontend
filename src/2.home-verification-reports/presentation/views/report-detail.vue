@@ -6,21 +6,12 @@ import { useNotification } from '../../../shared-v2/composables/use-notification
 import Toolbar from '../../../shared-v2/presentation/components/toolbar.vue';
 
 // Import all report card components
-import {
-  VisitDetailsCard,
-  ApplicantDataCard,
-  CustomerDataCard,
-  CustomerAddressCard,
-  ResidenceDetailsCard,
-  LandlordDataCard,
-  LandlordInterviewDetailsCard,
-  ReportObservationsCard,
-  ReportSummaryCard,
-  ReportGlossaryCard,
-  ReportCasuistryCard,
-  AnnexePhotographicRegistry,
-  EmailSendDialog
-} from '../components';
+import VerificationInfoCard from '../components/verification-info-card.vue';
+import ApplicantClientInfoCard from '../components/applicant-client-info-card.vue';
+import AddressInfoCard from '../components/address-info-card.vue';
+
+import AnnexePhotographicRegistry from '../components/annexe-photographic-registry.vue';
+import EmailSendDialog from '../components/email-send-dialog.vue';
 
 // Composables
 const route = useRoute();
@@ -99,7 +90,7 @@ const loadData = async (reportId) => {
 };
 
 const retryLoading = () => {
-  const reportId = route.query.id;
+  const reportId = route.params.reportId;
   hasError.value = false;
   clearData();
   loadData(reportId);
@@ -142,13 +133,13 @@ const handleExportPDF = () => {
 
 // Lifecycle
 onMounted(async () => {
-  const reportId = route.query.id;
+  const reportId = route.params.reportId;
   clearData();
   await loadData(reportId);
 });
 
 // Watch for route changes
-watch(() => route.query.id, async (newId) => {
+watch(() => route.params.reportId, async (newId) => {
   if (newId) {
     clearData(); // Limpiar INMEDIATAMENTE (síncrono)
     await loadData(newId); // Luego cargar (asíncrono)
@@ -160,7 +151,7 @@ watch(() => route.query.id, async (newId) => {
   <div class="h-full w-full flex flex-column">
     <!-- Toolbar -->
     <toolbar
-      :title="report ? `Reporte ${report.code || 'N/A'}` : 'Detalle del Reporte'"
+      :title="report ? `Reporte ${report.reportCode || 'N/A'}` : 'Detalle del Reporte'"
       :description="'Visualiza toda la información del reporte de verificación domiciliaria'"
       :show-back-button="true"
     >
@@ -211,87 +202,40 @@ watch(() => route.query.id, async (newId) => {
 
       <!-- Report Content -->
       <div v-else-if="report" class="flex flex-column gap-4">
-        <!-- Section 1: Visit Details -->
-        <visit-details-card
+        <!-- Section 0: Verification Info (Highlighted) -->
+        <verification-info-card
           :verifier="report.verifierName"
-          :google-maps-link="report.googleMapsLink"
-          :verification-date="report.verificationDate"
-          :result="report.status"
+          :address="report.address?.address"
+          :district="report.address?.district"
+          :province="report.address?.province"
+          :department="report.address?.department"
+          :visit-date="report.visitDate"
+          :result="report.finalResult"
         />
 
-        <!-- Section 2: Applicant Data -->
-        <applicant-data-card
-          :business-name="report.applicantBusinessName"
-          :ruc="report.applicantRuc"
+        <!-- Section 1: Applicant & Client Info -->
+        <applicant-client-info-card
+          :company-name="report.companyName"
+          :company-ruc="report.companyRuc"
+          :company-executive-name="report.companyExecutiveName"
           :request-date="report.requestDate"
+          :final-result="report.finalResult"
+          :client-full-name="report.clientFullName"
+          :client-interviewed-name="report.clientName"
+          :clientRelation="report.residence?.livesWith"
+          :client-document-type="report.clientDocumentType"
+          :client-document-number="report.clientDocumentNumber"
         />
 
-        <!-- Section 3: Customer Data -->
-        <customer-data-card
-          :full-name="report.candidateFullName"
-          :document-type="report.candidateDocumentType"
-          :document-number="report.candidateDocumentNumber"
-          :phone-number="report.candidatePhoneNumber"
+        <!-- Section 2: Address Info -->
+        <address-info-card
+          :department="report.addressDepartment"
+          :province="report.addressProvince"
+          :district="report.addressDistrict"
+          :full-address="report.addressStreet"
+          :verified-address="report.exactClientAddress"
         />
-
-        <!-- Section 4: Customer Address -->
-        <customer-address-card
-          :address="report.candidateAddress"
-          :district="report.candidateDistrict"
-          :province="report.candidateProvince"
-          :department="report.candidateDepartment"
-          :reference="report.candidateReference"
-        />
-
-        <!-- Section 5: Residence Details -->
-        <residence-details-card
-          :residence-type="report.residenceType"
-          :dwelling-type="report.dwellingType"
-          :garage-type="report.garageType"
-          :residence-time="report.residenceTime"
-        />
-
-        <!-- Section 6: Landlord Data -->
-        <landlord-data-card
-          :full-name="report.landlordFullName"
-          :phone-number="report.landlordPhoneNumber"
-          :relationship="report.landlordRelationship"
-        />
-
-        <!-- Section 7: Landlord Interview Details -->
-        <landlord-interview-details-card
-          :interview-date="report.landlordInterviewDate"
-          :interview-time="report.landlordInterviewTime"
-          :observations="report.landlordInterviewObservations"
-          :status="report.landlordInterviewStatus"
-        />
-
-        <!-- Section 8: Report Observations -->
-        <report-observations-card
-          :observations="report.observations"
-        />
-
-        <!-- Section 9: Report Summary -->
-        <report-summary-card
-          :total-photos="report.totalPhotos || 0"
-          :total-annexes="report.totalAnnexes || 0"
-          :report-status="report.status"
-          :created-at="report.createdAt"
-          :updated-at="report.updatedAt"
-        />
-
-        <!-- Section 10: Report Glossary -->
-        <report-glossary-card
-          :glossary-items="report.glossaryItems || []"
-        />
-
-        <!-- Section 11: Report Casuistry -->
-        <report-casuistry-card
-          :casuistry-type="report.casuistryType"
-          :description="report.casuistryDescription"
-          :recommendations="report.casuistryRecommendations"
-        />
-
+       
         <!-- Section 12: Annexe 01 - Photographic Registry -->
         <annexe-photographic-registry
           title="ANEXO 01: Registro fotográfico del candidato"
@@ -358,9 +302,9 @@ watch(() => route.query.id, async (newId) => {
     <email-send-dialog
       :visible="emailDialogVisible"
       :recipient-email="report?.applicantEmail || ''"
-      :subject="`Reporte de Verificación ${report?.code || ''}`"
+      :subject="`Reporte de Verificación ${report?.reportCode || ''}`"
       :message="`Adjunto encontrará el reporte de verificación domiciliaria.`"
-      :report-code="report?.code || 'N/A'"
+      :report-code="report?.reportCode || 'N/A'"
       @cancel-requested="handleEmailCancelRequested"
       @save-requested="handleEmailSaveRequested"
     />

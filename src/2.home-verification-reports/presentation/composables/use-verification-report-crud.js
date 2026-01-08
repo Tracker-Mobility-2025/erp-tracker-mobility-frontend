@@ -37,12 +37,12 @@ export function useVerificationReportCrud() {
   function onViewItem(report) {
     router.push({
       name: 'verification-report-detail',
-      query: { id: report.id }
+      params: { reportId: report.reportId }
     });
   }
 
   async function onDeleteItem(report) {
-    await store.remove(report.id);
+    await store.remove(report.reportId);
   }
 
   function onCancelRequested() {

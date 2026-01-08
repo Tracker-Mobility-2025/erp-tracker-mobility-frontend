@@ -13,7 +13,7 @@ export const verificationReportRoutes = [
     }
   },
   {
-    path: 'detail',
+    path: 'detail/:reportId',
     name: 'verification-report-detail',
     component: () => import('./views/report-detail.vue'),
     meta: {

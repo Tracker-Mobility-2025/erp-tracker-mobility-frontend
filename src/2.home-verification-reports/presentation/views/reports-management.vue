@@ -49,11 +49,12 @@ const title = VerificationReportUILabels.title;
 
 // Columnas de la tabla
 const columns = [
-  { field: 'code', header: 'Código', sortable: true, style: 'width: 150px;' },
-  { field: 'candidateName', header: 'Candidato', sortable: true, style: 'width: 200px;' },
-  { field: 'verifierName', header: 'Verificador', sortable: true, style: 'width: 200px;' },
-  { field: 'verificationDate', header: 'Fecha de Verificación', sortable: true, style: 'width: 180px;' },
-  { field: 'status', header: 'Estado', sortable: true, template: 'status', style: 'width: 120px;' },
+  { field: 'reportCode', header: 'Código de Reporte', sortable: true, style: 'width: 150px;' },
+  { field: 'orderCode', header: 'Código de Orden', sortable: true, style: 'width: 150px;' },
+  { field: 'clientName', header: 'Cliente', sortable: true, style: 'width: 200px;' },
+  { field: 'companyName', header: 'Empresa', sortable: true, style: 'width: 200px;' },
+  { field: 'requestDate', header: 'Fecha de Solicitud', sortable: true, style: 'width: 150px;' },
+  { field: 'finalResult', header: 'Resultado', sortable: true, template: 'status', style: 'width: 130px;' },
 ];
 
 // Métodos
@@ -67,16 +68,6 @@ function onClearFilters() {
 
 function getStatusClass(status) {
   return StatusClassMap[status] || 'status-default';
-}
-
-function getStatusSeverity(status) {
-  const severityMap = {
-    'CONFORME': 'success',
-    'OBSERVADO': 'warning',
-    'RECHAZADO': 'danger',
-    'PENDIENTE': 'info'
-  };
-  return severityMap[status] || 'info';
 }
 
 async function onDeleteSelectedItems(items) {
@@ -150,22 +141,21 @@ onMounted(async () => {
             <template #value="slotProps">
               <div v-if="slotProps.value" class="flex align-items-center gap-2">
                 <span class="font-semibold">Estado:</span>
-                <pv-tag 
-                  :value="StatusTranslations[slotProps.value]" 
-                  :severity="getStatusSeverity(slotProps.value)"
-                  :class="getStatusClass(slotProps.value)"
-                />
+                <span :class="['status-tag', getStatusClass(slotProps.value)]">
+                  {{ StatusTranslations[slotProps.value] }}
+                </span>
               </div>
               <span v-else>{{ slotProps.placeholder }}</span>
             </template>
             <template #option="slotProps">
               <div class="flex align-items-center justify-content-between w-full">
                 <span>{{ slotProps.option.label }}</span>
-                <pv-badge
+                <span
                   v-if="slotProps.option.value"
-                  :value="getCountByStatus(slotProps.option.value)"
-                  :severity="getStatusSeverity(slotProps.option.value)"
-                />
+                  :class="['badge-custom', getStatusClass(slotProps.option.value)]"
+                >
+                  {{ getCountByStatus(slotProps.option.value) }}
+                </span>
               </div>
             </template>
           </pv-dropdown>
@@ -179,11 +169,9 @@ onMounted(async () => {
 
         <!-- Template para columna de estado -->
         <template #status="slotProps">
-          <pv-tag
-            :value="StatusTranslations[slotProps.data.status]"
-            :severity="getStatusSeverity(slotProps.data.status)"
-            :class="getStatusClass(slotProps.data.status)"
-          />
+          <span :class="['status-tag', getStatusClass(slotProps.data.finalResult)]">
+            {{ StatusTranslations[slotProps.data.finalResult] }}
+          </span>
         </template>
       </data-manager>
     </div>

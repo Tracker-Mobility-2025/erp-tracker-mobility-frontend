@@ -3,6 +3,10 @@ import { ref, computed, watch, onMounted } from 'vue';
 import useVerificationOrderStore from '../../application/verification-order.store.js';
 import { useNotification } from '../../../shared-v2/composables/use-notification.js';
 import { useDateFormatter } from '../../../shared-v2/composables/use-date-formatter.js';
+import { 
+  OrderStatusClasses as StatusClasses,
+  OrderStatusIcons as StatusIcons
+} from '../constants/verification-order-ui.constants.js';
 
 // Constantes de estados permitidos
 const VERIFIER_EDITABLE_STATUSES = ['PENDIENTE', 'ASIGNADO', 'SUBSANADA'];
@@ -168,6 +172,10 @@ function getStatusLabel(statusValue) {
   
   const statusOption = props.statusOptions.find(option => option.value === statusValue);
   return statusOption ? statusOption.label : statusValue;
+}
+
+function getStatusClass(status) {
+  return StatusClasses[status] || 'status-default';
 }
 
 function getObservationTypeLabel(value) {
@@ -519,17 +527,15 @@ watch(() => props.item, (newItem) => {
       <template #content>
 
         <div class="field mb-0">
-          <div class="p-3 border-round border-2 surface-border bg-blue-50 h-full">
-            <label class="text-xs font-semibold text-blue-700 uppercase mb-2 flex align-items-center gap-2">
-              <i class="pi pi-info-circle text-blue-600"></i>
+          <div class="p-3 border-round bg-surface-50">
+            <label class="text-xs font-semibold text-500 uppercase mb-2 flex align-items-center gap-2">
+              <i class="pi pi-info-circle"></i>
               Estado actual
             </label>
-            <div class="flex align-items-center gap-2">
-              <i class="pi pi-circle-fill text-primary"></i>
-              <span class="text-base font-bold text-900">
-                {{ getStatusLabel(item.status) }}
-              </span>
-            </div>
+            <span :class="['status-tag', getStatusClass(item.status)]">
+              <i :class="StatusIcons[item.status]" class="mr-1"></i>
+              {{ getStatusLabel(item.status) }}
+            </span>
           </div>
         </div>
       </template>

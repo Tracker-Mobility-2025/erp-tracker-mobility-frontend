@@ -88,7 +88,7 @@ const isFormValid = () => {
       <div class="field col-12">
         <label class="font-semibold">Código del reporte</label>
         <pv-input-text 
-          v-model="reportCode" 
+          :model-value="reportCode" 
           disabled 
           class="w-full"
         />

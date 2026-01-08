@@ -121,12 +121,14 @@ onMounted(async () => {
               @change="updateStatusFilter(selectedStatus)"
             >
               <template #value="slotProps">
-                <span v-if="slotProps.value">
-                  Estado: {{ getStatusLabel(slotProps.value) }}
-                </span>
-                <span v-else>
-                  {{ slotProps.placeholder }}
-                </span>
+                <div v-if="slotProps.value" class="flex align-items-center gap-2">
+                  <span class="font-semibold">Estado:</span>
+                  <span :class="['status-tag', getStatusClass(slotProps.value)]">
+                    <i :class="StatusIcons[slotProps.value]" class="mr-1"></i>
+                    {{ getStatusLabel(slotProps.value) }}
+                  </span>
+                </div>
+                <span v-else>{{ slotProps.placeholder }}</span>
               </template>
               
               <template #option="slotProps">
