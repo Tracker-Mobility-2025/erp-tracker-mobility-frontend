@@ -11,6 +11,8 @@ export class EmployeeCollaborator {
         phoneNumber = '',
         applicantCompanyId = null,
         status = 'ACTIVE',
+        brandId = null,
+        roles = [],
         createdAt = null,
         updatedAt = null
     } = {}) {
@@ -21,6 +23,8 @@ export class EmployeeCollaborator {
         this.phoneNumber = phoneNumber;
         this.applicantCompanyId = applicantCompanyId;
         this.status = status;
+        this.brandId = brandId;
+        this.roles = roles;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }

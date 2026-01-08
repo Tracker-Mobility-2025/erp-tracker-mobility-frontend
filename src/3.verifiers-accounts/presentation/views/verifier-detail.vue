@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useNotification } from '../../../shared-v2/composables/use-notification.js';
 import { useConfirm } from 'primevue/useconfirm';
@@ -107,9 +107,39 @@ const simulateLoadingProgress = () => {
   }, 4000);
 };
 
+const clearData = () => {
+  // Limpiar datos SÍNCRONAMENTE (inmediato, sin await)
+  item.value = {};
+  assignedOrders.value = [];
+  hasVerifierError.value = false;
+  hasOrdersError.value = false;
+  verifierErrorMessage.value = '';
+  ordersErrorMessage.value = '';
+};
+
+const loadData = async (verifierId) => {
+  if (verifierId) {
+    isLoadingVerifier.value = true;
+    isLoadingOrders.value = true;
+    loadingStep.value = 0;
+    
+    simulateLoadingProgress();
+    
+    await getVerifierById(verifierId);
+    await getAssignedOrdersByVerifierId(verifierId);
+  } else {
+    hasVerifierError.value = true;
+    isLoadingVerifier.value = false;
+    isLoadingOrders.value = false;
+    verifierErrorMessage.value = 'ID de verificador no válido.';
+  }
+};
+
 const retryLoadingVerifier = () => {
   const verifierId = route.query.id;
   hasVerifierError.value = false;
+  clearData();
+  loadData(verifierId);
   isLoadingVerifier.value = true;
   loadingStep.value = 0;
   
@@ -146,37 +176,42 @@ const getVerifierById = async (verifierId) => {
 
 const getAssignedOrdersByVerifierId = async (verifierId) => {
   try {
+    console.log('[VerifierDetail] Getting assigned orders for verifier:', verifierId);
     const orders = await verifierStore.fetchAssignedOrders(verifierId);
+    console.log('[VerifierDetail] Orders received:', orders?.length || 0, 'orders');
+    
     assignedOrders.value = orders || [];
     
     loadingStep.value = loadingSteps.length;
     isLoadingOrders.value = false;
   } catch (error) {
-    console.error('Error al recuperar órdenes asignadas:', error);
+    console.error('[VerifierDetail] Error al recuperar órdenes asignadas:', error);
+    console.error('[VerifierDetail] Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status
+    });
+    
     hasOrdersError.value = true;
     isLoadingOrders.value = false;
-    ordersErrorMessage.value = 'No se pudieron cargar las órdenes asignadas. Intente nuevamente.';
+    
+    const errorDetail = error.response?.data?.message || error.message || 'Error desconocido';
+    ordersErrorMessage.value = `No se pudieron cargar las órdenes asignadas. Error del servidor: ${errorDetail}. Por favor, contacte al administrador si el problema persiste.`;
   }
 };
 
 // Lifecycle
 onMounted(async () => {
   const verifierId = route.query.id;
+  clearData();
+  await loadData(verifierId);
+});
 
-  if (verifierId) {
-    isLoadingVerifier.value = true;
-    isLoadingOrders.value = true;
-    loadingStep.value = 0;
-    
-    simulateLoadingProgress();
-    
-    await getVerifierById(verifierId);
-    await getAssignedOrdersByVerifierId(verifierId);
-  } else {
-    hasVerifierError.value = true;
-    isLoadingVerifier.value = false;
-    isLoadingOrders.value = false;
-    verifierErrorMessage.value = 'ID de verificador no válido.';
+// Watch for route changes
+watch(() => route.query.id, async (newId) => {
+  if (newId) {
+    clearData(); // Limpiar INMEDIATAMENTE (síncrono)
+    await loadData(newId); // Luego cargar (asíncrono)
   }
 });
 </script>

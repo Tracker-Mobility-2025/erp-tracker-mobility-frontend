@@ -2,6 +2,7 @@
 // Infrastructure layer - DTO to Domain Entity mapper
 
 import { Customer } from '../../domain/models/customer.entity.js';
+import { Brand } from '../../domain/models/brand.entity.js';
 import { EmployeeCollaborator } from '../../domain/models/employee-collaborator.entity.js';
 
 export class CustomerAssembler {
@@ -13,11 +14,20 @@ export class CustomerAssembler {
     static toDomain(dto) {
         if (!dto) return null;
         
+        // Map brands array to Brand entities
+        const brands = Array.isArray(dto.brands)
+            ? dto.brands.map(brandDto => new Brand({
+                id: brandDto.id,
+                value: brandDto.value
+            }))
+            : [];
+        
         return new Customer({
-            id: dto.id,
+            id: dto.applicantCompanyId || dto.id, // Map applicantCompanyId -> id
             ruc: dto.ruc,
             companyName: dto.companyName,
             status: dto.status,
+            brands: brands,
             createdAt: dto.createdAt,
             updatedAt: dto.updatedAt
         });
@@ -59,12 +69,22 @@ export class CustomerAssembler {
     static toDTO(entity) {
         if (!entity) return null;
         
-        return {
-            id: entity.id,
+        const dto = {
+            applicantCompanyId: entity.id, // Map id -> applicantCompanyId
             ruc: entity.ruc,
             companyName: entity.companyName,
             status: entity.status
         };
+
+        // Include brands if present
+        if (entity.brands && entity.brands.length > 0) {
+            dto.brands = entity.brands.map(brand => ({
+                id: brand.id,
+                value: brand.value
+            }));
+        }
+
+        return dto;
     }
 }
 
@@ -85,6 +105,8 @@ export class EmployeeCollaboratorAssembler {
             phoneNumber: dto.phoneNumber,
             applicantCompanyId: dto.applicantCompanyId,
             status: dto.status,
+            brandId: dto.brandId,
+            roles: Array.isArray(dto.roles) ? dto.roles : [],
             createdAt: dto.createdAt,
             updatedAt: dto.updatedAt
         });
@@ -108,7 +130,7 @@ export class EmployeeCollaboratorAssembler {
     static toDTO(entity) {
         if (!entity) return null;
         
-        return {
+        const dto = {
             id: entity.id,
             email: entity.email,
             name: entity.name,
@@ -117,5 +139,17 @@ export class EmployeeCollaboratorAssembler {
             applicantCompanyId: entity.applicantCompanyId,
             status: entity.status
         };
+
+        // Include brandId if present
+        if (entity.brandId !== null && entity.brandId !== undefined) {
+            dto.brandId = entity.brandId;
+        }
+
+        // Include roles if present
+        if (entity.roles && entity.roles.length > 0) {
+            dto.roles = entity.roles;
+        }
+
+        return dto;
     }
 }

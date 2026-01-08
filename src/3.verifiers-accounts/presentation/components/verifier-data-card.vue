@@ -101,10 +101,10 @@ function getAgendaDisplay() {
 <template>
   <pv-card class="w-full">
     <template #header>
-      <div class="flex align-items-center justify-content-between p-3 border-bottom-1 border-200">
+      <div class="flex align-items-center justify-content-between px-3 py-2">
         <div class="flex align-items-center gap-2">
-          <pv-avatar icon="pi pi-user" class="bg-purple-500" size="large" shape="circle" />
-          <h3 class="font-bold text-xl m-0">Información Personal</h3>
+          <i class="pi pi-user"></i>
+          <span class="text-lg font-bold">Información Personal</span>
         </div>
         <div v-if="!isEdit && editable">
           <pv-button

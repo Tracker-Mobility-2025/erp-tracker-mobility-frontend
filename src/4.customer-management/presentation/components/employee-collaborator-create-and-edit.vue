@@ -9,7 +9,8 @@ const props = defineProps({
     visible: Boolean,
     customerId: {
         type: [String, Number],
-        required: true
+        required: false,
+        default: null
     }
 });
 

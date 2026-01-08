@@ -90,13 +90,13 @@ onMounted(() => {
     :visible="visible" 
     :modal="true" 
     :style="dialogStyle" 
-    class="p-fluid" 
+    class="p-fluid dialog-custom-header" 
     :header="entityName" 
     :closable="false"
   >
     <template #header>
-      <div class="flex justify-content-start">
-        <div>{{ headerTitle }}</div>
+      <div class="flex align-items-center gap-3 px-4 py-3 toolbar-gradient" style="min-height: 60px; width: 100%; border-radius: 6px 6px 0 0;">
+        <h2 class="m-0 text-white text-2xl font-bold flex-1">{{ headerTitle }}</h2>
       </div>
     </template>
 

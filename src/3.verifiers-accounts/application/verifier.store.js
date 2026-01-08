@@ -30,6 +30,9 @@ const useVerifierStore = defineStore('verifier', () => {
      * @returns {Promise<Object>} Resultado { success, data?, message, code }
      */
     async function fetchAll() {
+        // Limpiar datos SÍNCRONAMENTE antes de cargar
+        verifiers.value = [];
+        
         try {
             const data = await verifierRepository.findAll();
             verifiers.value = data;
@@ -341,9 +344,20 @@ const useVerifierStore = defineStore('verifier', () => {
      */
     async function fetchAssignedOrders(verifierId) {
         try {
-            return await verifierRepository.findAssignedOrders(verifierId);
+            console.log('[VerifierStore] Fetching assigned orders for verifier:', verifierId);
+            const orders = await verifierRepository.findAssignedOrders(verifierId);
+            console.log('[VerifierStore] Assigned orders received:', orders);
+            return orders;
         } catch (err) {
-            showError('Error al obtener órdenes asignadas', 'Error', 3000);
+            console.error('[VerifierStore] Error fetching assigned orders:', err);
+            console.error('[VerifierStore] Error details:', {
+                message: err.message,
+                response: err.response?.data,
+                status: err.response?.status
+            });
+            
+            const errorMessage = err.response?.data?.message || err.message || 'Error desconocido';
+            showError(`No se pudieron cargar las órdenes: ${errorMessage}`, 'Error del Servidor', 5000);
             return [];
         }
     }

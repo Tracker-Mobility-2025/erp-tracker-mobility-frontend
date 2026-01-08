@@ -17,6 +17,7 @@ const customerForm = ref({
     ruc: '',
     companyName: '',
     password: '',
+    brands: [], // Array de strings para marcas
     status: 'ACTIVE' // Solo se usa en edición
 });
 
@@ -88,6 +89,7 @@ const resetForm = () => {
         ruc: '',
         companyName: '',
         password: '',
+        brands: [],
         status: 'ACTIVE'
     };
     submitted.value = false;
@@ -96,10 +98,16 @@ const resetForm = () => {
 // Watch for dialog open
 watch(() => props.visible, (newValue) => {
     if (newValue && props.edit && props.item) {
+        // En modo edición, mapear brands de Brand entities a strings
+        const brandsArray = props.item.brands && Array.isArray(props.item.brands)
+            ? props.item.brands.map(brand => brand.value || brand)
+            : [];
+        
         customerForm.value = {
             ruc: props.item.ruc || '',
             companyName: props.item.companyName || '',
             password: '', // No mostrar password en edición
+            brands: brandsArray,
             status: props.item.status || 'ACTIVE'
         };
     } else if (newValue && !props.edit) {
@@ -168,7 +176,7 @@ watch(() => props.visible, (newValue) => {
                 </div>
             </div>
 
-            <!-- Fila 2: Contraseña -->
+            <!-- Fila 2: Contraseña y Estado -->
             <div class="col-12 md:col-6 px-2 pb-1">
                 <div class="field">
                     <label for="password" class="block text-900 font-medium mb-2">
@@ -195,7 +203,7 @@ watch(() => props.visible, (newValue) => {
                 </div>
             </div>
 
-            <!-- Fila 3: Estado (solo en modo edición) -->
+            <!-- Estado (solo en modo edición) -->
             <div v-if="edit" class="col-12 md:col-6 px-2 pb-1">
                 <div class="field">
                     <label for="status" class="block text-900 font-medium mb-2">
@@ -211,6 +219,25 @@ watch(() => props.visible, (newValue) => {
                         class="w-full"
                         size="small"
                     />
+                </div>
+            </div>
+
+            <!-- Fila 3: Marcas (Brands) -->
+            <div class="col-12 px-2 pb-1">
+                <div class="field">
+                    <label for="brands" class="block text-900 font-medium mb-2">
+                        <i class="pi pi-tags mr-2"></i>Marcas
+                    </label>
+                    <pv-chips
+                        id="brands"
+                        v-model="customerForm.brands"
+                        class="w-full"
+                        placeholder="Ingrese una marca y presione Enter"
+                        separator=","
+                    />
+                    <small class="text-500 block mt-1">
+                        Ingrese las marcas asociadas al cliente (opcional)
+                    </small>
                 </div>
             </div>
         </div>

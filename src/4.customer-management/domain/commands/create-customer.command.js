@@ -8,7 +8,8 @@ export class CreateCustomerCommand {
     constructor({
         ruc,
         companyName,
-        password
+        password,
+        brands = []
     }) {
         // Validación obligatoria
         const rucValidation = CustomerValidators.validateRuc(ruc);
@@ -26,10 +27,16 @@ export class CreateCustomerCommand {
             throw new Error('La contraseña es requerida');
         }
 
+        // Brands validation (opcional pero debe ser array)
+        if (!Array.isArray(brands)) {
+            throw new Error('Brands debe ser un array');
+        }
+
         // Asignar propiedades validadas
         this.ruc = ruc.trim();
         this.companyName = companyName.trim();
         this.password = password.trim();
+        this.brands = brands.filter(brand => brand && brand.trim().length > 0).map(brand => brand.trim());
     }
 
     /**
@@ -40,7 +47,8 @@ export class CreateCustomerCommand {
         return {
             ruc: this.ruc,
             companyName: this.companyName,
-            password: this.password
+            password: this.password,
+            brands: this.brands
         };
     }
 }

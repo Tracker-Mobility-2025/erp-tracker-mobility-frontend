@@ -24,6 +24,9 @@ const useVerificationOrderStore = defineStore('verificationOrder', () => {
      * @returns {Promise<{success: boolean, data?, message?, code}>}
      */
     async function fetchAllSummaries() {
+        // Limpiar datos SÍNCRONAMENTE antes de cargar
+        orderSummaries.value = [];
+        
         try {
             const data = await orderRepository.findAllSummaries();
             orderSummaries.value = data;

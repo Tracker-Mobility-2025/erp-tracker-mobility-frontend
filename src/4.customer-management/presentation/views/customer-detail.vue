@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useCustomerStore } from '../../application/customer.store.js';
 import { useConfirm } from 'primevue/useconfirm';
@@ -24,6 +24,15 @@ const selectStatus = ref('');
 const isEdit = ref(false);
 const itemEmployee = ref(null);
 const createAndEditDialogIsVisible = ref(false);
+
+// Loading states
+const isLoading = ref(true);
+const loadingStep = ref(0);
+const loadingSteps = [
+    { icon: 'pi-building', label: 'Datos del cliente' },
+    { icon: 'pi-users', label: 'Colaboradores' },
+    { icon: 'pi-check', label: 'Completado' }
+];
 
 // Status options
 const statusOptions = StatusFilterOptions;
@@ -160,12 +169,56 @@ const onDeleteItem = (employee) => {
     });
 };
 
+const simulateLoadingProgress = () => {
+    const progressInterval = setInterval(() => {
+        if (loadingStep.value < loadingSteps.length - 1) {
+            loadingStep.value++;
+        } else {
+            clearInterval(progressInterval);
+        }
+    }, 700);
+    
+    setTimeout(() => {
+        clearInterval(progressInterval);
+    }, 4000);
+};
+
+const clearData = () => {
+    // Limpiar datos SÍNCRONAMENTE (inmediato, sin await)
+    customerStore.currentCustomer = null;
+    customerStore.employees = [];
+    search.value = '';
+    selectStatus.value = '';
+    loadingStep.value = 0;
+};
+
+const loadData = async (newCustomerId) => {
+    if (newCustomerId) {
+        isLoading.value = true;
+        loadingStep.value = 0;
+        simulateLoadingProgress();
+        
+        await customerStore.fetchById(newCustomerId);
+        await customerStore.fetchEmployees(newCustomerId);
+        
+        loadingStep.value = loadingSteps.length;
+        isLoading.value = false;
+    }
+};
+
 // Lifecycle
 onMounted(async () => {
     customerId.value = route.query.id;
-    if (customerId.value) {
-        await customerStore.fetchById(customerId.value);
-        await customerStore.fetchEmployees(customerId.value);
+    clearData();
+    await loadData(customerId.value);
+});
+
+// Watch for route changes
+watch(() => route.query.id, async (newId) => {
+    if (newId && newId !== customerId.value) {
+        customerId.value = newId;
+        clearData(); // Limpiar INMEDIATAMENTE (síncrono)
+        await loadData(newId); // Luego cargar (asíncrono)
     }
 });
 </script>
@@ -195,6 +248,25 @@ onMounted(async () => {
 
         <div class="flex-1 p-4 overflow-auto">
 
+        <!-- Loading State -->
+        <div v-if="isLoading" class="loading-container">
+            <div class="loading-content">
+                <pv-progress-spinner 
+                    size="48" 
+                    stroke-width="4" 
+                    animation-duration="1.2s" 
+                    class="loading-spinner"
+                />
+                
+                <div class="loading-text">
+                    <h3 class="loading-title">Cargando información del cliente</h3>
+                    <p class="loading-subtitle">{{ loadingSteps[loadingStep]?.label || 'Preparando datos...' }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div v-else>
         <!-- Filters Card -->
         <div class="card p-4 mb-4">
             <div class="flex flex-column md:flex-row gap-3 align-items-stretch md:align-items-center">
@@ -263,6 +335,7 @@ onMounted(async () => {
         <!-- Employees Table -->
         <div class="card flex-grow-1" style="min-height: 0;">
             <pv-data-table
+                :key="`employee-table-${customerId}`"
                 :value="filteredEmployees"
                 :loading="customerStore.loading"
                 dataKey="id"
@@ -329,9 +402,43 @@ onMounted(async () => {
             @save-requested="onSaveRequested"
         />
         </div>
+        </div>
     </div>
 </template>
 
 <style scoped>
-/* Using corporate design system */
+/* Loading Styles */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  padding: 2rem;
+}
+
+.loading-content {
+  text-align: center;
+  max-width: 400px;
+}
+
+.loading-spinner {
+  margin-bottom: 1.5rem;
+}
+
+.loading-text {
+  margin-top: 1rem;
+}
+
+.loading-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
+}
+
+.loading-subtitle {
+  font-size: 1rem;
+  color: var(--text-color-secondary);
+  margin: 0;
+}
 </style>

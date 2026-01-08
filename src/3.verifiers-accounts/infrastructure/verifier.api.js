@@ -82,6 +82,23 @@ export class VerifierApi extends BaseApi {
      * @returns {Promise} Una promesa que se resuelve con las órdenes asignadas al verificador.
      */
     getAssignedOrders(verifierId) {
-        return this.http.get(`${verifierEndpointPath}/${verifierId}/orders`);
+        console.log('[VerifierApi] Getting assigned orders for verifier:', verifierId);
+        console.log('[VerifierApi] Endpoint:', `/web/orders/verifier/${verifierId}`);
+        
+        return this.http.get(`/web/orders/verifier/${verifierId}`)
+            .then(response => {
+                console.log('[VerifierApi] Response received:', response);
+                return response;
+            })
+            .catch(error => {
+                console.error('[VerifierApi] Error response:', {
+                    message: error.message,
+                    status: error.response?.status,
+                    statusText: error.response?.statusText,
+                    data: error.response?.data,
+                    url: error.config?.url
+                });
+                throw error;
+            });
     }
 }

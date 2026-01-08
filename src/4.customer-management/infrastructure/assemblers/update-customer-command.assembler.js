@@ -14,7 +14,7 @@ export class UpdateCustomerCommandAssembler {
      */
     static toResource(command) {
         const resource = {
-            id: command.id
+            applicantCompanyId: command.id // Map id -> applicantCompanyId
         };
 
         // Solo incluir campos que están presentes en el comando

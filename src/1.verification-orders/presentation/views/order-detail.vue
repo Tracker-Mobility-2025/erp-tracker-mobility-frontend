@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Toolbar from '../../../shared-v2/presentation/components/toolbar.vue';
 import OrderDescription from '../components/order-description.vue';
@@ -123,9 +123,16 @@ async function loadVerifiers() {
   }
 }
 
-async function loadOrderDetail() {
-  const orderId = route.query.id;
-  
+const clearData = () => {
+  // Limpiar datos SÍNCRONAMENTE (inmediato, sin await)
+  orderDetail.value = null;
+  verifiersList.value = [];
+  hasError.value = false;
+  errorMessage.value = '';
+  loadingStep.value = 0;
+};
+
+const loadData = async (orderId) => {
   if (!orderId) {
     hasError.value = true;
     errorMessage.value = 'ID de orden no proporcionado';
@@ -162,11 +169,25 @@ async function loadOrderDetail() {
     isLoading.value = false;
     clearLoadingInterval();
   }
+};
+
+async function loadOrderDetail() {
+  const orderId = route.query.id;
+  clearData();
+  await loadData(orderId);
 }
 
 // Lifecycle
 onMounted(() => {
   loadOrderDetail();
+});
+
+// Watch for route changes
+watch(() => route.query.id, async (newId) => {
+  if (newId) {
+    clearData(); // Limpiar INMEDIATAMENTE (síncrono)
+    await loadData(newId); // Luego cargar (asíncrono)
+  }
 });
 
 onBeforeUnmount(() => {

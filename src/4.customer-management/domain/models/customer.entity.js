@@ -8,6 +8,7 @@ export class Customer {
         ruc = '',
         companyName = '',
         status = 'ACTIVE',
+        brands = [],
         createdAt = null,
         updatedAt = null
     } = {}) {
@@ -15,6 +16,7 @@ export class Customer {
         this.ruc = ruc;
         this.companyName = companyName;
         this.status = status;
+        this.brands = brands;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }

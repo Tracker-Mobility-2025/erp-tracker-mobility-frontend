@@ -16,7 +16,8 @@ export class CreateCustomerCommandAssembler {
         return {
             ruc: command.ruc,
             companyName: command.companyName,
-            password: command.password
+            password: command.password,
+            brands: command.brands || []
         };
     }
     

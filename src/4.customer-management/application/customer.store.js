@@ -62,6 +62,9 @@ export const useCustomerStore = defineStore('customer', () => {
      * Obtiene todos los clientes
      */
     async function fetchAll() {
+        // Limpiar datos SÍNCRONAMENTE antes de cargar
+        customers.value = [];
+        
         loading.value = true;
         error.value = null;
 
@@ -116,6 +119,9 @@ export const useCustomerStore = defineStore('customer', () => {
      * Obtiene un cliente por su ID
      */
     async function fetchById(id) {
+        // Limpiar datos anteriores primero
+        currentCustomer.value = null;
+        
         loading.value = true;
         error.value = null;
 
@@ -262,6 +268,9 @@ export const useCustomerStore = defineStore('customer', () => {
      * Obtiene los colaboradores de un cliente
      */
     async function fetchEmployees(customerId) {
+        // Limpiar datos anteriores primero
+        employees.value = [];
+        
         loading.value = true;
         error.value = null;
 

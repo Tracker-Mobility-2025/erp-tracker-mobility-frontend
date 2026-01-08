@@ -1,6 +1,7 @@
 import { IVerifierRepository } from '../../domain/repositories/verifier.repository.interface.js';
 import { VerifierApi } from '../verifier.api.js';
 import { VerifierAssembler } from '../assemblers/verifier.assembler.js';
+import { AssignedOrderAssembler } from '../assemblers/assigned-order.assembler.js';
 
 /**
  * Implementación HTTP del repositorio de verificadores.
@@ -78,10 +79,26 @@ export class VerifierHttpRepository extends IVerifierRepository {
   /**
    * Obtiene las órdenes asignadas a un verificador.
    * @param {number} verifierId - ID del verificador
-   * @returns {Promise<Array>} Lista de órdenes asignadas
+   * @returns {Promise<Array<AssignedOrder>>} Lista de órdenes asignadas
    */
   async findAssignedOrders(verifierId) {
-    const response = await this.#api.getAssignedOrders(verifierId);
-    return response.data; // TODO: OrderAssembler cuando se implemente
+    try {
+      console.log('[VerifierRepository] Fetching assigned orders for verifier:', verifierId);
+      const response = await this.#api.getAssignedOrders(verifierId);
+      console.log('[VerifierRepository] API Response:', {
+        status: response.status,
+        data: response.data,
+        dataLength: Array.isArray(response.data) ? response.data.length : 'Not an array'
+      });
+      
+      const entities = AssignedOrderAssembler.toEntities(response.data);
+      console.log('[VerifierRepository] Assembled entities:', entities);
+      
+      return entities;
+    } catch (error) {
+      console.error('[VerifierRepository] Error fetching assigned orders:', error);
+      console.error('[VerifierRepository] Error response:', error.response?.data);
+      throw error;
+    }
   }
 }

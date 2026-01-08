@@ -31,14 +31,13 @@ const filteredOrders = computed(() => {
     // Filtro por texto - buscar en código de orden y dirección
     const matchesSearch = !search.value || search.value.trim().length === 0 || 
         (order.orderCode && order.orderCode.toLowerCase().trim().replace(/\s+/g, ' ').includes(search.value.toLowerCase().trim().replace(/\s+/g, ' '))) ||
-        (order.client && order.client.location && order.client.location.homeAddress &&
-         order.client.location.homeAddress.toLowerCase().trim().replace(/\s+/g, ' ').includes(search.value.toLowerCase().trim().replace(/\s+/g, ' ')));
+        (order.addressStreet && order.addressStreet.toLowerCase().trim().replace(/\s+/g, ' ').includes(search.value.toLowerCase().trim().replace(/\s+/g, ' ')));
 
     // Filtro por estado
     const matchesStatus = selectedStatus.value === 'Todos' || order.status === selectedStatus.value;
 
     // Filtro por fecha
-    const matchesDate = !selectedDate.value || isSameDate(order.homeVisitDetails?.visitDate, selectedDate.value);
+    const matchesDate = !selectedDate.value || isSameDate(order.visitDate, selectedDate.value);
 
     return matchesSearch && matchesStatus && matchesDate;
   });
@@ -70,6 +69,42 @@ function formatDate(date) {
     console.error('Error formateando fecha:', error);
     return 'Error en fecha';
   }
+}
+
+function getFormattedDateTime(date) {
+  if (!date) return 'No asignada';
+  
+  try {
+    // Formato: YYYY-MM-DD
+    const [year, month, day] = date.split('-');
+    return `${day} de ${getMonthName(parseInt(month))}, ${year} - 10:00 AM`;
+  } catch (error) {
+    console.error('Error formateando fecha y hora:', error);
+    return formatDate(date);
+  }
+}
+
+function getMonthName(month) {
+  const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
+                  'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  return months[month - 1] || '';
+}
+
+function getStatusLabel(status) {
+  const statusMap = {
+    'PENDIENTE': 'Pendiente',
+    'ASIGNADO': 'Asignado',
+    'EN_PROCESO': 'En Proceso',
+    'COMPLETADA': 'Completada',
+    'CANCELADA': 'Cancelada',
+    'OBSERVADO': 'Observado',
+    'SUBSANADA': 'Subsanada'
+  };
+  return statusMap[status] || status;
+}
+
+function getStatusClass(status) {
+  return `status-${status.toLowerCase()}`;
 }
 
 function isSameDate(date1, date2) {
@@ -105,119 +140,185 @@ function removeOrder(order) {
 <template>
   <div class="w-full flex-1 flex-column gap-3">
     <!-- Filtros -->
-    <div class="flex w-full gap-2 mb-4 flex-wrap">
-      <pv-icon-field class="flex-grow-1">
-        <pv-input-icon class="pi pi-search" />
-        <pv-input-text
-          v-model="search"
-          placeholder="Busca por código de orden o dirección..."
+    <div class="flex w-full gap-3 mb-4 align-items-center flex-wrap">
+      <!-- Search -->
+      <div class="flex-grow-1" style="min-width: 250px;">
+        <pv-icon-field>
+          <pv-input-icon class="pi pi-search" />
+          <pv-input-text
+            v-model="search"
+            placeholder="Busca por código de orden o dirección..."
+            class="w-full"
+          />
+        </pv-icon-field>
+      </div>
+
+      <!-- Status Filter -->
+      <div style="min-width: 200px;">
+        <pv-dropdown
+          v-model="selectedStatus"
+          :options="statusOptions"
+          option-label="label"
+          option-value="value"
+          placeholder="Estado: Todos"
           class="w-full"
         />
-      </pv-icon-field>
+      </div>
 
-      <pv-dropdown
-        v-model="selectedStatus"
-        :options="statusOptions"
-        option-label="label"
-        option-value="value"
-        placeholder="Estado: Todos"
-        class="flex-1"
-      />
+      <!-- Date Filter -->
+      <div style="min-width: 200px;">
+        <pv-calendar
+          v-model="selectedDate"
+          date-format="dd/mm/yy"
+          placeholder="dd/mm/aaaa"
+          show-icon
+          class="w-full"
+        />
+      </div>
 
-      <pv-calendar
-        v-model="selectedDate"
-        date-format="dd/mm/yy"
-        placeholder="dd/mm/aaaa"
-        show-icon
-        class="flex-1"
-      />
-
-      <pv-button
-        label="Limpiar filtros"
-        icon="pi pi-filter-slash"
-        severity="secondary"
-        outlined
-        class="flex-shrink-0"
-        @click="clearFilters"
-      />
+      <!-- Clear Button -->
+      <div>
+        <pv-button
+          label="Limpiar filtros"
+          icon="pi pi-filter-slash"
+          severity="secondary"
+          outlined
+          @click="clearFilters"
+        />
+      </div>
     </div>
 
     <!-- Lista de órdenes como tarjetas -->
-    <pv-card
+    <div
       v-for="order in filteredOrders"
-      :key="order.orderCode"
-      class="mb-3"
+      :key="order.id"
+      class="order-card surface-card border-round p-4 mb-3 shadow-1"
     >
-      <template #content>
-        <div class="flex align-items-center gap-3">
-          <!-- Botón circular para quitar órdenes de servicio asignadas -->
-          <i
-            class="pi pi-minus-circle text-5xl font-bold pr-4 transition-colors duration-200"
-            :class="{
-              'text-red-500 hover:text-red-700 cursor-pointer': order.status === 'ASIGNADO',
-              'text-gray-300 cursor-not-allowed': order.status === 'FINALIZADO' || order.status === 'EN_PROCESO'
-            }"
-            @click="removeOrder(order)"
-          ></i>
-
-          <!-- Información principal -->
-          <div class="flex flex-column flex-1">
-            <div class="grid text-sm text-600 font-semibold">
-              <div class="col-3 flex align-items-center gap-1">
-                <i class="pi pi-hashtag text-blue-500"></i>
-                Código de Orden
-              </div>
-              <div class="col-3 flex align-items-center gap-1">
-                <i class="pi pi-map-marker text-blue-500"></i>
-                Dirección
-              </div>
-              <div class="col-3 flex align-items-center gap-1">
-                <i class="pi pi-calendar text-blue-500"></i>
-                Fecha de visita programada
-              </div>
-              <div class="col-3 flex align-items-center gap-1">
-                <i class="pi pi-info-circle text-blue-500"></i>
-                Estado
-              </div>
-            </div>
-
-            <!-- Datos de la orden -->
-            <div class="grid text-sm">
-              <div class="col-3 font-bold text-dark">{{ order.orderCode }}</div>
-              <div class="col-3 font-bold text-dark">{{ order.client?.location?.homeAddress || 'Sin dirección' }}</div>
-              <div class="col-3 font-bold text-dark">
-                {{ formatDate(order.homeVisitDetails?.visitDate) }}
-              </div>
-              <div class="col-3 font-bold text-dark">{{ order.status }}</div>
-            </div>
-
-            <div class="grid text-sm mt-2">
-              <!-- Enlace Google Maps -->
-              <div class="col-12">
-                <span class="text-600 flex align-items-center gap-1">
-                  <i class="pi pi-map text-blue-500"></i>
-                  Enlace google maps:
-                </span>
-                <a
-                  v-if="order.client?.location?.mapLocation"
-                  :href="order.client.location.mapLocation"
-                  target="_blank"
-                  class="text-blue-600 hover:text-blue-800"
-                >
-                  {{ order.client.location.mapLocation }}
-                </a>
-                <span v-else class="text-gray-400">Sin ubicación</span>
-              </div>
+      <div class="grid align-items-center">
+        <!-- ID de Orden -->
+        <div class="col-12 md:col-3">
+          <div class="flex align-items-center gap-2">
+            <i class="pi pi-hashtag text-primary"></i>
+            <div class="flex flex-column">
+              <span class="text-500 text-xs font-medium">ID de Orden</span>
+              <span class="text-900 font-bold text-lg">{{ order.orderCode }}</span>
             </div>
           </div>
         </div>
-      </template>
-    </pv-card>
+
+        <!-- Dirección -->
+        <div class="col-12 md:col-4">
+          <div class="flex align-items-center gap-2">
+            <i class="pi pi-map-marker text-primary"></i>
+            <div class="flex flex-column">
+              <span class="text-500 text-xs font-medium">Dirección</span>
+              <span class="text-900 font-semibold">{{ order.addressStreet || 'Sin dirección' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fecha y Hora -->
+        <div class="col-12 md:col-3">
+          <div class="flex align-items-center gap-2">
+            <i class="pi pi-calendar text-primary"></i>
+            <div class="flex flex-column">
+              <span class="text-500 text-xs font-medium">Fecha y Hora</span>
+              <span class="text-900 font-semibold">{{ getFormattedDateTime(order.visitDate) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estado -->
+        <div class="col-12 md:col-2 flex justify-content-end">
+          <div class="flex flex-column align-items-end gap-2">
+            <span class="text-500 text-xs font-medium">Estado:</span>
+            <span 
+              :class="['status-badge', getStatusClass(order.status)]"
+            >
+              {{ getStatusLabel(order.status) }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ver en Google Maps -->
+      <div v-if="order.addressLocation" class="mt-3 pt-3 border-top-1 border-200">
+        <a
+          :href="order.addressLocation"
+          target="_blank"
+          class="text-primary font-medium flex align-items-center gap-2 no-underline hover:text-primary-600"
+        >
+          <i class="pi pi-external-link"></i>
+          Ver en Google Maps
+        </a>
+      </div>
+    </div>
 
     <!-- Si no hay órdenes -->
-    <div v-if="filteredOrders.length === 0" class="text-center text-gray-500 py-4">
-      <i class="pi pi-inbox text-4xl mb-3"></i>
-      <p class="m-0">No hay órdenes que coincidan con los filtros aplicados.</p>
+    <div v-if="filteredOrders.length === 0" class="text-center py-8">
+      <i class="pi pi-inbox text-6xl text-400 mb-3 block"></i>
+      <p class="text-600 text-lg font-medium m-0">No hay órdenes que coincidan con los filtros aplicados.</p>
     </div>
   </div>
 </template>
+
+<style scoped>
+.order-card {
+  transition: all 0.2s ease-in-out;
+  background: var(--surface-0);
+  border: 1px solid var(--surface-100);
+}
+
+.order-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.status-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+  transition: all 0.2s ease;
+}
+
+/* Estados de órdenes usando variables corporativas */
+.status-pendiente {
+  background-color: var(--status-pendiente);
+  color: var(--text-black);
+}
+
+.status-asignado {
+  background-color: var(--status-asignado);
+  color: var(--text-white);
+}
+
+.status-en_proceso {
+  background-color: var(--status-en-proceso);
+  color: var(--text-black);
+}
+
+.status-completada {
+  background-color: var(--status-completada);
+  color: var(--text-white);
+}
+
+.status-cancelada {
+  background-color: var(--status-cancelada);
+  color: var(--text-white);
+}
+
+.status-observado {
+  background-color: var(--status-observado);
+  color: var(--text-black);
+}
+
+.status-subsanada {
+  background-color: var(--status-subsanada);
+  color: var(--text-white);
+}
+</style>

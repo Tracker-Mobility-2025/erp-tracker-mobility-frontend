@@ -547,6 +547,47 @@ button.p-button.p-button-outlined:focus-visible,
     padding: var(--spacing-md);
 }
 
+/* Dialog con header personalizado (toolbar-gradient) */
+.dialog-custom-header .p-dialog-header {
+    padding: 0 !important;
+    background: transparent !important;
+}
+
+/* ========== CONFIRM DIALOG ========== */
+
+.p-confirm-dialog .p-dialog-header {
+    background: linear-gradient(135deg, var(--surface-700) 0%, var(--surface-600) 100%) !important;
+    color: white !important;
+    padding: 1rem 1.5rem !important;
+    border-bottom: none !important;
+    border-radius: 6px 6px 0 0 !important;
+}
+
+.p-confirm-dialog .p-dialog-header .p-dialog-title {
+    color: white !important;
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+}
+
+.p-confirm-dialog .p-dialog-header .p-dialog-header-icon {
+    color: white !important;
+}
+
+.p-confirm-dialog .p-dialog-content {
+    padding: 1.5rem !important;
+}
+
+.p-confirm-dialog .p-confirm-dialog-icon {
+    font-size: 2.5rem !important;
+    color: var(--yellow-500) !important;
+}
+
+.p-confirm-dialog .p-confirm-dialog-message {
+    margin-left: 1rem !important;
+    font-size: 1rem !important;
+    color: var(--surface-700) !important;
+}
+
 /* ========== SIDEBAR ========== */
 
 .p-sidebar {

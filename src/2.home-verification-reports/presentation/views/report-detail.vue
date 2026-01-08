@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import useVerificationReportStore from '../../application/verification-report.store.js';
 import { useNotification } from '../../../shared-v2/composables/use-notification.js';
@@ -77,12 +77,32 @@ const simulateLoadingProgress = () => {
   }, 2000);
 };
 
+const clearData = () => {
+  // Limpiar datos SÍNCRONAMENTE (inmediato, sin await)
+  report.value = null;
+  hasError.value = false;
+  errorMessage.value = '';
+  loadingStep.value = 0;
+  emailDialogVisible.value = false;
+};
+
+const loadData = async (reportId) => {
+  if (!reportId) {
+    hasError.value = true;
+    isLoading.value = false;
+    errorMessage.value = 'ID de reporte no proporcionado';
+    return;
+  }
+  
+  isLoading.value = true;
+  await getReportById(reportId);
+};
+
 const retryLoading = () => {
   const reportId = route.query.id;
   hasError.value = false;
-  isLoading.value = true;
-  loadingStep.value = 0;
-  getReportById(reportId);
+  clearData();
+  loadData(reportId);
 };
 
 const handleViewPhoto = (photo) => {
@@ -123,15 +143,16 @@ const handleExportPDF = () => {
 // Lifecycle
 onMounted(async () => {
   const reportId = route.query.id;
-  
-  if (!reportId) {
-    hasError.value = true;
-    isLoading.value = false;
-    errorMessage.value = 'ID de reporte no proporcionado';
-    return;
+  clearData();
+  await loadData(reportId);
+});
+
+// Watch for route changes
+watch(() => route.query.id, async (newId) => {
+  if (newId) {
+    clearData(); // Limpiar INMEDIATAMENTE (síncrono)
+    await loadData(newId); // Luego cargar (asíncrono)
   }
-  
-  await getReportById(reportId);
 });
 </script>
 

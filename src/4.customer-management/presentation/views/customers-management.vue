@@ -24,6 +24,7 @@ const pageSize = ref(6);
 const isEdit = ref(false);
 const itemClient = ref(null);
 const createAndEditDialogIsVisible = ref(false);
+const loading = ref(false);
 
 // Status options
 const statusOptions = StatusFilterOptions;
@@ -130,7 +131,12 @@ const onPageChange = (event) => {
 
 // Lifecycle
 onMounted(async () => {
-    await customerStore.fetchAll();
+    loading.value = true;
+    try {
+        await customerStore.fetchAll();
+    } finally {
+        loading.value = false;
+    }
 });
 
 // Watch filters
@@ -219,7 +225,16 @@ const resetPage = () => {
         </div>
 
         <!-- Customer Cards -->
-        <div class="flex-grow-1 flex flex-column" style="min-height: 0;">
+        <div v-if="loading" class="flex flex-column justify-content-center align-items-center" style="min-height: 50vh;">
+            <pv-progress-spinner 
+                size="48" 
+                stroke-width="4" 
+                animation-duration="1.2s" 
+            />
+            <p class="text-muted mt-3 font-medium">Cargando datos...</p>
+        </div>
+        
+        <div v-else class="flex-grow-1 flex flex-column" style="min-height: 0;">
             <div class="grid overflow-auto flex-grow-1" style="min-height: 0;">
                 <div 
                     v-for="customer in paginatedClients" 
@@ -292,7 +307,7 @@ const resetPage = () => {
         </div>
 
         <!-- Empty State - No Customers -->
-        <div v-if="customerStore.customers.length === 0" class="flex-grow-1 flex align-items-center justify-content-center">
+        <div v-if="!loading && customerStore.customers.length === 0" class="flex-grow-1 flex align-items-center justify-content-center">
             <div class="text-center">
                 <i class="pi pi-inbox text-6xl text-400 mb-3 block"></i>
                 <h3 class="text-dark mb-2">{{ CustomerUILabels.messages.noCustomers }}</h3>
@@ -307,7 +322,7 @@ const resetPage = () => {
         </div>
 
         <!-- Empty State - No Results -->
-        <div v-else-if="filteredClients.length === 0 && (search || selectStatus)" 
+        <div v-else-if="!loading && filteredClients.length === 0 && (search || selectStatus)" 
              class="flex-grow-1 flex align-items-center justify-content-center">
             <div class="text-center">
                 <i class="pi pi-search text-6xl text-400 mb-3 block"></i>
