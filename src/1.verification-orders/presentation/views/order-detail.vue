@@ -200,10 +200,23 @@ onBeforeUnmount(() => {
 
     <toolbar 
       :title="'Detalle de Orden'" 
-      :description="orderDetail?.orderCode ? `Orden: ${orderDetail.orderCode} | Fecha de solicitud: ${formatDate(orderDetail.requestDate)}` : 'Cargando...'" 
+      :description="orderDetail?.orderCode ? `Orden: ${orderDetail.orderCode}` : 'Cargando...'" 
       :show-back-button="true"
       @back="goBack"
-    />
+    >
+  <template #actions>
+
+  <div class="border-round border-2 surface-border bg-indigo-50 h-full">
+    <p v-if="orderDetail" class="text-base font-bold text-900 m-0 text-center p-3">
+      Fecha de solicitud: {{formatDate(orderDetail.requestDate)}}
+    </p>
+  </div>
+
+  
+  
+  </template>
+  
+  </toolbar>
 
     <div class="flex-1 p-4 overflow-auto">
       

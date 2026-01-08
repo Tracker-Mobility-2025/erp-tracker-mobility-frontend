@@ -97,7 +97,7 @@ const formattedRequestDate = computed(() => {
           <div class="grid">
             <!-- Razón Social -->
             <div class="col-12">
-              <div class="flex align-items-start py-2">
+              <div class="flex align-items-start">
                 <label class="text-sm text-600 font-semibold m-0 flex-shrink-0 w-12rem">Razón Social</label>
                 <p class="text-sm font-bold text-700 m-0 flex-1 text-right">
                   {{ companyName || 'No especificado' }}
@@ -107,7 +107,7 @@ const formattedRequestDate = computed(() => {
 
             <!-- RUC -->
             <div class="col-12">
-              <div class="flex align-items-start py-2">
+              <div class="flex align-items-start">
                 <label class="text-sm text-600 font-semibold m-0 flex-shrink-0 w-12rem">RUC</label>
                 <p class="text-sm font-bold text-700 m-0 flex-1 text-right">
                   {{ companyRuc || 'No especificado' }}
@@ -117,7 +117,7 @@ const formattedRequestDate = computed(() => {
 
             <!-- Nombre del Ejecutivo -->
             <div class="col-12">
-              <div class="flex align-items-start  py-2 ">
+              <div class="flex align-items-start">
                 <label class="text-sm text-600 font-semibold m-0 flex-shrink-0 w-12rem">Nombre del Ejecutivo</label>
                 <p class="text-sm font-bold text-700 m-0 flex-1 text-right">
                   {{ companyExecutiveName || 'No especificado' }}
@@ -127,7 +127,7 @@ const formattedRequestDate = computed(() => {
 
             <!-- Fecha de Solicitud -->
             <div class="col-12">
-              <div class="flex align-items-start  py-2">
+              <div class="flex align-items-start">
                 <label class="text-sm text-600 font-semibold m-0 flex-shrink-0 w-12rem">Fecha de Solicitud</label>
                 <p class="text-sm font-bold text-700 m-0 flex-1 text-right">
                   {{ formattedRequestDate }}
@@ -152,7 +152,7 @@ const formattedRequestDate = computed(() => {
           <div class="grid">
             <!-- Nombre Completo -->
             <div class="col-12">
-              <div class="flex align-items-start  py-2 ">
+              <div class="flex align-items-start">
                 <label class="text-sm text-600 font-semibold m-0 flex-shrink-0 w-12rem">Nombre Completo</label>
                 <p class="text-sm font-bold text-700 m-0 flex-1 text-right">
                   {{ clientFullName || 'No especificado' }}
@@ -162,7 +162,7 @@ const formattedRequestDate = computed(() => {
 
             <!-- Entrevistado -->
             <div class="col-12">
-              <div class="flex align-items-start  py-2 ">
+              <div class="flex align-items-start">
                 <label class="text-sm text-600 font-semibold m-0 flex-shrink-0 w-12rem">Entrevistado</label>
                 <p class="text-sm font-bold text-700 m-0 flex-1 text-right">
                   {{ clientInterviewedName || 'No especificado' }}
@@ -172,7 +172,7 @@ const formattedRequestDate = computed(() => {
 
             <!-- Parentesco -->
             <div class="col-12">
-              <div class="flex align-items-start py-2 ">
+              <div class="flex align-items-start  ">
                 <label class="text-sm text-600 font-semibold m-0 flex-shrink-0 w-12rem">Parentesco</label>
                 <p class="text-sm font-bold text-700 m-0 flex-1 text-right">
                   TITULAR
@@ -182,7 +182,7 @@ const formattedRequestDate = computed(() => {
 
             <!-- Documento y Número -->
             <div class="col-12">
-              <div class="flex py-2 ">
+              <div class="flex align-items-start  ">
                 <label class="text-sm text-600 font-semibold m-0 flex-shrink-0 w-12rem align-items-start">Tipo Documento</label>
                 <p class="text-sm font-bold text-700 m-0 flex-1 text-right">
                   {{ clientDocumentType || '-' }}  {{ clientDocumentNumber || 'No especificado' }}
