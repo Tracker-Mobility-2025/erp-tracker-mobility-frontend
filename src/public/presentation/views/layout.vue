@@ -47,8 +47,6 @@ onMounted(() => {
 
     <!-- Contenedor principal -->
     <div class="main-wrapper" :class="{ 'sidebar-closed': !sidebarOpen }">
-      <!-- Toolbar superior -->
-      <Toolbar :title="currentPageTitle" />
 
       <!-- Área de contenido -->
       <main class="content-area">

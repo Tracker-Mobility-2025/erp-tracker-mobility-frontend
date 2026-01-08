@@ -101,7 +101,8 @@ onMounted(async () => {
 
     <!-- Content -->
     <div class="flex-1 p-4 overflow-auto">
-      <data-manager
+      <div>
+ <data-manager
         :items="reportStore.verificationReports"
         :filtered-items="filteredReports"
         :global-filter-value="globalFilterValue"
@@ -174,6 +175,8 @@ onMounted(async () => {
           </span>
         </template>
       </data-manager>
+      </div>
+     
     </div>
   </div>
 </template>

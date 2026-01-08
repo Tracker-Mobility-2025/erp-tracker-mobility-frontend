@@ -279,5 +279,4 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-/* Minimal custom styles - most styling done with PrimeFlex */
 </style>
