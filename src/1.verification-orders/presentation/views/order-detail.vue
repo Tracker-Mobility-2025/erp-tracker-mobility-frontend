@@ -211,9 +211,6 @@ onBeforeUnmount(() => {
       Fecha de solicitud: {{formatDate(orderDetail.requestDate)}}
     </p>
   </div>
-
-  
-  
   </template>
   
   </toolbar>
