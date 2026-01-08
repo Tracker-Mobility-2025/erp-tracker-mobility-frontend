@@ -9,13 +9,12 @@ import VerificationRequestsManagementComponent
     from "../client-tracker-mobility/request-management/pages/verification-requests-management.component.vue";
 import VerificationRequestDetailsComponent
     from "../client-tracker-mobility/request-management/pages/verification-request-details.component.vue";
-import VerificationReportsManagementComponent
-    from "../tracker-mobility/verification-reports/pages/verification-reports-management.component.vue";
 
 // Importar rutas de módulos con nueva arquitectura (Bounded Contexts)
 import { verifierRoutes } from "../3.verifiers-accounts/presentation/verifier.routes.js";
 import { customerRoutes } from "../4.customer-management/presentation/customer.routes.js";
 import { verificationOrderRoutes } from "../1.verification-orders/presentation/verification-order.routes.js";
+import { verificationReportRoutes } from "../2.home-verification-reports/presentation/verification-report.routes.js";
 
 
 
@@ -107,13 +106,13 @@ const router = createRouter({
                     }
                 },
 
-                // Reportes de verificación
+                // Reportes de verificación (nueva arquitectura - Bounded Context: 2.home-verification-reports)
                 {
                     path: 'admin/verification-reports',
-                    name: 'verification-reports',
-                    component: VerificationReportsManagementComponent,
+                    name: 'verification-reports-module',
+                    children: verificationReportRoutes,
                     meta: {
-                        title: 'Reportes de verificación',
+                        title: 'Reportes de Verificación',
                         roles: ['ADMIN', 'MASTER_ADMIN']
                     }
                 },

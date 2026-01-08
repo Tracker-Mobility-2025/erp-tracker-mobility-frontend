@@ -36,7 +36,7 @@ export function useVerificationReportCrud() {
 
   function onViewItem(report) {
     router.push({
-      name: 'verification-report-details', // TODO: Ajustar nombre de ruta
+      name: 'verification-report-detail',
       query: { id: report.id }
     });
   }

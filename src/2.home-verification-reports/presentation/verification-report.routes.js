@@ -1,23 +1,26 @@
 /**
- * Rutas del módulo de reportes de verificación.
+ * Configuración de rutas para el módulo de reportes de verificación
+ * Bounded Context: 2.home-verification-reports
  */
 export const verificationReportRoutes = [
   {
-    path: '/verification-reports',
-    name: 'verification-reports',
-    component: () => import('./views/verification-reports-management.vue'),
+    path: '',
+    name: 'verification-reports-list',
+    component: () => import('./views/reports-management.vue'),
     meta: {
       title: 'Reportes de Verificación',
-      requiresAuth: true
+      roles: ['ADMIN', 'MASTER_ADMIN']
     }
   },
   {
-    path: '/verification-reports/:id',
-    name: 'verification-report-details',
-    component: () => import('./views/verification-report-detail.vue'),
+    path: 'detail',
+    name: 'verification-report-detail',
+    component: () => import('./views/report-detail.vue'),
     meta: {
       title: 'Detalle de Reporte',
-      requiresAuth: true
+      roles: ['ADMIN', 'MASTER_ADMIN']
     }
   }
 ];
+
+export default verificationReportRoutes;
