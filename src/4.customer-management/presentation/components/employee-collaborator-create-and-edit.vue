@@ -11,6 +11,10 @@ const props = defineProps({
         type: [String, Number],
         required: false,
         default: null
+    },
+    customerBrands: {
+        type: Array,
+        default: () => []
     }
 });
 
@@ -24,7 +28,9 @@ const employeeForm = ref({
     email: '',
     password: '',
     phoneNumber: '',
-    status: 'ACTIVE'
+    status: 'ACTIVE',
+    brandId: null,
+    role: ''
 });
 
 // Status options
@@ -32,6 +38,20 @@ const statusOptions = [
     { label: 'Activo', value: 'ACTIVE' },
     { label: 'Inactivo', value: 'INACTIVE' }
 ];
+
+// Role options
+const roleOptions = [
+    { label: 'Jefe ventas', value: 'GERENTE_VENTAS' },
+    { label: 'Vendedor', value: 'VENDEDOR' }
+];
+
+// Computed - Brand options from customer brands
+const brandOptions = computed(() => {
+    return props.customerBrands.map(brand => ({
+        label: brand.value || brand,
+        value: brand.id
+    }));
+});
 
 // Validation methods
 const validateName = (name) => {
@@ -77,7 +97,9 @@ const isFormValid = computed(() => {
            validateLastName(employeeForm.value.lastName) &&
            validateEmail(employeeForm.value.email) &&
            validatePhoneNumber(employeeForm.value.phoneNumber) &&
-           passwordValid;
+           passwordValid &&
+           employeeForm.value.brandId !== null &&
+           employeeForm.value.role !== '';
 });
 
 // Methods
@@ -118,7 +140,9 @@ const resetForm = () => {
         email: '',
         password: '',
         phoneNumber: '',
-        status: 'ACTIVE'
+        status: 'ACTIVE',
+        brandId: null,
+        role: ''
     };
     submitted.value = false;
 };
@@ -132,7 +156,9 @@ watch(() => props.visible, (newValue) => {
             email: props.item.email || '',
             password: '', // No mostrar password en edición
             phoneNumber: props.item.phoneNumber || '',
-            status: props.item.status || 'ACTIVE'
+            status: props.item.status || 'ACTIVE',
+            brandId: props.item.brandId || null,
+            role: props.item.roles?.[0] || ''
         };
     } else if (newValue && !props.edit) {
         resetForm();
@@ -246,7 +272,7 @@ watch(() => props.visible, (newValue) => {
                 </div>
             </div>
 
-            <!-- Fila 3: Contraseña -->
+            <!-- Fila 3: Contraseña y Marca -->
             <div class="col-12 md:col-6 px-2 pb-1">
                 <div class="field">
                     <label for="password" class="block text-900 font-medium mb-2">
@@ -273,7 +299,52 @@ watch(() => props.visible, (newValue) => {
                 </div>
             </div>
 
-            <!-- Fila 4: Estado (solo en modo edición) -->
+            <div class="col-12 md:col-6 px-2 pb-1">
+                <div class="field">
+                    <label for="brandId" class="block text-900 font-medium mb-2">
+                        <i class="pi pi-tag mr-2"></i>Marca *
+                    </label>
+                    <pv-select
+                        id="brandId"
+                        v-model="employeeForm.brandId"
+                        :options="brandOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Seleccione una marca"
+                        class="w-full"
+                        size="small"
+                        :class="{ 'p-invalid': submitted && !employeeForm.brandId }"
+                    />
+                    <small v-if="submitted && !employeeForm.brandId" class="p-error">
+                        La marca es requerida
+                    </small>
+                </div>
+            </div>
+
+            <!-- Fila 4: Rol y Estado -->
+            <div class="col-12 md:col-6 px-2 pb-1">
+                <div class="field">
+                    <label for="role" class="block text-900 font-medium mb-2">
+                        <i class="pi pi-shield mr-2"></i>Rol *
+                    </label>
+                    <pv-select
+                        id="role"
+                        v-model="employeeForm.role"
+                        :options="roleOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Seleccione un rol"
+                        class="w-full"
+                        size="small"
+                        :class="{ 'p-invalid': submitted && !employeeForm.role }"
+                    />
+                    <small v-if="submitted && !employeeForm.role" class="p-error">
+                        El rol es requerido
+                    </small>
+                </div>
+            </div>
+
+            <!-- Fila 5: Estado (solo en modo edición) -->
             <div v-if="edit" class="col-12 md:col-6 px-2 pb-1">
                 <div class="field">
                     <label for="status" class="block text-900 font-medium mb-2">

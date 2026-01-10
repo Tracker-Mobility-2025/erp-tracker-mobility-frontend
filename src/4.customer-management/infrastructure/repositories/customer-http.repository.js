@@ -109,7 +109,9 @@ export class CustomerHttpRepository extends ICustomerRepository {
      * @returns {Promise<EmployeeCollaborator>}
      */
     async updateEmployee(customerId, employeeId, employeeData) {
-        const response = await this.#api.updateEmployee(employeeId, employeeData);
+        // Exclude id and applicantCompanyId from payload (they're in the URL)
+        const { id, applicantCompanyId, ...updatePayload } = employeeData;
+        const response = await this.#api.updateEmployee(employeeId, updatePayload);
         return EmployeeCollaboratorAssembler.toDomain(response.data);
     }
 

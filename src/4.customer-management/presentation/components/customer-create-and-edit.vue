@@ -80,7 +80,7 @@ const saveRequested = () => {
         
         console.log('[Dialog] Emitting customerData:', customerData);
         emit('save-requested', customerData);
-        resetForm();
+        // No resetear aquí - dejar que el padre maneje el reset cuando sea exitoso
     }
 };
 
@@ -95,8 +95,9 @@ const resetForm = () => {
     submitted.value = false;
 };
 
-// Watch for dialog open
-watch(() => props.visible, (newValue) => {
+// Watch for dialog open/close
+watch(() => props.visible, (newValue, oldValue) => {
+    // Cuando el diálogo se abre
     if (newValue && props.edit && props.item) {
         // En modo edición, mapear brands de Brand entities a strings
         const brandsArray = props.item.brands && Array.isArray(props.item.brands)
@@ -111,6 +112,11 @@ watch(() => props.visible, (newValue) => {
             status: props.item.status || 'ACTIVE'
         };
     } else if (newValue && !props.edit) {
+        resetForm();
+    }
+    
+    // Cuando el diálogo se cierra (newValue = false, oldValue = true)
+    if (!newValue && oldValue) {
         resetForm();
     }
 });

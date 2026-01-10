@@ -104,8 +104,10 @@ export class EmployeeCollaboratorAssembler {
             lastName: dto.lastName,
             phoneNumber: dto.phoneNumber,
             applicantCompanyId: dto.applicantCompanyId,
+            applicantCompanyName: dto.applicantCompanyName,
             status: dto.status,
             brandId: dto.brandId,
+            brandName: dto.brandName,
             roles: Array.isArray(dto.roles) ? dto.roles : [],
             createdAt: dto.createdAt,
             updatedAt: dto.updatedAt

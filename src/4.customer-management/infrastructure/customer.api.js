@@ -109,7 +109,7 @@ export class CustomerApi extends BaseApi {
      * @returns {Promise} Una promesa que se resuelve con la respuesta del colaborador actualizado.
      */
     updateEmployee(employeeId, employeeData) {
-        return this.http.put(`${employeeEndpointPath}/${employeeId}`, employeeData);
+        return this.http.patch(`${employeeEndpointPath}/${employeeId}`, employeeData);
     }
 
     /**

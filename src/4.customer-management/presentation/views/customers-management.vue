@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useToast } from 'primevue/usetoast';
 import { useCustomerStore } from '../../application/customer.store.js';
 import { useCustomerCrud } from '../composables/use-customer-crud.js';
 import CustomerCreateAndEdit from '../components/customer-create-and-edit.vue';
@@ -13,6 +14,7 @@ import {
 } from '../constants/customer-ui.constants.js';
 
 const router = useRouter();
+const toast = useToast();
 const customerStore = useCustomerStore();
 const { createCustomer, updateCustomer, deleteCustomer } = useCustomerCrud();
 
@@ -82,6 +84,26 @@ const onCancelRequested = () => {
 
 const onSaveRequested = async (customerData) => {
     console.log('[Component] onSaveRequested called at', new Date().toISOString());
+    
+    // Validar RUC duplicado
+    const rucExists = customerStore.customers.find(customer => {
+        // Si estamos editando, excluir el cliente actual de la búsqueda
+        if (isEdit.value && itemClient.value && customer.id === itemClient.value.id) {
+            return false;
+        }
+        return customer.ruc === customerData.ruc;
+    });
+    
+    if (rucExists) {
+        toast.add({
+            severity: 'error',
+            summary: 'RUC duplicado',
+            detail: `Ya existe un cliente con el RUC ${customerData.ruc}`,
+            life: 4000
+        });
+        return;
+    }
+    
     try {
         if (isEdit.value) {
             console.log('[Component] Calling updateCustomer');

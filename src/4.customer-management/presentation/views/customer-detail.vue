@@ -6,6 +6,7 @@ import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
 import EmployeeCollaboratorCreateAndEdit from '../components/employee-collaborator-create-and-edit.vue';
 import Toolbar from '../../../shared-v2/presentation/components/toolbar.vue';
+import DataManager from '../../../shared-v2/presentation/components/data-manager.vue';
 import {
     StatusTranslations,
     StatusFilterOptions,
@@ -61,6 +62,17 @@ const filteredEmployees = computed(() => {
 
     return filtered;
 });
+
+// Columns configuration for data-manager
+const columns = ref([
+    { field: 'name', header: 'Nombres', sortable: true, style: 'min-width: 150px' },
+    { field: 'lastName', header: 'Apellidos', sortable: true, style: 'min-width: 150px' },
+    { field: 'email', header: 'Email', sortable: true, style: 'min-width: 150px' },
+    { field: 'phoneNumber', header: 'Teléfono', sortable: true, style: 'min-width: 100px' },
+    { field: 'brandName', header: 'Marca', sortable: true, style: 'min-width: 150px', template: 'brandName' },
+    { field: 'roles', header: 'Rol', sortable: true, style: 'min-width: 120px', template: 'roles' },
+    { field: 'status', header: 'Estado', sortable: true, style: 'min-width: 120px', template: 'status' }
+]);
 
 const statusProps = computed(() => {
     if (customer.value?.isActive()) {
@@ -266,22 +278,31 @@ watch(() => route.query.id, async (newId) => {
         </div>
 
         <!-- Content -->
-        <div v-else>
-        <!-- Filters Card -->
-        <div class="card p-4 mb-4">
-            <div class="flex flex-column md:flex-row gap-3 align-items-stretch md:align-items-center">
-                <!-- Search -->
-                <pv-icon-field class="flex-grow-1">
-                    <pv-input-icon class="pi pi-search" />
-                    <pv-input-text
-                        v-model="search"
-                        :placeholder="EmployeeUILabels.placeholders.search"
-                        class="w-full"
-                    />
-                </pv-icon-field>
-
-                <!-- Status Filter -->
-                <div class="w-full md:w-auto" style="min-width: 200px">
+        <div v-else class="flex-grow-1 flex flex-column" style="min-height: 0;">
+            <!-- Data Manager Component -->
+            <data-manager
+                :items="customerStore.employees"
+                :filtered-items="filteredEmployees"
+                :title="{ singular: 'colaborador', plural: 'colaboradores' }"
+                :columns="columns"
+                :loading="customerStore.loading"
+                :dynamic="true"
+                :show-selection="false"
+                :show-export="false"
+                :show-delete="false"
+                :show-view-action="false"
+                :show-edit-action="true"
+                :show-delete-action="true"
+                search-placeholder="Buscar por nombre, apellido, email o teléfono..."
+                new-button-label="Nuevo Colaborador"
+                @new-item-requested-manager="onNewItem"
+                @edit-item-requested-manager="onEditItem"
+                @delete-item-requested-manager="onDeleteItem"
+                @global-filter-change="(value) => search = value"
+                @clear-filters="onClearFilters"
+            >
+                <!-- Custom filters slot -->
+                <template #filters="{ clearFilters }">
                     <pv-dropdown
                         v-model="selectStatus"
                         :options="statusOptions"
@@ -289,6 +310,7 @@ watch(() => route.query.id, async (newId) => {
                         optionValue="value"
                         placeholder="Filtrar por estado"
                         class="w-full md:w-auto"
+                        style="min-width: 200px"
                     >
                         <template #option="slotProps">
                             <div class="flex align-items-center justify-content-between w-full">
@@ -305,49 +327,37 @@ watch(() => route.query.id, async (newId) => {
                             </div>
                         </template>
                     </pv-dropdown>
-                </div>
-
-                <!-- Clear Filters -->
-                <div class="w-full md:w-auto">
+                    
                     <pv-button
-                        :label="EmployeeUILabels.buttons.clearFilters"
+                        label="Limpiar filtros"
                         icon="pi pi-filter-slash"
-                        class="p-button-secondary p-button-outlined w-full"
-                        style="white-space: nowrap;"
-                        @click="onClearFilters"
+                        class="p-button-secondary p-button-outlined"
+                        @click="clearFilters"
                     />
-                </div>
+                </template>
 
-                <!-- Add Employee -->
-                <div class="w-full md:w-auto">
-                    <pv-button
-                        :label="EmployeeUILabels.buttons.new"
-                        icon="pi pi-plus"
-                        severity="success"
-                        @click="onNewItem"
-                        class="w-full md:w-auto"
-                        style="white-space: nowrap;"
+                <!-- Custom column templates -->
+                <template #brandName="{ data }">
+                    <span class="badge bg-blue-100 text-blue-700 text-sm px-2 py-1">
+                        {{ data.brandName || 'Sin marca' }}
+                    </span>
+                </template>
+
+                <template #roles="{ data }">
+                    <span class="badge bg-purple-100 text-purple-700 text-sm px-2 py-1">
+                        {{ data.roles?.[0] || 'Sin rol' }}
+                    </span>
+                </template>
+
+                <template #status="{ data }">
+                    <pv-tag
+                        :value="StatusTranslations[data.status]"
+                        :severity="getStatusSeverity(data.status)"
+                        class="text-sm"
                     />
-                </div>
-            </div>
-        </div>
+                </template>
 
-        <!-- Employees Table -->
-        <div class="card flex-grow-1" style="min-height: 0;">
-            <pv-data-table
-                :key="`employee-table-${customerId}`"
-                :value="filteredEmployees"
-                :loading="customerStore.loading"
-                dataKey="id"
-                :paginator="true"
-                :rows="10"
-                :rowsPerPageOptions="[5, 10, 15, 20]"
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} colaboradores"
-                class="h-full"
-                scrollable
-                scrollHeight="flex"
-            >
+                <!-- Empty state -->
                 <template #empty>
                     <div class="text-center p-4">
                         <i class="pi pi-users text-6xl text-400 mb-3 block"></i>
@@ -355,42 +365,7 @@ watch(() => route.query.id, async (newId) => {
                         <p class="text-muted mb-4">{{ EmployeeUILabels.messages.addFirstEmployee }}</p>
                     </div>
                 </template>
-
-                <pv-column field="name" header="Nombres" sortable style="min-width: 150px"></pv-column>
-                <pv-column field="lastName" header="Apellidos" sortable style="min-width: 150px"></pv-column>
-                <pv-column field="email" header="Email" sortable style="min-width: 200px"></pv-column>
-                <pv-column field="phoneNumber" header="Teléfono" sortable style="min-width: 130px"></pv-column>
-                <pv-column field="status" header="Estado" sortable style="min-width: 120px">
-                    <template #body="{ data }">
-                        <pv-tag
-                            :value="StatusTranslations[data.status]"
-                            :severity="getStatusSeverity(data.status)"
-                            class="text-sm"
-                        />
-                    </template>
-                </pv-column>
-                <pv-column header="Acciones" style="min-width: 120px">
-                    <template #body="{ data }">
-                        <div class="flex gap-2 justify-content-center">
-                            <pv-button
-                                icon="pi pi-pencil"
-                                class="p-button-outlined btn-edit"
-                                size="small"
-                                @click="onEditItem(data)"
-                                v-tooltip.top="'Editar'"
-                            />
-                            <pv-button
-                                icon="pi pi-trash"
-                                class="p-button-outlined btn-delete"
-                                size="small"
-                                @click="onDeleteItem(data)"
-                                v-tooltip.top="'Eliminar'"
-                            />
-                        </div>
-                    </template>
-                </pv-column>
-            </pv-data-table>
-        </div>
+            </data-manager>
 
         <!-- Create/Edit Dialog -->
         <employee-collaborator-create-and-edit
@@ -398,6 +373,7 @@ watch(() => route.query.id, async (newId) => {
             :item="itemEmployee"
             :visible="createAndEditDialogIsVisible"
             :customer-id="customerId"
+            :customer-brands="customer?.brands || []"
             @cancel-requested="onCancelRequested"
             @save-requested="onSaveRequested"
         />
