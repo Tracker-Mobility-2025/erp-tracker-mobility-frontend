@@ -97,13 +97,10 @@ export const authenticationGuard = (to, from, next) => {
         // ⭐ REDIRECCIÓN SEGÚN ROL DESPUÉS DEL LOGIN
         // Si el usuario es COMPANY_EMPLOYEE y está tratando de acceder a rutas restringidas de ADMIN
         if (store.currentRole === 'COMPANY_EMPLOYEE') {
-            // Rutas de admin permitidas para COMPANY_EMPLOYEE
-            const allowedAdminRoutes = ['/app/admin/service-orders', '/app/admin/order-details'];
-
-            // Si intenta acceder a rutas de admin no permitidas, redirigir
-            if (to.path.startsWith('/app/admin') && !allowedAdminRoutes.some(route => to.path.startsWith(route))) {
+            // Si intenta acceder a rutas de admin, redirigir a sus solicitudes
+            if (to.path.startsWith('/app/admin')) {
                 console.log('[GUARD] COMPANY_EMPLOYEE intentó acceder a ruta admin restringida, redirigiendo');
-                return next({ name: 'management-requests-form' });
+                return next({ name: 'order-requests-list' });
             }
         }
 

@@ -1,20 +1,15 @@
 import {createRouter, createWebHistory} from "vue-router";
-import LayoutTrackerMobilityComponent from "../public/pages/layout-tracker-mobility.component.vue";
+import LayoutTrackerMobilityComponent from "../public/presentation/views/layout-tracker-mobility.component.vue";
 import SignInComponent from "../tracker-mobility/security/pages/sign-in.component.vue";
 import DashboardManagementComponent from "../tracker-mobility/dashboard/pages/dashboard-management.component.vue";
 import {authenticationGuard} from "../tracker-mobility/security/services/authentication.guard.js";
-import ManagementRequestFormComponent
-    from "../client-tracker-mobility/order-request/pages/management-request-form.component.vue";
-import VerificationRequestsManagementComponent
-    from "../client-tracker-mobility/request-management/pages/verification-requests-management.component.vue";
-import VerificationRequestDetailsComponent
-    from "../client-tracker-mobility/request-management/pages/verification-request-details.component.vue";
 
 // Importar rutas de módulos con nueva arquitectura (Bounded Contexts)
 import { verifierRoutes } from "../3.verifiers-accounts/presentation/verifier.routes.js";
 import { customerRoutes } from "../4.customer-management/presentation/customer.routes.js";
 import { verificationOrderRoutes } from "../1.verification-orders/presentation/verification-order.routes.js";
 import { verificationReportRoutes } from "../2.home-verification-reports/presentation/verification-report.routes.js";
+import { orderRequestRoutes } from "../0.verification-order-requests/presentation/order-request.routes.js";
 
 
 
@@ -51,7 +46,7 @@ const router = createRouter({
                         
                         // Redirigir según el rol
                         if (userRole === 'COMPANY_EMPLOYEE') {
-                            return { name: 'management-requests-form' };
+                            return { name: 'order-requests-list' };
                         }
                         
                         // ADMIN y otros roles van a verification-orders
@@ -123,35 +118,13 @@ const router = createRouter({
                 // ============== Rutas de COMPANY_EMPLOYEE ==============
                 //========================================================
 
-                // Solicitar nueva orden de visita domiciliaria
+                // Solicitudes de Orden (nueva arquitectura - Bounded Context: 0.verification-order-requests)
                 {
-                    path: 'applicant-company/management-request-form',
-                    name: 'management-requests-form',
-                    component: ManagementRequestFormComponent,
+                    path: 'applicant-company/order-requests',
+                    name: 'order-requests-module',
+                    children: orderRequestRoutes,
                     meta: {
-                        title: 'Solicitud de visita domiciliaria',
-                        roles: ['COMPANY_EMPLOYEE']
-                    }
-                },
-
-                // Mis órdenes
-                {
-                    path: 'applicant-company/my-service-orders',
-                    name: 'my-service-orders',
-                    component: VerificationRequestsManagementComponent,
-                    meta: {
-                        title: 'Mis Solicitudes',
-                        roles: ['COMPANY_EMPLOYEE']
-                    }
-                },
-
-                // Detalle de solicitud de verificación
-                {
-                    path: 'applicant-company/verification-request-details',
-                    name: 'verification-request-details',
-                    component: VerificationRequestDetailsComponent,
-                    meta: {
-                        title: 'Detalle de Solicitud',
+                        title: 'Solicitudes de Orden',
                         roles: ['COMPANY_EMPLOYEE']
                     }
                 }

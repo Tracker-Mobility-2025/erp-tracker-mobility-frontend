@@ -1,5 +1,13 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthenticationStore } from '../../../tracker-mobility/security/services/authentication.store.js'
+
+// Router
+const router = useRouter()
+
+// Store
+const authStore = useAuthenticationStore()
 
 // Props
 const props = defineProps({
@@ -15,10 +23,21 @@ const isOpen = ref(true)
 // Emits
 const emit = defineEmits(['sidebar-toggle', 'menu-selected'])
 
+// Computed
+const currentUser = computed(() => ({
+  username: authStore.currentUsername || 'Usuario',
+  role: authStore.currentRole || 'Sin rol'
+}))
+
 // Methods
 const toggleSidebar = () => {
   isOpen.value = !isOpen.value
   emit('sidebar-toggle', isOpen.value)
+}
+
+const handleLogout = () => {
+  console.log('🚪 [SIDEBAR] Cerrando sesión...')
+  authStore.signOut(router)
 }
 
 // Lifecycle hooks
@@ -73,6 +92,35 @@ onMounted(() => {
             </ul>
           </nav>
         </div>
+
+        <!-- Información del usuario -->
+        <div class="border-top-1 surface-border p-3 flex-shrink-0">
+          <div class="flex align-items-center gap-3 p-2 border-round" style="background: var(--surface-600);">
+            <div class="flex align-items-center justify-content-center border-circle bg-primary text-white flex-shrink-0" style="width: 40px; height: 40px;">
+              <i class="pi pi-user text-lg"></i>
+            </div>
+            <div class="flex-1 overflow-hidden">
+              <div class="font-semibold text-white text-sm white-space-nowrap overflow-hidden text-overflow-ellipsis">
+                {{ currentUser.username }}
+              </div>
+              <div class="text-xs text-white-alpha-70 white-space-nowrap overflow-hidden text-overflow-ellipsis">
+                {{ currentUser.role }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botón de cerrar sesión -->
+        <div class="p-3 pt-0 flex-shrink-0">
+          <button
+              @click="handleLogout"
+              class="logout-btn w-full flex align-items-center justify-content-center gap-2 px-4 py-3 border-none cursor-pointer font-medium border-round-lg text-white transition-all transition-duration-300"
+              style="background: var(--red-500);"
+          >
+            <i class="pi pi-sign-out text-lg"></i>
+            <span>Cerrar sesión</span>
+          </button>
+        </div>
       </aside>
     </div>
 
@@ -86,6 +134,17 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* Todos los estilos del sidebar se movieron a src/styles/ui-components.css */
+/* Botón de logout */
+.logout-btn:hover {
+  background: var(--red-600) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.logout-btn:active {
+  transform: translateY(0);
+}
+
+/* Todos los demás estilos del sidebar se movieron a src/styles/ui-components.css */
 /* Esto permite reutilización y mantiene consistencia con el sistema de diseño corporativo */
 </style>

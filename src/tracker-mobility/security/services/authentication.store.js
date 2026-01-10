@@ -167,7 +167,7 @@ export const useAuthenticationStore = defineStore('authentication', {
             const defaultRoutesByRole = {
                 'ADMIN': '/app/admin/verification-orders',
                 'MASTER_ADMIN': '/app/admin/verification-orders',
-                'COMPANY_EMPLOYEE': '/app/applicant-company/management-request-form'
+                'COMPANY_EMPLOYEE': '/app/applicant-company/order-requests'
             };
             
             // ⚠️ Verificar que el rol está autorizado para hacer login

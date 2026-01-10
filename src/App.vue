@@ -1,7 +1,7 @@
 <script>
 
 
-import LayoutTrackerMobility from "./public/pages/layout-tracker-mobility.component.vue";
+import LayoutTrackerMobility from "./public/presentation/views/layout-tracker-mobility.component.vue";
 
 export default {
   name: "app",

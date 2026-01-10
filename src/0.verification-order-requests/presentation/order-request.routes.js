@@ -3,21 +3,30 @@
  */
 export const orderRequestRoutes = [
   {
-    path: '/order-requests',
-    name: 'order-requests',
+    path: '',
+    name: 'order-requests-list',
     component: () => import('./views/order-requests-management.vue'),
     meta: {
-      title: 'Solicitudes de Orden',
-      requiresAuth: true
+      title: 'Mis Solicitudes',
+      roles: ['COMPANY_EMPLOYEE']
     }
   },
   {
-    path: '/order-requests/:id',
-    name: 'order-request-details',
+    path: 'new',
+    name: 'order-request-form',
+    component: () => import('./views/order-request-form.vue'),
+    meta: {
+      title: 'Nueva Solicitud de Orden',
+      roles: ['COMPANY_EMPLOYEE']
+    }
+  },
+  {
+    path: ':id',
+    name: 'order-request-detail',
     component: () => import('./views/order-request-detail.vue'),
     meta: {
       title: 'Detalle de Solicitud',
-      requiresAuth: true
+      roles: ['COMPANY_EMPLOYEE']
     }
   }
 ];
