@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 import useVerificationReportStore from '../../application/verification-report.store.js';
 import { useNotification } from '../../../shared-v2/composables/use-notification.js';
@@ -9,6 +9,13 @@ import Toolbar from '../../../shared-v2/presentation/components/toolbar.vue';
 import VerificationInfoCard from '../components/verification-info-card.vue';
 import ApplicantClientInfoCard from '../components/applicant-client-info-card.vue';
 import AddressInfoCard from '../components/address-info-card.vue';
+import InterviewDetailsCard from '../components/interview-details-card.vue';
+import ContactReferencesCard from '../components/contact-references-card.vue';
+import LandlordInterviewCard from '../components/landlord-interview-card.vue';
+import ObservationsCard from '../components/observations-card.vue';
+import SummaryCard from '../components/summary-card.vue';
+import GlossaryCard from '../components/glossary-card.vue';
+import CasuisticsCard from '../components/casuistics-card.vue';
 
 import AnnexePhotographicRegistry from '../components/annexe-photographic-registry.vue';
 import EmailSendDialog from '../components/email-send-dialog.vue';
@@ -24,6 +31,47 @@ const isLoading = ref(true);
 const hasError = ref(false);
 const errorMessage = ref('');
 const emailDialogVisible = ref(false);
+const landlordInterviewCardRef = ref(null);
+
+// Computed
+const canExportPDF = computed(() => {
+  if (!report.value) return false;
+  // No permitir exportación si falta la entrevista con el arrendador
+  return report.value.finalResult !== 'ENTREVISTA_ARRENDADOR_FALTANTE';
+});
+
+const canEditInterview = computed(() => {
+  if (!report.value) return false;
+  // Permitir edición si el resultado es ENTREVISTA_ARRENDADOR_FALTANTE
+  return report.value.finalResult === 'ENTREVISTA_ARRENDADOR_FALTANTE';
+});
+
+const isEditBlockedByFinalResult = computed(() => {
+  if (!report.value) return false;
+  // Bloquear si hay resultado final diferente a ENTREVISTA_ARRENDADOR_FALTANTE
+  return !!report.value.finalResult && report.value.finalResult !== 'ENTREVISTA_ARRENDADOR_FALTANTE';
+});
+
+const showInterviewAlert = computed(() => {
+  return report.value?.finalResult === 'ENTREVISTA_ARRENDADOR_FALTANTE';
+});
+
+// Debug attachments
+watchEffect(() => {
+  if (report.value) {
+    console.log('📎 [DEBUGGING ATTACHMENTS]');
+    console.log('Raw attachments:', report.value.attachments);
+    console.log('Annexe 01 Photos:', report.value.annexe01Photos);
+    console.log('Annexe 02 Photos:', report.value.annexe02Photos);
+    console.log('Annexe 03 Photos:', report.value.annexe03Photos);
+    console.log('Annexe 04 Photos:', report.value.annexe04Photos);
+    console.log('Annexe 05 Photos:', report.value.annexe05Photos);
+    console.log('Annexe 06 Photos:', report.value.annexe06Photos);
+    console.log('🗣️ [DEBUGGING INTERVIEW DETAILS]');
+    console.log('Interview Details:', report.value.interviewDetails);
+    console.log('Has Interview Details?', !!report.value.interviewDetails);
+  }
+});
 
 // Loading steps
 const loadingStep = ref(0);
@@ -127,8 +175,94 @@ const handleEmailCancelRequested = () => {
 };
 
 const handleExportPDF = () => {
+  // Validar si falta la entrevista con el arrendador
+  if (report.value?.finalResult === 'ENTREVISTA_ARRENDADOR_FALTANTE') {
+    showError(
+      'Debe completar la entrevista con el arrendador antes de descargar el informe. Por favor, complete los datos de la entrevista en la sección "Detalles de la entrevista" y vuelva a intentarlo.',
+      'Entrevista pendiente',
+      6000
+    );
+    return;
+  }
+
   // TODO: Implementar exportación a PDF
   showSuccess('Exportación a PDF en desarrollo', 'Info');
+};
+
+const handleUpdateInterviewDetailsRequested = async (payload) => {
+  try {
+    isLoading.value = true;
+
+    // Función para limpiar strings
+    const cleanString = (v) => {
+      if (v === null || v === undefined || v === '' || v === '-' || v === 'No especificado') {
+        return '';
+      }
+      return String(v).trim();
+    };
+
+    // Construir el payload según el formato del endpoint
+    const apiPayload = {
+      ownHome: cleanString(payload?.ownHouse),
+      clientNameAccordingToLandlord: cleanString(payload?.tenantName),
+      servicesPaidByClient: cleanString(payload?.serviceClientPays),
+      isTheClientPunctualWithPayments: cleanString(payload?.clientPaysPunctual),
+      timeLivingAccordingToLandlord: cleanString(payload?.clientRentalTime),
+      floorOccupiedByClient: cleanString(payload?.clientFloorNumber),
+      interviewObservation: cleanString(payload?.interviewObservation)
+    };
+
+    // Obtener el orderId desde el reporte
+    const orderId = report.value?.orderId;
+
+    if (!orderId) {
+      showError(
+        'El backend no está enviando el orderId. Por favor, contacte al administrador del sistema.',
+        'Error de configuración'
+      );
+      throw new Error('No se pudo obtener el ID de la orden desde el reporte');
+    }
+
+    // Enviar actualización al backend
+    const result = await reportStore.updateLandlordInterview(orderId, apiPayload);
+
+    if (result.success) {
+      // Actualizar estado local para reflejar cambios inmediatamente
+      if (report.value.interviewDetails) {
+        report.value.interviewDetails.clientNameAccordingToLandlord = apiPayload.clientNameAccordingToLandlord;
+        report.value.interviewDetails.ownHome = apiPayload.ownHome;
+        report.value.interviewDetails.servicesPaidByClient = apiPayload.servicesPaidByClient;
+        report.value.interviewDetails.isTheClientPunctualWithPayments = apiPayload.isTheClientPunctualWithPayments;
+        report.value.interviewDetails.timeLivingAccordingToLandlord = apiPayload.timeLivingAccordingToLandlord;
+        report.value.interviewDetails.floorOccupiedByClient = apiPayload.floorOccupiedByClient;
+        report.value.interviewDetails.interviewObservation = apiPayload.interviewObservation;
+      }
+
+      showSuccess('Entrevista con el arrendador actualizada exitosamente', 'Éxito');
+      
+      // Recargar el reporte para obtener los datos actualizados del backend
+      await getReportById(route.params.reportId);
+    } else {
+      throw new Error(result.message || 'Error al actualizar la entrevista');
+    }
+  } catch (error) {
+    console.error('Error al actualizar entrevista:', error);
+    showError(
+      error.message || 'No se pudo actualizar la entrevista. Intente nuevamente.',
+      'Error al guardar'
+    );
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const scrollToInterviewCard = () => {
+  if (landlordInterviewCardRef.value) {
+    landlordInterviewCardRef.value.$el.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'center' 
+    });
+  }
 };
 
 // Lifecycle
@@ -168,6 +302,8 @@ watch(() => route.params.reportId, async (newId) => {
           label="Exportar PDF"
           icon="pi pi-file-pdf"
           class="p-button-outlined"
+          :disabled="!canExportPDF"
+          v-tooltip.top="!canExportPDF ? 'Complete la entrevista con el arrendador para exportar el PDF' : 'Exportar informe a PDF'"
           @click="handleExportPDF"
         />
       </template>
@@ -202,13 +338,27 @@ watch(() => route.params.reportId, async (newId) => {
 
       <!-- Report Content -->
       <div v-else-if="report" class="flex flex-column gap-4">
+        <!-- Alert: Entrevista con Arrendador Faltante -->
+        <pv-message v-if="showInterviewAlert" severity="warn" :closable="false" class="mb-2">
+          <div class="flex align-items-center w-full gap-4">
+            <i class="pi pi-exclamation-triangle text-2xl"></i>
+            <div class="flex-1">
+              <p class="font-bold text-base m-0 mb-1">Entrevista con el Arrendador Pendiente</p>
+              <p class="m-0 text-sm">Este reporte requiere que complete la entrevista con el arrendador antes de poder ser finalizado y exportado.</p>
+            </div>
+            <pv-button 
+              label="Ir a la Entrevista" 
+              icon="pi pi-arrow-down"
+              class="p-button-warning ml-auto flex-shrink-0"
+              @click="scrollToInterviewCard"
+            />
+          </div>
+        </pv-message>
+
         <!-- Section 0: Verification Info (Highlighted) -->
         <verification-info-card
           :verifier="report.verifierName"
-          :address="report.address?.address"
-          :district="report.address?.district"
-          :province="report.address?.province"
-          :department="report.address?.department"
+          :address-location="report.addressLocation"
           :visit-date="report.visitDate"
           :result="report.finalResult"
         />
@@ -234,6 +384,70 @@ watch(() => route.params.reportId, async (newId) => {
           :district="report.addressDistrict"
           :full-address="report.addressStreet"
           :verified-address="report.exactClientAddress"
+        />
+
+        <!-- Section 3: Interview Details -->
+        <interview-details-card
+          :lives-with="report.residence?.livesWith"
+          :is-resident="report.residence?.isResident"
+          :time-living-text="report.residence?.timeLivingText"
+          :dwelling-type="report.dwelling?.dwellingType"
+          :residence-type="report.dwelling?.residenceType"
+          :apartment-information="report.dwelling?.apartmentInformation"
+          :type-furnished="report.dwelling?.typeFurnished"
+          :roof-type="report.dwelling?.roofType"
+          :facade-color="report.dwelling?.facadeColor"
+          :dwelling-material="report.dwelling?.dwellingMaterial"
+          :dwelling-condition="report.dwelling?.dwellingCondition"
+          :zone-type="report.zone?.zoneType"
+          :zone-characteristics="report.zone?.zoneCharacteristics || []"
+          :area-risk="report.zone?.areaRisk || []"
+          :access-type="report.zone?.accessType"
+          :garage-type="report.garage?.garageType"
+          :distance-to-dwelling="report.garage?.distanceToDwelling"
+        />
+
+        <!-- Section 4: Contact References -->
+        <contact-references-card
+          :references="report.contactReferences || []"
+          :landlord-name="report.landlordName"
+          :landlord-phone="report.landlordPhoneNumber"
+        />
+
+        <!-- Section 5: Landlord Interview Details -->
+        <landlord-interview-card
+          ref="landlordInterviewCardRef"
+          v-if="report.interviewDetails"
+          :client-name-according-to-landlord="report.interviewDetails.clientNameAccordingToLandlord"
+          :own-home="report.interviewDetails.ownHome"
+          :services-paid-by-client="report.interviewDetails.servicesPaidByClient"
+          :is-the-client-punctual-with-payments="report.interviewDetails.isTheClientPunctualWithPayments"
+          :time-living-according-to-landlord="report.interviewDetails.timeLivingAccordingToLandlord"
+          :floor-occupied-by-client="report.interviewDetails.floorOccupiedByClient"
+          :interview-observation="report.interviewDetails.interviewObservation"
+          :can-edit="canEditInterview"
+          :blocked-by-final-result="isEditBlockedByFinalResult"
+          @update-interview-details-requested="handleUpdateInterviewDetailsRequested"
+        />
+
+        <!-- Section 6: Summary -->
+        <summary-card
+          :summary="report.summary"
+        />
+
+        <!-- Section 7: Observations -->
+        <observations-card
+          :observations="report.observations || []"
+        />
+
+        <!-- Section 8: Glossary -->
+        <glossary-card
+          :glossary="report.glossary || []"
+        />
+
+        <!-- Section 9: Casuistics -->
+        <casuistics-card
+          :casuistics="report.casuistics || []"
         />
        
         <!-- Section 12: Annexe 01 - Photographic Registry -->

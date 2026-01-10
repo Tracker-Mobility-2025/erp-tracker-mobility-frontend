@@ -18,6 +18,7 @@ export class ReportAssembler {
     return new Report({
       reportId: resource.reportId,
       reportCode: resource.reportCode,
+      orderId: resource.orderId,
       verifierName: resource.verifierName,
       addressLocation: resource.addressLocation,
       visitDate: resource.visitDate,
@@ -86,6 +87,7 @@ export class ReportAssembler {
     return {
       reportId: entity.reportId,
       reportCode: entity.reportCode,
+      orderId: entity.orderId,
       verifierName: entity.verifierName,
       addressLocation: entity.addressLocation,
       visitDate: entity.visitDate,

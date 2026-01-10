@@ -61,7 +61,7 @@ const resultBadgeClass = computed(() => {
 const formattedResult = computed(() => {
   const result = props.finalResult?.toUpperCase();
   if (result === 'ENTREVISTA_ARRENDADOR_FALTANTE') {
-    return 'ENT FALTANTE';
+    return 'Entrevista Arrendador';
   }
   return result || 'Sin definir';
 });

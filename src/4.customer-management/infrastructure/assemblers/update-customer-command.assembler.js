@@ -13,15 +13,15 @@ export class UpdateCustomerCommandAssembler {
      * @returns {Object} El objeto resource formateado para la API.
      */
     static toResource(command) {
-        const resource = {
-            applicantCompanyId: command.id // Map id -> applicantCompanyId
-        };
+        const resource = {};
 
         // Solo incluir campos que están presentes en el comando
+        // NO incluir applicantCompanyId en el body (solo va en la URL)
         if (command.ruc !== undefined) resource.ruc = command.ruc;
         if (command.companyName !== undefined) resource.companyName = command.companyName;
         if (command.password !== undefined) resource.password = command.password;
         if (command.status !== undefined) resource.status = command.status;
+        if (command.brands !== undefined) resource.brands = command.brands;
 
         return resource;
     }

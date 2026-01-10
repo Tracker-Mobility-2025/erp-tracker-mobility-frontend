@@ -198,12 +198,15 @@ export const useCustomerStore = defineStore('customer', () => {
      * Actualiza un cliente existente
      */
     async function update(id, data) {
-        console.log('[Store] update called at', new Date().toISOString(), 'id:', id);
+        console.log('🔍 [Store] update called - id:', id);
+        console.log('🔍 [Store] data recibida:', JSON.stringify(data, null, 2));
         loading.value = true;
         error.value = null;
 
         try {
             const command = new UpdateCustomerCommand({ id, ...data });
+            console.log('🔍 [Store] UpdateCustomerCommand creado:', command);
+            console.log('🔍 [Store] command.brands:', command.brands);
             const updatedCustomer = await repository.update(id, command);
             console.log('[Store] customer updated successfully');
 

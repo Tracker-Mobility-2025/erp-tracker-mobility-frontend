@@ -1,6 +1,8 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useNotification } from '../../../shared-v2/composables/use-notification.js';
+import { useImageViewer } from '../../../shared-v2/composables/use-image-viewer.js';
+import ImageViewerModal from '../../../shared-v2/presentation/components/image-viewer-modal.vue';
 
 // Props
 const props = defineProps({
@@ -15,6 +17,19 @@ const emit = defineEmits(['download-document']);
 
 // Composables
 const { showSuccess, showError, showWarning, showInfo } = useNotification();
+const {
+  showModal,
+  currentImage,
+  zoom,
+  openImage,
+  closeModal,
+  zoomIn,
+  zoomOut,
+  resetZoom,
+  downloadImage,
+  downloadCurrentImage,
+  handleImageError: handleImageLoadError
+} = useImageViewer();
 
 // Constantes de configuración
 const ALLOWED_DOCUMENT_TYPES = ['FOTO_FACHADA_VIVIENDA', 'RECIBO_SERVICIO', 'DOCUMENTO_IDENTIDAD'];
@@ -29,39 +44,10 @@ const DOCUMENT_TYPE_MAP = {
   'PTP': 'PTP'
 };
 const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
-const FILE_ICONS = {
-  'pdf': 'pi-file-pdf',
-  'doc': 'pi-file-word',
-  'docx': 'pi-file-word',
-  'xls': 'pi-file-excel',
-  'xlsx': 'pi-file-excel',
-  'txt': 'pi-file',
-  'jpg': 'pi-image',
-  'jpeg': 'pi-image',
-  'png': 'pi-image',
-  'gif': 'pi-image',
-  'bmp': 'pi-image',
-  'webp': 'pi-image'
-};
-const FILE_COLORS = {
-  'pdf': 'text-red-500',
-  'doc': 'text-blue-500',
-  'docx': 'text-blue-500',
-  'xls': 'text-green-500',
-  'xlsx': 'text-green-500',
-  'txt': 'text-gray-500',
-  'jpg': 'text-purple-500',
-  'jpeg': 'text-purple-500',
-  'png': 'text-purple-500',
-  'gif': 'text-purple-500',
-  'bmp': 'text-purple-500',
-  'webp': 'text-purple-500'
-};
 
-// Estado reactivo
+// Estado reactivo para documentos no-imagen
 const showDocumentModal = ref(false);
 const selectedDocument = ref(null);
-const imageZoom = ref(1);
 const showDocumentContent = ref(false);
 
 // Computed
@@ -94,140 +80,39 @@ const downloadDocument = async (type, document = null) => {
     }
 
     console.log('Iniciando descarga de:', document.url);
-    showInfo('Preparando la descarga del documento', 'Descargando...');
-
+    
     emit('download-document', { type, item: props.item, document });
-    await performDownload(document.url, generateFileName(type, document));
-    console.log('Documento descargado correctamente');
-
+    
+    // Usar el composable para descargar
+    await downloadImage({
+      url: document.url,
+      description: getDocumentLabel(type),
+      alt: document.displayName
+    });
   } catch (error) {
     console.error('Error al descargar documento:', error);
     showError('No se pudo descargar el documento. Intente nuevamente.', 'Error de descarga');
   }
 };
 
-const performDownload = async (url, filename) => {
-  try {
-    if (isImageFile(url)) {
-      console.log('Descargando imagen:', url);
-      await downloadImageWithCanvas(url, filename);
-      return;
-    }
-
-    console.log('Descargando archivo con fetch:', url);
-    const response = await fetch(url, { method: 'GET', mode: 'cors' });
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    
-    const blob = await response.blob();
-    downloadBlob(blob, filename);
-  } catch (error) {
-    console.warn('Descarga con fetch falló, usando método alternativo:', error);
-    downloadWithLink(url, filename);
-  }
-};
-
-const downloadImageWithCanvas = (url, filename) => {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    
-    img.onload = () => {
-      try {
-        // Crear canvas del tamaño de la imagen
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        canvas.width = img.width;
-        canvas.height = img.height;
-        
-        // Dibujar la imagen en el canvas
-        ctx.drawImage(img, 0, 0);
-        
-        // Convertir canvas a blob y descargar
-        canvas.toBlob((blob) => {
-          if (blob) {
-            console.log('Imagen convertida a blob con canvas, tamaño:', blob.size);
-            downloadBlob(blob, filename);
-            resolve();
-          } else {
-            reject(new Error('No se pudo convertir imagen a blob'));
-          }
-        }, 'image/png', 1.0);
-        
-      } catch (error) {
-        reject(error);
-      }
-    };
-    
-    img.onerror = () => {
-      reject(new Error('Error al cargar imagen para canvas'));
-    };
-    
-    // Intentar cargar la imagen
-    img.src = url;
-  });
-};
-
-const downloadBlob = (blob, filename) => {
-  try {
-    // Crear URL temporal para el blob
-    const url = window.URL.createObjectURL(blob);
-    console.log('URL del blob creada:', url);
-    
-    // Crear elemento de enlace temporal
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.style.display = 'none';
-    
-    // Agregar al DOM temporalmente y hacer click
-    document.body.appendChild(link);
-    
-    // Simular click para iniciar descarga
-    link.click();
-    
-    console.log('Descarga iniciada para:', filename);
-    
-    // Limpiar después de un breve delay
-    setTimeout(() => {
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      console.log('Recursos de descarga limpiados');
-    }, 100);
-    
-  } catch (error) {
-    console.error('Error en downloadBlob:', error);
-    throw error;
-  }
-};
-
-const downloadWithLink = (url, filename) => {
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename || 'documento';
-  link.target = '_blank';
-  document.body.appendChild(link);
-  link.click();
-  setTimeout(() => document.body.removeChild(link), 100);
-};
-
-const generateFileName = (type, document) => {
-  const timestamp = new Date().toISOString().slice(0, 10);
-  const docLabel = getDocumentLabel(type).replace(/[^a-zA-Z0-9]/g, '_');
-  const extension = getFileExtension(document.url) || 'file';
-  return `${docLabel}_${timestamp}.${extension}`;
-};
-
 const viewDocument = (document) => {
-  selectedDocument.value = document;
-  imageZoom.value = 1;
-  showDocumentModal.value = true;
+  // Si es imagen, usar el modal compartido
+  if (isImageFile(document.url)) {
+    openImage({
+      url: document.url,
+      description: document.displayName,
+      alt: getDocumentLabel(document.type)
+    });
+  } else {
+    // Para otros documentos, usar modal específico de documentos
+    selectedDocument.value = document;
+    showDocumentModal.value = true;
+  }
 };
 
-const closeModal = () => {
+const closeDocumentModal = () => {
   showDocumentModal.value = false;
   selectedDocument.value = null;
-  imageZoom.value = 1;
   showDocumentContent.value = false;
 };
 
@@ -243,18 +128,6 @@ const getContentViewerUrl = (url) => {
   return getFileExtension(url) === 'pdf' 
     ? `${url}#toolbar=1&navpanes=1&scrollbar=1` 
     : url;
-};
-
-const zoomIn = () => {
-  imageZoom.value = Math.min(imageZoom.value + 0.25, 3);
-};
-
-const zoomOut = () => {
-  imageZoom.value = Math.max(imageZoom.value - 0.25, 0.5);
-};
-
-const resetZoom = () => {
-  imageZoom.value = 1;
 };
 
 const getDocumentLabel = (documentTypeOrDocument) => {
@@ -278,16 +151,39 @@ const getFileExtension = (url) => {
 };
 
 const getFileIcon = (url) => {
+  const FILE_ICONS = {
+    'pdf': 'pi-file-pdf',
+    'doc': 'pi-file-word',
+    'docx': 'pi-file-word',
+    'xls': 'pi-file-excel',
+    'xlsx': 'pi-file-excel',
+    'txt': 'pi-file',
+    'jpg': 'pi-image',
+    'jpeg': 'pi-image',
+    'png': 'pi-image',
+    'gif': 'pi-image',
+    'bmp': 'pi-image',
+    'webp': 'pi-image'
+  };
   return FILE_ICONS[getFileExtension(url)] || 'pi-file';
 };
 
 const getFileColor = (url) => {
+  const FILE_COLORS = {
+    'pdf': 'text-red-500',
+    'doc': 'text-blue-500',
+    'docx': 'text-blue-500',
+    'xls': 'text-green-500',
+    'xlsx': 'text-green-500',
+    'txt': 'text-gray-500',
+    'jpg': 'text-purple-500',
+    'jpeg': 'text-purple-500',
+    'png': 'text-purple-500',
+    'gif': 'text-purple-500',
+    'bmp': 'text-purple-500',
+    'webp': 'text-purple-500'
+  };
   return FILE_COLORS[getFileExtension(url)] || 'text-gray-500';
-};
-
-const handleImageError = (event) => {
-  // Cambiar a imagen por defecto si no se puede cargar la imagen
-  event.target.src = 'https://via.placeholder.com/150x100/f0f0f0/666666?text=Sin+imagen';
 };
 </script>
 
@@ -597,7 +493,21 @@ const handleImageError = (event) => {
 
   </div>
 
-  <!-- ====================== Modal para visualizar documentos ====================== -->
+  <!-- Modal compartido para visualizar imágenes -->
+  <image-viewer-modal
+    v-model:visible="showModal"
+    :image-url="currentImage?.url"
+    :image-name="currentImage?.name"
+    :image-alt="currentImage?.alt"
+    :zoom="zoom"
+    @zoom-in="zoomIn"
+    @zoom-out="zoomOut"
+    @reset-zoom="resetZoom"
+    @download="downloadCurrentImage"
+    @error="handleImageLoadError"
+  />
+
+  <!-- Modal para visualizar documentos NO-imagen (PDFs, etc.) -->
   <pv-dialog 
     v-model:visible="showDocumentModal" 
     :modal="true" 
@@ -607,7 +517,7 @@ const handleImageError = (event) => {
     class="document-viewer-modal w-full"
     :breakpoints="{'960px': '90vw', '640px': '95vw'}"
     :style="{ maxWidth: '800px' }"
-    @hide="closeModal"
+    @hide="closeDocumentModal"
   >
     <template #header>
       <div class="flex align-items-center gap-2">
@@ -617,46 +527,8 @@ const handleImageError = (event) => {
     </template>
 
     <div class="document-viewer-content" v-if="selectedDocument">
-      <!-- Visualizador para imágenes -->
-      <div v-if="isImageFile(selectedDocument.url)" class="image-viewer">
-        <div class="image-controls mb-3 flex justify-content-between align-items-center">
-          <div class="flex gap-2">
-            <pv-button 
-              icon="pi pi-minus" 
-              class="p-button-sm p-button-outlined"
-              @click="zoomOut"
-              :disabled="imageZoom <= 0.5"
-              title="Alejar"
-            />
-            <pv-button 
-              icon="pi pi-refresh" 
-              class="p-button-sm p-button-outlined"
-              @click="resetZoom"
-              title="Tamaño original"
-            />
-            <pv-button 
-              icon="pi pi-plus" 
-              class="p-button-sm p-button-outlined"
-              @click="zoomIn"
-              :disabled="imageZoom >= 3"
-              title="Acercar"
-            />
-          </div>
-          <span class="text-sm text-600">{{ Math.round(imageZoom * 100) }}%</span>
-        </div>
-        <div class="image-container">
-          <img
-            :src="selectedDocument.url" 
-            :alt="selectedDocument?.displayName || getDocumentLabel(selectedDocument.type)"
-            class="image-zoom max-w-full h-auto"
-            :style="{ transform: `scale(${imageZoom})` }"
-            @error="handleImageError"
-          />
-        </div>
-      </div>
-
       <!-- Visualizador para documentos no imagen -->
-      <div v-else class="document-preview">
+      <div class="document-preview">
         <!-- Vista previa con icono (cuando no se muestra contenido) -->
         <div v-if="!showDocumentContent" class="text-center py-6">
           <div class="flex flex-column align-items-center gap-4">
@@ -718,7 +590,7 @@ const handleImageError = (event) => {
             :disabled="!selectedDocument?.url"
           />
           <pv-button 
-            v-if="!isImageFile(selectedDocument?.url) && canShowContent(selectedDocument?.url)"
+            v-if="canShowContent(selectedDocument?.url)"
             :icon="showDocumentContent ? 'pi pi-eye-slash' : 'pi pi-eye'"
             :label="showDocumentContent ? 'Ocultar contenido' : 'Ver contenido'"
             class="p-button-primary"
@@ -732,14 +604,10 @@ const handleImageError = (event) => {
             icon="pi pi-times" 
             label="Cerrar"
             class="p-button-text"
-            @click="closeModal"
+            @click="closeDocumentModal"
           />
         </div>
       </div>
     </template>
   </pv-dialog>
 </template>
-
-<!-- Los estilos corporativos para cards, dialogs y document viewer están definidos en:
-     - src/styles/primevue-overrides.css (p-card, p-dialog styles)
-     - src/styles/ui-components.css (image-viewer, document-preview, modal-footer) -->

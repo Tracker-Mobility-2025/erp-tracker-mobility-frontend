@@ -40,4 +40,19 @@ export class ReportApi extends BaseApi {
     }
     return this.http.get(`${reportEndpointPath}/${reportId}`);
   }
+
+  /**
+   * Actualiza la entrevista con el arrendador.
+   * PATCH /api/v1/web/reports/order/{orderId}/landlord-interview
+   * @param {string|number} orderId - El ID de la orden.
+   * @param {Object} data - Los datos de la entrevista con el arrendador.
+   * @returns {Promise} Una promesa que se resuelve con la respuesta de la actualización.
+   */
+  updateLandlordInterview(orderId, data) {
+    const orderIdParsed = parseInt(orderId, 10);
+    if (isNaN(orderIdParsed) || orderIdParsed <= 0) {
+      throw new Error('El ID de la orden debe ser un número válido mayor a 0');
+    }
+    return this.http.patch(`${reportEndpointPath}/order/${orderIdParsed}/landlord-interview`, data);
+  }
 }

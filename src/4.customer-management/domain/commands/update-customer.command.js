@@ -9,7 +9,8 @@ export class UpdateCustomerCommand {
         ruc,
         companyName,
         password,
-        status
+        status,
+        brands
     }) {
         if (!id) {
             throw new Error('ID es requerido para actualizar');
@@ -45,6 +46,21 @@ export class UpdateCustomerCommand {
             this.status = status;
         }
 
+        // Brands is optional, defaults to empty array
+        // Expects array of strings (brand names/values)
+        if (brands !== undefined) {
+            if (!Array.isArray(brands)) {
+                throw new Error('Brands debe ser un array');
+            }
+            // Validate each brand is a string
+            brands.forEach((brand, index) => {
+                if (typeof brand !== 'string') {
+                    throw new Error(`Brand en índice ${index} debe ser un string`);
+                }
+            });
+            this.brands = brands;
+        }
+
         this.id = id;
     }
 
@@ -59,6 +75,7 @@ export class UpdateCustomerCommand {
         if (this.companyName !== undefined) dto.companyName = this.companyName;
         if (this.password !== undefined) dto.password = this.password;
         if (this.status !== undefined) dto.status = this.status;
+        if (this.brands !== undefined) dto.brands = this.brands;
         
         return dto;
     }

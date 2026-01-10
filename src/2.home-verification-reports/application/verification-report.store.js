@@ -99,11 +99,32 @@ const useVerificationReportStore = defineStore('verificationReport', () => {
         }
     }
 
+    /**
+     * Actualiza la entrevista con el arrendador.
+     * @param {number} orderId - El ID de la orden.
+     * @param {Object} data - Los datos de la entrevista.
+     * @returns {Promise<Object>} Resultado { success, data?, message, code }
+     */
+    async function updateLandlordInterview(orderId, data) {
+        try {
+            const result = await repository.updateLandlordInterview(orderId, data);
+            return {
+                success: true,
+                data: result,
+                message: 'Entrevista actualizada correctamente',
+                code: 'SUCCESS'
+            };
+        } catch (error) {
+            return errorHandler.handle(error, 'actualizar la entrevista con el arrendador');
+        }
+    }
+
     return {
         verificationReports,
         fetchAll,
         fetchById,
-        remove
+        remove,
+        updateLandlordInterview
     };
 });
 

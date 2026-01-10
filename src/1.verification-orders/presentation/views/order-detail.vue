@@ -176,7 +176,7 @@ async function loadOrderDetail() {
   clearData();
   await loadData(orderId);
 }
-
+ 
 // Lifecycle
 onMounted(() => {
   loadOrderDetail();
@@ -204,16 +204,19 @@ onBeforeUnmount(() => {
       :show-back-button="true"
       @back="goBack"
     >
-  <template #actions>
-
-  <div class="border-round border-2 surface-border bg-indigo-50 h-full">
-    <p v-if="orderDetail" class="text-base font-bold text-900 m-0 text-center p-3">
-      Fecha de solicitud: {{formatDate(orderDetail.requestDate)}}
-    </p>
-  </div>
-  </template>
-  
-  </toolbar>
+      <template #actions>
+        <div class="flex align-items-center gap-2 px-3 py-2 border-round-md border-2 surface-border bg-blue-50">
+          <i class="pi pi-calendar text-blue-600 text-lg"></i>
+          <div class="flex flex-column">
+            <span class="text-xs font-semibold text-blue-700 uppercase mb-1">Fecha de solicitud</span>
+            <span v-if="orderDetail" class="text-base font-bold text-900">
+              {{ formatDate(orderDetail.requestDate) }}
+            </span>
+            <span v-else class="text-sm text-600">Cargando...</span>
+          </div>
+        </div>
+      </template>
+    </toolbar>
 
     <div class="flex-1 p-4 overflow-auto">
       

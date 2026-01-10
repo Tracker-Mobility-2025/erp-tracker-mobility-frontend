@@ -51,10 +51,10 @@ const title = VerificationReportUILabels.title;
 const columns = [
   { field: 'reportCode', header: 'Código de Reporte', sortable: true, style: 'width: 150px;' },
   { field: 'orderCode', header: 'Código de Orden', sortable: true, style: 'width: 150px;' },
-  { field: 'clientName', header: 'Cliente', sortable: true, style: 'width: 200px;' },
-  { field: 'companyName', header: 'Empresa', sortable: true, style: 'width: 200px;' },
+  { field: 'clientName', header: 'Cliente', sortable: true, style: 'width: 300px;' },
+  { field: 'companyName', header: 'Empresa', sortable: true, style: 'width: 150px;' },
   { field: 'requestDate', header: 'Fecha de Solicitud', sortable: true, style: 'width: 150px;' },
-  { field: 'finalResult', header: 'Resultado', sortable: true, template: 'status', style: 'width: 130px;' },
+  { field: 'finalResult', header: 'Resultado', sortable: true, template: 'status', style: 'width: 120px;' },
 ];
 
 // Métodos

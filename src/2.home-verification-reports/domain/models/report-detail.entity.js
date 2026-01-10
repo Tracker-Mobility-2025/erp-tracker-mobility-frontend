@@ -138,6 +138,7 @@ export class Report {
   constructor({
     reportId,
     reportCode,
+    orderId,
     verifierName,
     addressLocation,
     visitDate,
@@ -172,6 +173,7 @@ export class Report {
   }) {
     this.reportId = reportId;
     this.reportCode = reportCode;
+    this.orderId = orderId;
     this.verifierName = verifierName;
     this.addressLocation = addressLocation;
     this.visitDate = visitDate;
@@ -255,5 +257,89 @@ export class Report {
    */
   getPdfAttachments() {
     return this.attachments.filter(att => att.isPdf());
+  }
+
+  /**
+   * Obtiene fotos del anexo 01 (candidato)
+   */
+  get annexe01Photos() {
+    return this.attachments.filter(att => att.type === 'ANEXO_1');
+  }
+
+  /**
+   * Obtiene fotos del anexo 02 (domicilio)
+   */
+  get annexe02Photos() {
+    return this.attachments.filter(att => att.type === 'ANEXO_2');
+  }
+
+  /**
+   * Obtiene fotos del anexo 03 (cochera)
+   */
+  get annexe03Photos() {
+    return this.attachments.filter(att => att.type === 'ANEXO_3');
+  }
+
+  /**
+   * Obtiene fotos del anexo 04 (habitaciones)
+   */
+  get annexe04Photos() {
+    return this.attachments.filter(att => att.type === 'ANEXO_4');
+  }
+
+  /**
+   * Obtiene fotos del anexo 05 (alrededores)
+   */
+  get annexe05Photos() {
+    return this.attachments.filter(att => att.type === 'ANEXO_5');
+  }
+
+  /**
+   * Obtiene fotos del anexo 06 (otros)
+   */
+  get annexe06Photos() {
+    return this.attachments.filter(att => att.type === 'ANEXO_6');
+  }
+
+  /**
+   * Obtiene descripción del anexo 01
+   */
+  get annexe01Description() {
+    return this.interviewDetails?.interviewObservation || '';
+  }
+
+  /**
+   * Obtiene descripción del anexo 02
+   */
+  get annexe02Description() {
+    return '';
+  }
+
+  /**
+   * Obtiene descripción del anexo 03
+   */
+  get annexe03Description() {
+    return '';
+  }
+
+  /**
+   * Obtiene descripción del anexo 04
+   */
+  get annexe04Description() {
+    return '';
+  }
+
+  /**
+   * Obtiene descripción del anexo 05
+   */
+  get annexe05Description() {
+    return '';
+  }
+
+  /**
+   * Obtiene descripción del anexo 06
+   */
+  get annexe06Description() {
+    return '';
   }
 }

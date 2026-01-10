@@ -258,10 +258,22 @@ const resetPage = () => {
                         <!-- Content -->
                         <div class="mb-4">
                             <h4 class="text-dark font-bold text-lg mb-2">{{ customer.companyName }}</h4>
-                            <div class="flex align-items-center gap-2">
+                            <div class="flex align-items-center gap-2 mb-2">
                                 <i class="pi pi-id-card text-muted"></i>
                                 <span class="text-muted text-sm font-medium">RUC:</span>
                                 <span class="text-dark font-semibold">{{ customer.ruc }}</span>
+                            </div>
+                            <!-- Brands -->
+                            <div v-if="customer.brands && customer.brands.length > 0" class="flex align-items-center gap-2 flex-wrap">
+                                <i class="pi pi-tags text-muted"></i>
+                                <span class="text-muted text-sm font-medium">Marcas:</span>
+                                <span 
+                                    v-for="brand in customer.brands" 
+                                    :key="brand.id || brand.value"
+                                    class="badge bg-blue-100 text-blue-700 text-xs px-2 py-1"
+                                >
+                                    {{ brand.value || brand }}
+                                </span>
                             </div>
                         </div>
 

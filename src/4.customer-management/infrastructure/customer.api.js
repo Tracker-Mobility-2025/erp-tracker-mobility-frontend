@@ -65,9 +65,12 @@ export class CustomerApi extends BaseApi {
      * @returns {Promise} Una promesa que se resuelve con la respuesta del cliente actualizado.
      */
     updateCustomer(command) {
+        console.log('🔍 [API] UpdateCustomerCommand recibido:', command);
+        console.log('🔍 [API] command.brands:', command.brands);
         const resource = UpdateCustomerCommandAssembler.toResourceFromCommand(command);
-        console.log('[API] Updating customer with resource:', resource);
-        return this.#customerEndpoint.update(command.id, resource);
+        console.log('🔍 [API] Resource para PATCH:', JSON.stringify(resource, null, 2));
+        // Usar PATCH en lugar de PUT (BaseEndpoint.update usa PUT)
+        return this.http.patch(`${customerEndpointPath}/${command.id}`, resource);
     }
 
     /**

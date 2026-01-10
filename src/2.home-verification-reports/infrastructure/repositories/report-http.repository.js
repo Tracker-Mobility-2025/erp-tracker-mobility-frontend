@@ -36,4 +36,15 @@ export class ReportHttpRepository extends IReportRepository {
     const response = await this.#api.getById(id);
     return ReportAssembler.toEntity(response.data);
   }
+
+  /**
+   * Actualiza la entrevista con el arrendador.
+   * @param {number} orderId - El ID de la orden.
+   * @param {Object} data - Los datos de la entrevista.
+   * @returns {Promise<Object>} La respuesta de la actualización.
+   */
+  async updateLandlordInterview(orderId, data) {
+    const response = await this.#api.updateLandlordInterview(orderId, data);
+    return response.data;
+  }
 }
