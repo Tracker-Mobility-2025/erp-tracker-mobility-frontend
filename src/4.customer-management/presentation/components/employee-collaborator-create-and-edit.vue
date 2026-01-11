@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { EmployeeCollaboratorValidators } from '../../domain/validators/customer.validators.js';
+import { RoleOptions } from '../constants/customer-ui.constants.js';
 import CreateAndEdit from '../../../shared-v2/presentation/components/create-and-edit.vue';
 
 const props = defineProps({
@@ -20,8 +21,11 @@ const props = defineProps({
 
 const emit = defineEmits(['cancel-requested', 'save-requested']);
 
-// State
+// Refs
 const submitted = ref(false);
+const emailInputRef = ref(null);
+const emailError = ref(''); // Error personalizado para email duplicado
+
 const employeeForm = ref({
     name: '',
     lastName: '',
@@ -39,11 +43,8 @@ const statusOptions = [
     { label: 'Inactivo', value: 'INACTIVE' }
 ];
 
-// Role options
-const roleOptions = [
-    { label: 'Jefe ventas', value: 'GERENTE_VENTAS' },
-    { label: 'Vendedor', value: 'VENDEDOR' }
-];
+// Role options (importado desde constants)
+const roleOptions = RoleOptions;
 
 // Computed - Brand options from customer brands
 const brandOptions = computed(() => {
@@ -105,17 +106,41 @@ const isFormValid = computed(() => {
 // Methods
 const cancelRequested = () => {
     submitted.value = false;
+    emailError.value = ''; // Limpiar error personalizado
     resetForm();
     emit('cancel-requested');
 };
 
 const saveRequested = () => {
     submitted.value = true;
+    emailError.value = ''; // Limpiar error personalizado al intentar guardar
     
     if (isFormValid.value) {
+        // 📦 Construir payload según especificación del backend
+        // ⚠️ IMPORTANTE: Convertir IDs a números explícitamente
+        const applicantCompanyIdNum = Number(props.customerId);
+        const brandIdNum = Number(employeeForm.value.brandId);
+        
+        console.log('🔍 [Form] ANTES de crear payload:', {
+            'props.customerId (original)': props.customerId,
+            'typeof props.customerId': typeof props.customerId,
+            'applicantCompanyIdNum (convertido)': applicantCompanyIdNum,
+            'typeof applicantCompanyIdNum': typeof applicantCompanyIdNum,
+            'brandId (original)': employeeForm.value.brandId,
+            'typeof brandId': typeof employeeForm.value.brandId,
+            'brandIdNum (convertido)': brandIdNum,
+            'typeof brandIdNum': typeof brandIdNum
+        });
+        
         const employeeData = {
-            ...employeeForm.value,
-            applicantCompanyId: props.customerId
+            email: employeeForm.value.email,
+            password: employeeForm.value.password,
+            name: employeeForm.value.name,
+            lastName: employeeForm.value.lastName,
+            phoneNumber: employeeForm.value.phoneNumber,
+            applicantCompanyId: applicantCompanyIdNum, // ✅ Número explícito
+            brandId: brandIdNum,                        // ✅ Número explícito
+            role: employeeForm.value.role               // ✅ String singular, no array
         };
         
         // Include ID if editing
@@ -128,9 +153,57 @@ const saveRequested = () => {
             delete employeeData.password;
         }
         
+        // ✅ Incluir status solo si estamos editando (no requerido en creación)
+        if (props.edit) {
+            employeeData.status = employeeForm.value.status;
+        }
+        
+        console.log('📦 [Form] Payload a enviar:', JSON.stringify(employeeData, null, 2));
+        console.log('✅ [Form] Tipos finales:', {
+            applicantCompanyId: typeof employeeData.applicantCompanyId,
+            brandId: typeof employeeData.brandId,
+            applicantCompanyIdValue: employeeData.applicantCompanyId,
+            brandIdValue: employeeData.brandId
+        });
+        
         emit('save-requested', employeeData);
-        resetForm();
+        // ❌ NO resetear el formulario aquí - se reseteará solo si el guardado es exitoso
     }
+};
+
+/**
+ * Método público para hacer focus en el input de email
+ * Usado por el componente padre cuando hay error de duplicado
+ */
+const focusEmailInput = () => {
+    if (emailInputRef.value) {
+        // Buscar el input dentro del componente PrimeVue
+        const inputElement = emailInputRef.value.$el || emailInputRef.value;
+        if (inputElement && inputElement.focus) {
+            inputElement.focus();
+        } else if (inputElement && inputElement.querySelector) {
+            const input = inputElement.querySelector('input');
+            if (input) {
+                input.focus();
+            }
+        }
+    }
+};
+
+/**
+ * Establecer error personalizado de email duplicado
+ * @param {string} message - Mensaje de error
+ */
+const setEmailError = (message) => {
+    emailError.value = message;
+    focusEmailInput();
+};
+
+/**
+ * Resetear formulario exitoso (solo llamar después de guardado exitoso)
+ */
+const resetFormOnSuccess = () => {
+    resetForm();
 };
 
 const resetForm = () => {
@@ -145,7 +218,15 @@ const resetForm = () => {
         role: ''
     };
     submitted.value = false;
+    emailError.value = '';
 };
+
+// Exponer métodos para uso externo
+defineExpose({
+    focusEmailInput,
+    setEmailError,
+    resetFormOnSuccess
+});
 
 // Watch for dialog open
 watch(() => props.visible, (newValue) => {
@@ -232,14 +313,19 @@ watch(() => props.visible, (newValue) => {
                     </label>
                     <pv-input-text
                         id="email"
+                        ref="emailInputRef"
                         v-model="employeeForm.email"
                         class="w-full"
                         size="small"
                         type="email"
                         placeholder="ejemplo@correo.com"
-                        :class="{ 'p-invalid': submitted && (!employeeForm.email || !validateEmail(employeeForm.email)) }"
+                        :class="{ 'p-invalid': (submitted && (!employeeForm.email || !validateEmail(employeeForm.email))) || emailError }"
+                        @input="emailError = ''"
                     />
-                    <small v-if="submitted && !employeeForm.email" class="p-error">
+                    <small v-if="emailError" class="p-error">
+                        {{ emailError }}
+                    </small>
+                    <small v-else-if="submitted && !employeeForm.email" class="p-error">
                         El email es requerido
                     </small>
                     <small v-else-if="submitted && employeeForm.email && !validateEmail(employeeForm.email)" class="p-error">

@@ -2,11 +2,13 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useOrderRequestStore } from '../../application/order-request.store.js';
 import { useToast } from 'primevue/usetoast';
-import FileUploader from '../../../shared/components/file-uploader.component.vue';
+import { useConfirmDialog } from '../../../shared-v2/composables/use-confirm-dialog.js';
+import FileUploader from '../../../shared-v2/presentation/components/file-uploader.vue';
 
-// Store & Toast
+// Store, Toast & Confirm Dialog
 const store = useOrderRequestStore();
 const toast = useToast();
+const { showConfirm } = useConfirmDialog();
 
 // Emits
 const emit = defineEmits(['next', 'back', 'cancel', 'complete']);
@@ -20,8 +22,6 @@ const touched = ref({
 });
 
 const showValidation = ref(false);
-const showCancelDialog = ref(false);
-const showSubmitDialog = ref(false);
 
 // Computed properties para archivos
 const serviceReceiptFile = computed({
@@ -176,62 +176,96 @@ const onIdentidadValidationError = (errors) => {
   });
 };
 
-const onCancel = () => {
-  showCancelDialog.value = true;
-};
-
-const confirmCancel = () => {
-  showCancelDialog.value = false;
-  emit('cancel');
-};
-
-const cancelCancel = () => {
-  showCancelDialog.value = false;
+const onCancel = async () => {
+  const confirmed = await showConfirm({
+    message: '¿Deseas cancelar? Se perderán todos los datos ingresados',
+    header: 'Confirmar cancelación',
+    icon: 'pi pi-exclamation-triangle',
+    acceptLabel: 'Sí, cancelar',
+    rejectLabel: 'No'
+  });
+  
+  if (confirmed) {
+    emit('cancel');
+  }
 };
 
 const onBack = () => {
   emit('back');
 };
 
-const onSubmit = () => {
+const onSubmit = async () => {
   showValidation.value = true;
   
   if (!isFormValid.value) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Formulario incompleto',
+      detail: 'Por favor complete todos los campos obligatorios',
+      life: 4000
+    });
     return;
   }
   
-  showSubmitDialog.value = true;
-};
-
-const confirmSubmit = async () => {
-  showSubmitDialog.value = false;
+  const confirmed = await showConfirm({
+    message: '¿Deseas enviar la solicitud?',
+    header: 'Confirmar envío',
+    icon: 'pi pi-check-circle',
+    acceptLabel: 'Sí, enviar',
+    rejectLabel: 'Cancelar'
+  });
   
-  try {
-    await store.createOrder();
+  if (!confirmed) return;
+  
+  const result = await store.createOrder();
+  
+  if (result.success && store.orderResponse) {
+    toast.add({
+      severity: 'success',
+      summary: 'Solicitud Creada',
+      detail: `Solicitud creada exitosamente. Código: ${store.orderResponse.orderCode}`,
+      life: 5000
+    });
     
-    if (store.orderResponse) {
-      toast.add({
-        severity: 'success',
-        summary: 'Solicitud Creada',
-        detail: `Solicitud creada exitosamente. Código: ${store.orderResponse.orderCode}`,
-        life: 5000
-      });
-      
-      emit('complete', store.orderResponse);
+    emit('complete', store.orderResponse);
+  } else {
+    // Manejo de errores específicos
+    const errorCode = result.errorCode;
+    const errorData = result.errorData;
+    
+    let errorMessage = result.error || 'Ocurrió un error al crear la solicitud';
+    let errorSummary = 'Error al crear solicitud';
+    
+    if (errorCode === 400) {
+      errorSummary = 'Datos inválidos';
+      errorMessage = errorData?.message || 'Verifique que todos los datos sean correctos';
+    } else if (errorCode === 401) {
+      errorSummary = 'Sesión expirada';
+      errorMessage = 'Su sesión ha expirado. Por favor, inicie sesión nuevamente';
+    } else if (errorCode === 403) {
+      errorSummary = 'Acceso denegado';
+      errorMessage = 'No tiene permisos para crear solicitudes de verificación';
+    } else if (errorCode === 409) {
+      errorSummary = 'Solicitud duplicada';
+      errorMessage = errorData?.message || 'Ya existe una solicitud con estos datos';
+    } else if (errorCode === 422) {
+      errorSummary = 'Datos inválidos';
+      errorMessage = errorData?.message || 'Los datos proporcionados no pudieron ser procesados';
+    } else if (errorCode >= 500) {
+      errorSummary = 'Error del servidor';
+      errorMessage = 'Error interno del servidor. Por favor, contacte al administrador';
+    } else if (result.originalError?.request && !result.originalError?.response) {
+      errorSummary = 'Error de conexión';
+      errorMessage = 'No se pudo conectar con el servidor. Verifique su conexión a internet';
     }
-  } catch (error) {
-    console.error('Error al crear solicitud:', error);
+    
     toast.add({
       severity: 'error',
-      summary: 'Error',
-      detail: error.message || 'Ocurrió un error al crear la solicitud',
+      summary: errorSummary,
+      detail: errorMessage,
       life: 5000
     });
   }
-};
-
-const cancelSubmit = () => {
-  showSubmitDialog.value = false;
 };
 
 // Lifecycle
@@ -244,14 +278,14 @@ onMounted(() => {
 
 <template>
   <div class="flex justify-content-center w-full">
-    <div class="surface-card border-round-lg shadow-3 p-4 w-full" style="max-width: 1200px;">
-      <form class="formgrid grid p-fluid" @submit.prevent="onSubmit" @keydown.enter.prevent>
+    <div class="surface-card border-round-lg shadow-3 p-4 w-full form-container">
+      <form class="formgrid grid p-fluid form-grid-compact" @submit.prevent="onSubmit" @keydown.enter.prevent>
         
         <!-- Título: Documentación de respaldo -->
         <div class="col-12 mb-3">
           <div class="flex align-items-center gap-2">
-            <i class="pi pi-folder text-2xl text-primary"></i>
-            <h2 class="m-0 text-xl font-semibold text-primary">Documentación de respaldo</h2>
+            <i class="pi pi-folder text-2xl text-primary-dark"></i>
+            <h2 class="m-0 text-xl font-semibold text-primary-dark">Documentación de respaldo</h2>
           </div>
         </div>
 
@@ -281,7 +315,7 @@ onMounted(() => {
             @file-removed="onReciboRemoved"
             @validation-error="onReciboValidationError"
           />
-          <small v-if="fieldErrors.reciboServicio" class="text-red-500 block mt-1">{{ fieldErrors.reciboServicio }}</small>
+          <small v-if="fieldErrors.reciboServicio" class="field-error-message">{{ fieldErrors.reciboServicio }}</small>
         </div>
 
         <!-- Documento de identidad -->
@@ -310,7 +344,7 @@ onMounted(() => {
             @file-removed="onIdentidadRemoved"
             @validation-error="onIdentidadValidationError"
           />
-          <small v-if="fieldErrors.documentoIdentidad" class="text-red-500 block mt-1">{{ fieldErrors.documentoIdentidad }}</small>
+          <small v-if="fieldErrors.documentoIdentidad" class="field-error-message">{{ fieldErrors.documentoIdentidad }}</small>
         </div>
 
         <!-- ¿Es inquilino? -->
@@ -340,7 +374,7 @@ onMounted(() => {
           <!-- Nombres -->
           <div class="field col-12 md:col-6">
             <label for="land-nombres" class="block mb-2 font-semibold text-color">
-              Nombres <span class="text-red-500">*</span>
+              Nombres <span class="field-required-mark">*</span>
             </label>
             <pv-input-text
               id="land-nombres"
@@ -350,13 +384,13 @@ onMounted(() => {
               @blur="onFieldBlur('nombres')"
               @keydown="validateTextOnly"
             />
-            <small v-if="fieldErrors.nombres" class="text-red-500 block mt-1">{{ fieldErrors.nombres }}</small>
+            <small v-if="fieldErrors.nombres" class="field-error-message">{{ fieldErrors.nombres }}</small>
           </div>
 
           <!-- Teléfono -->
           <div class="field col-12 md:col-6">
             <label for="land-telefono" class="block mb-2 font-semibold text-color">
-              Número de contacto <span class="text-red-500">*</span>
+              Número de contacto <span class="field-required-mark">*</span>
             </label>
             <pv-icon-field class="w-full">
               <pv-input-icon class="pi pi-phone" />
@@ -369,7 +403,7 @@ onMounted(() => {
                 @blur="onFieldBlur('numeroContacto')"
               />
             </pv-icon-field>
-            <small v-if="fieldErrors.numeroContacto" class="text-red-500 block mt-1">{{ fieldErrors.numeroContacto }}</small>
+            <small v-if="fieldErrors.numeroContacto" class="field-error-message">{{ fieldErrors.numeroContacto }}</small>
           </div>
         </template>
 
@@ -406,84 +440,4 @@ onMounted(() => {
       </form>
     </div>
   </div>
-
-  <!-- Dialog de confirmación para cancelar -->
-  <pv-dialog
-    v-model:visible="showCancelDialog"
-    modal
-    :closable="false"
-    :style="{ width: '400px' }"
-    header="Confirmar cancelación"
-  >
-    <div class="flex flex-column gap-3">
-      <div class="flex align-items-center gap-2">
-        <i class="pi pi-exclamation-triangle text-orange-500 text-2xl"></i>
-        <span>¿Está seguro que desea cancelar la solicitud?</span>
-      </div>
-      <p class="text-color-secondary text-sm m-0">
-        Se perderán todos los datos ingresados y regresará al inicio del formulario.
-      </p>
-    </div>
-    
-    <template #footer>
-      <div class="flex justify-content-end gap-2">
-        <pv-button
-          label="No, continuar"
-          severity="secondary"
-          outlined
-          @click="cancelCancel"
-        />
-        <pv-button
-          label="Sí, cancelar"
-          severity="danger"
-          @click="confirmCancel"
-        />
-      </div>
-    </template>
-  </pv-dialog>
-
-  <!-- Dialog de confirmación para enviar -->
-  <pv-dialog
-    v-model:visible="showSubmitDialog"
-    modal
-    :closable="false"
-    :style="{ width: '400px' }"
-    header="Confirmar envío"
-  >
-    <div class="flex flex-column gap-3">
-      <div class="flex align-items-center gap-2">
-        <i class="pi pi-check-circle text-green-500 text-2xl"></i>
-        <span>¿Está seguro que desea enviar la solicitud?</span>
-      </div>
-      <p class="text-color-secondary text-sm m-0">
-        Una vez enviada, se creará la orden de servicio y se procesará la solicitud.
-      </p>
-    </div>
-    
-    <template #footer>
-      <div class="flex justify-content-end gap-2">
-        <pv-button
-          label="Cancelar"
-          severity="secondary"
-          outlined
-          @click="cancelSubmit"
-        />
-        <pv-button
-          label="Enviar solicitud"
-          severity="success"
-          @click="confirmSubmit"
-        />
-      </div>
-    </template>
-  </pv-dialog>
 </template>
-
-<style scoped>
-.formgrid {
-  row-gap: 1rem;
-}
-
-.field {
-  margin-bottom: 0;
-}
-</style>

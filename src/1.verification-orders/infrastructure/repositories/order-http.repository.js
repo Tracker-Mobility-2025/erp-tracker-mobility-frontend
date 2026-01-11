@@ -2,6 +2,8 @@ import { IOrderRepository } from '../../domain/repositories/order.repository.int
 import { OrderApi } from '../order.api.js';
 import { ServiceOrderSummaryAssembler } from '../assemblers/service-order-summary.assembler.js';
 import { OrderDetailAssembler } from '../assemblers/order-detail.assembler.js';
+import { AssignVerifierCommandAssembler } from '../assemblers/assign-verifier-command.assembler.js';
+import { CreateObservationCommandAssembler } from '../assemblers/create-observation-command.assembler.js';
 
 /**
  * Implementación HTTP del repositorio de órdenes.
@@ -39,22 +41,22 @@ export class OrderHttpRepository extends IOrderRepository {
 
   /**
    * Asigna un verificador a una orden.
-   * @param {number} orderId - ID de la orden
-   * @param {Object} assignmentData - Datos de asignación {verifierId, visitDate, visitTime}
+   * @param {AssignVerifierCommand} command - Command con datos de asignación
    * @returns {Promise<void>}
    */
-  async assignVerifier(orderId, assignmentData) {
-    await this.#api.assignVerifier(orderId, assignmentData);
+  async assignVerifier(command) {
+    const resource = AssignVerifierCommandAssembler.toResourceFromCommand(command);
+    await this.#api.assignVerifier(command.orderId, resource);
   }
 
   /**
    * Crea una observación para una orden.
-   * @param {number} orderId - ID de la orden
-   * @param {Object} observationData - Datos de observación {observationType, description}
+   * @param {CreateObservationCommand} command - Command con datos de observación
    * @returns {Promise<Object>} Observación creada
    */
-  async createObservation(orderId, observationData) {
-    const response = await this.#api.createObservation(orderId, observationData);
+  async createObservation(command) {
+    const resource = CreateObservationCommandAssembler.toResourceFromCommand(command);
+    const response = await this.#api.createObservation(command.orderId, resource);
     return response.data;
   }
 }

@@ -152,6 +152,22 @@
     --spacing-xl: 2rem;       /* Similar a p-5 */
     --spacing-2xl: 3rem;      /* Similar a p-6 */
     
+    /* ========== ANCHOS DE CONTENIDO ========== */
+    --content-max-width: 1200px;
+    --content-max-width-narrow: 600px;
+    --content-max-width-wide: 1400px;
+    
+    /* ========== TAMAÑOS DE ÍCONOS ========== */
+    --icon-size-sm: 1rem;
+    --icon-size-md: 1.5rem;
+    --icon-size-lg: 2rem;
+    --icon-size-xl: 4rem;
+    
+    /* ========== EFECTOS ========== */
+    --blur-sm: 4px;
+    --blur-md: 8px;
+    --blur-lg: 12px;
+    
     /* ========== BORDES ========== */
     
     --border-radius-sm: 4px;

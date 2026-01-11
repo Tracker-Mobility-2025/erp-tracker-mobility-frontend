@@ -318,7 +318,58 @@ export const useCustomerStore = defineStore('customer', () => {
                 };
             }
 
-            const newEmployee = await repository.createEmployee(customerId, employeeData);
+            // 🔍 Validar campos requeridos por el backend
+            const requiredFields = ['email', 'password', 'name', 'lastName', 'phoneNumber', 'applicantCompanyId', 'brandId', 'role'];
+            const missingFields = requiredFields.filter(field => !employeeData[field]);
+            
+            if (missingFields.length > 0) {
+                console.error('❌ [Store] Campos requeridos faltantes:', missingFields);
+                return {
+                    success: false,
+                    message: `Campos requeridos faltantes: ${missingFields.join(', ')}`,
+                    code: 'INVALID_PARAMS'
+                };
+            }
+
+            // ✅ Limpiar payload: solo campos esperados por el backend con tipos correctos
+            const cleanPayload = {
+                email: employeeData.email,
+                password: employeeData.password,
+                name: employeeData.name,
+                lastName: employeeData.lastName,
+                phoneNumber: employeeData.phoneNumber,
+                applicantCompanyId: typeof employeeData.applicantCompanyId === 'number' 
+                    ? employeeData.applicantCompanyId 
+                    : parseInt(employeeData.applicantCompanyId), // ✅ Asegurar que sea número
+                brandId: typeof employeeData.brandId === 'number' 
+                    ? employeeData.brandId 
+                    : parseInt(employeeData.brandId), // ✅ Asegurar que sea número
+                role: employeeData.role // String singular
+            };
+
+            console.log('🚀 [Store] Enviando payload limpio:', JSON.stringify(cleanPayload, null, 2));
+            console.log('🔍 [Store] Validación de tipos:', {
+                applicantCompanyId: typeof cleanPayload.applicantCompanyId,
+                brandId: typeof cleanPayload.brandId,
+                applicantCompanyIdValue: cleanPayload.applicantCompanyId,
+                brandIdValue: cleanPayload.brandId
+            });
+
+            const newEmployee = await repository.createEmployee(customerId, cleanPayload);
+            
+            console.log('📥 [Store] Respuesta del backend:', newEmployee);
+            
+            // 🔍 Si el backend no devuelve brandName, buscarlo en las marcas del cliente
+            if (newEmployee.brandId && !newEmployee.brandName && currentCustomer.value?.brands) {
+                const brand = currentCustomer.value.brands.find(b => b.id === newEmployee.brandId);
+                if (brand) {
+                    console.log('✅ [Store] Asignando brandName desde cliente:', brand.name);
+                    newEmployee.brandName = brand.name;
+                } else {
+                    console.warn('⚠️ [Store] No se encontró marca con id:', newEmployee.brandId);
+                }
+            }
+            
             employees.value.push(newEmployee);
 
             return {
@@ -337,6 +388,7 @@ export const useCustomerStore = defineStore('customer', () => {
 
     /**
      * Actualiza un colaborador existente
+     * Implementa actualización optimista con rollback en caso de error
      */
     async function updateEmployee(customerId, employeeId, employeeData) {
         loading.value = true;
@@ -351,25 +403,52 @@ export const useCustomerStore = defineStore('customer', () => {
                 };
             }
 
-            const updatedEmployee = await repository.updateEmployee(customerId, employeeId, employeeData);
-
-            // Actualizar en la lista
+            // 🔍 Guardar estado anterior para rollback
             const index = employees.value.findIndex(e => e.id === employeeId);
-            if (index !== -1) {
-                employees.value[index] = updatedEmployee;
-            }
+            const previousEmployee = index !== -1 ? { ...employees.value[index] } : null;
+            const previousCurrentEmployee = currentEmployee.value?.id === employeeId 
+                ? { ...currentEmployee.value } 
+                : null;
 
-            // Actualizar currentEmployee si es el mismo
-            if (currentEmployee.value?.id === employeeId) {
-                currentEmployee.value = updatedEmployee;
-            }
+            console.log('💾 [Store] Estado anterior guardado para rollback');
 
-            return {
-                success: true,
-                data: updatedEmployee,
-                message: 'Colaborador actualizado exitosamente',
-                code: 'SUCCESS'
-            };
+            try {
+                // 🚀 Actualización en el servidor
+                const updatedEmployee = await repository.updateEmployee(customerId, employeeId, employeeData);
+
+                // ✅ Actualización exitosa: actualizar en memoria
+                if (index !== -1) {
+                    employees.value[index] = updatedEmployee;
+                    console.log('✅ [Store] Colaborador actualizado en memoria (employees array)');
+                }
+
+                if (currentEmployee.value?.id === employeeId) {
+                    currentEmployee.value = updatedEmployee;
+                    console.log('✅ [Store] currentEmployee actualizado en memoria');
+                }
+
+                return {
+                    success: true,
+                    data: updatedEmployee,
+                    message: 'Colaborador actualizado exitosamente',
+                    code: 'SUCCESS'
+                };
+            } catch (updateError) {
+                // ❌ Error en la actualización: ROLLBACK
+                console.error('❌ [Store] Error al actualizar colaborador, haciendo rollback');
+                
+                if (previousEmployee && index !== -1) {
+                    employees.value[index] = previousEmployee;
+                    console.log('🔄 [Store] Rollback aplicado en employees array');
+                }
+
+                if (previousCurrentEmployee && currentEmployee.value?.id === employeeId) {
+                    currentEmployee.value = previousCurrentEmployee;
+                    console.log('🔄 [Store] Rollback aplicado en currentEmployee');
+                }
+
+                throw updateError; // Re-lanzar el error para el catch externo
+            }
         } catch (err) {
             error.value = errorHandler.handle(err, 'updateEmployee');
             return error.value;

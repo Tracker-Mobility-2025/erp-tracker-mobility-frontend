@@ -6,7 +6,6 @@ import OrderDescription from '../components/order-description.vue';
 import OrderActions from '../components/order-actions.vue';
 import useVerificationOrderStore from '../../application/verification-order.store.js';
 import useVerifierStore from '../../../3.verifiers-accounts/application/verifier.store.js';
-import { useDateFormatter } from '../../../shared-v2/composables/use-date-formatter.js';
 
 // Router
 const route = useRoute();
@@ -15,7 +14,6 @@ const router = useRouter();
 // Store y composables
 const store = useVerificationOrderStore();
 const verifierStore = useVerifierStore();
-const { formatFromBackend } = useDateFormatter();
 
 // State
 const orderDetail = ref(null);
@@ -45,11 +43,6 @@ const LOADING_STEPS = [
 
 let loadingProgressInterval = null;
 
-// Computed
-const formattedRequestDate = computed(() => {
-  return orderDetail.value?.requestDateFormatted || 'No disponible';
-});
-
 // Methods
 function onDownloadDocument(payload) {
   console.log(`Descargar documento: ${payload.type} para la orden ${payload.item.id}`);
@@ -76,35 +69,6 @@ function clearLoadingInterval() {
 
 function goBack() {
   router.push({ name: 'verification-orders-list' });
-}
-
-function formatDate(dateString) {
-  if (!dateString) return 'No disponible';
-  
-  try {
-    // Si es un objeto Date
-    if (dateString instanceof Date) {
-      if (isNaN(dateString.getTime())) return 'Fecha inválida';
-      const day = dateString.getDate();
-      const month = dateString.getMonth() + 1;
-      const year = dateString.getFullYear();
-      return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
-    }
-    
-    // Si es un string
-    if (typeof dateString !== 'string') return 'No disponible';
-    
-    const datePart = dateString.includes('T') ? dateString.split('T')[0] : dateString;
-    const [year, month, day] = datePart.split('-').map(Number);
-    const date = new Date(year, month - 1, day);
-    
-    if (isNaN(date.getTime())) return 'Fecha inválida';
-    
-    return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
-  } catch (error) {
-    console.error('Error al formatear fecha:', error);
-    return 'Fecha inválida';
-  }
 }
 
 async function loadVerifiers() {
@@ -210,7 +174,7 @@ onBeforeUnmount(() => {
           <div class="flex flex-column">
             <span class="text-xs font-semibold text-blue-700 uppercase mb-1">Fecha de solicitud</span>
             <span v-if="orderDetail" class="text-base font-bold text-900">
-              {{ formatDate(orderDetail.requestDate) }}
+              {{ orderDetail.requestDateFormatted || 'No disponible' }}
             </span>
             <span v-else class="text-sm text-600">Cargando...</span>
           </div>

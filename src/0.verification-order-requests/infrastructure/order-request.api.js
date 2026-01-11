@@ -1,54 +1,76 @@
 // Order Request API Service
 // Infrastructure layer - HTTP client for order requests
 
-import http from '../../shared/services/http-common.js';
+import { BaseApi } from '../../shared-v2/infrastructure/base-api.js';
+import { BaseEndpoint } from '../../shared-v2/infrastructure/base-endpoint.js';
 
 /**
- * Servicio API para gestionar solicitudes de órdenes de verificación
+ * Servicio API para gestionar solicitudes de órdenes de verificación.
+ * Usa BaseApi y BaseEndpoint para consistencia con shared-v2.
  */
-export class OrderRequestApi {
+export class OrderRequestApi extends BaseApi {
+  #endpoint;
+  #companyEmployeesEndpoint;
+
   constructor() {
-    this.resourceEndpoint = '/order-request';
-    this.companyEmployeesEndpoint = '/company-employees';
+    super();
+    this.#endpoint = new BaseEndpoint(this, '/web/orders');
+    this.#companyEmployeesEndpoint = new BaseEndpoint(this, '/company-employees');
   }
 
   /**
-   * Crea una nueva orden de servicio
-   * @param {Object} applicantCompanyData - Datos de la empresa solicitante
-   * @param {Object} clientData - Datos del cliente
+   * Crea una nueva orden de servicio usando FormData para archivos
+   * @param {Object} resource - Resource DTO (de CreateOrderRequestCommandAssembler)
+   * @param {Array} files - Array de archivos a adjuntar
    * @returns {Promise} - Promise que resuelve con la respuesta de la orden
    */
-  create(applicantCompanyData, clientData) {
+  create(resource, files = []) {
     const formData = new FormData();
-    
-    // Limpiar y validar datos antes de enviar
-    const cleanedClientData = {
-      ...clientData,
-      phoneNumber: clientData.phoneNumber?.toString().replace(/[\s-]/g, '') || null,
-      landlordPhoneNumber: clientData.landlordPhoneNumber?.toString().replace(/[\s-]/g, '') || null,
-      homeAddress: clientData.homeAddress?.substring(0, 300) || null,
-      documents: clientData.documents.map(doc => ({
-        type: doc.type
-      }))
-    };
-    
-    // Preparar datos de la orden
-    const orderData = {
-      applicantCompany: applicantCompanyData,
-      client: cleanedClientData
-    };
+
+    // Log del recurso para debugging
+    console.log('[OrderRequestApi] Resource to send:', JSON.stringify(resource, null, 2));
+    console.log('[OrderRequestApi] Files to upload:', files.length, 'archivos');
+    files.forEach((file, index) => {
+      console.log(`  - Archivo ${index + 1}:`, file.name, `(${(file.size / 1024).toFixed(2)} KB)`, file.type);
+    });
 
     // Añadir datos JSON como blob
-    formData.append('order', new Blob([JSON.stringify(orderData)], { type: 'application/json' }));
+    formData.append('order', new Blob([JSON.stringify(resource)], { type: 'application/json' }));
     
     // Añadir archivos al FormData
-    clientData.documents.forEach((doc) => {
-      if (doc.file?.name) {
-        formData.append('files', doc.file);
+    files.forEach((file) => {
+      if (file?.name) {
+        formData.append('files', file);
       }
     });
 
-    return http.post(this.resourceEndpoint, formData);
+    // Log de FormData para verificar contenido
+    console.log('[OrderRequestApi] FormData entries:');
+    for (let [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        console.log(`  ${key}:`, value.name, `(${value.type})`);
+      } else if (value instanceof Blob) {
+        console.log(`  ${key}: Blob (${value.type})`);
+      } else {
+        console.log(`  ${key}:`, value);
+      }
+    }
+
+    // NO configurar Content-Type manualmente - axios lo configura con boundary automáticamente
+    return this.http.post('/web/orders', formData)
+      .then(response => {
+        console.log('[OrderRequestApi] Success response:', response.data);
+        return response;
+      })
+      .catch(error => {
+        console.error('[OrderRequestApi] Error details:', {
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data,
+          headers: error.response?.headers
+        });
+        throw error;
+      });
   }
 
   /**
@@ -57,7 +79,7 @@ export class OrderRequestApi {
    * @returns {Promise} - Promise que resuelve con los datos de la empresa
    */
   getApplicantCompanyByUsername(usernameEmployee) {
-    return http.get(`${this.companyEmployeesEndpoint}/by-username/${usernameEmployee}`);
+    return this.http.get(`/company-employees/by-username/${usernameEmployee}`);
   }
 
   /**
@@ -65,16 +87,16 @@ export class OrderRequestApi {
    * @returns {Promise}
    */
   getAll() {
-    return http.get(this.resourceEndpoint);
+    return this.#endpoint.getAll();
   }
 
   /**
-   * Obtiene una solicitud de orden por ID
+   * Obtiene una solicitud de orden por ID (endpoint de detalle web)
    * @param {number} id - ID de la solicitud
    * @returns {Promise}
    */
   getById(id) {
-    return http.get(`${this.resourceEndpoint}/${id}`);
+    return this.http.get(`/web/orders/${id}`);
   }
 
   /**
@@ -83,6 +105,25 @@ export class OrderRequestApi {
    * @returns {Promise}
    */
   getByCorporateEmail(corporateEmail) {
-    return http.get(`/orders/corporateEmail/${corporateEmail}`);
+    return this.http.get(`/web/orders/corporateEmail/${corporateEmail}`);
+  }
+
+  /**
+   * Actualiza una solicitud de orden existente
+   * @param {number} id - ID de la solicitud
+   * @param {Object} resource - Datos actualizados
+   * @returns {Promise}
+   */
+  update(id, resource) {
+    return this.http.put(`/web/orders/${id}`, resource);
+  }
+
+  /**
+   * Elimina una solicitud de orden
+   * @param {number} id - ID de la solicitud
+   * @returns {Promise}
+   */
+  delete(id) {
+    return this.http.delete(`/web/orders/${id}`);
   }
 }

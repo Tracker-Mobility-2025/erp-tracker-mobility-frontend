@@ -11,6 +11,7 @@ import {
   VerificationReportUILabels
 } from '../constants/verification-report-ui.constants.js';
 import Toolbar from '../../../shared-v2/presentation/components/toolbar.vue';
+import { DateFormatter } from '../../../shared-v2/utils/date-formatter.js';
 
 // Store
 const reportStore = useVerificationReportStore();
@@ -53,7 +54,7 @@ const columns = [
   { field: 'orderCode', header: 'Código de Orden', sortable: true, style: 'width: 150px;' },
   { field: 'clientName', header: 'Cliente', sortable: true, style: 'width: 300px;' },
   { field: 'companyName', header: 'Empresa', sortable: true, style: 'width: 150px;' },
-  { field: 'requestDate', header: 'Fecha de Solicitud', sortable: true, style: 'width: 150px;' },
+  { field: 'requestDate', header: 'Fecha de Solicitud', sortable: true, template: 'requestDate', style: 'width: 150px;' },
   { field: 'finalResult', header: 'Resultado', sortable: true, template: 'status', style: 'width: 120px;' },
 ];
 
@@ -68,6 +69,15 @@ function onClearFilters() {
 
 function getStatusClass(status) {
   return StatusClassMap[status] || 'status-default';
+}
+
+function formatDate(date) {
+  if (!date) return '-';
+  try {
+    return DateFormatter.fromBackend(date);
+  } catch {
+    return date;
+  }
 }
 
 async function onDeleteSelectedItems(items) {
@@ -173,6 +183,11 @@ onMounted(async () => {
           <span :class="['status-tag', getStatusClass(slotProps.data.finalResult)]">
             {{ StatusTranslations[slotProps.data.finalResult] }}
           </span>
+        </template>
+
+        <!-- Template para columna de fecha -->
+        <template #requestDate="slotProps">
+          {{ formatDate(slotProps.data.requestDate) }}
         </template>
       </data-manager>
       </div>

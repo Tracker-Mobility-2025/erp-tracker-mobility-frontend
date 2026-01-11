@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, watch, watchEffect } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import useVerificationReportStore from '../../application/verification-report.store.js';
 import { useNotification } from '../../../shared-v2/composables/use-notification.js';
@@ -56,22 +56,22 @@ const showInterviewAlert = computed(() => {
   return report.value?.finalResult === 'ENTREVISTA_ARRENDADOR_FALTANTE';
 });
 
-// Debug attachments
-watchEffect(() => {
-  if (report.value) {
-    console.log('📎 [DEBUGGING ATTACHMENTS]');
-    console.log('Raw attachments:', report.value.attachments);
-    console.log('Annexe 01 Photos:', report.value.annexe01Photos);
-    console.log('Annexe 02 Photos:', report.value.annexe02Photos);
-    console.log('Annexe 03 Photos:', report.value.annexe03Photos);
-    console.log('Annexe 04 Photos:', report.value.annexe04Photos);
-    console.log('Annexe 05 Photos:', report.value.annexe05Photos);
-    console.log('Annexe 06 Photos:', report.value.annexe06Photos);
-    console.log('🗣️ [DEBUGGING INTERVIEW DETAILS]');
-    console.log('Interview Details:', report.value.interviewDetails);
-    console.log('Has Interview Details?', !!report.value.interviewDetails);
-  }
-});
+// Debug attachments (Comentado para mejorar performance)
+// watchEffect(() => {
+//   if (report.value) {
+//     console.log('📎 [DEBUGGING ATTACHMENTS]');
+//     console.log('Raw attachments:', report.value.attachments);
+//     console.log('Annexe 01 Photos:', report.value.annexe01Photos);
+//     console.log('Annexe 02 Photos:', report.value.annexe02Photos);
+//     console.log('Annexe 03 Photos:', report.value.annexe03Photos);
+//     console.log('Annexe 04 Photos:', report.value.annexe04Photos);
+//     console.log('Annexe 05 Photos:', report.value.annexe05Photos);
+//     console.log('Annexe 06 Photos:', report.value.annexe06Photos);
+//     console.log('🗣️ [DEBUGGING INTERVIEW DETAILS]');
+//     console.log('Interview Details:', report.value.interviewDetails);
+//     console.log('Has Interview Details?', !!report.value.interviewDetails);
+//   }
+// });
 
 // Loading steps
 const loadingStep = ref(0);
@@ -84,8 +84,6 @@ const loadingSteps = [
 // Methods
 const getReportById = async (reportId) => {
   try {
-    simulateLoadingProgress();
-    
     const result = await reportStore.fetchById(reportId);
     
     if (result.success && result.data) {
@@ -100,20 +98,6 @@ const getReportById = async (reportId) => {
     isLoading.value = false;
     errorMessage.value = error.message || 'No se pudo cargar el reporte. Intente nuevamente.';
   }
-};
-
-const simulateLoadingProgress = () => {
-  const progressInterval = setInterval(() => {
-    if (loadingStep.value < loadingSteps.length - 1) {
-      loadingStep.value++;
-    } else {
-      clearInterval(progressInterval);
-    }
-  }, 500);
-  
-  setTimeout(() => {
-    clearInterval(progressInterval);
-  }, 2000);
 };
 
 const clearData = () => {
@@ -201,17 +185,6 @@ const handleUpdateInterviewDetailsRequested = async (payload) => {
       return String(v).trim();
     };
 
-    // Construir el payload según el formato del endpoint
-    const apiPayload = {
-      ownHome: cleanString(payload?.ownHouse),
-      clientNameAccordingToLandlord: cleanString(payload?.tenantName),
-      servicesPaidByClient: cleanString(payload?.serviceClientPays),
-      isTheClientPunctualWithPayments: cleanString(payload?.clientPaysPunctual),
-      timeLivingAccordingToLandlord: cleanString(payload?.clientRentalTime),
-      floorOccupiedByClient: cleanString(payload?.clientFloorNumber),
-      interviewObservation: cleanString(payload?.interviewObservation)
-    };
-
     // Obtener el orderId desde el reporte
     const orderId = report.value?.orderId;
 
@@ -223,24 +196,24 @@ const handleUpdateInterviewDetailsRequested = async (payload) => {
       throw new Error('No se pudo obtener el ID de la orden desde el reporte');
     }
 
-    // Enviar actualización al backend
-    const result = await reportStore.updateLandlordInterview(orderId, apiPayload);
+    // Preparar datos en el formato que espera el Command
+    const commandData = {
+      tenantName: cleanString(payload?.tenantName),
+      ownHouse: cleanString(payload?.ownHouse),
+      serviceClientPays: cleanString(payload?.serviceClientPays),
+      clientPaysPunctual: cleanString(payload?.clientPaysPunctual),
+      clientRentalTime: cleanString(payload?.clientRentalTime),
+      clientFloorNumber: cleanString(payload?.clientFloorNumber),
+      interviewObservation: cleanString(payload?.interviewObservation)
+    };
+
+    // Enviar actualización al backend (el store creará el Command)
+    const result = await reportStore.updateLandlordInterview(orderId, commandData);
 
     if (result.success) {
-      // Actualizar estado local para reflejar cambios inmediatamente
-      if (report.value.interviewDetails) {
-        report.value.interviewDetails.clientNameAccordingToLandlord = apiPayload.clientNameAccordingToLandlord;
-        report.value.interviewDetails.ownHome = apiPayload.ownHome;
-        report.value.interviewDetails.servicesPaidByClient = apiPayload.servicesPaidByClient;
-        report.value.interviewDetails.isTheClientPunctualWithPayments = apiPayload.isTheClientPunctualWithPayments;
-        report.value.interviewDetails.timeLivingAccordingToLandlord = apiPayload.timeLivingAccordingToLandlord;
-        report.value.interviewDetails.floorOccupiedByClient = apiPayload.floorOccupiedByClient;
-        report.value.interviewDetails.interviewObservation = apiPayload.interviewObservation;
-      }
-
       showSuccess('Entrevista con el arrendador actualizada exitosamente', 'Éxito');
       
-      // Recargar el reporte para obtener los datos actualizados del backend
+      // Recargar todo el reporte para obtener los datos actualizados del backend
       await getReportById(route.params.reportId);
     } else {
       throw new Error(result.message || 'Error al actualizar la entrevista');

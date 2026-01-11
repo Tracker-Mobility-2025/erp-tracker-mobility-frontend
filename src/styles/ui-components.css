@@ -1329,3 +1329,94 @@ button.p-button.p-button-outlined.btn-delete:hover,
     justify-content: center;
   }
 }
+
+/* ========== FORMULARIOS - Order Request Forms ========== */
+
+/* Contenedor de formulario con ancho máximo */
+.form-container {
+  max-width: var(--content-max-width, 1200px);
+  width: 100%;
+}
+
+/* Contenedor estrecho para componentes específicos */
+.form-container-narrow {
+  max-width: var(--content-max-width-narrow, 600px);
+  width: 100%;
+}
+
+/* Grid de formulario compacto (sin gaps entre fields) */
+.form-grid-compact {
+  row-gap: var(--spacing-md);
+}
+
+.form-grid-compact .field {
+  margin-bottom: 0;
+}
+
+/* Mensajes de error en campos */
+.field-error-message {
+  color: var(--red-500);
+  display: block;
+  margin-top: var(--spacing-xs);
+  font-size: 0.875rem;
+}
+
+/* Marca de campo requerido */
+.field-required-mark {
+  color: var(--red-500);
+}
+
+/* Overlay de carga para formularios */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  backdrop-filter: blur(var(--blur-sm, 4px));
+}
+
+/* Card de éxito para resumen de orden */
+.success-summary-card {
+  max-width: var(--content-max-width);
+  width: 100%;
+}
+
+/* Ícono circular de éxito */
+.success-icon-circle {
+  width: var(--icon-size-xl, 4rem);
+  height: var(--icon-size-xl, 4rem);
+  background: var(--green-500);
+  border-radius: 50%;
+}
+
+/* Pill para mostrar código de orden */
+.order-pill {
+  background: var(--primary-50);
+  border: var(--border-width, 1px) solid var(--primary-200);
+  border-radius: var(--border-radius-lg, 12px);
+  padding: var(--spacing-md) var(--spacing-lg) var(--spacing-md) var(--spacing-xl);
+  position: relative;
+  overflow: hidden;
+  max-width: var(--content-max-width-narrow, 600px);
+}
+
+.order-pill::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--spacing-sm);
+  background: var(--primary-500);
+  border-radius: var(--border-radius-lg, 12px) 0 0 var(--border-radius-lg, 12px);
+}
+
+.order-pill-code {
+  color: var(--primary-700);
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.5px;
+}

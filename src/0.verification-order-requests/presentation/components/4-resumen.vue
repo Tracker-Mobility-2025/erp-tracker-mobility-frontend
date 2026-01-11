@@ -96,18 +96,18 @@ const onFinish = () => {
 
 <template>
   <div class="flex w-full justify-content-center align-items-start p-4">
-    <div class="surface-card border-round-xl shadow-3 p-6 w-full" style="max-width: 1200px;">
+    <div class="surface-card border-round-xl shadow-3 p-6 w-full form-container success-summary-card">
       
       <!-- Header con éxito -->
       <div class="text-center mb-5">
-        <div class="success-icon inline-flex align-items-center justify-content-center mb-3">
+        <div class="success-icon-circle inline-flex align-items-center justify-content-center mb-3">
           <i class="pi pi-check text-white text-2xl"></i>
         </div>
 
         <h1 class="text-4xl font-bold text-900 m-0 mb-4">¡Solicitud enviada de manera exitosa!</h1>
 
         <!-- Orden de servicio -->
-        <div class="order-pill flex align-items-center justify-content-between gap-3 mb-3 w-full mx-auto" style="max-width: 600px;">
+        <div class="order-pill flex align-items-center justify-content-between gap-3 mb-3 w-full mx-auto form-container-narrow">
           <div>
             <span class="block text-600">Orden de servicio:</span>
             <span class="order-pill-code block">{{ orderNumber }}</span>
@@ -231,38 +231,6 @@ const onFinish = () => {
 </template>
 
 <style scoped>
-.success-icon {
-  width: 64px;
-  height: 64px;
-  background: #10b981;
-  border-radius: 50%;
-}
-
-.order-pill {
-  position: relative;
-  background: #f8fbff;
-  border: 1px solid var(--primary-200);
-  border-radius: 12px;
-  padding: 1rem 1.5rem 1rem 2rem;
-}
-
-.order-pill::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 0.5rem;
-  background: var(--primary-500);
-  border-radius: 12px 0 0 12px;
-}
-
-.order-pill-code {
-  color: var(--primary-700);
-  font-weight: 700;
-  font-size: 1.25rem;
-}
-
 .word-break-all {
   word-break: break-word;
 }

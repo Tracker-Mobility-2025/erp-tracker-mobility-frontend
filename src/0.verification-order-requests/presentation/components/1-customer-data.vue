@@ -145,20 +145,20 @@ const focusFirstError = () => {
 
 <template>
   <div class="flex justify-content-center w-full">
-    <div class="surface-card border-round-lg shadow-3 p-4 w-full" style="max-width: 1200px;">
-      <form class="formgrid grid p-fluid" @submit.prevent="onNext" @keydown.enter.prevent>
+    <div class="surface-card border-round-lg shadow-3 p-4 form-container">
+      <form class="formgrid grid p-fluid form-grid-compact" @submit.prevent="onNext" @keydown.enter.prevent>
         <!-- Título -->
         <div class="col-12 mb-3">
           <div class="flex align-items-center gap-2">
-            <i class="pi pi-user text-2xl text-primary"></i>
-            <h2 class="m-0 text-xl font-semibold text-primary">Datos del cliente</h2>
+            <i class="pi pi-user text-2xl text-primary-dark"></i>
+            <h2 class="m-0 text-xl font-semibold text-primary-dark">Datos del cliente</h2>
           </div>
         </div>
 
         <!-- Nombres -->
         <div class="field col-12 md:col-6">
           <label for="nombres" class="block mb-2 font-semibold text-color">
-            Nombres completos <span class="text-red-500">*</span>
+            Nombres completos <span class="field-required-mark">*</span>
           </label>
           <pv-input-text
             id="nombres"
@@ -168,13 +168,13 @@ const focusFirstError = () => {
             @blur="onFieldBlur('name')"
             @keydown="validateTextOnly"
           />
-          <small v-if="fieldErrors.name" class="text-red-500 block mt-1">{{ fieldErrors.name }}</small>
+          <small v-if="fieldErrors.name" class="field-error-message">{{ fieldErrors.name }}</small>
         </div>
 
         <!-- Apellidos -->
         <div class="field col-12 md:col-6">
           <label for="apellidos" class="block mb-2 font-semibold text-color">
-            Apellidos completos <span class="text-red-500">*</span>
+            Apellidos completos <span class="field-required-mark">*</span>
           </label>
           <pv-input-text
             id="apellidos"
@@ -184,13 +184,13 @@ const focusFirstError = () => {
             @blur="onFieldBlur('lastName')"
             @keydown="validateTextOnly"
           />
-          <small v-if="fieldErrors.lastName" class="text-red-500 block mt-1">{{ fieldErrors.lastName }}</small>
+          <small v-if="fieldErrors.lastName" class="field-error-message">{{ fieldErrors.lastName }}</small>
         </div>
 
         <!-- Tipo documento -->
         <div class="field col-12 md:col-6">
           <label for="tipo-doc" class="block mb-2 font-semibold text-color">
-            Tipo de documento de identidad <span class="text-red-500">*</span>
+            Tipo de documento de identidad <span class="field-required-mark">*</span>
           </label>
           <pv-select
             id="tipo-doc"
@@ -202,13 +202,13 @@ const focusFirstError = () => {
             class="w-full"
             @blur="onFieldBlur('documentType')"
           />
-          <small v-if="fieldErrors.documentType" class="text-red-500 block mt-1">{{ fieldErrors.documentType }}</small>
+          <small v-if="fieldErrors.documentType" class="field-error-message">{{ fieldErrors.documentType }}</small>
         </div>
 
         <!-- Número documento -->
         <div class="field col-12 md:col-6">
           <label for="num-doc" class="block mb-2 font-semibold text-color">
-            N° de documento de identidad <span class="text-red-500">*</span>
+            N° de documento de identidad <span class="field-required-mark">*</span>
           </label>
           <pv-icon-field>
             <pv-input-icon class="pi pi-id-card" />
@@ -221,13 +221,13 @@ const focusFirstError = () => {
               @keydown="validateNumbersOnly"
             />
           </pv-icon-field>
-          <small v-if="fieldErrors.documentNumber" class="text-red-500 block mt-1">{{ fieldErrors.documentNumber }}</small>
+          <small v-if="fieldErrors.documentNumber" class="field-error-message">{{ fieldErrors.documentNumber }}</small>
         </div>
 
         <!-- Teléfono -->
         <div class="field col-12 md:col-6">
           <label for="telefono" class="block mb-2 font-semibold text-color">
-            Número de contacto <span class="text-red-500">*</span>
+            Número de contacto <span class="field-required-mark">*</span>
           </label>
           <pv-icon-field>
             <pv-input-icon class="pi pi-phone" />
@@ -240,7 +240,7 @@ const focusFirstError = () => {
               @blur="onFieldBlur('phoneNumber')"
             />
           </pv-icon-field>
-          <small v-if="fieldErrors.phoneNumber" class="text-red-500 block mt-1">{{ fieldErrors.phoneNumber }}</small>
+          <small v-if="fieldErrors.phoneNumber" class="field-error-message">{{ fieldErrors.phoneNumber }}</small>
         </div>
 
         <!-- Botones -->
@@ -258,13 +258,3 @@ const focusFirstError = () => {
     </div>
   </div>
 </template>
-
-<style scoped>
-.formgrid {
-  row-gap: 1rem;
-}
-
-.field {
-  margin-bottom: 0;
-}
-</style>

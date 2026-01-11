@@ -32,7 +32,7 @@ const props = defineProps({
 // Store y composables
 const store = useVerificationOrderStore();
 const { showSuccess, showError, showWarning } = useNotification();
-const { formatToBackend: formatDate, formatTimeToBackend: formatTime } = useDateFormatter();
+const { formatTimeToBackend: formatTime } = useDateFormatter();
 
 // Estado local
 const localHomeVisitDetails = ref({
@@ -317,10 +317,13 @@ async function assignVerifierToOrder() {
     return;
   }
 
-  // Preparar datos para la actualización con formato correcto
+  // Preparar datos para la actualización
+  // IMPORTANTE: No convertir visitDate a string aquí, dejar como Date
+  // El Command se encargará de la validación con el objeto Date
+  // El Repository/Assembler convertirá a string para el backend
   const updateData = {
     verifierId: localHomeVisitDetails.value.verifierId,
-    visitDate: formatDate(localHomeVisitDetails.value.visitDate),
+    visitDate: localHomeVisitDetails.value.visitDate, // Mantener como Date
     visitTime: formatTime(localHomeVisitDetails.value.visitTime)
   };
 

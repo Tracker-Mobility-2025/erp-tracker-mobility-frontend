@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue';
+import { DateFormatter } from '../../../shared-v2/utils/date-formatter.js';
 
 const props = defineProps({
   // Datos del Solicitante (Empresa)
@@ -70,12 +71,7 @@ const formattedRequestDate = computed(() => {
   if (!props.requestDate) return 'No definida';
   
   try {
-    const date = new Date(props.requestDate);
-    return date.toLocaleDateString('es-PE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
+    return DateFormatter.fromBackend(props.requestDate);
   } catch {
     return props.requestDate;
   }

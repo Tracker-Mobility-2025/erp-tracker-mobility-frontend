@@ -22,6 +22,14 @@ export class ReportSummary {
     clientName,
     companyName
   }) {
+    // Validaciones
+    if (!reportId) {
+      throw new Error('El ID del reporte es requerido');
+    }
+    if (!reportCode || reportCode.trim() === '') {
+      throw new Error('El código del reporte es requerido');
+    }
+
     this.reportId = reportId;
     this.reportCode = reportCode;
     this.finalResult = finalResult; // Estado: FinalResultEnum

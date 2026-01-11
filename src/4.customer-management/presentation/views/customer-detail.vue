@@ -10,6 +10,7 @@ import DataManager from '../../../shared-v2/presentation/components/data-manager
 import {
     StatusTranslations,
     StatusFilterOptions,
+    RoleTranslations,
     EmployeeUILabels
 } from '../constants/customer-ui.constants.js';
 
@@ -25,6 +26,7 @@ const selectStatus = ref('');
 const isEdit = ref(false);
 const itemEmployee = ref(null);
 const createAndEditDialogIsVisible = ref(false);
+const employeeFormRef = ref(null); // Ref al componente hijo
 
 // Loading states
 const isLoading = ref(true);
@@ -97,6 +99,32 @@ const getStatusSeverity = (status) => {
     return status === 'ACTIVE' ? 'success' : 'danger';
 };
 
+const translateRole = (role) => {
+    return RoleTranslations[role] || role || 'Sin rol';
+};
+
+/**
+ * Obtiene el rol principal a mostrar (diferente a COMPANY_EMPLOYEE)
+ * @param {Array} roles - Array de roles del colaborador
+ * @returns {string} Rol traducido
+ */
+const getDisplayRole = (roles) => {
+    if (!roles || !Array.isArray(roles) || roles.length === 0) {
+        return 'Sin rol';
+    }
+    
+    // Buscar el primer rol que NO sea COMPANY_EMPLOYEE
+    const specificRole = roles.find(role => role !== 'COMPANY_EMPLOYEE');
+    
+    // Si encontró un rol específico, traducirlo
+    if (specificRole) {
+        return translateRole(specificRole);
+    }
+    
+    // Si solo tiene COMPANY_EMPLOYEE, mostrar eso
+    return translateRole(roles[0]);
+};
+
 const onNewItem = () => {
     itemEmployee.value = null;
     isEdit.value = false;
@@ -110,6 +138,34 @@ const onCancelRequested = () => {
 };
 
 const onSaveRequested = async (employeeData) => {
+    // 🔍 Validar email duplicado
+    const emailExists = customerStore.employees.find(employee => {
+        // Si estamos editando, excluir el colaborador actual de la búsqueda
+        if (isEdit.value && itemEmployee.value && employee.id === itemEmployee.value.id) {
+            return false;
+        }
+        return employee.email && employee.email.toLowerCase() === employeeData.email.toLowerCase();
+    });
+    
+    if (emailExists) {
+        // ❌ NO cerrar el dialog, solo mostrar error y hacer focus
+        const errorMessage = `Ya existe un colaborador con el email ${employeeData.email}`;
+        
+        toast.add({
+            severity: 'error',
+            summary: 'Email duplicado',
+            detail: errorMessage,
+            life: 5000
+        });
+        
+        // Hacer focus en el input de email y mostrar error en el formulario
+        if (employeeFormRef.value) {
+            employeeFormRef.value.setEmailError(errorMessage);
+        }
+        
+        return; // Detener aquí - NO cerrar dialog, NO limpiar formulario
+    }
+    
     let result;
     
     if (isEdit.value) {
@@ -126,16 +182,23 @@ const onSaveRequested = async (employeeData) => {
             detail: `El colaborador ${employeeData.name} ${employeeData.lastName} ha sido ${action} exitosamente`,
             life: 4000
         });
+        
+        // ✅ Solo ahora cerrar dialog y limpiar formulario
+        if (employeeFormRef.value) {
+            employeeFormRef.value.resetFormOnSuccess();
+        }
         createAndEditDialogIsVisible.value = false;
         isEdit.value = false;
         itemEmployee.value = null;
     } else {
+        // ❌ Error del servidor - mantener dialog abierto
         toast.add({
             severity: 'error',
             summary: 'Error',
             detail: result.message || 'No se pudo guardar el colaborador',
             life: 4000
         });
+        // Dialog permanece abierto para que el usuario pueda corregir
     }
 };
 
@@ -345,7 +408,7 @@ watch(() => route.query.id, async (newId) => {
 
                 <template #roles="{ data }">
                     <span class="badge bg-purple-100 text-purple-700 text-sm px-2 py-1">
-                        {{ data.roles?.[0] || 'Sin rol' }}
+                        {{ getDisplayRole(data.roles) }}
                     </span>
                 </template>
 
@@ -369,6 +432,7 @@ watch(() => route.query.id, async (newId) => {
 
         <!-- Create/Edit Dialog -->
         <employee-collaborator-create-and-edit
+            ref="employeeFormRef"
             :edit="isEdit"
             :item="itemEmployee"
             :visible="createAndEditDialogIsVisible"

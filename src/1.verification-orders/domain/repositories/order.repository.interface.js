@@ -27,23 +27,21 @@ export class IOrderRepository {
 
   /**
    * Asigna un verificador a una orden.
-   * @param {number} orderId - ID de la orden
-   * @param {Object} assignmentData - Datos de asignación {verifierId, visitDate, visitTime}
+   * @param {AssignVerifierCommand} command - Command con datos de asignación
    * @returns {Promise<void>}
    * @throws {Error} Method not implemented
    */
-  async assignVerifier(orderId, assignmentData) {
+  async assignVerifier(command) {
     throw new Error('Method not implemented: assignVerifier');
   }
 
   /**
    * Crea una observación para una orden.
-   * @param {number} orderId - ID de la orden
-   * @param {Object} observationData - Datos de observación {observationType, description}
+   * @param {CreateObservationCommand} command - Command con datos de observación
    * @returns {Promise<Observation>} Observación creada
    * @throws {Error} Method not implemented
    */
-  async createObservation(orderId, observationData) {
+  async createObservation(command) {
     throw new Error('Method not implemented: createObservation');
   }
 }

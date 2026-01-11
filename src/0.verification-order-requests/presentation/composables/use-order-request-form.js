@@ -21,7 +21,6 @@ export function useOrderRequestForm() {
     const username = localStorage.getItem('username');
     
     if (!username) {
-      console.warn('⚠️ No se encontró username en localStorage');
       toast.add({
         severity: 'warn',
         summary: 'Advertencia',
@@ -31,7 +30,7 @@ export function useOrderRequestForm() {
       return;
     }
 
-    const result = await store.fetchApplicantCompanyData(username);
+    const result = await store.fetchApplicantCompanyData(username, true);
     
     if (!result.success) {
       toast.add({

@@ -98,8 +98,32 @@ export class CustomerApi extends BaseApi {
      * @param {Object} employeeData - Los datos del colaborador.
      * @returns {Promise} Una promesa que se resuelve con la respuesta del colaborador creado.
      */
-    createEmployee(employeeData) {
-        return this.http.post(employeeEndpointPath, employeeData);
+    async createEmployee(employeeData) {
+        console.log('🎯 [API] POST /company-employees');
+        console.log('📦 [API] Payload:', JSON.stringify(employeeData, null, 2));
+        console.log('✅ [API] Campos esperados validados:', {
+            email: !!employeeData.email,
+            password: !!employeeData.password,
+            name: !!employeeData.name,
+            lastName: !!employeeData.lastName,
+            phoneNumber: !!employeeData.phoneNumber,
+            applicantCompanyId: !!employeeData.applicantCompanyId,
+            brandId: !!employeeData.brandId,
+            role: !!employeeData.role
+        });
+        
+        try {
+            const response = await this.http.post(employeeEndpointPath, employeeData);
+            console.log('✅ [API] Respuesta exitosa:', response.data);
+            return response;
+        } catch (error) {
+            console.error('❌ [API] Error en POST /company-employees');
+            console.error('🔴 [API] Status:', error.response?.status);
+            console.error('📝 [API] Mensaje del backend:', error.response?.data);
+            console.error('📝 [API] Headers de respuesta:', error.response?.headers);
+            console.error('📦 [API] Payload que causó el error:', JSON.stringify(employeeData, null, 2));
+            throw error; // Re-lanzar para que el store lo maneje
+        }
     }
 
     /**

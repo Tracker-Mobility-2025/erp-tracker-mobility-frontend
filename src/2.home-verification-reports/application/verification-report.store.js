@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { ReportHttpRepository } from "../infrastructure/repositories/report-http.repository.js";
 import { ReportErrorHandler } from "./error-handlers/report-error.handler.js";
 import { useNotification } from "../../shared-v2/composables/use-notification.js";
+import { UpdateLandlordInterviewCommand } from "../domain/commands/update-landlord-interview.command.js";
 
 /**
  * Store de Pinia para funcionalidad de reportes de verificación.
@@ -107,7 +108,13 @@ const useVerificationReportStore = defineStore('verificationReport', () => {
      */
     async function updateLandlordInterview(orderId, data) {
         try {
-            const result = await repository.updateLandlordInterview(orderId, data);
+            // Crear Command con validación automática
+            const command = new UpdateLandlordInterviewCommand({
+                orderId,
+                ...data
+            });
+
+            const result = await repository.updateLandlordInterview(command);
             return {
                 success: true,
                 data: result,

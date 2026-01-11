@@ -42,9 +42,32 @@ export class CustomerErrorHandler {
     const status = error.response.status;
     const data = error.response.data;
 
+    console.log('🔍 [ErrorHandler] Detalles del error HTTP:', {
+      status,
+      data,
+      message: data?.message,
+      errors: data?.errors,
+      context
+    });
+
     if (status === 404) {
       this.showWarning('Recurso no encontrado', 'No encontrado', 4000);
       return { success: false, message: 'No encontrado', code: 'NOT_FOUND' };
+    }
+
+    if (status === 400) {
+      // Error de validación - mostrar mensaje específico del backend
+      const errorMessage = data?.message || data?.error || `Error de validación al ${context}`;
+      
+      // Si hay errores de validación específicos, mostrarlos
+      if (data?.errors && Array.isArray(data.errors)) {
+        const errorDetails = data.errors.map(e => e.message || e).join(', ');
+        this.showError(errorDetails, 'Error de validación', 6000);
+        return { success: false, message: errorDetails, code: 'VALIDATION_ERROR', details: data.errors };
+      }
+      
+      this.showError(errorMessage, 'Error de validación', 5000);
+      return { success: false, message: errorMessage, code: 'VALIDATION_ERROR' };
     }
 
     if (status >= 500) {
@@ -53,7 +76,7 @@ export class CustomerErrorHandler {
       return { success: false, message: 'Error del servidor', code: 'SERVER_ERROR' };
     }
 
-    const message = data.message || `Error al ${context}`;
+    const message = data?.message || data?.error || `Error al ${context}`;
     this.showError(message, 'Error', 4000);
     return { success: false, message, code: 'HTTP_ERROR' };
   }

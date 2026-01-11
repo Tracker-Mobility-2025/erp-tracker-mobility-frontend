@@ -6,10 +6,25 @@
 export class UpdateVerificationReportCommand {
   constructor({
     id,
-    // TODO: Agregar parámetros del comando
+    verifierName,
+    addressLocation,
+    visitDate,
+    finalResult,
+    summary,
+    observations
   }) {
-    if (!id) throw new Error('ID es requerido para actualizar');
+    // Validaciones requeridas
+    if (!id) {
+      throw new Error('ID es requerido para actualizar');
+    }
+
+    // Asignación de propiedades
     this.id = id;
-    // TODO: Validación y asignación de propiedades
+    this.verifierName = verifierName?.trim() || null;
+    this.addressLocation = addressLocation?.trim() || null;
+    this.visitDate = visitDate || null;
+    this.finalResult = finalResult?.trim() || null;
+    this.summary = summary?.trim() || null;
+    this.observations = observations?.trim() || null;
   }
 }

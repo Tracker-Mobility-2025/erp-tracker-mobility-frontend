@@ -14,6 +14,24 @@ export const StatusTranslations = {
 };
 
 /**
+ * Traducción de roles (del backend a UI)
+ * Backend: GERENTE_VENTAS, VENDEDOR
+ * UI: Jefe ventas, Vendedor
+ */
+export const RoleTranslations = {
+  'GERENTE_VENTAS': 'Jefe ventas',
+  'VENDEDOR': 'Vendedor'
+};
+
+/**
+ * Opciones de roles para formularios
+ */
+export const RoleOptions = [
+  { label: 'Jefe ventas', value: 'GERENTE_VENTAS' },
+  { label: 'Vendedor', value: 'VENDEDOR' }
+];
+
+/**
  * Opciones para filtro de estado en componentes
  */
 export const StatusFilterOptions = [

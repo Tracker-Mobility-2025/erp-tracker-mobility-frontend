@@ -24,4 +24,14 @@ export class IReportRepository {
   async findById(id) {
     throw new Error('Method not implemented: findById');
   }
+
+  /**
+   * Actualiza la entrevista con el arrendador.
+   * @param {UpdateLandlordInterviewCommand} command - Command con datos de la entrevista
+   * @returns {Promise<Object>} Respuesta de la actualización
+   * @throws {Error} Method not implemented
+   */
+  async updateLandlordInterview(command) {
+    throw new Error('Method not implemented: updateLandlordInterview');
+  }
 }

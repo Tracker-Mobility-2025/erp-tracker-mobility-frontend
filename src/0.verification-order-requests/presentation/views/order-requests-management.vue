@@ -1,8 +1,10 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { StatusTranslations } from '../constants/order-request-ui.constants.js';
 import Toolbar from '../../../shared-v2/presentation/components/toolbar.vue';
 import DataManager from '../../../shared-v2/presentation/components/data-manager.vue';
+import { DateFormatter } from '../../../shared-v2/utils/date-formatter.js';
 import { OrderRequestApi } from '../../infrastructure/order-request.api.js';
 
 // Router y API
@@ -14,20 +16,19 @@ const loading = ref(false);
 const orders = ref([]);
 const globalFilterValue = ref('');
 const selectedStatus = ref('');
-const dateRange = ref(null);
 
 // Configuración
 const title = { singular: 'Solicitud de Orden', plural: 'Mis Solicitudes' };
 
 // Columnas de la tabla
 const columns = [
-  { field: 'orderCode', header: 'Código', sortable: true },
-  { field: 'clientName', header: 'Cliente', sortable: true },
-  { field: 'clientPhoneNumber', header: 'Teléfono', sortable: true },
-  { field: 'status', header: 'Estado', sortable: true, template: 'status' },
-  { field: 'obsPendientes', header: 'Obs. Pendientes', sortable: true },
-  { field: 'requestDateFormatted', header: 'Fecha Solicitud', sortable: true },
-  { field: 'visitDateFormatted', header: 'Fecha Visita', sortable: true }
+  { field: 'orderCode', header: 'Código', sortable: true, style: 'width: 150px;' },
+  { field: 'clientName', header: 'Cliente', sortable: true, style: 'width: 250px;' },
+  { field: 'clientPhoneNumber', header: 'Teléfono', sortable: true, style: 'width: 130px;' },
+  { field: 'status', header: 'Estado', sortable: true, template: 'status', style: 'width: 150px;' },
+  //{ field: 'obsPendientes', header: 'Obs. Pendientes', sortable: true, style: 'width: 120px;' },
+  { field: 'requestDate', header: 'Fecha Solicitud', sortable: true, template: 'requestDate', style: 'width: 150px;' },
+  { field: 'visitDate', header: 'Fecha Visita', sortable: true, template: 'visitDate', style: 'width: 150px;' }
 ];
 
 // Opciones de estado
@@ -42,46 +43,9 @@ const statusOptions = [
   { label: 'Cancelada', value: 'CANCELADA' }
 ];
 
-// Traducciones de estado
-const statusTranslations = {
-  'PENDIENTE': 'Pendiente',
-  'ASIGNADO': 'Asignado',
-  'EN_PROCESO': 'En Proceso',
-  'COMPLETADA': 'Completada',
-  'OBSERVADO': 'Observado',
-  'SUBSANADA': 'Subsanada',
-  'CANCELADA': 'Cancelada'
-};
-
-// Clases CSS por estado
-const statusClasses = {
-  'PENDIENTE': 'status-pendiente',
-  'ASIGNADO': 'status-asignado',
-  'EN_PROCESO': 'status-en-proceso',
-  'COMPLETADA': 'status-completada',
-  'OBSERVADO': 'status-observado',
-  'SUBSANADA': 'status-subsanada',
-  'CANCELADA': 'status-cancelada'
-};
-
-// Iconos por estado
-const statusIcons = {
-  'PENDIENTE': 'pi pi-clock',
-  'ASIGNADO': 'pi pi-user',
-  'EN_PROCESO': 'pi pi-spinner',
-  'COMPLETADA': 'pi pi-check-circle',
-  'OBSERVADO': 'pi pi-exclamation-triangle',
-  'SUBSANADA': 'pi pi-check',
-  'CANCELADA': 'pi pi-times-circle'
-};
-
-// Computed - Órdenes procesadas con fechas formateadas
+// Computed - Órdenes procesadas (sin transformaciones adicionales)
 const processedOrders = computed(() => {
-  return orders.value.map(order => ({
-    ...order,
-    requestDateFormatted: formatDate(order.requestDate),
-    visitDateFormatted: formatDate(order.visitDate)
-  }));
+  return orders.value;
 });
 
 // Computed - Órdenes filtradas
@@ -103,47 +67,17 @@ const filteredOrders = computed(() => {
     result = result.filter(order => order.status === selectedStatus.value);
   }
 
-  // Filtro por rango de fechas
-  if (dateRange.value && dateRange.value[0]) {
-    const startDate = dateRange.value[0];
-    const endDate = dateRange.value[1] || startDate;
-    
-    result = result.filter(order => {
-      if (!order.requestDate) return false;
-      const orderDate = new Date(order.requestDate);
-      return orderDate >= startDate && orderDate <= endDate;
-    });
-  }
-
   return result;
 });
 
 // Métodos
-function formatDate(dateString) {
-  if (!dateString) return 'No especificado';
-  
+function formatDate(date) {
+  if (!date) return '-';
   try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-PE', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    });
-  } catch (error) {
-    return dateString;
+    return DateFormatter.fromBackend(date);
+  } catch {
+    return date;
   }
-}
-
-function getStatusClass(status) {
-  return statusClasses[status] || 'status-default';
-}
-
-function getStatusLabel(status) {
-  return statusTranslations[status] || status;
-}
-
-function getStatusIcon(status) {
-  return statusIcons[status] || 'pi pi-circle';
 }
 
 function getCountByStatus(status) {
@@ -158,13 +92,12 @@ function onGlobalFilterChange(value) {
 function onClearFilters() {
   globalFilterValue.value = '';
   selectedStatus.value = '';
-  dateRange.value = null;
 }
 
 function handleViewDetails(order) {
   router.push({ 
     name: 'order-request-detail', 
-    query: { id: order.id } 
+    params: { id: order.id }
   });
 }
 
@@ -179,14 +112,12 @@ async function fetchOrders() {
     const corporateEmail = localStorage.getItem('username');
     
     if (!corporateEmail) {
-      console.error('No se encontró corporateEmail en localStorage');
       return;
     }
 
     const response = await orderRequestApi.getByCorporateEmail(corporateEmail);
     orders.value = response.data || [];
   } catch (error) {
-    console.error('Error al cargar órdenes:', error);
     orders.value = [];
   } finally {
     loading.value = false;
@@ -247,9 +178,8 @@ onMounted(async () => {
               <template #value="slotProps">
                 <div v-if="slotProps.value" class="flex align-items-center gap-2">
                   <span class="font-semibold">Estado:</span>
-                  <span :class="['status-tag', getStatusClass(slotProps.value)]">
-                    <i :class="getStatusIcon(slotProps.value)" class="mr-1"></i>
-                    {{ getStatusLabel(slotProps.value) }}
+                  <span :class="['status-tag', `status-${slotProps.value.toLowerCase().replace('_', '-')}`]">
+                    {{ StatusTranslations[slotProps.value] || slotProps.value }}
                   </span>
                 </div>
                 <span v-else>{{ slotProps.placeholder }}</span>
@@ -258,25 +188,13 @@ onMounted(async () => {
               <template #option="slotProps">
                 <div class="flex align-items-center justify-content-between w-full gap-2">
                   <span>{{ slotProps.option.label }}</span>
-                  <span 
-                    :class="['badge-custom', getStatusClass(slotProps.option.value)]"
-                  >
+                  <span :class="['badge-custom', `status-${slotProps.option.value.toLowerCase().replace('_', '-')}`]">
                     {{ getCountByStatus(slotProps.option.value) }}
                   </span>
                 </div>
               </template>
             </pv-dropdown>
-            
-            <pv-calendar
-              v-model="dateRange"
-              selection-mode="range"
-              :manual-input="false"
-              date-format="dd/mm/yy"
-              placeholder="Filtrar por fecha"
-              class="w-full md:w-auto"
-              show-icon
-            />
-            
+
             <pv-button
               label="Limpiar filtros"
               icon="pi pi-filter-slash"
@@ -285,14 +203,21 @@ onMounted(async () => {
             />
           </template>
 
-          <!-- Status Column Template -->
+          <!-- Template para columna de estado -->
           <template #status="slotProps">
-            <span 
-              :class="['status-tag', getStatusClass(slotProps.data.status)]"
-            >
-              <i :class="getStatusIcon(slotProps.data.status)" class="mr-1"></i>
-              {{ getStatusLabel(slotProps.data.status) }}
+            <span :class="['status-tag', `status-${slotProps.data.status.toLowerCase().replace('_', '-')}`]">
+              {{ StatusTranslations[slotProps.data.status] || slotProps.data.status }}
             </span>
+          </template>
+
+          <!-- Template para columna de fecha de solicitud -->
+          <template #requestDate="slotProps">
+            {{ formatDate(slotProps.data.requestDate) }}
+          </template>
+
+          <!-- Template para columna de fecha de visita -->
+          <template #visitDate="slotProps">
+            {{ formatDate(slotProps.data.visitDate) }}
           </template>
         </data-manager>
       </div>

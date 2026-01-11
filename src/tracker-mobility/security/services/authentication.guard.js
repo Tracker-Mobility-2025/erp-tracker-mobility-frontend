@@ -37,8 +37,10 @@ export const authenticationGuard = (to, from, next) => {
         // Verificar que solo usuarios con roles autorizados puedan acceder al sistema
         if (store.isSignedIn) {
             const authorizedRoles = ['ADMIN', 'MASTER_ADMIN', 'COMPANY_EMPLOYEE'];
-            if (!authorizedRoles.includes(store.currentRole)) {
-                console.error(`[GUARD] Rol no autorizado detectado: ${store.currentRole}`);
+            const hasAuthorizedRole = store.currentRoles.some(role => authorizedRoles.includes(role));
+            
+            if (!hasAuthorizedRole) {
+                console.error(`[GUARD] Ningún rol autorizado detectado: ${store.currentRoles.join(', ')}`);
                 // Cerrar sesión y redirigir
                 store.signOut({ push: () => {} }); // Mock router para signOut
                 return next({ 
@@ -63,14 +65,20 @@ export const authenticationGuard = (to, from, next) => {
 
         // ⭐ VERIFICACIÓN DE ROLES - Incluyendo rutas padre
         const hasRequiredRole = () => {
-            const userRole = store.currentRole;
-            console.log('[GUARD] Verificando roles para usuario:', userRole);
+            const userRoles = store.currentRoles;
+            console.log('[GUARD] Verificando roles para usuario:', userRoles.join(', '));
             
             // Verificar todas las rutas coincidentes (incluyendo rutas padre)
             for (let matchedRoute of to.matched) {
                 if (matchedRoute.meta?.roles && matchedRoute.meta.roles.length > 0) {
                     console.log('[GUARD] Ruta requiere roles:', matchedRoute.meta.roles);
-                    if (!matchedRoute.meta.roles.includes(userRole)) {
+                    
+                    // Verificar si el usuario tiene al menos uno de los roles requeridos
+                    const hasRole = matchedRoute.meta.roles.some(requiredRole => 
+                        userRoles.includes(requiredRole)
+                    );
+                    
+                    if (!hasRole) {
                         console.warn('[GUARD] Acceso denegado - Rol insuficiente');
                         return false;
                     }
@@ -95,8 +103,12 @@ export const authenticationGuard = (to, from, next) => {
         }
 
         // ⭐ REDIRECCIÓN SEGÚN ROL DESPUÉS DEL LOGIN
-        // Si el usuario es COMPANY_EMPLOYEE y está tratando de acceder a rutas restringidas de ADMIN
-        if (store.currentRole === 'COMPANY_EMPLOYEE') {
+        // Si el usuario es COMPANY_EMPLOYEE (y no tiene otros roles admin) y está tratando de acceder a rutas restringidas de ADMIN
+        const hasOnlyCompanyEmployeeRole = store.currentRoles.includes('COMPANY_EMPLOYEE') && 
+            !store.currentRoles.includes('ADMIN') && 
+            !store.currentRoles.includes('MASTER_ADMIN');
+            
+        if (hasOnlyCompanyEmployeeRole) {
             // Si intenta acceder a rutas de admin, redirigir a sus solicitudes
             if (to.path.startsWith('/app/admin')) {
                 console.log('[GUARD] COMPANY_EMPLOYEE intentó acceder a ruta admin restringida, redirigiendo');

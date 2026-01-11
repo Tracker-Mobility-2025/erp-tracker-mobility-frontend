@@ -1,5 +1,6 @@
 <script setup>
-import { computed, watchEffect } from 'vue';
+import { computed } from 'vue';
+import { DateFormatter } from '../../../shared-v2/utils/date-formatter.js';
 
 // Props
 const props = defineProps({
@@ -30,11 +31,11 @@ const displayAddress = computed(() => {
   return props.addressLocation || 'Sin ubicación';
 });
 
-// Debug: ver qué valor llega
-watchEffect(() => {
-  console.log('addressLocation value:', props.addressLocation);
-  console.log('isValidMapLink:', isValidMapLink.value);
-});
+// Debug: ver qué valor llega (Comentado para performance)
+// watchEffect(() => {
+//   console.log('addressLocation value:', props.addressLocation);
+//   console.log('isValidMapLink:', isValidMapLink.value);
+// });
 
 const formattedResult = computed(() => {
   const resultMap = {
@@ -57,6 +58,16 @@ const resultClass = computed(() => {
     'PENDIENTE': 'status-pendiente'
   };
   return classMap[result] || 'status-default';
+});
+
+const formattedVisitDate = computed(() => {
+  if (!props.visitDate) return 'Sin fecha';
+  
+  try {
+    return DateFormatter.fromBackend(props.visitDate);
+  } catch {
+    return props.visitDate;
+  }
 });
 </script>
 
@@ -111,7 +122,7 @@ const resultClass = computed(() => {
               Fecha de Visita
             </p>
             <p class="text-base font-bold text-900 m-0">
-              {{ visitDate || 'Sin fecha' }}
+              {{ formattedVisitDate }}
             </p>
           </div>
         </div>

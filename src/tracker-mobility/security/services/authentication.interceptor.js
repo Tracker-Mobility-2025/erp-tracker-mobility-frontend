@@ -52,11 +52,11 @@ export const authenticationErrorInterceptor = (error) => {
                 authenticationStore.signedIn = false;
                 authenticationStore.userId = 0;
                 authenticationStore.username = '';
-                authenticationStore.role = '';
+                authenticationStore.roles = [];
                 localStorage.removeItem('token');
                 localStorage.removeItem('userId');
                 localStorage.removeItem('username');
-                localStorage.removeItem('role');
+                localStorage.removeItem('roles');
                 localStorage.removeItem('redirectAfterLogin');
 
                 // Obtener router dinámicamente para evitar dependencia circular

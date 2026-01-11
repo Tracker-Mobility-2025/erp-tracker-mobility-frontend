@@ -12,10 +12,10 @@ const sidebarOpen = ref(true);
 // Opciones del menú de navegación
 const allMenuItems = [
   { roles: ['COMPANY_EMPLOYEE'], label: 'Mis Solicitudes', icon: 'pi pi-fw pi-list', to: `/app/applicant-company/order-requests` },
-  { roles: ['COMPANY_EMPLOYEE'], label: 'Nueva Solicitud', icon: 'pi pi-fw pi-plus-circle', to: `/app/applicant-company/order-requests/new` },
+  //{ roles: ['COMPANY_EMPLOYEE'], label: 'Nueva Solicitud', icon: 'pi pi-fw pi-plus-circle', to: `/app/applicant-company/order-requests/new` },
   { roles: ['ADMIN', 'MASTER_ADMIN'], label: 'Órdenes', icon: 'pi pi-fw pi-file-edit', to: `/app/admin/verification-orders` },
-  { roles: ['ADMIN', 'MASTER_ADMIN'], label: 'Verificadores', icon: 'pi pi-fw pi-users', to: `/app/admin/verifiers` },
   { roles: ['ADMIN', 'MASTER_ADMIN'], label: 'Reportes', icon: 'pi pi-fw pi-chart-bar', to: `/app/admin/verification-reports` },
+  { roles: ['ADMIN', 'MASTER_ADMIN'], label: 'Verificadores', icon: 'pi pi-fw pi-users', to: `/app/admin/verifiers` },
   { roles: ['ADMIN', 'MASTER_ADMIN'], label: 'Clientes', icon: 'pi pi-fw pi-user', to: `/app/admin/clients` },
 ];
 

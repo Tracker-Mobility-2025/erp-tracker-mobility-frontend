@@ -2,7 +2,7 @@
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useOrderRequestStore } from '../../application/order-request.store.js';
 import { useToast } from 'primevue/usetoast';
-import FileUploader from '../../../shared/components/file-uploader.component.vue';
+import FileUploader from '../../../shared-v2/presentation/components/file-uploader.vue';
 
 // Store & Toast
 const store = useOrderRequestStore();
@@ -23,6 +23,27 @@ const touched = ref({
 
 const showValidation = ref(false);
 let addressToastTimeout = null;
+
+// Computed property para el archivo de foto fachada (con v-model)
+const facadePhotoFile = computed({
+  get() {
+    const doc = store.client.documents.find(d => d.type === 'FOTO_FACHADA_VIVIENDA');
+    return doc?.file || null;
+  },
+  set(file) {
+    const existingIndex = store.client.documents.findIndex(d => d.type === 'FOTO_FACHADA_VIVIENDA');
+    if (file) {
+      const document = { type: 'FOTO_FACHADA_VIVIENDA', file: file, url: null };
+      if (existingIndex >= 0) {
+        store.client.documents[existingIndex] = document;
+      } else {
+        store.client.documents.push(document);
+      }
+    } else if (existingIndex >= 0) {
+      store.client.documents.splice(existingIndex, 1);
+    }
+  }
+});
 
 // Validaciones
 const fieldErrors = computed(() => {
@@ -120,32 +141,17 @@ const validateTextOnly = (event) => {
   event.preventDefault();
 };
 
-const onFileSelected = (file) => {
-  const existingIndex = store.client.documents.findIndex(doc => doc.type === 'FOTO_FACHADA_VIVIENDA');
-  const facadeDocument = {
-    type: 'FOTO_FACHADA_VIVIENDA',
-    file: file,
-    url: null
-  };
-  
-  if (existingIndex >= 0) {
-    store.client.documents[existingIndex] = facadeDocument;
-  } else {
-    store.client.documents.push(facadeDocument);
-  }
-  
+const onFacadePhotoSelected = (file) => {
+  facadePhotoFile.value = file;
   touched.value.facadePhoto = true;
 };
 
-const onFileRemoved = () => {
-  const existingIndex = store.client.documents.findIndex(doc => doc.type === 'FOTO_FACHADA_VIVIENDA');
-  if (existingIndex >= 0) {
-    store.client.documents.splice(existingIndex, 1);
-  }
+const onFacadePhotoRemoved = () => {
+  facadePhotoFile.value = null;
   touched.value.facadePhoto = true;
 };
 
-const handleFileValidationError = (errors) => {
+const onFacadePhotoValidationError = (errors) => {
   errors.forEach(error => {
     toast.add({ severity: 'warn', summary: 'Error de archivo', detail: error.message, life: 3000 });
   });
@@ -179,20 +185,20 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="flex justify-content-center w-full">
-    <div class="surface-card border-round-lg shadow-3 p-4 w-full" style="max-width: 1200px;">
-      <form class="formgrid grid p-fluid" @submit.prevent="onNext" @keydown.enter.prevent>
+    <div class="surface-card border-round-lg shadow-3 p-4 w-full form-container">
+      <form class="formgrid grid p-fluid form-grid-compact" @submit.prevent="onNext" @keydown.enter.prevent>
         <!-- Título -->
         <div class="col-12 mb-3">
           <div class="flex align-items-center gap-2">
-            <i class="pi pi-home text-2xl text-primary"></i>
-            <h2 class="m-0 text-xl font-semibold text-primary">Datos de domicilio</h2>
+            <i class="pi pi-home text-2xl text-primary-dark"></i>
+            <h2 class="m-0 text-xl font-semibold text-primary-dark">Datos de domicilio</h2>
           </div>
         </div>
 
         <!-- Departamento -->
         <div class="field col-12 md:col-4">
           <label for="departamento" class="block mb-2 font-semibold text-color">
-            Departamento <span class="text-red-500">*</span>
+            Departamento <span class="field-required-mark">*</span>
           </label>
           <pv-input-text
             id="departamento"
@@ -202,13 +208,13 @@ onBeforeUnmount(() => {
             @blur="onFieldBlur('department')"
             @keydown="validateTextOnly"
           />
-          <small v-if="fieldErrors.department" class="text-red-500 block mt-1">{{ fieldErrors.department }}</small>
+          <small v-if="fieldErrors.department" class="field-error-message">{{ fieldErrors.department }}</small>
         </div>
 
         <!-- Provincia -->
         <div class="field col-12 md:col-4">
           <label for="provincia" class="block mb-2 font-semibold text-color">
-            Provincia <span class="text-red-500">*</span>
+            Provincia <span class="field-required-mark">*</span>
           </label>
           <pv-input-text
             id="provincia"
@@ -218,13 +224,13 @@ onBeforeUnmount(() => {
             @blur="onFieldBlur('province')"
             @keydown="validateTextOnly"
           />
-          <small v-if="fieldErrors.province" class="text-red-500 block mt-1">{{ fieldErrors.province }}</small>
+          <small v-if="fieldErrors.province" class="field-error-message">{{ fieldErrors.province }}</small>
         </div>
 
         <!-- Distrito -->
         <div class="field col-12 md:col-4">
           <label for="distrito" class="block mb-2 font-semibold text-color">
-            Distrito <span class="text-red-500">*</span>
+            Distrito <span class="field-required-mark">*</span>
           </label>
           <pv-input-text
             id="distrito"
@@ -234,13 +240,13 @@ onBeforeUnmount(() => {
             @blur="onFieldBlur('district')"
             @keydown="validateTextOnly"
           />
-          <small v-if="fieldErrors.district" class="text-red-500 block mt-1">{{ fieldErrors.district }}</small>
+          <small v-if="fieldErrors.district" class="field-error-message">{{ fieldErrors.district }}</small>
         </div>
 
         <!-- Dirección completa -->
         <div class="field col-12">
           <label for="direccion" class="block mb-2 font-semibold text-color">
-            Dirección completa <span class="text-red-500">*</span>
+            Dirección completa <span class="field-required-mark">*</span>
           </label>
           <pv-textarea
             id="direccion"
@@ -250,14 +256,14 @@ onBeforeUnmount(() => {
             class="w-full"
             @blur="onFieldBlur('homeAddress')"
           />
-          <small v-if="fieldErrors.homeAddress" class="text-red-500 block mt-1">{{ fieldErrors.homeAddress }}</small>
+          <small v-if="fieldErrors.homeAddress" class="field-error-message">{{ fieldErrors.homeAddress }}</small>
           <small v-else class="text-color-secondary block mt-1">{{ store.client.homeAddress?.length || 0 }}/300 caracteres</small>
         </div>
 
         <!-- URL Google Maps -->
         <div class="field col-12">
           <label for="maps" class="block mb-2 font-semibold text-color">
-            Ubicación por Google Maps <span class="text-red-500">*</span>
+            Ubicación por Google Maps <span class="field-required-mark">*</span>
           </label>
           <pv-icon-field>
             <pv-input-icon class="pi pi-map-marker" />
@@ -269,23 +275,34 @@ onBeforeUnmount(() => {
               @blur="onFieldBlur('mapLocation')"
             />
           </pv-icon-field>
-          <small v-if="fieldErrors.mapLocation" class="text-red-500 block mt-1">{{ fieldErrors.mapLocation }}</small>
+          <small v-if="fieldErrors.mapLocation" class="field-error-message">{{ fieldErrors.mapLocation }}</small>
         </div>
 
         <!-- Foto fachada -->
         <div class="field col-12">
           <label class="block mb-2 font-semibold text-color">
-            Foto de fachada de la vivienda <span class="text-red-500">*</span>
+            Foto de fachada de la vivienda <span class="field-required-mark">*</span>
           </label>
           <file-uploader
-            id="image-uploader-fachada"
-            accept="image/*"
-            :max-size-mb="5"
-            @file-selected="onFileSelected"
-            @file-removed="onFileRemoved"
-            @validation-error="handleFileValidationError"
+            v-model="facadePhotoFile"
+            input-id="file-uploader-fachada"
+            file-type="image"
+            label="Foto de fachada de la vivienda"
+            placeholder="Haz clic para subir foto"
+            hint="Solo imágenes (máximo 5MB)"
+            drag-text=" o arrastra aquí"
+            :max-file-size="5 * 1024 * 1024"
+            :accepted-formats="['image/jpeg', 'image/png', 'image/webp', 'image/gif']"
+            :error-messages="{
+              fileTooBig: 'La imagen es muy grande. Máximo {maxSize}',
+              invalidFormat: 'Solo se permiten imágenes: {formats}'
+            }"
+            required
+            @file-selected="onFacadePhotoSelected"
+            @file-removed="onFacadePhotoRemoved"
+            @validation-error="onFacadePhotoValidationError"
           />
-          <small v-if="fieldErrors.facadePhoto" class="text-red-500 block mt-1">{{ fieldErrors.facadePhoto }}</small>
+          <small v-if="fieldErrors.facadePhoto" class="field-error-message">{{ fieldErrors.facadePhoto }}</small>
         </div>
 
         <!-- Botones -->
@@ -311,13 +328,3 @@ onBeforeUnmount(() => {
     </div>
   </div>
 </template>
-
-<style scoped>
-.formgrid {
-  row-gap: 1rem;
-}
-
-.field {
-  margin-bottom: 0;
-}
-</style>

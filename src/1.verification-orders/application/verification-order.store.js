@@ -1,6 +1,8 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { OrderHttpRepository } from "../infrastructure/repositories/order-http.repository.js";
+import { AssignVerifierCommand } from "../domain/commands/assign-verifier.command.js";
+import { CreateObservationCommand } from "../domain/commands/create-observation.command.js";
 import { VerificationOrderErrorHandler } from "./error-handlers/verification-order-error.handler.js";
 import { useNotification } from "../../shared-v2/composables/use-notification.js";
 
@@ -71,13 +73,24 @@ const useVerificationOrderStore = defineStore('verificationOrder', () => {
      */
     async function assignVerifier(orderId, assignmentData) {
         try {
+            // Validación básica previa a la creación del comando
             if (!orderId) {
                 throw new Error('El ID de la orden es requerido');
             }
             if (!assignmentData.verifierId) {
                 throw new Error('El verificador es requerido');
             }
-            await orderRepository.assignVerifier(orderId, assignmentData);
+
+            // Crear el comando con validación automática
+            const command = new AssignVerifierCommand({
+                orderId,
+                verifierId: assignmentData.verifierId,
+                visitDate: assignmentData.visitDate,
+                visitTime: assignmentData.visitTime
+            });
+
+            await orderRepository.assignVerifier(command);
+            
             showSuccess(
                 'El verificador ha sido asignado correctamente a la orden de servicio.',
                 'Verificador asignado'
@@ -100,16 +113,20 @@ const useVerificationOrderStore = defineStore('verificationOrder', () => {
      */
     async function createObservation(orderId, observationData) {
         try {
+            // Validación básica previa a la creación del comando
             if (!orderId) {
                 throw new Error('El ID de la orden es requerido');
             }
-            if (!observationData.observationType) {
-                throw new Error('El tipo de observación es requerido');
-            }
-            if (!observationData.description || observationData.description.trim() === '') {
-                throw new Error('La descripción de la observación es requerida');
-            }
-            const data = await orderRepository.createObservation(orderId, observationData);
+
+            // Crear el comando con validación automática
+            const command = new CreateObservationCommand({
+                orderId,
+                observationType: observationData.observationType,
+                description: observationData.description
+            });
+
+            const data = await orderRepository.createObservation(command);
+            
             showSuccess(
                 'La observación ha sido registrada correctamente.',
                 'Observación agregada'

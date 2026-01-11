@@ -9,30 +9,40 @@ export function useConfirmDialog() {
 
     /**
      * Muestra un diálogo de confirmación genérico
+     * Soporta dos modos: callback (legacy) o promesa (async/await)
      * @param {Object} options - Opciones del diálogo
      * @param {string} options.message - Mensaje a mostrar
      * @param {string} options.header - Título del diálogo
-     * @param {Function} options.accept - Callback al confirmar
+     * @param {Function} options.accept - Callback al confirmar (opcional si se usa como promesa)
      * @param {Function} options.reject - Callback al rechazar (opcional)
      * @param {string} options.icon - Icono a mostrar (por defecto: 'pi pi-exclamation-triangle')
      * @param {string} options.acceptLabel - Texto del botón aceptar (por defecto: 'Confirmar')
      * @param {string} options.rejectLabel - Texto del botón rechazar (por defecto: 'Cancelar')
+     * @returns {Promise<boolean>} Promise que resuelve a true si confirma, false si rechaza
      */
     const showConfirm = ({ message, header, accept, reject, icon, acceptLabel, rejectLabel }) => {
-        confirm.require({
-            message,
-            header: header || 'Confirmar acción',
-            icon: icon || 'pi pi-exclamation-triangle',
-            rejectProps: {
-                label: rejectLabel || 'Cancelar',
-                severity: 'secondary',
-                outlined: true
-            },
-            acceptProps: {
-                label: acceptLabel || 'Confirmar'
-            },
-            accept: accept || (() => {}),
-            reject: reject || (() => {})
+        return new Promise((resolve) => {
+            confirm.require({
+                message,
+                header: header || 'Confirmar acción',
+                icon: icon || 'pi pi-exclamation-triangle',
+                rejectProps: {
+                    label: rejectLabel || 'Cancelar',
+                    severity: 'secondary',
+                    outlined: true
+                },
+                acceptProps: {
+                    label: acceptLabel || 'Confirmar'
+                },
+                accept: () => {
+                    if (accept) accept();
+                    resolve(true);
+                },
+                reject: () => {
+                    if (reject) reject();
+                    resolve(false);
+                }
+            })
         })
     }
 
