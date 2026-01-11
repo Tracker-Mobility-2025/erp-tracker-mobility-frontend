@@ -126,4 +126,79 @@ export class OrderRequestApi extends BaseApi {
   delete(id) {
     return this.http.delete(`/web/orders/${id}`);
   }
+
+  /**
+   * Actualiza campos específicos de una orden (PATCH)
+   * Solo envía los campos que se están modificando
+   * @param {number} orderId - ID de la orden
+   * @param {Object} fields - Campos a actualizar (solo los necesarios)
+   * @returns {Promise}
+   */
+  async updateOrderFields(orderId, fields) {
+    try {
+      console.log('[OrderRequestApi] Actualizando campos de orden:', { orderId, fields });
+      
+      const response = await this.http.patch(`/web/orders/${orderId}`, fields);
+      return response;
+    } catch (error) {
+      console.error('[OrderRequestApi] Error updating order fields:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Actualiza un documento (archivo adjunto) de una orden
+   * @param {number} orderId - ID de la orden
+   * @param {number} documentId - ID del documento
+   * @param {File} file - Archivo nuevo
+   * @returns {Promise}
+   */
+  async updateDocument(orderId, documentId, file) {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      console.log('[OrderRequestApi] Actualizando documento:', { orderId, documentId, fileName: file.name });
+      
+      const response = await this.http.patch(`/web/orders/${orderId}/documents/${documentId}`, formData);
+      return response;
+    } catch (error) {
+      console.error('[OrderRequestApi] Error updating document:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtiene la URL de descarga del reporte de verificación domiciliaria (PDF)
+   * @param {number} reportId - ID del reporte
+   * @returns {Promise<string>} - Promise que resuelve con la URL de descarga
+   */
+  async getReportDownloadUrl(reportId) {
+    try {
+      const response = await this.http.get(`/web/reports/${reportId}/download-url`);
+      return response;
+    } catch (error) {
+      console.error('[OrderRequestApi] Error getting report download URL:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Actualiza el estado de una observación
+   * @param {number} orderId - ID de la orden
+   * @param {number} observationId - ID de la observación
+   * @param {Object} data - Datos de la observación (observationType, description, status)
+   * @returns {Promise}
+   */
+  async updateObservation(orderId, observationId, data) {
+    try {
+      console.log('[OrderRequestApi] Actualizando observación:', { orderId, observationId, data });
+      
+      const response = await this.http.patch(`/web/orders/${orderId}/observations/${observationId}`, data);
+      return response;
+    } catch (error) {
+      console.error('[OrderRequestApi] Error updating observation:', error);
+      throw error;
+    }
+  }
 }

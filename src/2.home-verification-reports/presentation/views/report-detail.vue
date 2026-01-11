@@ -3,6 +3,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import useVerificationReportStore from '../../application/verification-report.store.js';
 import { useNotification } from '../../../shared-v2/composables/use-notification.js';
+import { ReportApi } from '../../infrastructure/report.api.js';
 import Toolbar from '../../../shared-v2/presentation/components/toolbar.vue';
 
 // Import all report card components
@@ -23,6 +24,7 @@ import EmailSendDialog from '../components/email-send-dialog.vue';
 // Composables
 const route = useRoute();
 const reportStore = useVerificationReportStore();
+const reportApi = new ReportApi();
 const { showSuccess, showError } = useNotification();
 
 // State
@@ -32,12 +34,14 @@ const hasError = ref(false);
 const errorMessage = ref('');
 const emailDialogVisible = ref(false);
 const landlordInterviewCardRef = ref(null);
+const isDownloadingReport = ref(false);
 
 // Computed
 const canExportPDF = computed(() => {
   if (!report.value) return false;
-  // No permitir exportación si falta la entrevista con el arrendador
-  return report.value.finalResult !== 'ENTREVISTA_ARRENDADOR_FALTANTE';
+  // No permitir exportación si falta la entrevista con el arrendador o no hay reportId
+  return report.value.finalResult !== 'ENTREVISTA_ARRENDADOR_FALTANTE' && 
+         !!report.value.reportId;
 });
 
 const canEditInterview = computed(() => {
@@ -55,23 +59,6 @@ const isEditBlockedByFinalResult = computed(() => {
 const showInterviewAlert = computed(() => {
   return report.value?.finalResult === 'ENTREVISTA_ARRENDADOR_FALTANTE';
 });
-
-// Debug attachments (Comentado para mejorar performance)
-// watchEffect(() => {
-//   if (report.value) {
-//     console.log('📎 [DEBUGGING ATTACHMENTS]');
-//     console.log('Raw attachments:', report.value.attachments);
-//     console.log('Annexe 01 Photos:', report.value.annexe01Photos);
-//     console.log('Annexe 02 Photos:', report.value.annexe02Photos);
-//     console.log('Annexe 03 Photos:', report.value.annexe03Photos);
-//     console.log('Annexe 04 Photos:', report.value.annexe04Photos);
-//     console.log('Annexe 05 Photos:', report.value.annexe05Photos);
-//     console.log('Annexe 06 Photos:', report.value.annexe06Photos);
-//     console.log('🗣️ [DEBUGGING INTERVIEW DETAILS]');
-//     console.log('Interview Details:', report.value.interviewDetails);
-//     console.log('Has Interview Details?', !!report.value.interviewDetails);
-//   }
-// });
 
 // Loading steps
 const loadingStep = ref(0);
@@ -158,7 +145,7 @@ const handleEmailCancelRequested = () => {
   emailDialogVisible.value = false;
 };
 
-const handleExportPDF = () => {
+const handleExportPDF = async () => {
   // Validar si falta la entrevista con el arrendador
   if (report.value?.finalResult === 'ENTREVISTA_ARRENDADOR_FALTANTE') {
     showError(
@@ -169,8 +156,35 @@ const handleExportPDF = () => {
     return;
   }
 
-  // TODO: Implementar exportación a PDF
-  showSuccess('Exportación a PDF en desarrollo', 'Info');
+  if (!report.value?.reportId) {
+    showError('No se puede descargar el reporte: ID de reporte no disponible');
+    return;
+  }
+
+  isDownloadingReport.value = true;
+  
+  try {
+    // Obtener URL de descarga del reporte
+    const response = await reportApi.getReportDownloadUrl(report.value.reportId);
+    
+    // El backend retorna { reportId, reportUrl }
+    const downloadUrl = response.data?.reportUrl;
+    
+    if (!downloadUrl) {
+      showError('No se pudo obtener la URL de descarga del reporte');
+      return;
+    }
+    
+    // Abrir URL en nueva pestaña para descargar
+    window.open(downloadUrl, '_blank');
+    
+    showSuccess('Reporte descargado exitosamente', 'Descarga completada');
+  } catch (error) {
+    console.error('[ReportDetail] Error al descargar reporte:', error);
+    showError('No se pudo descargar el reporte. Intente nuevamente.', 'Error de descarga');
+  } finally {
+    isDownloadingReport.value = false;
+  }
 };
 
 const handleUpdateInterviewDetailsRequested = async (payload) => {
@@ -275,7 +289,8 @@ watch(() => route.params.reportId, async (newId) => {
           label="Exportar PDF"
           icon="pi pi-file-pdf"
           class="p-button-outlined"
-          :disabled="!canExportPDF"
+          :loading="isDownloadingReport"
+          :disabled="!canExportPDF || isDownloadingReport"
           v-tooltip.top="!canExportPDF ? 'Complete la entrevista con el arrendador para exportar el PDF' : 'Exportar informe a PDF'"
           @click="handleExportPDF"
         />

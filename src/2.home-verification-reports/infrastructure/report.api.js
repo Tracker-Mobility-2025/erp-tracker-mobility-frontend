@@ -55,4 +55,24 @@ export class ReportApi extends BaseApi {
     }
     return this.http.patch(`${reportEndpointPath}/order/${orderIdParsed}/landlord-interview`, data);
   }
+
+  /**
+   * Obtiene la URL de descarga del reporte de verificación domiciliaria (PDF).
+   * GET /api/v1/web/reports/{reportId}/download-url
+   * @param {string|number} reportId - El ID del reporte.
+   * @returns {Promise} Una promesa que se resuelve con la URL de descarga.
+   */
+  async getReportDownloadUrl(reportId) {
+    const reportIdParsed = parseInt(reportId, 10);
+    if (isNaN(reportIdParsed) || reportIdParsed <= 0) {
+      throw new Error('El ID del reporte debe ser un número válido mayor a 0');
+    }
+    try {
+      const response = await this.http.get(`${reportEndpointPath}/${reportIdParsed}/download-url`);
+      return response;
+    } catch (error) {
+      console.error('[ReportApi] Error getting report download URL:', error);
+      throw error;
+    }
+  }
 }

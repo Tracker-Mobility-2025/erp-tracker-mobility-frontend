@@ -349,21 +349,19 @@ export class Observation {
   }
 
   /**
-   * Verifica si la observación está pendiente/abierta.
-   * @returns {boolean} True si está abierta o en progreso
+   * Verifica si la observación está pendiente.
+   * @returns {boolean} True si está pendiente
    */
   get isPending() {
-    return this.status === ObservationStatus.OPEN || 
-           this.status === ObservationStatus.IN_PROGRESS;
+    return this.status === ObservationStatus.PENDIENTE;
   }
 
   /**
    * Verifica si la observación está resuelta.
-   * @returns {boolean} True si está resuelta o cerrada
+   * @returns {boolean} True si está resuelta
    */
   get isResolved() {
-    return this.status === ObservationStatus.RESOLVED || 
-           this.status === ObservationStatus.CLOSED;
+    return this.status === ObservationStatus.RESUELTA;
   }
 
   /**
