@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { StatusTranslations } from '../constants/order-request-ui.constants.js';
+import { StatusTranslations, StatusFilterOptions } from '../constants/order-request-ui.constants.js';
 import Toolbar from '../../../shared-v2/presentation/components/toolbar.vue';
 import DataManager from '../../../shared-v2/presentation/components/data-manager.vue';
 import { DateFormatter } from '../../../shared-v2/utils/date-formatter.js';
@@ -31,17 +31,8 @@ const columns = [
   { field: 'visitDate', header: 'Fecha Visita', sortable: true, template: 'visitDate', style: 'width: 150px;' }
 ];
 
-// Opciones de estado
-const statusOptions = [
-  { label: 'Todos los estados', value: '' },
-  { label: 'Pendiente', value: 'PENDIENTE' },
-  { label: 'Asignado', value: 'ASIGNADO' },
-  { label: 'En Proceso', value: 'EN_PROCESO' },
-  { label: 'Completada', value: 'COMPLETADA' },
-  { label: 'Observado', value: 'OBSERVADO' },
-  { label: 'Subsanada', value: 'SUBSANADA' },
-  { label: 'Cancelada', value: 'CANCELADA' }
-];
+// Opciones de estado (incluye todos los 8 estados del ServiceStatusEnum)
+const statusOptions = StatusFilterOptions;
 
 // Computed - Órdenes procesadas (sin transformaciones adicionales)
 const processedOrders = computed(() => {

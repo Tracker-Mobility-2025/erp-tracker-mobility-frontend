@@ -4,10 +4,10 @@
  * NO deben estar en el dominio.
  */
 
-import { OrderStatus } from '../../domain/constants/verification-order.constants.js';
+import { OrderStatus, ObservationStatus, ObservationType } from '../../domain/constants/verification-order.constants.js';
 
 /**
- * Traducciones de estados de orden para UI
+ * Traducciones de estados de orden para UI (ServiceStatusEnum)
  */
 export const OrderStatusTranslations = Object.freeze({
   [OrderStatus.PENDIENTE]: 'Pendiente',
@@ -16,7 +16,8 @@ export const OrderStatusTranslations = Object.freeze({
   [OrderStatus.COMPLETADA]: 'Completada',
   [OrderStatus.CANCELADA]: 'Cancelada',
   [OrderStatus.OBSERVADO]: 'Observado',
-  [OrderStatus.SUBSANADA]: 'Subsanada'
+  [OrderStatus.SUBSANADA]: 'Subsanada',
+  [OrderStatus.ENTREVISTA_FALTANTE]: 'Entrevista Faltante'
 });
 
 /**
@@ -30,7 +31,8 @@ export const OrderStatusClasses = Object.freeze({
   [OrderStatus.COMPLETADA]: 'status-completada',
   [OrderStatus.CANCELADA]: 'status-cancelada',
   [OrderStatus.OBSERVADO]: 'status-observado',
-  [OrderStatus.SUBSANADA]: 'status-subsanada'
+  [OrderStatus.SUBSANADA]: 'status-subsanada',
+  [OrderStatus.ENTREVISTA_FALTANTE]: 'status-entrevista-arrendador-faltante'
 });
 
 /**
@@ -43,7 +45,62 @@ export const OrderStatusIcons = Object.freeze({
   [OrderStatus.COMPLETADA]: 'pi pi-check-circle',
   [OrderStatus.CANCELADA]: 'pi pi-times-circle',
   [OrderStatus.OBSERVADO]: 'pi pi-exclamation-triangle',
-  [OrderStatus.SUBSANADA]: 'pi pi-check'
+  [OrderStatus.SUBSANADA]: 'pi pi-check',
+  [OrderStatus.ENTREVISTA_FALTANTE]: 'pi pi-calendar-times'
+});
+
+/**
+ * Traducciones de estados de observación (ObservationStatusEnum)
+ */
+export const ObservationStatusTranslations = Object.freeze({
+  [ObservationStatus.RESUELTA]: 'Resuelta',
+  [ObservationStatus.PENDIENTE]: 'Pendiente'
+});
+
+/**
+ * Clases CSS para estados de observación (workflow-states.css)
+ */
+export const ObservationStatusClasses = Object.freeze({
+  [ObservationStatus.RESUELTA]: 'observation-resuelta',
+  [ObservationStatus.PENDIENTE]: 'observation-pendiente'
+});
+
+/**
+ * Traducciones de tipos de observación (ObservationTypeEnum)
+ */
+export const ObservationTypeTranslations = Object.freeze({
+  // Documentación principal
+  [ObservationType.DOCUMENTO_IDENTIDAD]: 'Documento de Identidad',
+  [ObservationType.RECIBO_SERVICIO]: 'Recibo de Servicio',
+  [ObservationType.DATOS_DEL_CLIENTE_NO_COINCIDEN]: 'Datos del Cliente no Coinciden',
+  
+  // Problemas de calidad
+  [ObservationType.DOCUMENTO_IDENTIDAD_BORROSO]: 'Documento de Identidad Borroso',
+  [ObservationType.RECIBO_SERVICIO_BORROSO]: 'Recibo de Servicio Borroso',
+  [ObservationType.FOTO_FACHADA_BORROSA]: 'Foto de Fachada Borrosa',
+  [ObservationType.UBICACION_INCORRECTA]: 'Ubicación Incorrecta',
+  
+  // Datos incompletos
+  [ObservationType.DATOS_CLIENTE_INCOMPLETOS]: 'Datos del Cliente Incompletos',
+  [ObservationType.DATOS_ARRENDADOR_INCOMPLETOS]: 'Datos del Arrendador Incompletos',
+  
+  [ObservationType.OTROS]: 'Otros'
+});
+
+/**
+ * Iconos para tipos de observación (PrimeIcons)
+ */
+export const ObservationTypeIcons = Object.freeze({
+  [ObservationType.DOCUMENTO_IDENTIDAD]: 'pi pi-id-card',
+  [ObservationType.RECIBO_SERVICIO]: 'pi pi-file',
+  [ObservationType.DATOS_DEL_CLIENTE_NO_COINCIDEN]: 'pi pi-exclamation-triangle',
+  [ObservationType.DOCUMENTO_IDENTIDAD_BORROSO]: 'pi pi-eye-slash',
+  [ObservationType.RECIBO_SERVICIO_BORROSO]: 'pi pi-eye-slash',
+  [ObservationType.FOTO_FACHADA_BORROSA]: 'pi pi-image',
+  [ObservationType.UBICACION_INCORRECTA]: 'pi pi-map-marker',
+  [ObservationType.DATOS_CLIENTE_INCOMPLETOS]: 'pi pi-user',
+  [ObservationType.DATOS_ARRENDADOR_INCOMPLETOS]: 'pi pi-users',
+  [ObservationType.OTROS]: 'pi pi-question-circle'
 });
 
 /**
@@ -80,14 +137,15 @@ export const StatusIcons = OrderStatusIcons;
 export const StatusClasses = OrderStatusClasses;
 
 /**
- * Opciones de filtro por estado
+ * Opciones de filtro por estado (para dropdowns)
  */
-export const StatusFilterOptions = Object.freeze(
-  Object.entries(OrderStatusTranslations).map(([value, label]) => ({
+export const StatusFilterOptions = Object.freeze([
+  { label: 'Todos los estados', value: '' },
+  ...Object.entries(OrderStatusTranslations).map(([value, label]) => ({
     label,
     value
   }))
-);
+]);
 
 /**
  * Acciones disponibles en el DataManager

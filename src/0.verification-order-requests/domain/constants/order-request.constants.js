@@ -4,14 +4,47 @@
  */
 
 /**
- * Estados de la solicitud de orden
+ * Estados de la solicitud de orden (ServiceStatusEnum del backend)
  */
 export const OrderRequestStatus = Object.freeze({
-  PENDING: 'PENDING',
-  IN_PROGRESS: 'IN_PROGRESS',
-  COMPLETED: 'COMPLETED',
-  CANCELLED: 'CANCELLED',
-  REJECTED: 'REJECTED'
+  PENDIENTE: 'PENDIENTE',                   // Orden creada, sin asignar
+  ASIGNADO: 'ASIGNADO',                     // Verificador asignado
+  EN_PROCESO: 'EN_PROCESO',                 // En proceso de verificación
+  COMPLETADA: 'COMPLETADA',                 // Verificación completada
+  CANCELADA: 'CANCELADA',                   // Orden cancelada
+  OBSERVADO: 'OBSERVADO',                   // Tiene observaciones pendientes (automático)
+  SUBSANADA: 'SUBSANADA',                   // Todas las observaciones resueltas (automático)
+  ENTREVISTA_FALTANTE: 'ENTREVISTA_FALTANTE' // Falta entrevista
+});
+
+/**
+ * Estados de observación (ObservationStatusEnum del backend)
+ */
+export const ObservationStatus = Object.freeze({
+  RESUELTA: 'RESUELTA',     // Observación resuelta
+  PENDIENTE: 'PENDIENTE'    // Observación pendiente
+});
+
+/**
+ * Tipos de observación (ObservationTypeEnum del backend)
+ */
+export const ObservationType = Object.freeze({
+  // Documentación principal
+  DOCUMENTO_IDENTIDAD: 'DOCUMENTO_IDENTIDAD',
+  RECIBO_SERVICIO: 'RECIBO_SERVICIO',
+  DATOS_DEL_CLIENTE_NO_COINCIDEN: 'DATOS_DEL_CLIENTE_NO_COINCIDEN',
+  
+  // Problemas de calidad
+  DOCUMENTO_IDENTIDAD_BORROSO: 'DOCUMENTO_IDENTIDAD_BORROSO',
+  RECIBO_SERVICIO_BORROSO: 'RECIBO_SERVICIO_BORROSO',
+  FOTO_FACHADA_BORROSA: 'FOTO_FACHADA_BORROSA',
+  UBICACION_INCORRECTA: 'UBICACION_INCORRECTA',
+  
+  // Datos incompletos
+  DATOS_CLIENTE_INCOMPLETOS: 'DATOS_CLIENTE_INCOMPLETOS',
+  DATOS_ARRENDADOR_INCOMPLETOS: 'DATOS_ARRENDADOR_INCOMPLETOS',
+  
+  OTROS: 'OTROS'  // Otros tipos no categorizados
 });
 
 /**
@@ -21,25 +54,6 @@ export const DocumentType = Object.freeze({
   DNI: 'DNI',
   CARNET_EXTRANJERIA: 'CARNET_EXTRANJERIA',
   PTP: 'PTP'
-});
-
-/**
- * Tipos de observación
- */
-export const ObservationType = Object.freeze({
-  PENDING: 'PENDING',
-  RESOLVED: 'RESOLVED',
-  IN_REVIEW: 'IN_REVIEW'
-});
-
-/**
- * Estados de observación
- */
-export const ObservationStatus = Object.freeze({
-  OPEN: 'OPEN',
-  IN_PROGRESS: 'IN_PROGRESS',
-  RESOLVED: 'RESOLVED',
-  CLOSED: 'CLOSED'
 });
 
 /**
