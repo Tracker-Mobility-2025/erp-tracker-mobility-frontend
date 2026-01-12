@@ -9,13 +9,13 @@ export class SignInResponse {
      * @param {string} userId - The user id
      * @param {string} username - The username
      * @param {string} token - The authentication token
-     * @param {string} role - The user role
+     * @param {string[]} roles - The user roles (array)
      */
-    constructor(userId, username, token, role) {
+    constructor(userId, username, token, roles) {
         this.userId = userId;
         this.username = username;
         this.token = token;
-        this.role = role;
+        this.roles = roles || []; // Array de roles
     }
 
 }

@@ -1,0 +1,191 @@
+/**
+ * Estados del Workflow - ERP Tracker Mobility
+ * Clases específicas para estados de negocio y workflow
+ */
+
+/* ========== COLORES DE ESTADOS DE WORKFLOW ========== */
+
+:root {
+    /* Estados principales del sistema */
+    --status-pendiente: var(--surface-300);
+    --status-asignado: var(--primary-500);
+    --status-en-proceso: var(--yellow-500);
+    --status-completada: var(--green-500);
+    --status-cancelada: var(--red-500);
+    --status-observado: var(--yellow-500);
+    --status-subsanada: var(--green-500);
+    --status-entrevista-arrendador-faltante: var(--purple-500);
+    
+    /* Estados específicos para verification-reports */
+    --status-conforme: var(--green-500);
+    --status-rechazado: var(--red-500);
+    
+    /* Estados de observaciones */
+    --observation-pendiente: var(--yellow-500);
+    --observation-resuelta: var(--green-500);
+    
+    /* Color por defecto */
+    --status-default: var(--surface-100);
+    --status-todos: var(--surface-100);
+    
+    /* Estados de verificadores */
+    --status-activo: var(--green-500);
+    --status-inactivo: var(--red-500);
+    
+    /* Estados de clientes */
+    --status-active: var(--green-500);
+    --status-inactive: var(--red-500);
+    
+    /* Colores de texto para estados */
+    --text-white: var(--surface-0);
+    --text-black: var(--surface-700);
+}
+
+/* ========== BADGES PERSONALIZADOS ========== */
+
+.badge-custom {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding: 0 0.5rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.5rem;
+    transition: all 0.2s ease;
+}
+
+/* ========== TAGS DE ESTADO ========== */
+
+/* Tags de estado para tablas */
+.status-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+/* Tags de observaciones (más pequeños) */
+.observation-status-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+/* ========== ESTADOS PRINCIPALES ========== */
+
+.status-pendiente {
+    background-color: var(--status-pendiente);
+    color: var(--text-black);
+}
+
+.status-asignado {
+    background-color: var(--status-asignado);
+    color: var(--text-white);
+}
+
+.status-en-proceso {
+    background-color: var(--status-en-proceso);
+    color: var(--text-black);
+}
+
+.status-completada {
+    background-color: var(--status-completada);
+    color: var(--text-white);
+}
+
+.status-cancelada {
+    background-color: var(--status-cancelada);
+    color: var(--text-white);
+}
+
+.status-observado {
+    background-color: var(--status-observado);
+    color: var(--text-black);
+}
+
+.status-subsanada {
+    background-color: var(--status-subsanada);
+    color: var(--text-white);
+}
+
+.status-entrevista-arrendador-faltante {
+    background-color: var(--status-entrevista-arrendador-faltante);
+    color: var(--text-white);
+}
+
+.status-entrevista-faltante {
+    background-color: var(--purple-500);
+    color: var(--text-white);
+}
+
+/* ========== ESTADOS ESPECÍFICOS ========== */
+
+.status-conforme {
+    background-color: var(--status-conforme);
+    color: var(--text-white);
+}
+
+.status-rechazado {
+    background-color: var(--status-rechazado);
+    color: var(--text-white);
+}
+
+/* ========== ESTADOS DE OBSERVACIONES ========== */
+
+.observation-pendiente {
+    background-color: var(--observation-pendiente);
+    color: var(--text-black);
+}
+
+.observation-resuelta {
+    background-color: var(--observation-resuelta);
+    color: var(--text-white);
+}
+
+/* ========== ESTADOS POR DEFECTO ========== */
+
+.status-default {
+    background-color: var(--status-default);
+    color: var(--text-black);
+}
+
+.status-todos {
+    background-color: var(--status-todos);
+    color: var(--text-black);
+}
+
+/* ========== ESTADOS DE VERIFICADORES ========== */
+
+.status-activo {
+    background-color: var(--status-activo);
+    color: var(--text-white);
+}
+
+.status-inactivo {
+    background-color: var(--status-inactivo);
+    color: var(--text-white);
+}
+
+/* ========== ESTADOS DE CLIENTES ========== */
+
+.status-active {
+    background-color: var(--status-active);
+    color: var(--text-white);
+}
+
+.status-inactive {
+    background-color: var(--status-inactive);
+    color: var(--text-white);
+}

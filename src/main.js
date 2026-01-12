@@ -1,13 +1,32 @@
 import {createApp} from 'vue'
-import './style.css'
 import App from './App.vue'
+
+// === ESTILOS CORPORATIVOS (Orden de carga optimizado) ===
+
+// 1. PrimeFlex - Framework CSS utilitario
+import 'primeflex/primeflex.css';
+
+// 2. Variables y tema corporativo
+import './styles/theme-variables.css';
+
+// 3. Estilos base personalizados
+import './styles/base-styles.css';
+
+// 4. Overrides de PrimeVue
+import './styles/primevue-overrides.css';
+
+// 5. Estados de workflow
+import './styles/workflow-states.css';
+
+// 6. Componentes UI reutilizables
+import './styles/ui-components.css';
+
+// 7. Responsive design
+import './styles/responsive.css';
 
 //PrimeVue
 import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
-
-//PrimeFlex
-import 'primeflex/primeflex.css';
 
 // PrimeIcons
 import "primeicons/primeicons.css";
@@ -40,6 +59,8 @@ import Toolbar from "primevue/toolbar";
 import TabList from "primevue/tablist";
 import Tab from "primevue/tab";
 import TabPanel from "primevue/tabpanel";
+import {Avatar} from "primevue";
+
 
 
 import Toast from "primevue/toast";
@@ -186,6 +207,6 @@ app.component('pv-button', Button)
     .component('pv-chip', Chip)
     .component('pv-message', Message)
     .component('pv-paginator', Paginator)
-    .component('pv-confirm-dialog', ConfirmDialog);
-
+    .component('pv-confirm-dialog', ConfirmDialog)
+.component('pv-avatar', Avatar);
 app.mount('#app')

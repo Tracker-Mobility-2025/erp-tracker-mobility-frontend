@@ -7,6 +7,10 @@ export class OrderRequestApi {
         this.resourceEndpoint = _resourceEndpoint;
     }
 
+    getAll() {
+        return http.get(this.resourceEndpoint);
+    }
+
     getById(id) {
         return http.get(`${this.resourceEndpoint}/${id}`);
     }
@@ -23,14 +27,15 @@ export class OrderRequestApi {
         return http.delete(`${this.resourceEndpoint}/${id}`);
     }
 
-    // Obtener todas las órdenes en formato resumido
-    getAllSummary() {
-        return http.get(`${this.resourceEndpoint}/summary`);
-    }
-
-    // Asignar un verificador a una orden de servicio
+    /**
+     * Asignar un verificador a una orden de servicio
+     * PATCH /api/v1/web/orders/{orderId}/assignment
+     * @param {number} orderId - ID de la orden
+     * @param {Object} data - Datos de asignación {verifierId: number, visitDate: string (YYYY-MM-DD), visitTime: string (HH:mm)}
+     * @returns {Promise} Response con la orden actualizada
+     */
     assignVerifier(orderId, data) {
-        return http.post(`${this.resourceEndpoint}/${orderId}/assign-verifier`, data);
+        return http.patch(`/web${this.resourceEndpoint}/${orderId}/assignment`, data);
     }
 
     // Actualizar orden por Id

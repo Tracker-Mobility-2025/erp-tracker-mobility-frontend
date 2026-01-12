@@ -10,92 +10,99 @@
     --font-weight-bold: 700;
 
     /* Paleta de colores corporativa */
-    --color-primary: #2E3DB4;           /* Azul corporativo */
-    --color-primary-dark: #222F99;      /* Azul corporativo (más oscuro) */
-    --color-background: #ecebeb;        /* Gris medio */
-    --color-success: #28A745;           /* Verde confirmaciones */
-    --color-text-gray: #363636;         /* Gris letras */
-    --color-coral: #EF4444;             /* Rojo coral */
-    --color-border-cards: #3B82F6;      /* Celeste Tecnológico */
-    --color-card-background: #F8FBFF;   /* Celeste Claro */
-    --color-white: #ffffff;
-    --color-black: #000000;
+    --color-primary: #3B82F6;           /* Azul Primario - Enlaces, botones primarios */
+    --color-primary-hover: #2563EB;     /* Azul Hover - Hover states de elementos azules */
+    --color-primary-light: #DBEAFE;     /* Azul Claro - Fondos de información */
+    --color-background: #F1F5F9;        /* Gris Muy Claro - Fondos de página */
+    --color-success: #10B981;           /* Verde Éxito - Estados completados, éxito */
+    --color-success-hover: #059669;     /* Verde Hover - Hover de botones verdes */
+    --color-success-light: #D1FAE5;     /* Verde Claro - Fondos de estados activos */
+    --color-text-gray: #475569;         /* Gris Oscuro - Textos secundarios */
+    --color-danger: #EF4444;            /* Rojo Peligro - Eliminación, errores */
+    --color-danger-hover: #DC2626;      /* Rojo Hover - Hover de botones rojos */
+    --color-danger-light: #FEE2E2;      /* Rojo Claro - Fondos de alertas */
+    --color-warning: #F59E0B;           /* Amarillo Advertencia - Observaciones, advertencias */
+    --color-warning-hover: #D97706;     /* Amarillo Hover - Hover de botones amarillos */
+    --color-warning-light: #FEF3C7;     /* Amarillo Claro - Fondos de advertencias */
+    --color-border-cards: #E2E8F0;      /* Gris Claro - Bordes, separadores */
+    --color-card-background: #FFFFFF;   /* Blanco - Fondos de tarjetas */
+    --color-white: #FFFFFF;
+    --color-black: #1E293B;             /* Océano Profundo */
 
     /* Colores para estados del sistema */
-    --color-error: #DC3545;             /* Rojo error */
-    --color-warning: #FFC107;           /* Amarillo advertencia */
-    --color-info: #17A2B8;              /* Azul información */
-    --color-danger: var(--color-coral); /* Rojo peligro */
-    --color-light: #525252;             /* Gris muy claro */
-    --color-dark: #343A40;              /* Gris oscuro */
-    --color-muted: #6C757D;             /* Gris apagado */
+    --color-error: #EF4444;             /* Rojo error */
+    --color-info: #3B82F6;              /* Azul información */
+    --color-info-light: #DBEAFE;        /* Azul claro información */
+    --color-light: #F1F5F9;             /* Gris muy claro */
+    --color-dark: #1E293B;              /* Océano Profundo - Sidebar, headers oscuros */
+    --color-slate: #334155;             /* Pizarra - Backgrounds de headers */
+    --color-muted: #94A3B8;             /* Gris Medio - Textos deshabilitados */
+    --color-border: #E2E8F0;            /* Gris Claro - Bordes, separadores */
 
     /* Estados de elementos interactivos */
-    --color-hover: #1e2a8a;             /* Azul hover más oscuro */
-    --color-focus: #4338ca;             /* Azul focus */
-    --color-active: #1d4ed8;            /* Azul activo */
-    --color-disabled: #9CA3AF;          /* Gris deshabilitado */
+    --color-hover: #2563EB;             /* Azul hover */
+    --color-focus: #3B82F6;             /* Azul focus */
+    --color-active: #2563EB;            /* Azul activo */
+    --color-disabled: #94A3B8;          /* Gris deshabilitado */
 
     /* Estados de validación */
-    --color-valid: #22C55E;             /* Verde válido */
-    --color-invalid: #f30404;           /* Rojo inválido */
+    --color-valid: #10B981;             /* Verde válido */
+    --color-invalid: #EF4444;           /* Rojo inválido */
     --color-pending: #F59E0B;           /* Amarillo pendiente */
 
     /* Colores de fondo para estados */
-    --bg-success-light: #D4EDDA;        /* Fondo verde claro */
-    --bg-error-light: #F8D7DA;          /* Fondo rojo claro */
-    --bg-warning-light: #FFF3CD;        /* Fondo amarillo claro */
-    --bg-info-light: #D1ECF1;           /* Fondo azul claro */
+    --bg-success-light: #D1FAE5;        /* Fondo verde claro */
+    --bg-error-light: #FEE2E2;          /* Fondo rojo claro */
+    --bg-warning-light: #FEF3C7;        /* Fondo amarillo claro */
+    --bg-info-light: #DBEAFE;           /* Fondo azul claro */
 
     /* Bordes para estados */
-    --border-success: #C3E6CB;          /* Borde verde */
-    --border-error: #F5C6CB;            /* Borde rojo */
-    --border-warning: #FFEAA7;          /* Borde amarillo */
-    --border-info: #BEE5EB;             /* Borde azul */
+    --border-success: #10B981;          /* Borde verde */
+    --border-error: #EF4444;            /* Borde rojo */
+    --border-warning: #F59E0B;          /* Borde amarillo */
+    --border-info: #3B82F6;             /* Borde azul */
 
     /* === COLORES ESTANDARIZADOS PARA ESTADOS DE WORKFLOW === */
     /* Estados principales del sistema (request-management, service-orders) */
-    --status-pendiente: #A8A8A8;        /* Gris - necesita asignación */
-    --status-asignado: #1976D2;         /* Azul - asignado, esperando inicio */
-    --status-en-proceso: #FFC107;       /* Amarillo - activamente en ejecución */
-    --status-completada: #4CAF50;       /* Verde - terminado exitosamente */
-    --status-cancelada: #D32F2F;        /* Rojo - cancelado/rechazado */
-    --status-observado: #FB8C00;        /* Naranja - tiene observaciones críticas */
-    --status-subsanada: #66BB6A;        /* Verde claro - observaciones corregidas */
-    --status-entrevista-arrendador-faltante: #9C27B0;  /* Púrpura - falta entrevista del arrendador */
+    --status-pendiente: #94A3B8;        /* Gris Medio - necesita asignación */
+    --status-asignado: #3B82F6;         /* Azul Primario - asignado, esperando inicio */
+    --status-en-proceso: #F59E0B;       /* Amarillo Advertencia - activamente en ejecución */
+    --status-completada: #10B981;       /* Verde Éxito - terminado exitosamente */
+    --status-cancelada: #EF4444;        /* Rojo Peligro - cancelado/rechazado */
+    --status-observado: #F59E0B;        /* Amarillo Advertencia - tiene observaciones críticas */
+    --status-subsanada: #10B981;        /* Verde Éxito - observaciones corregidas */
+    --status-entrevista-arrendador-faltante: #8B5CF6;  /* Púrpura - falta entrevista del arrendador */
 
     /* Estados específicos para verification-reports */
-    --status-conforme: #4CAF50;         /* Verde - reporte conforme */
-    --status-rechazado: #D32F2F;        /* Rojo - reporte rechazado */
+    --status-conforme: #10B981;         /* Verde Éxito - reporte conforme */
+    --status-rechazado: #EF4444;        /* Rojo Peligro - reporte rechazado */
     
     /* Estados de observaciones */
-    --observation-pendiente: #FB8C00;   /* Naranja - observación pendiente */
-    --observation-resuelta: #4CAF50;    /* Verde - observación resuelta */
+    --observation-pendiente: #F59E0B;   /* Amarillo Advertencia - observación pendiente */
+    --observation-resuelta: #10B981;    /* Verde Éxito - observación resuelta */
     
     /* Color por defecto para estados no definidos */
-    --status-default: #E0E0E0;          /* Gris claro */
-    --status-todos: #E0E0E0;            /* Gris claro para "Todos" */
+    --status-default: #E2E8F0;          /* Gris Claro */
+    --status-todos: #E2E8F0;            /* Gris Claro para "Todos" */
 
     /* === ESTADOS DE VERIFICADORES === */
     /* Estados específicos para el módulo de verificadores */
-    --status-activo: #4CAF50;           /* Verde - verificador activo */
-    --status-inactivo: #D32F2F;         /* Rojo - verificador inactivo */
+    --status-activo: #10B981;           /* Verde Éxito - verificador activo */
+    --status-inactivo: #EF4444;         /* Rojo Peligro - verificador inactivo */
 
     /* === ESTADOS DE CLIENTES === */
     /* Estados específicos para el módulo de clientes */
-    --status-active: #4CAF50;           /* Verde - cliente activo */
-    --status-inactive: #D32F2F;         /* Rojo - cliente inactivo */
+    --status-active: #10B981;           /* Verde Éxito - cliente activo */
+    --status-inactive: #EF4444;         /* Rojo Peligro - cliente inactivo */
 
     /* === TEXTO PARA ESTADOS === */
     /* Determina si usar texto blanco o negro según el fondo */
     --text-white: #FFFFFF;
-    --text-black: #000000;
+    --text-black: #1E293B;              /* Océano Profundo para mejor coherencia */
 
     /* Mapeo de estados que requieren texto blanco */
     /* ASIGNADO, COMPLETADA, CANCELADA, OBSERVADO, SUBSANADA, CONFORME, RECHAZADO */
     /* PENDIENTE y EN_PROCESO usan texto negro */
-    --border-warning: #FFEAA7;          /* Borde amarillo */
-    --border-info: #BEE5EB;             /* Borde azul */
 
     /* Variables de espaciado */
     --spacing-xs: 0.25rem;
@@ -117,6 +124,34 @@
     --shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
     --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
+
+    /* Colores específicos para tablas */
+    --table-header-bg: #334155;         /* Pizarra - Backgrounds de headers */
+    --table-header-text: var(--color-white);
+    --table-header-border: #E2E8F0;     /* Gris Claro */
+    --table-row-even: #F1F5F9;          /* Gris Muy Claro */
+    --table-row-odd: var(--color-white);
+    --table-row-hover: #DBEAFE;         /* Azul Claro */
+    --table-row-selected: #DBEAFE;      /* Azul Claro */
+    --table-border: #E2E8F0;            /* Gris Claro */
+    --table-border-strong: #94A3B8;     /* Gris Medio */
+    --table-cell-padding: 0.75rem;
+    --table-cell-padding-sm: 0.5rem;
+    --table-header-font-weight: 600;
+    
+    /* Colores de contraste mejorado */
+    --contrast-bg-primary: #F1F5F9;     /* Gris Muy Claro */
+    --contrast-bg-secondary: #334155;   /* Pizarra */
+    --contrast-text-primary: #1E293B;   /* Océano Profundo */
+    --contrast-text-secondary: #475569; /* Gris Oscuro */
+    --contrast-border-light: #E2E8F0;   /* Gris Claro */
+    --contrast-border-medium: #94A3B8;  /* Gris Medio */
+    
+    /* Estados de accesibilidad y focus */
+    --focus-ring-color: rgba(59, 130, 246, 0.2); /* Azul Primario con transparencia */
+    --focus-ring-width: 3px;
+    --row-highlight-intensity: 0.08;
+    --selection-intensity: 0.12;
 
     /* Configuración base */
     font-family: var(--font-family), serif;
@@ -214,7 +249,7 @@ p {
 .alert-warning {
     background-color: var(--bg-warning-light);
     border-color: var(--border-warning);
-    color: #B45309;
+    color: #D97706; /* Amarillo Hover para mejor contraste */
 }
 
 .alert-info {
@@ -236,7 +271,7 @@ input, textarea, select {
 input:focus, textarea:focus, select:focus {
     outline: none;
     border-color: var(--color-focus);
-    box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.1);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
 input.valid, textarea.valid, select.valid {
@@ -396,7 +431,7 @@ input:disabled, textarea:disabled, select:disabled {
 
 /* Clases de hover corporativo */
 .hover-primary:hover {
-    background-color: var(--color-hover) !important;
+    background-color: var(--color-primary-hover) !important;
     color: var(--color-white) !important;
 }
 
@@ -417,108 +452,9 @@ input:disabled, textarea:disabled, select:disabled {
     opacity: 0.75;
 }
 
-/* ========== MODO CLARO FORZADO ========== */
-/* 
-   Comentario: Se ha deshabilitado la detección automática del modo oscuro
-   para mantener siempre los estilos del modo claro, independientemente
-   de la configuración del sistema operativo del usuario.
-   
-   Para habilitar el modo oscuro automático, descomenta la sección siguiente:
-*/
-
-/*
-@media (prefers-color-scheme: dark) {
-    :root {
-        --color-background: #1A1A1A;
-        --color-text-gray: #E5E7EB;
-        --color-card-background: #2D2D2D;
-        --color-white: #F9FAFB;
-        --color-black: #111827;
-        --color-light: #374151;
-        --color-dark: #F9FAFB;
-        --color-muted: #9CA3AF;
-        --color-disabled: #4B5563;
-        --color-hover: #1e2a8a;
-        --color-focus: #4338ca;
-        --color-active: #1d4ed8;
-        --bg-success-light: rgba(40, 167, 69, 0.1);
-        --bg-error-light: rgba(220, 53, 69, 0.1);
-        --bg-warning-light: rgba(255, 193, 7, 0.1);
-        --bg-info-light: rgba(23, 162, 184, 0.1);
-        --border-success: rgba(40, 167, 69, 0.3);
-        --border-error: rgba(220, 53, 69, 0.3);
-        --border-warning: rgba(255, 193, 7, 0.3);
-        --border-info: rgba(23, 162, 184, 0.3);
-        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-        --shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-        --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.6);
-        --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.7);
-    }
-
-    body {
-        background-color: var(--color-background);
-        color: var(--color-text-gray);
-    }
-
-    input, textarea, select {
-        background-color: var(--color-card-background);
-        color: var(--color-text-gray);
-        border-color: var(--color-muted);
-    }
-
-    input::placeholder, textarea::placeholder {
-        color: var(--color-muted);
-    }
-}
-*/
-
 /* ========== ESTILOS GLOBALES PARA DATA TABLES ========== */
 
-/* Variables adicionales para tablas con mejor contraste */
-:root {
-    /* Colores específicos para tablas */
-    --table-header-bg: #4A60D0;
-    --table-header-text: var(--color-white);
-    --table-header-border: #e5e7eb;
-    --table-row-even: #fafbfc;
-    --table-row-odd: var(--color-white);
-    --table-row-hover: #f0f9ff;
-    --table-row-selected: #eff6ff;
-    --table-border: #f1f5f9;
-    --table-border-strong: #e5e7eb;
-    --table-cell-padding: 0.75rem;
-    --table-cell-padding-sm: 0.5rem;
-    --table-header-font-weight: 600;
-    
-    /* Colores de contraste mejorado */
-    --contrast-bg-primary: #f8fafc;
-    --contrast-bg-secondary: #3949AB;
-    --contrast-text-primary: #1f2937;
-    --contrast-text-secondary: #4b5563;
-    --contrast-border-light: #f3f4f6;
-    --contrast-border-medium: #d1d5db;
-    
-    /* Estados de accesibilidad y focus */
-    --focus-ring-color: rgba(46, 61, 180, 0.2);
-    --focus-ring-width: 3px;
-    --row-highlight-intensity: 0.08;
-    --selection-intensity: 0.12;
-}
-
-/* Estilos globales para cualquier DataTable */
-.data-table-global,
-.data-table-custom {
-    background: var(--color-white);
-    border: 1px solid var(--table-border-strong);
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    box-shadow: var(--shadow);
-}
-
-/* Headers globales con mejor contraste */
-.data-table-global .p-datatable-thead > tr > th,
-.data-table-custom .p-datatable-thead > tr > th,
-
+/* Headers de DataTable */
 .p-datatable-thead > tr > th {
     background-color: var(--table-header-bg) !important;
     color: var(--table-header-text) !important;
@@ -534,9 +470,7 @@ input:disabled, textarea:disabled, select:disabled {
 
 }
 
-/* Celdas del cuerpo con contraste mejorado */
-.data-table-global .p-datatable-tbody > tr > td,
-.data-table-custom .p-datatable-tbody > tr > td,
+/* Celdas del cuerpo */
 .p-datatable-tbody > tr > td {
     padding: var(--table-cell-padding) !important;
     border-bottom: 1px solid var(--table-border) !important;
@@ -548,16 +482,12 @@ input:disabled, textarea:disabled, select:disabled {
     color: var(--contrast-text-primary);
 }
 
-/* Filas alternas con mejor contraste */
-.data-table-global .p-datatable-tbody > tr:nth-child(even) > td,
-.data-table-custom .p-datatable-tbody > tr:nth-child(even) > td,
+/* Filas alternas */
 .p-datatable-tbody > tr:nth-child(even) > td {
     background-color: var(--table-row-even) !important;
 }
 
-/* Estados hover con contraste mejorado */
-.data-table-global .p-datatable-tbody > tr:hover > td,
-.data-table-custom .p-datatable-tbody > tr:hover > td,
+/* Estados hover */
 .p-datatable-tbody > tr:hover > td {
     background-color: var(--table-row-hover) !important;
     transform: translateY(-1px);
@@ -565,26 +495,18 @@ input:disabled, textarea:disabled, select:disabled {
 }
 
 /* Filas seleccionadas */
-.data-table-global .p-datatable-tbody > tr.p-selection > td,
-.data-table-custom .p-datatable-tbody > tr.p-selection > td,
 .p-datatable-tbody > tr.p-selection > td {
     background-color: var(--table-row-selected) !important;
     border-color: var(--color-border-cards) !important;
 }
 
 /* Última columna sin borde derecho */
-.data-table-global .p-datatable-thead > tr > th:last-child,
-.data-table-global .p-datatable-tbody > tr > td:last-child,
-.data-table-custom .p-datatable-thead > tr > th:last-child,
-.data-table-custom .p-datatable-tbody > tr > td:last-child,
 .p-datatable-thead > tr > th:last-child,
 .p-datatable-tbody > tr > td:last-child {
     border-right: none !important;
 }
 
-/* Paginador con estilos corporativos */
-.data-table-global .p-paginator,
-.data-table-custom .p-paginator,
+/* Paginador */
 .p-datatable .p-paginator {
     background-color: var(--contrast-bg-primary) !important;
     border-top: 1px solid var(--table-header-border) !important;
@@ -600,8 +522,8 @@ input:disabled, textarea:disabled, select:disabled {
 }
 
 .p-paginator .p-paginator-pages .p-paginator-page:hover {
-    background-color: var(--table-row-hover) !important;
-    border-color: var(--color-border-cards) !important;
+    background-color: var(--color-primary-light) !important;
+    border-color: var(--color-primary) !important;
 }
 
 /* Checkboxes mejorados */
@@ -611,12 +533,10 @@ input:disabled, textarea:disabled, select:disabled {
 }
 
 .p-checkbox .p-checkbox-box:hover {
-    border-color: var(--color-border-cards) !important;
+    border-color: var(--color-primary) !important;
 }
 
-/* Estados especiales de tabla */
-.data-table-global .p-datatable-emptymessage,
-.data-table-custom .p-datatable-emptymessage,
+/* Estado vacío de tabla */
 .p-datatable-emptymessage {
     background-color: var(--contrast-bg-primary) !important;
     color: var(--contrast-text-secondary) !important;
@@ -624,115 +544,64 @@ input:disabled, textarea:disabled, select:disabled {
     padding: 3rem 1rem !important;
 }
 
-.data-table-global .p-datatable-loading-overlay,
-.data-table-custom .p-datatable-loading-overlay,
 .p-datatable-loading-overlay {
-    background-color: rgba(248, 250, 252, 0.9) !important;
+    background-color: rgba(241, 245, 249, 0.9) !important; /* Gris Muy Claro con transparencia */
 }
 
-/* Scrollbar personalizado para tablas */
-.data-table-global .p-datatable-wrapper::-webkit-scrollbar,
-.data-table-custom .p-datatable-wrapper::-webkit-scrollbar,
+/* Scrollbar personalizado */
 .p-datatable-wrapper::-webkit-scrollbar {
     width: 8px;
     height: 8px;
 }
 
-.data-table-global .p-datatable-wrapper::-webkit-scrollbar-track,
-.data-table-custom .p-datatable-wrapper::-webkit-scrollbar-track,
 .p-datatable-wrapper::-webkit-scrollbar-track {
-    background: var(--contrast-bg-secondary);
+    background: var(--color-light); /* Gris Muy Claro */
     border-radius: 4px;
 }
 
-.data-table-global .p-datatable-wrapper::-webkit-scrollbar-thumb,
-.data-table-custom .p-datatable-wrapper::-webkit-scrollbar-thumb,
 .p-datatable-wrapper::-webkit-scrollbar-thumb {
     background: var(--contrast-border-medium);
     border-radius: 4px;
 }
 
-.data-table-global .p-datatable-wrapper::-webkit-scrollbar-thumb:hover,
-.data-table-custom .p-datatable-wrapper::-webkit-scrollbar-thumb:hover,
 .p-datatable-wrapper::-webkit-scrollbar-thumb:hover {
     background: var(--color-muted);
 }
 
 /* ========== MEJORAS DE ACCESIBILIDAD Y FOCUS ========== */
 
-/* Focus en filas de tabla */
-.data-table-global .p-datatable-tbody > tr:focus,
-.data-table-custom .p-datatable-tbody > tr:focus,
+/* Focus en filas */
 .p-datatable-tbody > tr:focus {
     outline: var(--focus-ring-width) solid var(--focus-ring-color);
     outline-offset: -2px;
     background: var(--table-row-hover) !important;
 }
 
-/* Focus en celdas específicas */
-.data-table-global .p-datatable-tbody > tr > td:focus,
-.data-table-custom .p-datatable-tbody > tr > td:focus,
+/* Focus en celdas */
 .p-datatable-tbody > tr > td:focus {
     outline: 2px solid var(--color-primary);
     outline-offset: -2px;
-    background: rgba(46, 61, 180, var(--selection-intensity)) !important;
+    background: rgba(59, 130, 246, var(--selection-intensity)) !important;
 }
 
-/* Mejoras en contraste para texto de acciones */
-.data-table-global .p-button-text,
-.data-table-custom .p-button-text,
+/* Botones de texto */
 .p-button-text {
     color: var(--color-primary) !important;
     font-weight: var(--font-weight-medium);
 }
 
-.data-table-global .p-button-text:hover,
-.data-table-custom .p-button-text:hover,
 .p-button-text:hover {
-    background: rgba(46, 61, 180, var(--row-highlight-intensity)) !important;
-    color: var(--color-hover) !important;
+    background: rgba(59, 130, 246, var(--row-highlight-intensity)) !important;
+    color: var(--color-primary-hover) !important;
 }
 
-/* Estados activos con mejor contraste */
-.data-table-global .p-datatable-tbody > tr.p-datatable-row-selected,
-.data-table-custom .p-datatable-tbody > tr.p-datatable-row-selected,
+/* Filas seleccionadas con indicador */
 .p-datatable-tbody > tr.p-datatable-row-selected {
     background: var(--table-row-selected) !important;
     border-left: 4px solid var(--color-primary) !important;
 }
 
-/* Indicadores visuales mejorados para sorteo */
-.p-datatable-thead > tr > th.p-sortable-column:hover {
-    background: var(--contrast-bg-secondary) !important;
-    color: var(--contrast-text-primary) !important;
-}
-
-.p-datatable-thead > tr > th .p-sortable-column-icon {
-    transition: color 0.2s ease;
-}
-
-.p-datatable-thead > tr > th.p-sort-column .p-sortable-column-icon {
-    color: var(--color-primary) !important;
-}
-
-/* Mejoras en el paginador */
-.p-paginator .p-paginator-element:focus {
-    outline: 2px solid var(--color-primary);
-    outline-offset: 2px;
-}
-
-.p-paginator .p-dropdown:focus, .p-paginator .p-select:focus {
-    border-color: var(--color-primary) !important;
-    box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color) !important;
-}
-
-/* Estados de carga mejorados */
-.p-datatable-loading .p-datatable-tbody > tr > td {
-    color: var(--contrast-text-secondary) !important;
-    font-style: italic;
-}
-
-/* Tooltips y ayudas contextuales */
+/* Tooltips */
 .data-table-tooltip {
     background: var(--contrast-text-primary) !important;
     color: var(--color-white) !important;
@@ -781,19 +650,19 @@ input:disabled, textarea:disabled, select:disabled {
 }
 
 .p-button-primary:hover {
-    background: var(--color-hover) !important;
-    border-color: var(--color-hover) !important;
+    background: var(--color-primary-hover) !important;
+    border-color: var(--color-primary-hover) !important;
 }
 
 .p-button-warning {
-    background: var(--color-warning) !important ;
+    background: var(--color-warning) !important;
     border-color: var(--color-warning) !important;
-    color: var(--color-dark) !important;
+    color: var(--color-white) !important;
 }
 
 .p-button-warning:hover {
-    background: var(--color-pending) !important;
-    border-color: var(--color-pending) !important;
+    background: var(--color-warning-hover) !important;
+    border-color: var(--color-warning-hover) !important;
 }
 
 .p-button-success {
@@ -802,18 +671,18 @@ input:disabled, textarea:disabled, select:disabled {
 }
 
 .p-button-success:hover {
-    background: var(--color-valid);
-    border-color: var(--color-valid);
+    background: var(--color-success-hover);
+    border-color: var(--color-success-hover);
 }
 
 .p-button-danger {
-    background: var(--color-coral);
-    border-color: var(--color-coral);
+    background: var(--color-danger);
+    border-color: var(--color-danger);
 }
 
 .p-button-danger:hover {
-    background: var(--color-error);
-    border-color: var(--color-error);
+    background: var(--color-danger-hover);
+    border-color: var(--color-danger-hover);
 }
 
 /* Dropdown de PrimeVue */
@@ -825,12 +694,12 @@ input:disabled, textarea:disabled, select:disabled {
 }
 
 .p-dropdown:not(.p-disabled):hover, .p-select:not(.p-disabled):hover {
-    border-color: var(--color-border-cards);
+    border-color: var(--color-primary);
 }
 
 .p-dropdown:not(.p-disabled).p-focus, .p-select:not(.p-disabled).p-focus {
     border-color: var(--color-focus);
-    box-shadow: 0 0 0 3px rgba(46, 61, 180, 0.1);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
 .p-dropdown-panel, .p-select-panel {
@@ -846,8 +715,8 @@ input:disabled, textarea:disabled, select:disabled {
 }
 
 .p-dropdown-item:hover, .p-select-item:hover {
-    background: var(--color-primary);
-    color: var(--color-white);
+    background: var(--color-primary-light);
+    color: var(--color-dark);
 }
 
 /* Calendar de PrimeVue */
@@ -860,7 +729,7 @@ input:disabled, textarea:disabled, select:disabled {
 
 .p-calendar .p-inputtext:focus {
     border-color: var(--color-focus);
-    box-shadow: 0 0 0 3px rgba(46, 61, 180, 0.1);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
 .p-datepicker {
@@ -871,7 +740,7 @@ input:disabled, textarea:disabled, select:disabled {
 }
 
 .p-datepicker .p-datepicker-header {
-    background: var(--color-primary);
+    background: var(--color-slate);
     color: var(--color-white);
     border-radius: var(--border-radius) var(--border-radius) 0 0;
 }
@@ -903,7 +772,7 @@ input:disabled, textarea:disabled, select:disabled {
 
 .p-inputtextarea:focus {
     border-color: var(--color-focus);
-    box-shadow: 0 0 0 3px rgba(46, 61, 180, 0.1);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
 .p-inputtextarea::placeholder {
@@ -949,7 +818,7 @@ input:disabled, textarea:disabled, select:disabled {
 }
 
 .p-dialog .p-dialog-header {
-    background: var(--color-primary);
+    background: var(--color-slate);
     color: var(--color-white);
     border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
     padding: var(--spacing-lg);
@@ -969,7 +838,7 @@ input:disabled, textarea:disabled, select:disabled {
 }
 
 .p-datatable .p-datatable-header  {
-    background: var(--color-primary);
+    background: var(--color-slate);
     color: var(--color-white);
     border-radius: var(--border-radius) var(--border-radius) 0 0;
     padding: var(--spacing-md);
@@ -979,16 +848,6 @@ input:disabled, textarea:disabled, select:disabled {
 .p-datatable-column-header-content {
     justify-content: center;
     align-items: center;
-}
-
-/* Los estilos de thead y tbody ya están definidos globalmente arriba */
-/* Pero mantenemos compatibilidad específica si es necesario */
-.p-datatable .p-datatable-thead > tr > th .p-datatable-sort-icon {
-    background: var(--table-header-bg) !important;
-    color: var(--table-header-text) !important;
-    border-color: var(--table-header-border) !important;
-    font-weight: var(--table-header-font-weight) !important;
-
 }
 
 .p-datatable .p-datatable-tbody > tr {
@@ -1016,36 +875,15 @@ input:disabled, textarea:disabled, select:disabled {
     color: var(--contrast-text-primary);
 }
 
-/* Asegurar que los filtros y ordenación funcionen correctamente */
-.p-datatable .p-datatable-thead > tr > th .p-column-header-content {
-    color: var(--table-header-text);
-    font-weight: var(--table-header-font-weight);
-}
-
-.p-datatable .p-datatable-thead > tr > th .p-sortable-column-icon {
-    color: var(--table-header-text);
-}
-
-.p-datatable .p-datatable-thead > tr > th:hover {
-    background: var(--contrast-bg-secondary) !important;
-}
-
-/* Filtros en headers */
-.p-datatable .p-datatable-thead > tr > th .p-column-filter {
-    background: var(--color-white);
-    border: 1px solid var(--table-border);
-    border-radius: var(--border-radius-sm);
-}
-
 /* Loading overlay específico */
 .p-datatable .p-datatable-loading-overlay {
-    background: rgba(248, 250, 252, 0.95) !important;
+    background: rgba(241, 245, 249, 0.95) !important;
     backdrop-filter: blur(2px);
 }
 
 /* Skeleton de PrimeVue */
 .p-skeleton {
-    background: linear-gradient(90deg, var(--color-light) 25%, rgba(248, 251, 255, 0.5) 50%, var(--color-light) 75%);
+    background: linear-gradient(90deg, #E2E8F0 25%, rgba(241, 245, 249, 0.5) 50%, #E2E8F0 75%);
     background-size: 200% 100%;
     animation: loading 1.5s infinite;
 }
@@ -1079,7 +917,7 @@ input:disabled, textarea:disabled, select:disabled {
 }
 
 .p-sidebar .p-sidebar-header {
-    background: var(--color-primary);
+    background: var(--color-slate);
     color: var(--color-white);
     padding: var(--spacing-lg);
     font-weight: var(--font-weight-semibold);
@@ -1094,15 +932,11 @@ input:disabled, textarea:disabled, select:disabled {
 
 /* Tablets y pantallas medianas */
 @media (max-width: 1024px) {
-    .data-table-global .p-datatable-thead > tr > th,
-    .data-table-custom .p-datatable-thead > tr > th,
     .p-datatable-thead > tr > th {
         padding: 0.625rem !important;
         font-size: 0.7rem;
     }
 
-    .data-table-global .p-datatable-tbody > tr > td,
-    .data-table-custom .p-datatable-tbody > tr > td,
     .p-datatable-tbody > tr > td {
         padding: 0.625rem !important;
         font-size: 0.8rem;
@@ -1137,78 +971,60 @@ input:disabled, textarea:disabled, select:disabled {
         width: calc(100vw - var(--spacing-xl));
     }
 
-    /* Estilos responsivos específicos para tablas */
-    .data-table-global,
-    .data-table-custom,
+    /* Estilos responsivos para tablas */
     .p-datatable {
         font-size: 0.8rem;
         border-radius: var(--border-radius-sm);
     }
 
-    .data-table-global .p-datatable-thead > tr > th,
-    .data-table-custom .p-datatable-thead > tr > th,
     .p-datatable-thead > tr > th {
         padding: var(--table-cell-padding-sm) !important;
         font-size: 0.65rem;
         letter-spacing: 0.025em;
     }
 
-    .data-table-global .p-datatable-tbody > tr > td,
-    .data-table-custom .p-datatable-tbody > tr > td,
     .p-datatable-tbody > tr > td {
         padding: var(--table-cell-padding-sm) !important;
         font-size: 0.75rem;
     }
 
-    .data-table-global .p-paginator,
-    .data-table-custom .p-paginator,
     .p-datatable .p-paginator {
         padding: 0.75rem !important;
         font-size: 0.75rem;
     }
 
     /* Ajustar alturas mínimas para móvil */
-    .data-table-global .p-datatable-wrapper,
-    .data-table-custom .p-datatable-wrapper {
+    .p-datatable-wrapper {
         min-height: 300px;
     }
 
-    .data-table-global .p-datatable-emptymessage,
-    .data-table-custom .p-datatable-emptymessage {
+    .p-datatable-emptymessage {
         padding: 2rem 1rem !important;
     }
 }
 
 /* Dispositivos móviles pequeños */
 @media (max-width: 480px) {
-    .data-table-global .p-datatable-wrapper,
-    .data-table-custom .p-datatable-wrapper {
+    .p-datatable-wrapper {
         min-height: 250px;
     }
 
-    .data-table-global .p-datatable-thead > tr > th,
-    .data-table-custom .p-datatable-thead > tr > th,
     .p-datatable-thead > tr > th {
         padding: 0.375rem !important;
         font-size: 0.6rem;
     }
 
-    .data-table-global .p-datatable-tbody > tr > td,
-    .data-table-custom .p-datatable-tbody > tr > td,
     .p-datatable-tbody > tr > td {
         padding: 0.375rem !important;
         font-size: 0.7rem;
     }
 
-    .data-table-global .p-datatable-emptymessage,
-    .data-table-custom .p-datatable-emptymessage {
+    .p-datatable-emptymessage {
         padding: 1.5rem 0.5rem !important;
         font-size: 0.8rem;
     }
 
     /* Simplificar paginador en móviles muy pequeños */
-    .data-table-global .p-paginator,
-    .data-table-custom .p-paginator,
     .p-datatable .p-paginator {
         padding: 0.5rem !important;
     }
@@ -1220,14 +1036,10 @@ input:disabled, textarea:disabled, select:disabled {
 
 /* Pantallas grandes - optimización */
 @media (min-width: 1200px) {
-    .data-table-global .p-datatable-thead > tr > th,
-    .data-table-custom .p-datatable-thead > tr > th,
     .p-datatable-thead > tr > th {
         padding: 1rem 0.75rem !important;
     }
 
-    .data-table-global .p-datatable-tbody > tr > td,
-    .data-table-custom .p-datatable-tbody > tr > td,
     .p-datatable-tbody > tr > td {
         padding: 0.875rem 0.75rem !important;
     }
@@ -1236,32 +1048,57 @@ input:disabled, textarea:disabled, select:disabled {
 /* ========== FORZAR MODO CLARO EN PRIMEVUE ========== */
 /* Sobrescribir cualquier modo oscuro automático de PrimeVue */
 
-/* Forzar componentes de PrimeVue al modo claro */
+/* Forzar componentes de PrimeVue al modo claro con paleta corporativa */
 .p-component {
-    --p-primary-color: var(--color-primary) !important;
-    --p-surface-0: var(--color-white) !important;
-    --p-surface-50: #fafafa !important;
-    --p-surface-100: #f5f5f5 !important;
-    --p-surface-200: #e5e5e5 !important;
-    --p-surface-300: #d4d4d4 !important;
-    --p-surface-400: #a3a3a3 !important;
-    --p-surface-500: #737373 !important;
-    --p-surface-600: #525252 !important;
-    --p-surface-700: #404040 !important;
-    --p-surface-800: #262626 !important;
-    --p-surface-900: #171717 !important;
-    --p-surface-950: #0a0a0a !important;
-    --p-content-color: var(--color-text-gray) !important;
-    --p-text-color: var(--color-text-gray) !important;
-    --p-text-muted-color: var(--color-muted) !important;
-    --p-border-color: var(--color-light) !important;
-}
-
-/* Cards siempre en modo claro */
-.p-card {
-    background: var(--color-white) !important;
-    color: var(--color-text-gray) !important;
-    border-color: var(--color-border-cards) !important;
+    /* Colores principales Aura */
+    --p-primary-color: #3B82F6 !important;           /* Azul Primario */
+    --p-primary-contrast-color: #FFFFFF !important;
+    --p-primary-hover-color: #2563EB !important;     /* Azul Hover */
+    --p-primary-active-color: #2563EB !important;
+    
+    /* Colores de superficie (grises neutros) */
+    --p-surface-0: #FFFFFF !important;               /* Blanco */
+    --p-surface-50: #F1F5F9 !important;              /* Gris Muy Claro */
+    --p-surface-100: #E2E8F0 !important;             /* Gris Claro */
+    --p-surface-200: #E2E8F0 !important;
+    --p-surface-300: #94A3B8 !important;             /* Gris Medio */
+    --p-surface-400: #94A3B8 !important;
+    --p-surface-500: #475569 !important;             /* Gris Oscuro */
+    --p-surface-600: #334155 !important;             /* Pizarra */
+    --p-surface-700: #1E293B !important;             /* Océano Profundo */
+    --p-surface-800: #1E293B !important;
+    --p-surface-900: #1E293B !important;
+    --p-surface-950: #1E293B !important;
+    
+    /* Colores de estado */
+    --p-green-500: #10B981 !important;               /* Verde Éxito */
+    --p-green-600: #059669 !important;               /* Verde Hover */
+    --p-red-500: #EF4444 !important;                 /* Rojo Peligro */
+    --p-red-600: #DC2626 !important;                 /* Rojo Hover */
+    --p-yellow-500: #F59E0B !important;              /* Amarillo Advertencia */
+    --p-yellow-600: #D97706 !important;              /* Amarillo Hover */
+    --p-blue-500: #3B82F6 !important;                /* Azul Primario */
+    --p-blue-600: #2563EB !important;                /* Azul Hover */
+    
+    /* Colores de texto */
+    --p-content-color: #475569 !important;           /* Gris Oscuro */
+    --p-text-color: #475569 !important;
+    --p-text-muted-color: #94A3B8 !important;        /* Gris Medio */
+    --p-text-hover-color: #1E293B !important;        /* Océano Profundo */
+    
+    /* Bordes y separadores */
+    --p-border-color: #E2E8F0 !important;            /* Gris Claro */
+    --p-content-border-color: #E2E8F0 !important;
+    
+    /* Fondos de hover y estados */
+    --p-content-hover-background: #DBEAFE !important; /* Azul Claro */
+    --p-highlight-background: #DBEAFE !important;
+    --p-highlight-color: #1E293B !important;
+    --p-highlight-focus-background: #DBEAFE !important;
+    
+    /* Focus ring */
+    --p-focus-ring-color: rgba(59, 130, 246, 0.2) !important;
+    --p-focus-ring-width: 3px !important;
 }
 
 /* Inputs siempre en modo claro */
@@ -1271,66 +1108,9 @@ input:disabled, textarea:disabled, select:disabled {
     border-color: var(--color-light) !important;
 }
 
-.p-select {
-    background: var(--color-white) !important;
-    color: var(--color-text-gray) !important;
-    border-color: var(--color-light) !important;
-    border-radius: var(--border-radius) !important;
-}
-
 .p-inputtext:focus, .p-textarea:focus, .p-dropdown:focus, .p-select:focus {
     border-color: var(--color-primary) !important;
-    box-shadow: 0 0 0 0.2rem rgba(46, 61, 180, 0.2) !important;
-}
-
-/* Dropdowns siempre en modo claro */
-.p-dropdown-panel, .p-select-panel {
-    background: var(--color-white) !important;
-    border-color: var(--color-light) !important;
-}
-
-.p-dropdown-item, .p-select-item {
-    color: var(--color-text-gray) !important;
-}
-
-.p-dropdown-item:hover, .p-select-item:hover {
-    background: var(--color-light) !important;
-}
-
-/* Botones mantener colores corporativos */
-.p-button.p-button-success {
-    background: var(--color-success) !important;
-    border-color: var(--color-success) !important;
-}
-
-.p-button.p-button-success:hover {
-    background: #218838 !important;
-    border-color: #1e7e34 !important;
-}
-
-/* Calendar en modo claro */
-.p-datepicker {
-    background: var(--color-white) !important;
-    color: var(--color-text-gray) !important;
-    border-color: var(--color-light) !important;
-}
-
-.p-datepicker .p-datepicker-header {
-    background: var(--color-white) !important;
-    color: var(--color-text-gray) !important;
-}
-
-.p-datepicker table td > span {
-    color: var(--color-text-gray) !important;
-}
-
-.p-datepicker table td > span:hover {
-    background: var(--color-light) !important;
-}
-
-.p-datepicker table td.p-datepicker-today > span {
-    background: var(--color-primary) !important;
-    color: white !important;
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2) !important;
 }
 
 /* Prevenir aplicación automática de modo oscuro */
@@ -1414,7 +1194,7 @@ html:not(.force-dark-mode) .p-calendar {
 
 .status-observado {
     background-color: var(--status-observado);
-    color: var(--text-white);
+    color: var(--text-black);
 }
 
 .status-subsanada {
@@ -1441,7 +1221,7 @@ html:not(.force-dark-mode) .p-calendar {
 /* Estados de observaciones */
 .observation-pendiente {
     background-color: var(--observation-pendiente);
-    color: var(--text-white);
+    color: var(--text-black);
 }
 
 .observation-resuelta {

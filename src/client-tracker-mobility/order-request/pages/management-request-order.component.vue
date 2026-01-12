@@ -1,6 +1,6 @@
 <script>
 
-import ModuleUnderDevelopment from "../../../public/components/module-under-development.component.vue";
+import ModuleUnderDevelopment from "../../../public/presentation/components/module-under-development.component.vue";
 
 export default{
   name: 'management-request-order',

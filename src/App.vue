@@ -1,7 +1,7 @@
 <script>
 
 
-import LayoutTrackerMobility from "./public/pages/layout-tracker-mobility.component.vue";
+import LayoutTrackerMobility from "./public/presentation/views/layout-tracker-mobility.component.vue";
 
 export default {
   name: "app",
@@ -20,8 +20,9 @@ export default {
 
 <template>
   <router-view></router-view>
-  <pv-toast />
-  <pv-confirm-dialog group="default" />
+  <pv-toast position="top-right" />
+  <pv-confirm-dialog />
+
 </template>
 
 

@@ -5,7 +5,7 @@ import OrderActions from "../components/order-actions.component.vue";
 import {OrderRequestApi} from "../services/order-request-api.service.js";
 import {VerifierApi} from "../services/verifier-api.service.js";
 import {OrderService} from "../models/order-service.entity.js";
-import {Verifier} from "../../verifier-management/models/verifiers.entity.js";
+import {Verifier} from "../../../3.verifiers-accounts/domain/models/verifier.entity.js";
 import {NotificationMixin} from "../../../shared/utils/notification.utils.js";
 
 // Constantes de configuración

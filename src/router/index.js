@@ -1,28 +1,15 @@
 import {createRouter, createWebHistory} from "vue-router";
-import ServiceOrderManagementComponent
-    from "../tracker-mobility/service-orders/pages/service-order-management.component.vue";
-import VerifiersManagementComponent
-    from "../tracker-mobility/verifier-management/pages/verifiers-management.component.vue";
-import VerificationReportsManagementComponent
-    from "../tracker-mobility/verification-reports/pages/verification-reports-management.component.vue";
-import OrderDetailManagementComponent from "../tracker-mobility/service-orders/pages/order-detail-management.component.vue";
+import LayoutTrackerMobilityComponent from "../public/presentation/views/layout-tracker-mobility.component.vue";
 import SignInComponent from "../tracker-mobility/security/pages/sign-in.component.vue";
-import LayoutTrackerMobilityComponent from "../public/pages/layout-tracker-mobility.component.vue";
-import VerifiersDetailsManagementComponent
-    from "../tracker-mobility/verifier-management/pages/verifiers-details.management.component.vue";
-import DetailsHomeVerificationReportComponent
-    from "../tracker-mobility/verification-reports/pages/details-home-verification-report.component.vue";
 import DashboardManagementComponent from "../tracker-mobility/dashboard/pages/dashboard-management.component.vue";
-import ClientManagementComponent from "../tracker-mobility/client-management/pages/client-management.component.vue";
-import ClientDetailsManagementComponent
-    from "../tracker-mobility/client-management/pages/client-details-management.component.vue";
 import {authenticationGuard} from "../tracker-mobility/security/services/authentication.guard.js";
-import ManagementRequestFormComponent
-    from "../client-tracker-mobility/order-request/pages/management-request-form.component.vue";
-import VerificationRequestsManagementComponent
-    from "../client-tracker-mobility/request-management/pages/verification-requests-management.component.vue";
-import VerificationRequestDetailsComponent
-    from "../client-tracker-mobility/request-management/pages/verification-request-details.component.vue";
+
+// Importar rutas de módulos con nueva arquitectura (Bounded Contexts)
+import { verifierRoutes } from "../3.verifiers-accounts/presentation/verifier.routes.js";
+import { customerRoutes } from "../4.customer-management/presentation/customer.routes.js";
+import { verificationOrderRoutes } from "../1.verification-orders/presentation/verification-order.routes.js";
+import { verificationReportRoutes } from "../2.home-verification-reports/presentation/verification-report.routes.js";
+import { orderRequestRoutes } from "../0.verification-order-requests/presentation/order-request.routes.js";
 
 
 
@@ -59,11 +46,11 @@ const router = createRouter({
                         
                         // Redirigir según el rol
                         if (userRole === 'COMPANY_EMPLOYEE') {
-                            return { name: 'management-requests-form' };
+                            return { name: 'order-requests-list' };
                         }
                         
-                        // ADMIN y otros roles van a service-orders
-                        return { name: 'service-orders' };
+                        // ADMIN y otros roles van a verification-orders
+                        return { name: 'verification-orders-list' };
                     }
                 },
 
@@ -81,82 +68,46 @@ const router = createRouter({
                     }
                 },
 
-                // Órdenes de servicio
+                // Órdenes de Verificación (nueva arquitectura - Bounded Context: 1.verification-orders)
                 {
-                    path: 'admin/service-orders',
-                    name: 'service-orders',
-                    component: ServiceOrderManagementComponent,
+                    path: 'admin/verification-orders',
+                    name: 'verification-orders-module',
+                    children: verificationOrderRoutes,
                     meta: {
-                        title: 'Ordenes de servicio',
-                        roles: ['ADMIN', 'MASTER_ADMIN', 'COMPANY_EMPLOYEE'] // Todos pueden ver órdenes
-                    }
-                },
-                {
-                    path: 'admin/order-details',
-                    name: 'order-details',
-                    component: OrderDetailManagementComponent,
-                    meta: {
-                        title: 'Detalles de la orden',
-                        roles: ['ADMIN', 'MASTER_ADMIN', 'COMPANY_EMPLOYEE'] // Todos pueden ver detalles
+                        title: 'Órdenes de Verificación',
+                        roles: ['ADMIN', 'MASTER_ADMIN']
                     }
                 },
 
-                // Verificadores
+                // Verificadores (nueva arquitectura - Bounded Context: 3.verifiers-accounts)
                 {
                     path: 'admin/verifiers',
-                    name: 'verifiers',
-                    component: VerifiersManagementComponent,
+                    name: 'verifiers-module',
+                    children: verifierRoutes,
                     meta: {
-                        title: 'Verificadores',
-                        roles: ['ADMIN', 'MASTER_ADMIN']
-                    }
-                },
-                {
-                    path: 'admin/verifier-details',
-                    name: 'verifier-details',
-                    component: VerifiersDetailsManagementComponent,
-                    meta: {
-                        title: 'Detalles del verificador',
+                        title: 'Gestión de Verificadores',
                         roles: ['ADMIN', 'MASTER_ADMIN']
                     }
                 },
 
-                // Reportes de verificación
-                {
-                    path: 'admin/verification-reports',
-                    name: 'verification-reports',
-                    component: VerificationReportsManagementComponent,
-                    meta: {
-                        title: 'Reportes de verificación',
-                        roles: ['ADMIN', 'MASTER_ADMIN']
-                    }
-                },
-                {
-                    path: 'admin/verification-reports-details',
-                    name: 'verification-reports-details',
-                    component: DetailsHomeVerificationReportComponent,
-                    meta: {
-                        title: 'Detalles del reporte de verificación',
-                        roles: ['ADMIN', 'MASTER_ADMIN']
-                    }
-                },
-
-                // Clientes
+                // Clientes (nueva arquitectura - Bounded Context: 4.customer-management)
                 {
                     path: 'admin/clients',
-                    name: 'clients',
-                    component: ClientManagementComponent,
+                    name: 'clients-module',
+                    children: customerRoutes,
                     meta: {
-                        title: 'Clientes',
+                        title: 'Gestión de Clientes',
                         roles: ['ADMIN', 'MASTER_ADMIN']
                     }
                 },
+
+                // Reportes de verificación (nueva arquitectura - Bounded Context: 2.home-verification-reports)
                 {
-                    path: 'admin/client-detail',
-                    name: 'client-detail',
-                    component: ClientDetailsManagementComponent,
+                    path: 'admin/verification-reports',
+                    name: 'verification-reports-module',
+                    children: verificationReportRoutes,
                     meta: {
-                        title: 'Detalle del cliente',
+                        title: 'Reportes de Verificación',
                         roles: ['ADMIN', 'MASTER_ADMIN']
                     }
                 },
@@ -167,35 +118,13 @@ const router = createRouter({
                 // ============== Rutas de COMPANY_EMPLOYEE ==============
                 //========================================================
 
-                // Solicitar nueva orden de visita domiciliaria
+                // Solicitudes de Orden (nueva arquitectura - Bounded Context: 0.verification-order-requests)
                 {
-                    path: 'applicant-company/management-request-form',
-                    name: 'management-requests-form',
-                    component: ManagementRequestFormComponent,
+                    path: 'applicant-company/order-requests',
+                    name: 'order-requests-module',
+                    children: orderRequestRoutes,
                     meta: {
-                        title: 'Solicitud de visita domiciliaria',
-                        roles: ['COMPANY_EMPLOYEE']
-                    }
-                },
-
-                // Mis órdenes
-                {
-                    path: 'applicant-company/my-service-orders',
-                    name: 'my-service-orders',
-                    component: VerificationRequestsManagementComponent,
-                    meta: {
-                        title: 'Mis Solicitudes',
-                        roles: ['COMPANY_EMPLOYEE']
-                    }
-                },
-
-                // Detalle de solicitud de verificación
-                {
-                    path: 'applicant-company/verification-request-details',
-                    name: 'verification-request-details',
-                    component: VerificationRequestDetailsComponent,
-                    meta: {
-                        title: 'Detalle de Solicitud',
+                        title: 'Solicitudes de Orden',
                         roles: ['COMPANY_EMPLOYEE']
                     }
                 }

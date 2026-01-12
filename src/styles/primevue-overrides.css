@@ -1,0 +1,1025 @@
+/**
+ * PrimeVue Overrides - ERP Tracker Mobility
+ * Personalización de componentes PrimeVue con estilo corporativo
+ */
+
+/* ========== PRIMEVUE AURA THEME OVERRIDES ========== */
+
+.p-component {
+    /* Colores principales Aura */
+    --p-primary-color: var(--primary-500) !important;
+    --p-primary-contrast-color: var(--surface-0) !important;
+    --p-primary-hover-color: var(--primary-600) !important;
+    --p-primary-active-color: var(--primary-600) !important;
+    
+    /* Colores de superficie */
+    --p-surface-0: var(--surface-0) !important;
+    --p-surface-50: var(--surface-50) !important;
+    --p-surface-100: var(--surface-100) !important;
+    --p-surface-200: var(--surface-100) !important;
+    --p-surface-300: var(--surface-300) !important;
+    --p-surface-400: var(--surface-300) !important;
+    --p-surface-500: var(--surface-500) !important;
+    --p-surface-600: var(--surface-600) !important;
+    --p-surface-700: var(--surface-700) !important;
+    --p-surface-800: var(--surface-700) !important;
+    --p-surface-900: var(--surface-700) !important;
+    --p-surface-950: var(--surface-700) !important;
+    
+    /* Colores de estado */
+    --p-green-500: var(--green-500) !important;
+    --p-green-600: var(--green-600) !important;
+    --p-red-500: var(--red-500) !important;
+    --p-red-600: var(--red-600) !important;
+    --p-yellow-500: var(--yellow-500) !important;
+    --p-yellow-600: var(--yellow-600) !important;
+    --p-blue-500: var(--primary-500) !important;
+    --p-blue-600: var(--primary-600) !important;
+    
+    /* Colores de texto */
+    --p-content-color: var(--surface-500) !important;
+    --p-text-color: var(--surface-500) !important;
+    --p-text-muted-color: var(--surface-300) !important;
+    --p-text-hover-color: var(--surface-700) !important;
+    
+    /* Bordes */
+    --p-border-color: var(--surface-100) !important;
+    --p-content-border-color: var(--surface-100) !important;
+    
+    /* Fondos de hover y estados */
+    --p-content-hover-background: var(--primary-100) !important;
+    --p-highlight-background: var(--primary-100) !important;
+    --p-highlight-color: var(--surface-700) !important;
+    --p-highlight-focus-background: var(--primary-100) !important;
+    
+    /* Focus ring */
+    --p-focus-ring-color: var(--focus-ring-color) !important;
+    --p-focus-ring-width: var(--focus-ring-width) !important;
+    
+    /* Button focus - Sobrescribir colores de Aura */
+    --p-button-primary-focus-ring-color: rgba(59, 130, 246, 0.2) !important;
+    --p-button-success-focus-ring-color: rgba(59, 130, 246, 0.2) !important;
+    --p-button-danger-focus-ring-color: rgba(59, 130, 246, 0.2) !important;
+    --p-button-secondary-focus-ring-color: rgba(59, 130, 246, 0.2) !important;
+    --p-button-outlined-focus-ring-color: rgba(59, 130, 246, 0.2) !important;
+    
+    /* Dropdown/Select focus - Sobrescribir colores de Aura */
+    --p-select-focus-ring-color: rgba(59, 130, 246, 0.2) !important;
+    --p-select-focus-ring-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2) !important;
+}
+
+/* ========== DATATABLES ========== */
+
+/* Headers */
+.p-datatable-thead > tr > th {
+    background-color: var(--table-header-bg) !important;
+    color: var(--table-header-text) !important;
+    font-weight: var(--table-header-font-weight) !important;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: var(--table-cell-padding) !important;
+    border-bottom: 2px solid var(--table-header-border) !important;
+    border-right: 1px solid var(--table-header-border) !important;
+    white-space: nowrap;
+    text-align: center;
+}
+
+/* Celdas */
+.p-datatable-tbody > tr > td {
+    padding: var(--table-cell-padding) !important;
+    border-bottom: 1px solid var(--table-border) !important;
+    border-right: 1px solid var(--table-border) !important;
+    font-size: 0.875rem;
+    vertical-align: middle;
+    text-align: center;
+    background-color: var(--table-row-odd);
+    color: var(--contrast-text-primary);
+}
+
+/* Filas alternas */
+.p-datatable-tbody > tr:nth-child(even) > td {
+    background-color: var(--table-row-even) !important;
+}
+
+/* Hover */
+.p-datatable-tbody > tr:hover > td {
+    background-color: var(--table-row-hover) !important;
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+}
+
+/* Seleccionadas */
+.p-datatable-tbody > tr.p-selection > td,
+.p-datatable-tbody > tr.p-datatable-row-selected {
+    background-color: var(--table-row-selected) !important;
+    border-color: var(--color-border-cards) !important;
+}
+
+.p-datatable-tbody > tr.p-datatable-row-selected {
+    border-left: 4px solid var(--color-primary) !important;
+}
+
+/* Última columna sin borde */
+.p-datatable-thead > tr > th:last-child,
+.p-datatable-tbody > tr > td:last-child {
+    border-right: none !important;
+}
+
+/* Header del DataTable */
+.p-datatable .p-datatable-header {
+    background: var(--color-slate);
+    color: var(--color-white);
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    padding: var(--spacing-md);
+    font-weight: var(--font-weight-semibold);
+}
+
+/* Centrar contenido del header */
+.p-datatable-column-header-content {
+    justify-content: center;
+    align-items: center;
+}
+
+/* Paginador */
+.p-datatable .p-paginator {
+    background-color: var(--contrast-bg-primary) !important;
+    border-top: 1px solid var(--table-header-border) !important;
+    padding: 1rem !important;
+    border-bottom-left-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+}
+
+.p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+    background-color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
+    color: var(--color-white) !important;
+}
+
+.p-paginator .p-paginator-pages .p-paginator-page:hover {
+    background-color: var(--color-primary-light) !important;
+    border-color: var(--color-primary) !important;
+}
+
+/* Mensaje vacío */
+.p-datatable-emptymessage {
+    background-color: var(--contrast-bg-primary) !important;
+    color: var(--contrast-text-secondary) !important;
+    text-align: center;
+    padding: 3rem 1rem !important;
+}
+
+/* Loading overlay */
+.p-datatable-loading-overlay {
+    background-color: rgba(241, 245, 249, 0.9) !important;
+}
+
+.p-datatable .p-datatable-loading-overlay {
+    background: rgba(241, 245, 249, 0.95) !important;
+    backdrop-filter: blur(2px);
+}
+
+/* Scrollbar */
+.p-datatable-wrapper::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.p-datatable-wrapper::-webkit-scrollbar-track {
+    background: var(--color-light);
+    border-radius: 4px;
+}
+
+.p-datatable-wrapper::-webkit-scrollbar-thumb {
+    background: var(--contrast-border-medium);
+    border-radius: 4px;
+}
+
+.p-datatable-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--color-muted);
+}
+
+/* Focus en filas y celdas */
+.p-datatable-tbody > tr:focus {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: -2px;
+    background: var(--table-row-hover) !important;
+}
+
+.p-datatable-tbody > tr > td:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+    background: rgba(59, 130, 246, var(--selection-intensity)) !important;
+}
+
+/* ========== BOTONES ========== */
+
+/* Base Button */
+.p-button {
+    font-family: var(--font-family) !important;
+    font-weight: var(--font-weight-medium) !important;
+    border-radius: var(--border-radius) !important;
+    transition: all 0.2s ease !important;
+    gap: var(--spacing-xs) !important;
+}
+
+/* Tamaños */
+.p-button-sm {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: 0.875rem;
+}
+
+.p-button-lg {
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: 1.125rem;
+}
+
+/* Primary Button */
+.p-button-primary {
+    background: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
+    color: var(--color-white) !important;
+}
+
+.p-button-primary:hover {
+    background: var(--color-primary-hover) !important;
+    border-color: var(--color-primary-hover) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Primary Dark Button - Mayor especificidad */
+.p-button.btn-primary-dark,
+.p-button.btn-primary-dark:not(:disabled) {
+    background: var(--color-primary-dark) !important;
+    border-color: var(--color-primary-dark) !important;
+    color: var(--color-white) !important;
+}
+
+.p-button.btn-primary-dark:hover:not(:disabled),
+.p-button.btn-primary-dark:focus:not(:disabled) {
+    background: var(--primary-800) !important;
+    border-color: var(--primary-800) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(30, 58, 138, 0.3);
+}
+
+.p-button.btn-primary-dark:active:not(:disabled) {
+    background: var(--primary-900) !important;
+    border-color: var(--primary-900) !important;
+}
+
+
+.p-button-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Secondary Button */
+.p-button-secondary {
+    background: var(--surface-100) !important;
+    border-color: var(--surface-200) !important;
+    color: var(--surface-700) !important;
+}
+
+.p-button-secondary:hover {
+    background: var(--surface-200) !important;
+    border-color: var(--surface-300) !important;
+    transform: translateY(-1px);
+}
+
+/* Warning Button */
+.p-button-warning {
+    background: var(--color-warning) !important;
+    border-color: var(--color-warning) !important;
+    color: var(--color-white) !important;
+}
+
+.p-button-warning:hover {
+    background: var(--color-warning-hover) !important;
+    border-color: var(--color-warning-hover) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(255, 152, 0, 0.25);
+}
+
+/* Success Button */
+.p-button-success {
+    background: var(--color-success) !important;
+    border-color: var(--color-success) !important;
+    color: var(--color-white) !important;
+}
+
+.p-button-success:hover {
+    background: var(--color-success-hover) !important;
+    border-color: var(--color-success-hover) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.25);
+}
+
+/* Danger Button */
+.p-button-danger {
+    background: var(--color-danger) !important;
+    border-color: var(--color-danger) !important;
+    color: var(--color-white) !important;
+}
+
+.p-button-danger:hover {
+    background: var(--color-danger-hover) !important;
+    border-color: var(--color-danger-hover) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(215, 32, 28, 0.25);
+}
+
+/* Outlined Buttons */
+.p-button-outlined {
+    background: transparent !important;
+    border-width: 2px !important;
+}
+
+.p-button-outlined.p-button-primary {
+    color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
+}
+
+.p-button-outlined.p-button-primary:hover {
+    background: var(--color-primary) !important;
+    color: var(--color-white) !important;
+}
+
+.p-button-outlined.p-button-secondary {
+    color: var(--surface-700) !important;
+    border-color: var(--surface-300) !important;
+}
+
+.p-button-outlined.p-button-secondary:hover {
+    background: var(--surface-100) !important;
+    border-color: var(--surface-400) !important;
+}
+
+.p-button-outlined.p-button-danger {
+    color: var(--color-danger) !important;
+    border-color: var(--color-danger) !important;
+}
+
+.p-button-outlined.p-button-danger:hover {
+    background: var(--color-danger) !important;
+    color: var(--color-white) !important;
+}
+
+/* Text Button */
+.p-button-text {
+    background: transparent !important;
+    border: none !important;
+    color: var(--color-primary) !important;
+    font-weight: var(--font-weight-medium);
+}
+
+.p-button-text:hover {
+    background: rgba(59, 130, 246, 0.1) !important;
+    color: var(--color-primary-hover) !important;
+}
+
+/* Link Button */
+.p-button-link {
+    background: transparent !important;
+    border: none !important;
+    color: var(--color-primary) !important;
+    text-decoration: underline;
+    font-weight: var(--font-weight-normal);
+}
+
+.p-button-link:hover {
+    color: var(--color-primary-hover) !important;
+    text-decoration: underline;
+}
+
+/* Icon-only Button - Solo aplica si NO tiene clase action-button */
+.p-button-icon-only:not(.action-button):not(.view-button):not(.edit-button):not(.delete-button) {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.p-button-icon-only.p-button-sm:not(.action-button):not(.view-button):not(.edit-button):not(.delete-button) {
+    width: 2rem !important;
+    height: 2rem !important;
+}
+
+/* Loading State */
+.p-button .p-button-loading-icon {
+    margin-right: var(--spacing-xs);
+}
+
+/* Focus State - Consistente con inputs - Máxima especificidad para sobrescribir Aura */
+button.p-button:focus,
+button.p-button:focus-visible,
+.p-button.p-component:focus,
+.p-button.p-component:focus-visible,
+.p-component.p-button:focus,
+.p-component.p-button:focus-visible {
+    outline: none !important;
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Focus específico por tipo de botón - Success */
+button.p-button.p-button-success:focus,
+button.p-button.p-button-success:focus-visible,
+.p-button.p-button-success:focus,
+.p-button.p-button-success:focus-visible,
+.p-button-success.p-component:focus,
+.p-button-success.p-component:focus-visible {
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Focus específico por tipo de botón - Danger */
+button.p-button.p-button-danger:focus,
+button.p-button.p-button-danger:focus-visible,
+.p-button.p-button-danger:focus,
+.p-button.p-button-danger:focus-visible,
+.p-button-danger.p-component:focus,
+.p-button-danger.p-component:focus-visible {
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Focus específico por tipo de botón - Secondary */
+button.p-button.p-button-secondary:focus,
+button.p-button.p-button-secondary:focus-visible,
+.p-button.p-button-secondary:focus,
+.p-button.p-button-secondary:focus-visible,
+.p-button-secondary.p-component:focus,
+.p-button-secondary.p-component:focus-visible {
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Focus específico por tipo de botón - Outlined */
+button.p-button.p-button-outlined:focus,
+button.p-button.p-button-outlined:focus-visible,
+.p-button.p-button-outlined:focus,
+.p-button.p-button-outlined:focus-visible,
+.p-button-outlined.p-component:focus,
+.p-button-outlined.p-component:focus-visible {
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Disabled State */
+.p-button:disabled,
+.p-button.p-disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+}
+
+/* ========== CARDS ========== */
+
+.p-card {
+    background: var(--color-card-background);
+    border: var(--border-width) solid var(--color-border-cards);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.p-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.p-card .p-card-header {
+    background: linear-gradient(135deg, var(--primary-900) 0%, var(--primary-800) 100%);
+    color: var(--color-white);
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+    padding: 0;
+    border-bottom: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.p-card .p-card-content {
+    padding: var(--spacing-lg);
+    color: var(--color-text-gray);
+}
+
+/* Estilo para textos en negrita dentro de las cards */
+.p-card .p-card-content .font-bold.text-900 {
+    font-weight: var(--font-weight-bold);
+    color: var(--surface-700);
+}
+
+.p-card .p-card-content .font-semibold {
+    font-weight: var(--font-weight-semibold);
+}
+
+.p-card .p-card-content .font-bold {
+    font-weight: var(--font-weight-bold);
+}
+
+/* ========== DIALOGS ========== */
+
+.p-dialog {
+    background: var(--color-card-background);
+    border: var(--border-width) solid var(--color-border-cards);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    max-height: 90vh;
+}
+
+.p-dialog .p-dialog-header {
+    background: var(--color-card-background);
+    color: var(--color-text-gray);
+    border-bottom: var(--border-width) solid var(--color-border);
+    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+    padding: var(--spacing-lg);
+}
+
+.p-dialog .p-dialog-content {
+    padding: var(--spacing-md);
+    color: var(--color-text-gray);
+    max-height: calc(90vh - 120px);
+    overflow-y: auto;
+}
+
+.p-dialog .p-dialog-footer {
+    border-top: var(--border-width) solid var(--color-border);
+    background: var(--color-white);
+    padding: var(--spacing-md);
+}
+
+/* Dialog con header personalizado (toolbar-gradient) */
+.dialog-custom-header .p-dialog-header {
+    padding: 0 !important;
+    background: transparent !important;
+}
+
+/* ========== CONFIRM DIALOG ========== */
+
+.p-confirm-dialog .p-dialog-header {
+    background: linear-gradient(135deg, var(--surface-700) 0%, var(--surface-600) 100%) !important;
+    color: white !important;
+    padding: 1rem 1.5rem !important;
+    border-bottom: none !important;
+    border-radius: 6px 6px 0 0 !important;
+}
+
+.p-confirm-dialog .p-dialog-header .p-dialog-title {
+    color: white !important;
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+}
+
+.p-confirm-dialog .p-dialog-header .p-dialog-header-icon {
+    color: white !important;
+}
+
+.p-confirm-dialog .p-dialog-content {
+    padding: 1.5rem !important;
+}
+
+.p-confirm-dialog .p-confirm-dialog-icon {
+    font-size: 2.5rem !important;
+    color: var(--yellow-500) !important;
+}
+
+.p-confirm-dialog .p-confirm-dialog-message {
+    margin-left: 1rem !important;
+    font-size: 1rem !important;
+    color: var(--surface-700) !important;
+}
+
+/* ========== SIDEBAR ========== */
+
+.p-sidebar {
+    background: var(--color-card-background);
+    border: var(--border-width) solid var(--color-border-cards);
+    box-shadow: var(--shadow-lg);
+}
+
+.p-sidebar .p-sidebar-header {
+    background: var(--color-slate);
+    color: var(--color-white);
+    padding: var(--spacing-lg);
+    font-weight: var(--font-weight-semibold);
+}
+
+.p-sidebar .p-sidebar-content {
+    padding: var(--spacing-lg);
+    color: var(--color-text-gray);
+}
+
+/* ========== DROPDOWNS & SELECTS ========== */
+
+.p-dropdown, .p-select {
+    background: var(--color-card-background);
+    border: 1px solid var(--surface-300);
+    border-radius: var(--border-radius);
+    color: var(--color-text-gray);
+}
+
+.p-dropdown:not(.p-disabled):hover, .p-select:not(.p-disabled):hover {
+    border-color: var(--surface-500);
+}
+
+.p-dropdown:not(.p-disabled).p-focus, 
+.p-select:not(.p-disabled).p-focus,
+.p-dropdown.p-focus,
+.p-select.p-focus,
+.p-dropdown:focus,
+.p-select:focus,
+.p-dropdown:focus-visible,
+.p-select:focus-visible {
+    border-color: var(--color-focus) !important;
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2) !important;
+    outline: none !important;
+}
+
+.p-dropdown-panel, .p-select-panel {
+    background: var(--color-card-background);
+    border: var(--border-width) solid var(--color-border-cards);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+}
+
+.p-dropdown-item, .p-select-item {
+    color: var(--color-text-gray);
+    padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.p-dropdown-item:hover, .p-select-item:hover {
+    background: var(--color-primary-light);
+    color: var(--color-dark);
+}
+
+/* ========== CALENDAR / DATEPICKER ========== */
+
+.p-calendar .p-inputtext {
+    background: var(--color-white);
+    border: 1px solid var(--surface-300);
+    color: var(--color-text-gray);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-sm) var(--spacing-md);
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+}
+
+.p-calendar .p-inputtext:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2);
+}
+
+.p-datepicker {
+    background: var(--color-card-background);
+    border: var(--border-width) solid var(--color-border-cards);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+}
+
+.p-datepicker .p-datepicker-header {
+    background: var(--color-slate);
+    color: var(--color-white);
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.p-datepicker .p-datepicker-calendar td > span {
+    color: var(--color-text-gray);
+    border-radius: var(--border-radius-sm);
+}
+
+.p-datepicker .p-datepicker-calendar td > span:hover {
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+.p-datepicker .p-datepicker-calendar td > span.p-highlight {
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+/* ========== TEXTAREA ========== */
+
+.p-inputtextarea {
+    background: var(--color-white);
+    border: 1px solid var(--surface-300);
+    color: var(--color-text-gray);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-family: var(--font-family), serif;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    resize: vertical;
+}
+
+.p-inputtextarea:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2);
+}
+
+.p-inputtextarea::placeholder {
+    color: var(--color-muted);
+}
+
+/* ========== TOAST ========== */
+
+.p-toast {
+    opacity: 1;
+}
+
+.p-toast .p-toast-message {
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(10px);
+    border-width: 1px;
+    border-style: solid;
+    padding: 1rem 1.25rem;
+    margin: 0 0 1rem 0;
+    min-width: 320px;
+}
+
+.p-toast .p-toast-message .p-toast-message-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.875rem;
+}
+
+.p-toast .p-toast-message .p-toast-icon-close {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.p-toast .p-toast-message .p-toast-icon-close:hover {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+.p-toast .p-toast-message .p-toast-message-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.p-toast .p-toast-message .p-toast-summary {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    margin-bottom: 0.25rem;
+    line-height: 1.3;
+}
+
+.p-toast .p-toast-message .p-toast-detail {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    opacity: 0.9;
+}
+
+.p-toast .p-toast-message-success {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border-color: #86efac;
+    color: #166534;
+}
+
+.p-toast .p-toast-message-success .p-toast-message-icon,
+.p-toast .p-toast-message-success .p-toast-icon-close-icon {
+    color: #16a34a;
+}
+
+.p-toast .p-toast-message-error {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border-color: #fca5a5;
+    color: #991b1b;
+}
+
+.p-toast .p-toast-message-error .p-toast-message-icon,
+.p-toast .p-toast-message-error .p-toast-icon-close-icon {
+    color: #dc2626;
+}
+
+.p-toast .p-toast-message-warn {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    border-color: #fcd34d;
+    color: #92400e;
+}
+
+.p-toast .p-toast-message-warn .p-toast-message-icon,
+.p-toast .p-toast-message-warn .p-toast-icon-close-icon {
+    color: #f59e0b;
+}
+
+.p-toast .p-toast-message-info {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border-color: #93c5fd;
+    color: #1e40af;
+}
+
+.p-toast .p-toast-message-info .p-toast-message-icon,
+.p-toast .p-toast-message-info .p-toast-icon-close-icon {
+    color: #3b82f6;
+}
+
+/* Animación de entrada mejorada */
+@keyframes p-toast-message-enter {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Animación de salida mejorada */
+@keyframes p-toast-message-leave {
+    from {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%) scale(0.9);
+    }
+}
+
+/* ========== CHECKBOX ========== */
+
+.p-checkbox .p-checkbox-box.p-highlight {
+    background-color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
+}
+
+.p-checkbox .p-checkbox-box:hover {
+    border-color: var(--color-primary) !important;
+}
+
+/* ========== PROGRESSBAR ========== */
+
+.p-progressbar {
+    background: var(--color-light);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.p-progressbar .p-progressbar-value {
+    background: var(--color-primary);
+    transition: width 0.3s ease;
+}
+
+/* ========== SKELETON ========== */
+
+.p-skeleton {
+    background: linear-gradient(90deg, var(--surface-100) 25%, rgba(241, 245, 249, 0.5) 50%, var(--surface-100) 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ========== INPUTS (GENERALES) ========== */
+
+/* Base Input Styles */
+.p-inputtext,
+.p-textarea,
+.p-calendar input,
+.p-dropdown,
+.p-inputnumber input,
+.p-password input,
+.p-inputtextarea {
+    background: var(--color-white) !important;
+    color: var(--color-text-gray) !important;
+    border: 1px solid var(--surface-300) !important;
+    border-radius: var(--border-radius) !important;
+    padding: var(--spacing-sm) var(--spacing-md) !important;
+    transition: all 0.2s ease !important;
+    font-size: 0.875rem !important;
+}
+
+/* Focus State */
+.p-inputtext:focus,
+.p-textarea:focus,
+.p-dropdown:focus,
+.p-calendar:focus-within,
+.p-inputnumber:focus-within,
+.p-password:focus-within,
+.p-inputtextarea:focus {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2) !important;
+    outline: none !important;
+}
+
+/* Hover State */
+.p-inputtext:hover:not(:disabled),
+.p-textarea:hover:not(:disabled),
+.p-dropdown:hover:not(:disabled),
+.p-calendar:hover:not(:disabled),
+.p-inputnumber:hover:not(:disabled),
+.p-password:hover:not(:disabled),
+.p-inputtextarea:hover:not(:disabled) {
+    border-color: var(--surface-500) !important;
+}
+
+/* Disabled State */
+.p-inputtext:disabled,
+.p-textarea:disabled,
+.p-dropdown.p-disabled,
+.p-calendar.p-disabled,
+.p-inputnumber:disabled,
+.p-password.p-disabled,
+.p-inputtextarea:disabled {
+    background: var(--surface-100) !important;
+    color: var(--surface-400) !important;
+    cursor: not-allowed !important;
+    opacity: 0.6 !important;
+}
+
+/* Error State */
+.p-invalid.p-inputtext,
+.p-invalid .p-inputtext,
+.p-invalid.p-dropdown,
+.p-invalid .p-dropdown,
+.p-invalid.p-calendar,
+.p-invalid .p-calendar input {
+    border-color: var(--color-danger) !important;
+}
+
+.p-invalid.p-inputtext:focus,
+.p-invalid .p-inputtext:focus,
+.p-invalid.p-dropdown:focus,
+.p-invalid .p-dropdown:focus,
+.p-invalid.p-calendar:focus-within {
+    box-shadow: 0 0 0 0.2rem rgba(215, 32, 28, 0.2) !important;
+}
+
+/* Success State */
+.p-valid.p-inputtext,
+.p-valid .p-inputtext,
+.p-valid.p-dropdown,
+.p-valid .p-dropdown {
+    border-color: var(--color-success) !important;
+}
+
+/* Placeholder */
+.p-inputtext::placeholder,
+.p-textarea::placeholder {
+    color: var(--surface-400) !important;
+    opacity: 1;
+}
+
+/* Input Sizes */
+.p-inputtext-sm,
+.p-dropdown-sm {
+    padding: 0.375rem 0.625rem !important;
+    font-size: 0.8125rem !important;
+}
+
+.p-inputtext-lg,
+.p-dropdown-lg {
+    padding: 0.75rem 1rem !important;
+    font-size: 1rem !important;
+}
+
+/* Input with Icons - Soporte para ambas versiones (antigua y nueva) */
+.p-input-icon-left > .p-inputtext,
+.p-input-icon-right > .p-inputtext,
+.p-iconfield .p-inputtext,
+pv-icon-field .p-inputtext,
+pv-icon-field pv-input-text {
+    padding-left: 2.5rem !important;
+}
+
+.p-input-icon-right > .p-inputtext,
+.p-iconfield.p-iconfield-right .p-inputtext,
+pv-icon-field.p-iconfield-right .p-inputtext,
+pv-icon-field.p-iconfield-right pv-input-text {
+    padding-right: 2.5rem !important;
+    padding-left: var(--spacing-md) !important;
+}
+
+/* Error Message */
+.p-error {
+    color: var(--color-danger) !important;
+    font-size: 0.75rem !important;
+    margin-top: 0.25rem !important;
+    display: block;
+}
+
+/* Help Text */
+ small.p-help,
+.p-help-text {
+    color: var(--surface-500) !important;
+    font-size: 0.75rem !important;
+    margin-top: 0.25rem !important;
+    display: block;
+}
+
+/* ========== MODO CLARO FORZADO ========== */
+
+html:not(.force-dark-mode) .p-component,
+html:not(.force-dark-mode) .p-card,
+html:not(.force-dark-mode) .p-inputtext,
+html:not(.force-dark-mode) .p-dropdown,
+html:not(.force-dark-mode) .p-select,
+html:not(.force-dark-mode) .p-calendar {
+    color-scheme: light !important;
+}
