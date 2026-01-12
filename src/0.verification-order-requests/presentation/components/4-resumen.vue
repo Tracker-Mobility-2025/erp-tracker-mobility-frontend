@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { useOrderRequestStore } from '../../application/order-request.store.js';
 import { useToast } from 'primevue/usetoast';
+import { DateFormatter } from '../../../shared-v2/utils/date-formatter.js';
 
 // Store & Toast
 const store = useOrderRequestStore();
@@ -19,14 +20,10 @@ const requestDate = computed(() => {
   if (!store.orderResponse?.requestDate) return 'No especificado';
   
   try {
-    const date = new Date(store.orderResponse.requestDate);
-    return date.toLocaleDateString('es-PE', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      timeZone: 'America/Lima'
-    });
+    // Usar DateFormatter de shared-v2 para consistencia
+    return DateFormatter.fromBackend(store.orderResponse.requestDate);
   } catch (error) {
+    console.error('Error al formatear fecha de solicitud:', error);
     return 'No especificado';
   }
 });

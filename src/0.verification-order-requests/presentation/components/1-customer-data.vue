@@ -1,9 +1,11 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useOrderRequestStore } from '../../application/order-request.store.js';
+import { useInputValidation } from '../../../shared-v2/composables/use-input-validation.js';
 
-// Store
+// Store & Composables
 const store = useOrderRequestStore();
+const { validateTextOnly, validateNumbersOnly } = useInputValidation();
 
 // Emits
 const emit = defineEmits(['next']);
@@ -100,20 +102,6 @@ const isFormValid = computed(() => {
 // Métodos
 const onFieldBlur = (fieldName) => {
   touched.value[fieldName] = true;
-};
-
-const validateTextOnly = (event) => {
-  if (/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]$/.test(event.key) || ['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
-    return;
-  }
-  event.preventDefault();
-};
-
-const validateNumbersOnly = (event) => {
-  if (/^\d$/.test(event.key) || ['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
-    return;
-  }
-  event.preventDefault();
 };
 
 const onNext = () => {

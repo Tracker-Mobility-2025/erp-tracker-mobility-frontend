@@ -2,11 +2,13 @@
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useOrderRequestStore } from '../../application/order-request.store.js';
 import { useToast } from 'primevue/usetoast';
+import { useInputValidation } from '../../../shared-v2/composables/use-input-validation.js';
 import FileUploader from '../../../shared-v2/presentation/components/file-uploader.vue';
 
-// Store & Toast
+// Store, Toast & Composables
 const store = useOrderRequestStore();
 const toast = useToast();
+const { validateTextOnly } = useInputValidation();
 
 // Emits
 const emit = defineEmits(['next', 'back']);
@@ -132,13 +134,6 @@ watch(() => store.client.homeAddress, (newValue) => {
 // Métodos
 const onFieldBlur = (fieldName) => {
   touched.value[fieldName] = true;
-};
-
-const validateTextOnly = (event) => {
-  if (/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]$/.test(event.key) || ['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
-    return;
-  }
-  event.preventDefault();
 };
 
 const onFacadePhotoSelected = (file) => {

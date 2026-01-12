@@ -3,12 +3,14 @@ import { ref, computed, watch, onMounted } from 'vue';
 import { useOrderRequestStore } from '../../application/order-request.store.js';
 import { useToast } from 'primevue/usetoast';
 import { useConfirmDialog } from '../../../shared-v2/composables/use-confirm-dialog.js';
+import { useInputValidation } from '../../../shared-v2/composables/use-input-validation.js';
 import FileUploader from '../../../shared-v2/presentation/components/file-uploader.vue';
 
-// Store, Toast & Confirm Dialog
+// Store, Toast, Confirm Dialog & Composables
 const store = useOrderRequestStore();
 const toast = useToast();
 const { showConfirm } = useConfirmDialog();
+const { validateTextOnly, validateNumbersOnly } = useInputValidation();
 
 // Emits
 const emit = defineEmits(['next', 'back', 'cancel', 'complete']);
@@ -135,13 +137,6 @@ watch(() => store.client.isTenant, (val) => {
 // Métodos
 const onFieldBlur = (field) => {
   touched.value[field] = true;
-};
-
-const validateTextOnly = (event) => {
-  if (/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]$/.test(event.key) || ['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
-    return;
-  }
-  event.preventDefault();
 };
 
 const onReciboSelected = (file) => {
