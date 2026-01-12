@@ -9,8 +9,16 @@ export class IOrderRequestRepository {
     throw new Error('Method not implemented: findAll');
   }
 
+  async findAllByCorporateEmail(corporateEmail) {
+    throw new Error('Method not implemented: findAllByCorporateEmail');
+  }
+
   async findById(id) {
     throw new Error('Method not implemented: findById');
+  }
+
+  async findApplicantCompanyByUsername(username) {
+    throw new Error('Method not implemented: findApplicantCompanyByUsername');
   }
 
   async save(command) {

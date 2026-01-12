@@ -82,13 +82,7 @@ const onPrint = () => {
 };
 
 const onFinish = () => {
-  toast.add({
-    severity: 'success',
-    summary: 'Proceso completado',
-    detail: 'Puede proceder a registrar un nuevo cliente',
-    life: 3000
-  });
-  
+  // ✅ No mostramos notificación aquí, se mostrará en el composable
   store.resetForm();
   emit('finish');
 };

@@ -125,6 +125,11 @@
     color: var(--text-white);
 }
 
+.status-entrevista-faltante {
+    background-color: var(--purple-500);
+    color: var(--text-white);
+}
+
 /* ========== ESTADOS ESPECÍFICOS ========== */
 
 .status-conforme {

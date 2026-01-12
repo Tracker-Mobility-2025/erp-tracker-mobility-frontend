@@ -73,7 +73,10 @@ export class OrderRequestAssembler {
   static toSummaryEntity(resource) {
     if (!resource) return null;
 
-    return new OrderRequestSummary({
+    console.log('[ASSEMBLER] Raw API resource:', resource);
+    console.log('[ASSEMBLER] clientPhoneNumber from API:', resource.clientPhoneNumber);
+
+    const summaryEntity = new OrderRequestSummary({
       id: resource.id,
       orderCode: resource.orderCode,
       requestDate: resource.requestDate,
@@ -81,8 +84,13 @@ export class OrderRequestAssembler {
       obsPendientes: resource.obsPendientes || 0,
       visitDate: resource.visitDate,
       clientName: resource.clientName,
-      clientPhoneNumber: resource.clientPhoneNumber
+      clientPhoneNumber: resource.clientPhoneNumber || '-'
     });
+    
+    console.log('[ASSEMBLER] Created entity:', summaryEntity);
+    console.log('[ASSEMBLER] Entity clientPhoneNumber:', summaryEntity.clientPhoneNumber);
+    
+    return summaryEntity;
   }
 
   /**

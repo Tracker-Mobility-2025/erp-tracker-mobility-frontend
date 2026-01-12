@@ -1,6 +1,11 @@
+import { Email } from '../value-objects/email.vo.js';
+import { PhoneNumber } from '../value-objects/phone-number.vo.js';
+import { DocumentNumber } from '../value-objects/document-number.vo.js';
+
 /**
  * Validadores del dominio para solicitudes de orden.
  * Contiene validaciones específicas del negocio.
+ * Combina validaciones básicas con Value Objects para validar formato.
  */
 export class OrderRequestValidators {
   /**
@@ -79,17 +84,17 @@ export class OrderRequestValidators {
   }
 
   /**
-   * Valida número de teléfono peruano (9 dígitos, inicia con 9)
+   * Valida número de teléfono peruano usando PhoneNumber VO
    * @param {string|number} phoneNumber - Número de teléfono
    * @param {string} fieldName - Nombre del campo
    */
   static validatePhoneNumber(phoneNumber, fieldName) {
     this.validateRequiredField(phoneNumber, fieldName);
     
-    const phoneStr = phoneNumber.toString().replace(/[\s-]/g, '');
-    
-    if (!/^9\d{8}$/.test(phoneStr)) {
-      throw new Error(`${fieldName} debe ser un número peruano válido (9 dígitos, inicia con 9)`);
+    try {
+      new PhoneNumber(phoneNumber);
+    } catch (error) {
+      throw new Error(`${fieldName}: ${error.message}`);
     }
   }
 
@@ -131,15 +136,16 @@ export class OrderRequestValidators {
   }
 
   /**
-   * Valida email
+   * Valida email usando Email VO
    * @param {string} email - Email
    */
   static validateEmail(email) {
     this.validateRequiredField(email, 'Email');
     
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      throw new Error('Email inválido');
+    try {
+      new Email(email);
+    } catch (error) {
+      throw new Error(error.message);
     }
     
     if (email.length > 100) {

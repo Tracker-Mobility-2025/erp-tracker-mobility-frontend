@@ -339,7 +339,7 @@ const getFileColor = (url) => {
             </div>
           </div>
           <!-- Ubicación en Google Maps -->
-          <div class="field col-12" v-if="item?.mapLocation">
+          <div class="field col-12 md:col-4" v-if="item?.addressLocation">
             <div class="p-3 border-round border-2 surface-border bg-red-50">
               <label class="text-xs font-semibold text-red-700 uppercase mb-2 flex align-items-center gap-2">
                 <i class="pi pi-map-marker text-red-600"></i>
@@ -347,17 +347,17 @@ const getFileColor = (url) => {
               </label>
               <p class="text-900 m-0">
                 <a
-                    :href="item.mapLocation"
+                    :href="item.addressLocation"
                     target="_blank"
                     class="text-primary no-underline hover:underline flex align-items-center gap-2 font-bold"
                 >
                   <i class="pi pi-external-link text-sm"></i>
-                  {{ item.mapLocation }}
+                  Ver Ubicación
                 </a>
               </p>
             </div>
           </div>
-          <div class="field col-12" v-else>
+          <div class="field col-12 md:col-4" v-else>
             <div class="p-3 border-round border-2 surface-border bg-red-50">
               <label class="text-xs font-semibold text-red-700 uppercase mb-2 flex align-items-center gap-2">
                 <i class="pi pi-map-marker text-red-600"></i>
@@ -475,7 +475,7 @@ const getFileColor = (url) => {
                 <i class="pi pi-user text-blue-600"></i>
                 Nombre completo
               </label>
-              <p class="text-base font-bold text-900 m-0">{{ item?.landlordFullName || 'No disponible' }}</p>
+              <p class="text-base font-bold text-900 m-0">{{ item?.landlordName || 'No disponible' }}</p>
             </div>
           </div>
           <div class="field col-12 md:col-4">

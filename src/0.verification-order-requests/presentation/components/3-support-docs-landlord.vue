@@ -220,13 +220,8 @@ const onSubmit = async () => {
   const result = await store.createOrder();
   
   if (result.success && store.orderResponse) {
-    toast.add({
-      severity: 'success',
-      summary: 'Solicitud Creada',
-      detail: `Solicitud creada exitosamente. Código: ${store.orderResponse.orderCode}`,
-      life: 5000
-    });
-    
+    // ✅ El Store ya muestra la notificación de éxito
+    // No duplicamos la notificación aquí
     emit('complete', store.orderResponse);
   } else {
     // Manejo de errores específicos

@@ -520,7 +520,7 @@ watch(() => props.item, (newItem) => {
     </pv-card>
 
     <!-- ====================== Card -> Estado del Servicio ====================== -->
-    <pv-card>
+    <pv-card class="compact-card">
       <template #header>
         <div class="flex align-items-center gap-2 px-3 py-2">
           <i class="pi pi-flag"></i>
@@ -528,18 +528,15 @@ watch(() => props.item, (newItem) => {
         </div>
       </template>
       <template #content>
-
-        <div class="field mb-0">
-          <div class="p-3 border-round bg-surface-50">
-            <label class="text-xs font-semibold text-500 uppercase mb-2 flex align-items-center gap-2">
-              <i class="pi pi-info-circle"></i>
-              Estado actual
-            </label>
-            <span :class="['status-tag', getStatusClass(item.status)]">
-              <i :class="StatusIcons[item.status]" class="mr-1"></i>
-              {{ getStatusLabel(item.status) }}
-            </span>
-          </div>
+        <div class="p-3 border-round border-2 surface-border bg-blue-50">
+          <label class="text-xs font-semibold text-blue-700 uppercase mb-2 flex align-items-center gap-2">
+            <i class="pi pi-info-circle text-blue-600"></i>
+            Estado actual
+          </label>
+          <span :class="['status-tag', getStatusClass(item.status)]">
+            <i :class="StatusIcons[item.status]" class="mr-1"></i>
+            {{ getStatusLabel(item.status) }}
+          </span>
         </div>
       </template>
     </pv-card>
@@ -709,3 +706,12 @@ watch(() => props.item, (newItem) => {
   </div>
 </template>
 
+<style scoped>
+.compact-card :deep(.p-card-body) {
+  padding: 0.75rem;
+}
+
+.compact-card :deep(.p-card-content) {
+  padding: 0;
+}
+</style>

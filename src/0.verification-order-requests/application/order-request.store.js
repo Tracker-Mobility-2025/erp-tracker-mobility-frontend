@@ -5,10 +5,9 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { OrderRequestHttpRepository } from '../infrastructure/repositories/order-request-http.repository.js';
 import { CreateOrderRequestCommand } from '../domain/commands/create-order-request.command.js';
-import { OrderRequestApi } from '../infrastructure/order-request.api.js';
-
-const repository = new OrderRequestHttpRepository();
-const api = new OrderRequestApi();
+import { OrderRequestErrorHandler } from './error-handlers/order-request-error.handler.js';
+import { useNotification } from '../../shared-v2/composables/use-notification.js';
+import { useAuthenticationStore } from '../../tracker-mobility/security/services/authentication.store.js';
 
 /**
  * Crea un objeto cliente inicial vacío
@@ -47,6 +46,11 @@ function createEmptyApplicantCompany() {
 }
 
 export const useOrderRequestStore = defineStore('orderRequest', () => {
+  // Dependencies
+  const repository = new OrderRequestHttpRepository();
+  const { showSuccess, showError, showWarning } = useNotification();
+  const errorHandler = new OrderRequestErrorHandler({ showSuccess, showError, showWarning });
+
   // State
   const currentStep = ref(1);
   const totalSteps = ref(4);
@@ -56,6 +60,7 @@ export const useOrderRequestStore = defineStore('orderRequest', () => {
   const isOrderCreated = ref(false);
   const loading = ref(false);
   const error = ref(null);
+  const orderRequests = ref([]); // Lista de órdenes (para management view)
 
   // Getters
   const progressPercentage = computed(() => {
@@ -75,7 +80,52 @@ export const useOrderRequestStore = defineStore('orderRequest', () => {
   // Actions
   
   /**
+   * Obtiene todas las solicitudes (versión resumen para listados)
+   * Filtra por el email corporativo del usuario autenticado
+   * @returns {Promise<Object>} Resultado { success, data?, message, code }
+   */
+  async function fetchAll() {
+    // Limpiar datos SÍNCRONAMENTE antes de cargar
+    orderRequests.value = [];
+    
+    try {
+      loading.value = true;
+      error.value = null;
+      
+      // Obtener usuario autenticado
+      const authStore = useAuthenticationStore();
+      const corporateEmail = authStore.currentUsername;
+      
+      console.log('[STORE] Fetching orders for corporateEmail:', corporateEmail);
+      
+      // Usar repository con filtro por corporateEmail
+      const data = await repository.findAllByCorporateEmail(corporateEmail);
+      console.log('[STORE] Data from repository:', data);
+      console.log('[STORE] First item clientPhoneNumber:', data[0]?.clientPhoneNumber);
+      
+      orderRequests.value = data;
+      
+      console.log('[STORE] orderRequests.value after assignment:', orderRequests.value);
+      console.log('[STORE] First orderRequest clientPhoneNumber:', orderRequests.value[0]?.clientPhoneNumber);
+
+      return {
+        success: true,
+        data,
+        message: `${data.length} solicitud${data.length !== 1 ? 'es' : ''} cargada${data.length !== 1 ? 's' : ''}`,
+        code: 'SUCCESS'
+      };
+    } catch (error) {
+      return errorHandler.handle(error, 'cargar las solicitudes de orden');
+    } finally {
+      loading.value = false;
+    }
+  }
+  
+  /**
    * Obtiene los datos de la empresa solicitante por username
+   * @param {string} usernameEmployee - Username del empleado
+   * @param {boolean} silent - Si true, no muestra loading
+   * @returns {Promise<Object>} Resultado { success, data?, error? }
    */
   async function fetchApplicantCompanyData(usernameEmployee, silent = false) {
     try {
@@ -84,16 +134,16 @@ export const useOrderRequestStore = defineStore('orderRequest', () => {
       }
       error.value = null;
       
-      const response = await api.getApplicantCompanyByUsername(usernameEmployee);
+      // Usar repository en lugar de API directa
+      const data = await repository.findApplicantCompanyByUsername(usernameEmployee);
       
-      if (response.data) {
-        Object.assign(applicantCompany.value, response.data);
+      if (data) {
+        Object.assign(applicantCompany.value, data);
       }
       
-      return { success: true, data: response.data };
+      return { success: true, data };
     } catch (err) {
-      error.value = err.message || 'Error al cargar datos de la empresa';
-      return { success: false, error: error.value };
+      return errorHandler.handle(err, 'cargar los datos de la empresa');
     } finally {
       if (!silent) {
         loading.value = false;
@@ -103,6 +153,7 @@ export const useOrderRequestStore = defineStore('orderRequest', () => {
 
   /**
    * Crea una nueva orden de servicio usando CreateOrderRequestCommand
+   * @returns {Promise<Object>} Resultado { success, data?, message, code }
    */
   async function createOrder() {
     try {
@@ -155,21 +206,23 @@ export const useOrderRequestStore = defineStore('orderRequest', () => {
         localStorage.setItem('orderData', JSON.stringify(orderEntity));
         localStorage.setItem('orderNumber', orderEntity.orderCode || '');
         localStorage.setItem('orderCreated', 'true');
+        
+        // Notificar éxito
+        showSuccess(
+          `Orden ${orderEntity.orderCode} creada exitosamente`,
+          'Orden creada',
+          4000
+        );
       }
       
-      return { success: true, data: orderEntity };
-    } catch (err) {
-      // Usar el error handler para procesar el error apropiadamente
-      error.value = err.message || 'Error al crear la orden';
-      
-      // Retornar error estructurado para que el componente pueda manejarlo
       return { 
-        success: false, 
-        error: error.value,
-        errorCode: err.response?.status,
-        errorData: err.response?.data,
-        originalError: err
+        success: true, 
+        data: orderEntity,
+        message: 'Orden creada exitosamente',
+        code: 'CREATED'
       };
+    } catch (error) {
+      return errorHandler.handle(error, 'crear la orden');
     } finally {
       loading.value = false;
     }
@@ -241,7 +294,7 @@ export const useOrderRequestStore = defineStore('orderRequest', () => {
   /**
    * Obtiene una orden completa por ID (siguiendo el mismo patrón que verification-order.store)
    * @param {string|number} orderId - El ID de la orden
-   * @returns {Promise<{success: boolean, data?, message?, error?}>}
+   * @returns {Promise<{success: boolean, data?, message?, code?}>}
    */
   async function getOrderById(orderId) {
     try {
@@ -250,7 +303,11 @@ export const useOrderRequestStore = defineStore('orderRequest', () => {
       
       // Validación del ID
       if (!orderId) {
-        throw new Error('El ID de la orden es requerido');
+        return {
+          success: false,
+          message: 'El ID de la orden es requerido',
+          code: 'INVALID_PARAMS'
+        };
       }
       
       const data = await repository.findById(orderId);
@@ -258,16 +315,11 @@ export const useOrderRequestStore = defineStore('orderRequest', () => {
       return { 
         success: true, 
         data,
-        message: 'Orden cargada correctamente'
+        message: 'Orden cargada correctamente',
+        code: 'SUCCESS'
       };
-    } catch (err) {
-      const errorMessage = err.message || 'Error al cargar el detalle de la orden';
-      error.value = errorMessage;
-      console.error('[OrderRequestStore] Error en getOrderById:', err);
-      return { 
-        success: false, 
-        error: errorMessage 
-      };
+    } catch (error) {
+      return errorHandler.handle(error, 'cargar el detalle de la orden');
     } finally {
       loading.value = false;
     }
@@ -283,12 +335,14 @@ export const useOrderRequestStore = defineStore('orderRequest', () => {
     isOrderCreated,
     loading,
     error,
+    orderRequests,
     
     // Getters
     progressPercentage,
     stepTitle,
     
     // Actions
+    fetchAll,
     fetchApplicantCompanyData,
     createOrder,
     goToNextStep,

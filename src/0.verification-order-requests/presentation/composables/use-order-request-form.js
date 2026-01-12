@@ -88,14 +88,9 @@ export function useOrderRequestForm() {
    * Maneja el botón de finalizar desde el resumen
    */
   const handleFinish = () => {
-    handleCancel();
-    
-    toast.add({
-      severity: 'success',
-      summary: 'Proceso completado',
-      detail: 'Puedes crear una nueva solicitud',
-      life: 3000
-    });
+    // ✅ Ya no mostramos notificación aquí
+    // El formulario se reinicia desde el componente 4-resumen.vue
+    // No necesitamos handleCancel() porque ya se hizo resetForm() en resumen
   };
 
   /**

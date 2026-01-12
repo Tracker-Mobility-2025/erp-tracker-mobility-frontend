@@ -280,9 +280,6 @@ onBeforeUnmount(() => {
 
         <!-- Foto fachada -->
         <div class="field col-12">
-          <label class="block mb-2 font-semibold text-color">
-            Foto de fachada de la vivienda <span class="field-required-mark">*</span>
-          </label>
           <file-uploader
             v-model="facadePhotoFile"
             input-id="file-uploader-fachada"

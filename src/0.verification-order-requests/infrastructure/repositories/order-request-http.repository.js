@@ -29,6 +29,16 @@ export class OrderRequestHttpRepository extends IOrderRequestRepository {
   }
 
   /**
+   * Obtiene solicitudes por email corporativo del ejecutivo
+   * @param {string} corporateEmail - Email corporativo
+   * @returns {Promise<Array<OrderRequestSummary>>} Lista de resúmenes
+   */
+  async findAllByCorporateEmail(corporateEmail) {
+    const response = await this.#api.getByCorporateEmail(corporateEmail);
+    return OrderRequestAssembler.toSummaryEntities(response.data);
+  }
+
+  /**
    * Obtiene una solicitud por ID (versión completa para detalle)
    * @param {number} id - ID de la solicitud
    * @returns {Promise<OrderRequest>} Entidad completa
@@ -36,6 +46,16 @@ export class OrderRequestHttpRepository extends IOrderRequestRepository {
   async findById(id) {
     const response = await this.#api.getById(id);
     return OrderRequestAssembler.toEntity(response.data);
+  }
+
+  /**
+   * Obtiene los datos de la empresa solicitante por username del empleado
+   * @param {string} username - Username del empleado
+   * @returns {Promise<Object>} Datos de la empresa solicitante
+   */
+  async findApplicantCompanyByUsername(username) {
+    const response = await this.#api.getApplicantCompanyByUsername(username);
+    return response.data;
   }
 
   /**

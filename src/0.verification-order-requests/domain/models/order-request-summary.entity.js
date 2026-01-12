@@ -31,6 +31,8 @@ export class OrderRequestSummary {
     clientName,
     clientPhoneNumber
   }) {
+    console.log('[ENTITY CONSTRUCTOR] Received clientPhoneNumber:', clientPhoneNumber);
+    
     // Validación obligatoria de campos requeridos
     if (!id) throw new Error(OrderRequestMessages.ID_REQUIRED);
     if (!orderCode) throw new Error(OrderRequestMessages.ORDER_CODE_REQUIRED);
@@ -45,6 +47,8 @@ export class OrderRequestSummary {
     this.visitDate = visitDate;
     this.clientName = clientName;
     this.clientPhoneNumber = clientPhoneNumber;
+    
+    console.log('[ENTITY CONSTRUCTOR] Set this.clientPhoneNumber:', this.clientPhoneNumber);
   }
 
   /**

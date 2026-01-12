@@ -1,19 +1,18 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useOrderRequestStore } from '../../application/order-request.store.js';
 import { StatusTranslations, StatusFilterOptions } from '../constants/order-request-ui.constants.js';
 import Toolbar from '../../../shared-v2/presentation/components/toolbar.vue';
 import DataManager from '../../../shared-v2/presentation/components/data-manager.vue';
 import { DateFormatter } from '../../../shared-v2/utils/date-formatter.js';
-import { OrderRequestApi } from '../../infrastructure/order-request.api.js';
 
-// Router y API
+// Router y Store
 const router = useRouter();
-const orderRequestApi = new OrderRequestApi();
+const store = useOrderRequestStore();
 
 // Estados locales
 const loading = ref(false);
-const orders = ref([]);
 const globalFilterValue = ref('');
 const selectedStatus = ref('');
 
@@ -24,15 +23,21 @@ const title = { singular: 'Solicitud de Orden', plural: 'Mis Solicitudes' };
 const columns = [
   { field: 'orderCode', header: 'Código', sortable: true, style: 'width: 150px;' },
   { field: 'clientName', header: 'Cliente', sortable: true, style: 'width: 250px;' },
-  { field: 'clientPhoneNumber', header: 'Teléfono', sortable: true, style: 'width: 130px;' },
+  { field: 'clientPhoneNumber', header: 'Contacto', sortable: true, template: 'clientPhoneNumber', style: 'width: 130px;' },
+  { field: 'requestDate', header: 'Fecha de Solicitud', sortable: true, template: 'requestDate', style: 'width: 150px;' },
   { field: 'status', header: 'Estado', sortable: true, template: 'status', style: 'width: 150px;' },
-  //{ field: 'obsPendientes', header: 'Obs. Pendientes', sortable: true, style: 'width: 120px;' },
-  { field: 'requestDate', header: 'Fecha Solicitud', sortable: true, template: 'requestDate', style: 'width: 150px;' },
   { field: 'visitDate', header: 'Fecha Visita', sortable: true, template: 'visitDate', style: 'width: 150px;' }
 ];
 
 // Opciones de estado (incluye todos los 8 estados del ServiceStatusEnum)
 const statusOptions = StatusFilterOptions;
+
+// Computed - Órdenes desde el store
+const orders = computed(() => {
+  console.log('[VIEW COMPUTED] store.orderRequests:', store.orderRequests);
+  console.log('[VIEW COMPUTED] First order:', store.orderRequests[0]);
+  return store.orderRequests;
+});
 
 // Computed - Órdenes procesadas (sin transformaciones adicionales)
 const processedOrders = computed(() => {
@@ -71,6 +76,15 @@ function formatDate(date) {
   }
 }
 
+function formatVisitDate(date) {
+  if (!date) return 'PENDIENTE';
+  try {
+    return DateFormatter.fromBackend(date);
+  } catch {
+    return 'PENDIENTE';
+  }
+}
+
 function getCountByStatus(status) {
   if (!status) return processedOrders.value.length;
   return processedOrders.value.filter(order => order.status === status).length;
@@ -97,19 +111,16 @@ function handleNewRequest() {
 }
 
 async function fetchOrders() {
+  console.log('[VIEW] fetchOrders called');
   loading.value = true;
   try {
-    // Obtener corporateEmail del localStorage
-    const corporateEmail = localStorage.getItem('username');
-    
-    if (!corporateEmail) {
-      return;
+    // Usar el Store para cargar las órdenes
+    const result = await store.fetchAll();
+    console.log('[VIEW] fetchAll result:', result);
+    console.log('[VIEW] store.orderRequests after fetch:', store.orderRequests);
+    if (store.orderRequests.length > 0) {
+      console.log('[VIEW] First order after fetch:', store.orderRequests[0]);
     }
-
-    const response = await orderRequestApi.getByCorporateEmail(corporateEmail);
-    orders.value = response.data || [];
-  } catch (error) {
-    orders.value = [];
   } finally {
     loading.value = false;
   }
@@ -117,7 +128,9 @@ async function fetchOrders() {
 
 // Lifecycle
 onMounted(async () => {
+  console.log('[VIEW] Component mounted, fetching orders...');
   await fetchOrders();
+  console.log('[VIEW] After mount, orders.value:', orders.value);
 });
 </script>
 
@@ -149,7 +162,7 @@ onMounted(async () => {
           :view-action-icon-only="true"
           :rows="10"
           :rows-per-page-options="[5, 10, 20, 50]"
-          search-placeholder="Buscar por código, cliente o teléfono..."
+          search-placeholder="Buscar por código, cliente o contacto..."
           new-button-label="Nueva Solicitud"
           @global-filter-change="onGlobalFilterChange"
           @clear-filters="onClearFilters"
@@ -201,6 +214,11 @@ onMounted(async () => {
             </span>
           </template>
 
+          <!-- Template para columna de contacto -->
+          <template #clientPhoneNumber="slotProps">
+            <span>{{ slotProps.data.clientPhoneNumber || '-' }}</span>
+          </template>
+
           <!-- Template para columna de fecha de solicitud -->
           <template #requestDate="slotProps">
             {{ formatDate(slotProps.data.requestDate) }}
@@ -208,7 +226,12 @@ onMounted(async () => {
 
           <!-- Template para columna de fecha de visita -->
           <template #visitDate="slotProps">
-            {{ formatDate(slotProps.data.visitDate) }}
+            <span v-if="!slotProps.data.visitDate" class="status-tag status-pendiente">
+              PENDIENTE
+            </span>
+            <span v-else>
+              {{ formatVisitDate(slotProps.data.visitDate) }}
+            </span>
           </template>
         </data-manager>
       </div>

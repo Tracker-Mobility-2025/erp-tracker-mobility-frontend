@@ -1,18 +1,22 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useOrderRequestStore } from '../../application/order-request.store.js';
 import { useNotification } from '../../../shared-v2/composables/use-notification.js';
 import { useImageViewer } from '../../../shared-v2/composables/use-image-viewer.js';
+import { DateFormatter } from '../../../shared-v2/utils/date-formatter.js';
 import { OrderRequestStatus, ObservationType } from '../../domain/constants/order-request.constants.js';
 import { StatusTranslations, StatusCssClasses, ObservationTypeTranslations, ObservationTypeIcons } from '../constants/order-request-ui.constants.js';
-import { OrderRequestApi } from '../../infrastructure/order-request.api.js';
+import { OrderRequestApi } from '../../infrastructure/order-request.api.js'; // Importación temporal para métodos específicos de actualización
 import Toolbar from '../../../shared-v2/presentation/components/toolbar.vue';
 import ImageViewerModal from '../../../shared-v2/presentation/components/image-viewer-modal.vue';
 
 const route = useRoute();
 const router = useRouter();
 const store = useOrderRequestStore();
+
+// API temporal para métodos específicos de actualización (updateDocument, updateObservation, etc.)
+// TODO: Mover estos métodos al Store en una refactorización futura
 const orderRequestApi = new OrderRequestApi();
 
 const orderDetail = ref(null);
@@ -21,6 +25,12 @@ const hasError = ref(false);
 const errorMessage = ref('');
 const loadingStep = ref(0);
 const isDownloadingReport = ref(false);
+
+// Loading states for subsanation actions
+const isSavingClient = ref(false);
+const isSavingAddress = ref(false);
+const isSavingDocument = ref(false);
+const isSavingObservation = ref(false);
 
 const LOADING_STEPS = [
   { icon: 'pi-file-o', label: 'Datos de la orden' },
@@ -490,25 +500,41 @@ const scrollToSection = (observationType) => {
       sectionId = 'address-section';
       break;
     default:
+      console.warn('[OrderRequestDetail] Tipo de observación no mapeada:', observationType);
       return;
   }
   
-  // Usar nextTick para asegurar que el DOM está actualizado
+  console.log('[OrderRequestDetail] Scrolling to section:', sectionId);
+  
+  // Usar nextTick y setTimeout para asegurar que el DOM está actualizado
   nextTick(() => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      // Scroll con offset para que el header quede visible en la parte superior
-      const yOffset = -80; // Offset para que el header no quede pegado al top
-      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+    setTimeout(() => {
+      const element = document.getElementById(sectionId);
       
-      window.scrollTo({ top: y, behavior: 'smooth' });
-      
-      // Add highlight effect
-      element.classList.add('highlight-section');
-      setTimeout(() => {
-        element.classList.remove('highlight-section');
-      }, 2000);
-    }
+      if (element) {
+        console.log('[OrderRequestDetail] Element found:', element);
+        
+        // Calcular posición con offset para el header
+        const headerOffset = 100; // Espacio para el toolbar
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        
+        console.log('[OrderRequestDetail] Scrolling to position:', offsetPosition);
+        
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+        
+        // Add highlight effect
+        element.classList.add('highlight-section');
+        setTimeout(() => {
+          element.classList.remove('highlight-section');
+        }, 2000);
+      } else {
+        console.error('[OrderRequestDetail] Section element not found:', sectionId);
+      }
+    }, 100); // Pequeño delay adicional para asegurar que el modo de edición esté activado
   });
 };
 
@@ -689,6 +715,8 @@ const editableAddressData = ref({
 const saveClientData = async () => {
   if (!orderDetail.value?.orderId) return;
   
+  isSavingClient.value = true;
+  
   try {
     // Preparar DTO según especificación del backend
     const updateDto = {
@@ -746,6 +774,8 @@ const saveClientData = async () => {
   } catch (error) {
     console.error('[OrderRequestDetail] Error updating client data:', error);
     showError('No se pudo actualizar los datos del cliente', 'Error de actualización');
+  } finally {
+    isSavingClient.value = false;
   }
 };
 
@@ -817,6 +847,8 @@ const saveLandlordData = async () => {
 const saveAddressData = async () => {
   if (!orderDetail.value?.orderId) return;
   
+  isSavingAddress.value = true;
+  
   try {
     // Preparar DTO según especificación del backend
     const updateDto = {
@@ -874,6 +906,8 @@ const saveAddressData = async () => {
   } catch (error) {
     console.error('[OrderRequestDetail] Error updating address data:', error);
     showError('No se pudo actualizar los datos de dirección', 'Error de actualización');
+  } finally {
+    isSavingAddress.value = false;
   }
 };
 
@@ -885,18 +919,24 @@ const saveDocument = async () => {
     return;
   }
   
-  await handleDocumentUpdate(
-    pendingDocumentUpload.value.documentId,
-    pendingDocumentUpload.value.file
-  );
+  isSavingDocument.value = true;
   
-  // Limpiar archivo pendiente
-  pendingDocumentUpload.value = {
-    documentId: null,
-    file: null
-  };
-  
-  isEditingDocuments.value = false;
+  try {
+    await handleDocumentUpdate(
+      pendingDocumentUpload.value.documentId,
+      pendingDocumentUpload.value.file
+    );
+    
+    // Limpiar archivo pendiente
+    pendingDocumentUpload.value = {
+      documentId: null,
+      file: null
+    };
+    
+    isEditingDocuments.value = false;
+  } finally {
+    isSavingDocument.value = false;
+  }
 };
 
 // Cancel editing documents
@@ -952,7 +992,7 @@ onBeforeUnmount(() => {
             <div class="flex flex-column">
               <span class="text-xs font-semibold text-blue-700 uppercase mb-1">Fecha de solicitud</span>
               <span v-if="orderDetail" class="text-base font-bold text-900">
-                {{ orderDetail.requestDate || 'No disponible' }}
+                {{ DateFormatter.fromBackend(orderDetail.requestDate) || 'No disponible' }}
               </span>
               <span v-else class="text-sm text-600">Cargando...</span>
             </div>
@@ -1150,15 +1190,18 @@ onBeforeUnmount(() => {
               <!-- Botón de Subsanar (solo si hay observación activa y está editando) -->
               <div v-if="canEditClientData && isEditingClient" class="flex gap-2">
                 <pv-button
-                  icon="pi pi-check-circle"
+                  :icon="isSavingClient ? 'pi pi-spin pi-spinner' : 'pi pi-check-circle'"
                   label="Subsanar"
                   class="p-button-sm p-button-success"
+                  :loading="isSavingClient"
+                  :disabled="isSavingClient"
                   @click="saveClientData"
                 />
                 <pv-button
                   icon="pi pi-times"
                   label="Cancelar"
                   class="p-button-sm p-button-secondary"
+                  :disabled="isSavingClient"
                   @click="cancelSubsanation"
                 />
               </div>
@@ -1290,15 +1333,18 @@ onBeforeUnmount(() => {
               <!-- Botón de Subsanar -->
               <div v-if="canEditLocation && isEditingAddress" class="flex gap-2">
                 <pv-button
-                  icon="pi pi-check-circle"
+                  :icon="isSavingAddress ? 'pi pi-spin pi-spinner' : 'pi pi-check-circle'"
                   label="Subsanar"
                   class="p-button-sm p-button-success"
+                  :loading="isSavingAddress"
+                  :disabled="isSavingAddress"
                   @click="saveAddressData"
                 />
                 <pv-button
                   icon="pi pi-times"
                   label="Cancelar"
                   class="p-button-sm p-button-secondary"
+                  :disabled="isSavingAddress"
                   @click="cancelSubsanation"
                 />
               </div>
@@ -1448,8 +1494,10 @@ onBeforeUnmount(() => {
                 <pv-button 
                   v-if="isEditingDocuments && pendingDocumentUpload.file"
                   label="Subsanar"
-                  icon="pi pi-check"
+                  :icon="isSavingDocument ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
                   class="p-button-sm p-button-success"
+                  :loading="isSavingDocument"
+                  :disabled="isSavingDocument"
                   @click="saveDocument"
                 />
                 
@@ -1459,6 +1507,7 @@ onBeforeUnmount(() => {
                   label="Cancelar"
                   icon="pi pi-times"
                   class="p-button-sm p-button-secondary"
+                  :disabled="isSavingDocument"
                   @click="cancelSubsanation"
                 />
               </div>
