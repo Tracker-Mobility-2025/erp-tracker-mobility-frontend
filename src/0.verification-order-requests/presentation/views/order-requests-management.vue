@@ -50,12 +50,26 @@ const filteredOrders = computed(() => {
 
   // Filtro de búsqueda global
   if (globalFilterValue.value) {
-    const searchLower = globalFilterValue.value.toLowerCase();
-    result = result.filter(order => 
-      order.orderCode?.toLowerCase().includes(searchLower) ||
-      order.clientName?.toLowerCase().includes(searchLower) ||
-      order.clientPhoneNumber?.toLowerCase().includes(searchLower)
-    );
+    // Normalizar término de búsqueda: minúsculas, eliminar espacios extras
+    const searchTerm = globalFilterValue.value.toLowerCase().trim().replace(/\s+/g, ' ');
+    
+    // Helper para normalizar texto: minúsculas + espacios simples
+    const normalizeText = (text) => {
+      if (!text) return '';
+      return String(text).toLowerCase().trim().replace(/\s+/g, ' ');
+    };
+    
+    result = result.filter(order => {
+      // Normalizar cada campo antes de comparar
+      const orderCode = normalizeText(order.orderCode);
+      const clientName = normalizeText(order.clientName);
+      const clientPhoneNumber = normalizeText(order.clientPhoneNumber);
+      
+      // Buscar coincidencias parciales en cualquiera de los campos
+      return orderCode.includes(searchTerm) ||
+             clientName.includes(searchTerm) ||
+             clientPhoneNumber.includes(searchTerm);
+    });
   }
 
   // Filtro por estado

@@ -40,7 +40,7 @@ export class OrderDetail {
     this.orderId = orderId;
     this.orderCode = orderCode;
     this.status = status;
-    this.requestDate = requestDate ? new Date(requestDate) : null;
+    this.requestDate = requestDate;
     this.companyName = companyName;
     this.companyExecutiveName = companyExecutiveName;
     this.companyRuc = companyRuc;
@@ -60,7 +60,7 @@ export class OrderDetail {
     this.addressStreet = addressStreet;
     this.addressLocation = addressLocation;
     this.verifierName = verifierName;
-    this.visitDate = visitDate ? new Date(visitDate) : null;
+    this.visitDate = visitDate;
     this.visitTime = visitTime;
     this.reportId = reportId;
     
@@ -96,7 +96,19 @@ export class OrderDetail {
    * @returns {string|null}
    */
   get requestDateFormatted() {
-    return DateFormatter.fromDateObject(this.requestDate);
+    if (!this.requestDate) return '';
+    
+    try {
+      // Si es un Date object (caso edge), convertir a string
+      if (this.requestDate instanceof Date) {
+        return DateFormatter.fromDateObject(this.requestDate);
+      }
+      // Si es un string (caso normal)
+      return DateFormatter.fromBackend(this.requestDate);
+    } catch (error) {
+      console.error('[OrderDetail] Error formateando requestDate:', error);
+      return '';
+    }
   }
 
   /**
@@ -104,7 +116,19 @@ export class OrderDetail {
    * @returns {string|null}
    */
   get visitDateFormatted() {
-    return DateFormatter.fromDateObject(this.visitDate);
+    if (!this.visitDate) return '';
+    
+    try {
+      // Si es un Date object (caso edge), convertir a string
+      if (this.visitDate instanceof Date) {
+        return DateFormatter.fromDateObject(this.visitDate);
+      }
+      // Si es un string (caso normal)
+      return DateFormatter.fromBackend(this.visitDate);
+    } catch (error) {
+      console.error('[OrderDetail] Error formateando visitDate:', error);
+      return '';
+    }
   }
 
   /**

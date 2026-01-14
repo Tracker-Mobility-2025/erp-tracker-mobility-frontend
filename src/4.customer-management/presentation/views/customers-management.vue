@@ -37,12 +37,26 @@ const filteredClients = computed(() => {
 
     // Filter by search text
     if (search.value && search.value.trim().length > 0) {
-        const searchLower = search.value.toLowerCase().trim().replace(/\s+/g, ' ');
-        filtered = filtered.filter(customer =>
-            (customer.ruc && customer.ruc.toLowerCase().includes(searchLower)) ||
-            (customer.companyName && customer.companyName.toLowerCase().includes(searchLower)) ||
-            (customer.status && customer.status.toLowerCase().includes(searchLower))
-        );
+        // Normalizar término de búsqueda: minúsculas, eliminar espacios extras
+        const searchTerm = search.value.toLowerCase().trim().replace(/\s+/g, ' ');
+        
+        // Helper para normalizar texto: minúsculas + espacios simples
+        const normalizeText = (text) => {
+            if (!text) return '';
+            return String(text).toLowerCase().trim().replace(/\s+/g, ' ');
+        };
+        
+        filtered = filtered.filter(customer => {
+            // Normalizar cada campo antes de comparar
+            const ruc = normalizeText(customer.ruc);
+            const companyName = normalizeText(customer.companyName);
+            const status = normalizeText(customer.status);
+            
+            // Buscar coincidencias parciales en cualquiera de los campos
+            return ruc.includes(searchTerm) ||
+                   companyName.includes(searchTerm) ||
+                   status.includes(searchTerm);
+        });
     }
 
     // Filter by status

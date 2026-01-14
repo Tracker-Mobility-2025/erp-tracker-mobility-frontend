@@ -1,4 +1,5 @@
 import { computed, ref, unref } from 'vue';
+import { DateValidator } from '../../../shared-v2/utils/date-validator.js';
 
 /**
  * Composable para gestionar filtros de órdenes de verificación.
@@ -29,13 +30,28 @@ export function useVerificationOrderFilters(orders) {
 
     // Filtro por búsqueda global
     if (globalFilterValue.value && globalFilterValue.value.trim().length > 0) {
+      // Normalizar término de búsqueda: minúsculas, eliminar espacios extras
       const searchTerm = globalFilterValue.value.toLowerCase().trim().replace(/\s+/g, ' ');
-      filtered = filtered.filter(order =>
-        (order.orderCode && order.orderCode.toLowerCase().includes(searchTerm)) ||
-        (order.clientName && order.clientName.toLowerCase().includes(searchTerm)) ||
-        (order.companyName && order.companyName.toLowerCase().includes(searchTerm)) ||
-        (order.verifierName && order.verifierName.toLowerCase().includes(searchTerm))
-      );
+      
+      // Helper para normalizar texto: minúsculas + espacios simples
+      const normalizeText = (text) => {
+        if (!text) return '';
+        return String(text).toLowerCase().trim().replace(/\s+/g, ' ');
+      };
+      
+      filtered = filtered.filter(order => {
+        // Normalizar cada campo antes de comparar
+        const orderCode = normalizeText(order.orderCode);
+        const clientName = normalizeText(order.clientName);
+        const companyName = normalizeText(order.companyName);
+        const verifierName = normalizeText(order.verifierName);
+        
+        // Buscar coincidencias parciales en cualquiera de los campos
+        return orderCode.includes(searchTerm) ||
+               clientName.includes(searchTerm) ||
+               companyName.includes(searchTerm) ||
+               verifierName.includes(searchTerm);
+      });
     }
 
     // Filtro por estado
@@ -47,10 +63,17 @@ export function useVerificationOrderFilters(orders) {
     if (dateRange.value && dateRange.value.length === 2) {
       const [startDate, endDate] = dateRange.value;
       if (startDate && endDate) {
+        // Normalizar fechas de rango a medianoche para comparación correcta
+        const normalizedStart = DateValidator.normalizeToMidnight(startDate);
+        const normalizedEnd = DateValidator.normalizeToMidnight(endDate);
+        
         filtered = filtered.filter(order => {
           if (!order.visitDate) return false;
-          const orderDate = new Date(order.visitDate);
-          return orderDate >= startDate && orderDate <= endDate;
+          // Normalizar fecha de orden respetando zona horaria
+          const normalizedOrderDate = DateValidator.normalizeToMidnight(order.visitDate);
+          return normalizedOrderDate && 
+                 normalizedOrderDate >= normalizedStart && 
+                 normalizedOrderDate <= normalizedEnd;
         });
       }
     }

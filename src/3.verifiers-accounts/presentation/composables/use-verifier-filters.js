@@ -28,14 +28,30 @@ export function useVerifierFilters(verifiers) {
 
     // Filtro por búsqueda global
     if (globalFilterValue.value && globalFilterValue.value.trim().length > 0) {
+      // Normalizar término de búsqueda: minúsculas, eliminar espacios extras
       const searchTerm = globalFilterValue.value.toLowerCase().trim().replace(/\s+/g, ' ');
-      filtered = filtered.filter(verifier =>
-        (verifier.name && verifier.name.toLowerCase().includes(searchTerm)) ||
-        (verifier.lastName && verifier.lastName.toLowerCase().includes(searchTerm)) ||
-        (verifier.emailValue && verifier.emailValue.toLowerCase().includes(searchTerm)) ||
-        (verifier.phoneValue && verifier.phoneValue.includes(searchTerm)) ||
-        (verifier.fullName && verifier.fullName.toLowerCase().includes(searchTerm))
-      );
+      
+      // Helper para normalizar texto: minúsculas + espacios simples
+      const normalizeText = (text) => {
+        if (!text) return '';
+        return String(text).toLowerCase().trim().replace(/\s+/g, ' ');
+      };
+      
+      filtered = filtered.filter(verifier => {
+        // Normalizar cada campo antes de comparar
+        const name = normalizeText(verifier.name);
+        const lastName = normalizeText(verifier.lastName);
+        const emailValue = normalizeText(verifier.emailValue);
+        const phoneValue = normalizeText(verifier.phoneValue);
+        const fullName = normalizeText(verifier.fullName);
+        
+        // Buscar coincidencias parciales en cualquiera de los campos
+        return name.includes(searchTerm) ||
+               lastName.includes(searchTerm) ||
+               emailValue.includes(searchTerm) ||
+               phoneValue.includes(searchTerm) ||
+               fullName.includes(searchTerm);
+      });
     }
 
     // Filtro por estado

@@ -43,7 +43,7 @@ export class ServiceOrderSummary {
     this.companyName = companyName;
     this.verifierId = verifierId;
     this.verifierName = verifierName || null;
-    this.visitDate = visitDate ? new Date(visitDate) : null;
+    this.visitDate = visitDate;
   }
 
   /**
@@ -78,7 +78,20 @@ export class ServiceOrderSummary {
    */
   get visitDateShort() {
     if (!this.visitDate) return 'Pendiente';
-    const formatted = DateFormatter.fromDateObject(this.visitDate);
-    return formatted && formatted.trim() !== '' ? formatted : 'Pendiente';
+    
+    try {
+      // Si es un Date object (caso edge), convertir primero a string backend
+      if (this.visitDate instanceof Date) {
+        const formatted = DateFormatter.fromDateObject(this.visitDate);
+        return formatted || 'Pendiente';
+      }
+      
+      // Si es un string (caso normal), usar fromBackend
+      const formatted = DateFormatter.fromBackend(this.visitDate);
+      return (formatted && typeof formatted === 'string') ? formatted : 'Pendiente';
+    } catch (error) {
+      console.error('[ServiceOrderSummary] Error formateando visitDate:', error);
+      return 'Pendiente';
+    }
   }
 }

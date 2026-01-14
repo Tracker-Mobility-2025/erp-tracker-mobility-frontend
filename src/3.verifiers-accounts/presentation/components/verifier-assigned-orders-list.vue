@@ -27,11 +27,21 @@ const statusOptions = [
 
 // Computed
 const filteredOrders = computed(() => {
+  // Helper para normalizar texto: minúsculas + espacios simples
+  const normalizeText = (text) => {
+    if (!text) return '';
+    return String(text).toLowerCase().trim().replace(/\s+/g, ' ');
+  };
+  
   return props.orders.filter((order) => {
     // Filtro por texto - buscar en código de orden y dirección
-    const matchesSearch = !search.value || search.value.trim().length === 0 || 
-        (order.orderCode && order.orderCode.toLowerCase().trim().replace(/\s+/g, ' ').includes(search.value.toLowerCase().trim().replace(/\s+/g, ' '))) ||
-        (order.addressStreet && order.addressStreet.toLowerCase().trim().replace(/\s+/g, ' ').includes(search.value.toLowerCase().trim().replace(/\s+/g, ' ')));
+    const matchesSearch = !search.value || search.value.trim().length === 0 || (() => {
+      const searchTerm = normalizeText(search.value);
+      const orderCode = normalizeText(order.orderCode);
+      const addressStreet = normalizeText(order.addressStreet);
+      
+      return orderCode.includes(searchTerm) || addressStreet.includes(searchTerm);
+    })();
 
     // Filtro por estado
     const matchesStatus = selectedStatus.value === 'Todos' || order.status === selectedStatus.value;

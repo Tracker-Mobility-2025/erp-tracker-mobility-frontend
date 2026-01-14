@@ -1,3 +1,5 @@
+import { DateFormatter } from '../../../shared-v2/utils/date-formatter.js';
+
 /**
  * Assembler para transformar AssignVerifierCommand a recurso HTTP.
  * Responsabilidad única: mapping Command → Resource HTTP.
@@ -15,13 +17,10 @@ export class AssignVerifierCommandAssembler {
       throw new Error('AssignVerifierCommandAssembler: command no puede ser null o undefined');
     }
 
-    // Convertir visitDate a formato backend (yyyy-MM-dd) si es un objeto Date
+    // Convertir visitDate a formato backend (yyyy-MM-dd) usando DateFormatter
     let visitDateFormatted = command.visitDate;
     if (command.visitDate instanceof Date) {
-      const year = command.visitDate.getFullYear();
-      const month = String(command.visitDate.getMonth() + 1).padStart(2, '0');
-      const day = String(command.visitDate.getDate()).padStart(2, '0');
-      visitDateFormatted = `${year}-${month}-${day}`;
+      visitDateFormatted = DateFormatter.dateObjectToBackend(command.visitDate);
     }
 
     return {

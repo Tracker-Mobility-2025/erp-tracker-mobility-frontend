@@ -48,13 +48,28 @@ const filteredEmployees = computed(() => {
 
     // Filter by search text
     if (search.value && search.value.trim().length > 0) {
-        const searchLower = search.value.toLowerCase().trim();
-        filtered = filtered.filter(employee =>
-            (employee.name && employee.name.toLowerCase().includes(searchLower)) ||
-            (employee.lastName && employee.lastName.toLowerCase().includes(searchLower)) ||
-            (employee.email && employee.email.toLowerCase().includes(searchLower)) ||
-            (employee.phoneNumber && employee.phoneNumber.toLowerCase().includes(searchLower))
-        );
+        // Normalizar término de búsqueda: minúsculas, eliminar espacios extras
+        const searchTerm = search.value.toLowerCase().trim().replace(/\s+/g, ' ');
+        
+        // Helper para normalizar texto: minúsculas + espacios simples
+        const normalizeText = (text) => {
+            if (!text) return '';
+            return String(text).toLowerCase().trim().replace(/\s+/g, ' ');
+        };
+        
+        filtered = filtered.filter(employee => {
+            // Normalizar cada campo antes de comparar
+            const name = normalizeText(employee.name);
+            const lastName = normalizeText(employee.lastName);
+            const email = normalizeText(employee.email);
+            const phoneNumber = normalizeText(employee.phoneNumber);
+            
+            // Buscar coincidencias parciales en cualquiera de los campos
+            return name.includes(searchTerm) ||
+                   lastName.includes(searchTerm) ||
+                   email.includes(searchTerm) ||
+                   phoneNumber.includes(searchTerm);
+        });
     }
 
     // Filter by status

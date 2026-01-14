@@ -23,7 +23,7 @@ export class ServiceOrderSummaryAssembler {
       companyName: resource.companyName,
       verifierId: resource.verifierId,
       verifierName: resource.verifierName,
-      visitDate: resource.visitDate ? new Date(resource.visitDate) : null
+      visitDate: resource.visitDate // Mantener como string para respetar zona horaria
     });
   }
 

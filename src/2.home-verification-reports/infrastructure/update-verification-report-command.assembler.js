@@ -1,3 +1,5 @@
+import { DateFormatter } from '../../shared-v2/utils/date-formatter.js';
+
 /**
  * Assembler para convertir UpdateVerificationReportCommand a resource DTO.
  * Responsabilidad: transformar Command del dominio a formato esperado por la API.
@@ -24,7 +26,7 @@ export class UpdateVerificationReportCommandAssembler {
     }
     if (command.visitDate !== null) {
       resource.visitDate = command.visitDate instanceof Date 
-        ? command.visitDate.toISOString() 
+        ? DateFormatter.dateObjectToBackend(command.visitDate)
         : command.visitDate;
     }
     if (command.finalResult !== null) {

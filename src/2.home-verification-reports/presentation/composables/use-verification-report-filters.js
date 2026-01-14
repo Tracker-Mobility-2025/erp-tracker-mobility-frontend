@@ -12,13 +12,28 @@ export function useVerificationReportFilters(getReports) {
 
     // Filtro por búsqueda global
     if (globalFilterValue.value && globalFilterValue.value.trim().length > 0) {
-      const searchLower = globalFilterValue.value.toLowerCase().trim();
-      filtered = filtered.filter(report =>
-        (report.reportCode && report.reportCode.toLowerCase().includes(searchLower)) ||
-        (report.orderCode && report.orderCode.toLowerCase().includes(searchLower)) ||
-        (report.clientName && report.clientName.toLowerCase().includes(searchLower)) ||
-        (report.companyName && report.companyName.toLowerCase().includes(searchLower))
-      );
+      // Normalizar término de búsqueda: minúsculas, eliminar espacios extras
+      const searchTerm = globalFilterValue.value.toLowerCase().trim().replace(/\s+/g, ' ');
+      
+      // Helper para normalizar texto: minúsculas + espacios simples
+      const normalizeText = (text) => {
+        if (!text) return '';
+        return String(text).toLowerCase().trim().replace(/\s+/g, ' ');
+      };
+      
+      filtered = filtered.filter(report => {
+        // Normalizar cada campo antes de comparar
+        const reportCode = normalizeText(report.reportCode);
+        const orderCode = normalizeText(report.orderCode);
+        const clientName = normalizeText(report.clientName);
+        const companyName = normalizeText(report.companyName);
+        
+        // Buscar coincidencias parciales en cualquiera de los campos
+        return reportCode.includes(searchTerm) ||
+               orderCode.includes(searchTerm) ||
+               clientName.includes(searchTerm) ||
+               companyName.includes(searchTerm);
+      });
     }
 
     // Filtro por estado
