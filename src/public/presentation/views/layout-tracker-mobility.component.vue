@@ -11,34 +11,79 @@ const sidebarOpen = ref(true);
 
 // Opciones del menú de navegación
 const allMenuItems = [
-  // Opciones para VENDEDOR y GERENTE_VENTAS (acceso a solicitudes)
-  { roles: ['COMPANY_EMPLOYEE', 'VENDEDOR', 'GERENTE_VENTAS'], label: 'Mis Solicitudes', icon: 'pi pi-fw pi-list', to: `/app/applicant-company/order-requests` },
+  // Opciones para COMPANY_EMPLOYEE con VENDEDOR (solo solicitudes)
+  { 
+    roles: ['COMPANY_EMPLOYEE', 'VENDEDOR'], 
+    requiresAll: true,
+    label: 'Mis Solicitudes', 
+    icon: 'pi pi-fw pi-list', 
+    to: `/app/applicant-company/order-requests` 
+  },
   
-  // Opciones exclusivas para GERENTE_VENTAS
-  { roles: ['GERENTE_VENTAS'], label: 'Equipo de Ventas', icon: 'pi pi-fw pi-users', to: `/app/sales-manager/sales-team` },
+  // Opciones para COMPANY_EMPLOYEE con GERENTE_VENTAS
+  { 
+    roles: ['COMPANY_EMPLOYEE', 'GERENTE_VENTAS'], 
+    requiresAll: true,
+    label: 'Mis Solicitudes', 
+    icon: 'pi pi-fw pi-list', 
+    to: `/app/applicant-company/order-requests` 
+  },
+  { 
+    roles: ['COMPANY_EMPLOYEE', 'GERENTE_VENTAS'], 
+    requiresAll: true,
+    label: 'Equipo de Ventas', 
+    icon: 'pi pi-fw pi-users', 
+    to: `/app/sales-manager/sales-team` 
+  },
   
-  // Opciones para ADMIN y MASTER_ADMIN
-  { roles: ['ADMIN', 'MASTER_ADMIN'], label: 'Órdenes', icon: 'pi pi-fw pi-file-edit', to: `/app/admin/verification-orders` },
-  { roles: ['ADMIN', 'MASTER_ADMIN'], label: 'Reportes', icon: 'pi pi-fw pi-chart-bar', to: `/app/admin/verification-reports` },
-  { roles: ['ADMIN', 'MASTER_ADMIN'], label: 'Verificadores', icon: 'pi pi-fw pi-users', to: `/app/admin/verifiers` },
-  { roles: ['ADMIN', 'MASTER_ADMIN'], label: 'Clientes', icon: 'pi pi-fw pi-user', to: `/app/admin/clients` },
+  // Opciones para ADMIN
+  { 
+    roles: ['ADMIN'], 
+    requiresAll: false,
+    label: 'Órdenes', 
+    icon: 'pi pi-fw pi-file-edit', 
+    to: `/app/admin/verification-orders` 
+  },
+  { 
+    roles: ['ADMIN'], 
+    requiresAll: false,
+    label: 'Reportes', 
+    icon: 'pi pi-fw pi-chart-bar', 
+    to: `/app/admin/verification-reports` 
+  },
+  { 
+    roles: ['ADMIN'], 
+    requiresAll: false,
+    label: 'Verificadores', 
+    icon: 'pi pi-fw pi-users', 
+    to: `/app/admin/verifiers` 
+  },
+  { 
+    roles: ['ADMIN'], 
+    requiresAll: false,
+    label: 'Clientes', 
+    icon: 'pi pi-fw pi-user', 
+    to: `/app/admin/clients` 
+  },
 ];
 
-// Filtrar menú según el rol específico del usuario
+// Filtrar menú según los roles del usuario
 const menuItems = computed(() => {
-  // Obtener el rol específico (GERENTE_VENTAS, VENDEDOR, ADMIN, etc.)
-  const specificRole = authStore.specificRole;
+  const userRoles = authStore.currentRoles || [];
   
-  // Si no hay rol específico, usar roles array
-  if (!specificRole) {
-    const userRoles = authStore.currentRoles;
-    return allMenuItems.filter(item => 
-      item.roles.some(role => userRoles.includes(role))
-    );
+  if (userRoles.length === 0) {
+    return [];
   }
   
-  // Filtrar items que incluyen el rol específico
-  return allMenuItems.filter(item => item.roles.includes(specificRole));
+  return allMenuItems.filter(item => {
+    if (item.requiresAll) {
+      // Requiere TODOS los roles especificados
+      return item.roles.every(role => userRoles.includes(role));
+    } else {
+      // Requiere AL MENOS UNO de los roles especificados
+      return item.roles.some(role => userRoles.includes(role));
+    }
+  });
 });
 
 // Manejadores de eventos
