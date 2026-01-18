@@ -347,6 +347,22 @@ watch(() => props.visible, (newValue) => {
                 </div>
             </div>
 
+            <!-- Fila 4: Rol (no editable) -->
+            <div class="col-12 md:col-6 px-2 pb-1">
+                <div class="field">
+                    <label for="role" class="block text-900 font-medium mb-2">
+                        <i class="pi pi-id-card mr-2"></i>Rol
+                    </label>
+                    <pv-input-text
+                        id="role"
+                        value="Vendedor"
+                        class="w-full"
+                        size="small"
+                        disabled
+                    />
+                </div>
+            </div>
+
             <!-- Fila 4: Estado (solo en modo edición) -->
             <div v-if="edit" class="col-12 md:col-6 px-2 pb-1">
                 <div class="field">
@@ -363,34 +379,6 @@ watch(() => props.visible, (newValue) => {
                         class="w-full"
                         size="small"
                     />
-                </div>
-            </div>
-
-            <!-- Información automática (no editable) -->
-            <div class="col-12 px-2 pb-1">
-                <div class="surface-100 border-round p-3">
-                    <div class="flex align-items-center gap-2 mb-2">
-                        <i class="pi pi-info-circle text-primary"></i>
-                        <span class="font-semibold text-900">Información automática</span>
-                    </div>
-                    <div class="grid">
-                        <div class="col-12 md:col-4">
-                            <small class="text-600">Rol:</small>
-                            <p class="m-0 mt-1 font-medium text-900">Vendedor</p>
-                        </div>
-                        <div class="col-12 md:col-4">
-                            <small class="text-600">Marca:</small>
-                            <p class="m-0 mt-1 font-medium text-900">
-                                {{ currentEmployee?.brandName || currentEmployee?.brandId ? `ID: ${currentEmployee.brandId}` : 'No especificada' }}
-                            </p>
-                        </div>
-                        <div class="col-12 md:col-4">
-                            <small class="text-600">Empresa:</small>
-                            <p class="m-0 mt-1 font-medium text-900">
-                                {{ currentEmployee?.applicantCompanyName || currentEmployee?.applicantCompanyId ? `ID: ${currentEmployee.applicantCompanyId}` : 'No especificada' }}
-                            </p>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
