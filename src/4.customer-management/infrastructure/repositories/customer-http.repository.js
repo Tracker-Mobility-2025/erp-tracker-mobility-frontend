@@ -112,12 +112,12 @@ export class CustomerHttpRepository extends ICustomerRepository {
      * @returns {Promise<EmployeeCollaborator>}
      */
     async updateEmployee(customerId, employeeId, employeeData) {
-        // Exclude id, applicantCompanyId y email from payload
-        // email no debe enviarse en PATCH (causa error de duplicidad)
-        const { id, applicantCompanyId, email, ...updatePayload } = employeeData;
+        // Exclude only id and applicantCompanyId from payload (not editable)
+        // Email is allowed to be updated - frontend validates duplicates excluding current employee
+        const { id, applicantCompanyId, ...updatePayload } = employeeData;
         
         console.log('🚀 [Repository] Payload recibido para PATCH:', {
-            emailExcluido: email,
+            employeeId,
             payloadFinal: updatePayload
         });
         

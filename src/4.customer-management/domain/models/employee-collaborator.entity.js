@@ -68,6 +68,7 @@ export class EmployeeCollaborator {
         
         this.name = name.trim();
         this.lastName = lastName.trim();
+        this.fullName = `${name.trim()} ${lastName.trim()}`.trim(); // Nombre completo como propiedad
         this.applicantCompanyId = applicantCompanyId;
         this.applicantCompanyName = applicantCompanyName;
         this.status = status;

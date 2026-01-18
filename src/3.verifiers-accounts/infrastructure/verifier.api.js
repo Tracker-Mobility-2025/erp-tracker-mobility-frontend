@@ -64,7 +64,8 @@ export class VerifierApi extends BaseApi {
      */
     updateVerifier(command) {
         const resource = UpdateVerifierCommandAssembler.toResourceFromCommand(command);
-        return this.#verifierEndpoint.update(command.id, resource);
+        // Usar PATCH en lugar de PUT (BaseEndpoint.update usa PUT)
+        return this.http.patch(`${verifierEndpointPath}/${command.id}`, resource);
     }
 
     /**

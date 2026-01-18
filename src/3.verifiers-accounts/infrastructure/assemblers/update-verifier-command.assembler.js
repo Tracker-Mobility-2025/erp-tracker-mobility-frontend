@@ -13,11 +13,10 @@ export class UpdateVerifierCommandAssembler {
      * @returns {Object} El objeto resource formateado para la API.
      */
     static toResource(command) {
-        const resource = {
-            id: command.id
-        };
+        const resource = {};
 
         // Solo incluir campos que están presentes en el comando
+        // id no se incluye en el body - va en la URL del endpoint
         if (command.email !== undefined) {
             resource.email = command.email?.value || command.email;
         }
@@ -28,7 +27,7 @@ export class UpdateVerifierCommandAssembler {
         }
         if (command.agenda !== undefined) resource.agenda = command.agenda;
         if (command.status !== undefined) resource.status = command.status;
-        if (command.role !== undefined) resource.role = command.role;
+        // role no existe en el endpoint PATCH /api/v1/verifiers/{verifierId}
         if (command.password !== undefined) resource.password = command.password;
 
         return resource;

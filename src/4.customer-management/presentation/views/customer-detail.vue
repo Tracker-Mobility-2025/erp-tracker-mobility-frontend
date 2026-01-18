@@ -325,35 +325,24 @@ const onEditItem = (employee) => {
     createAndEditDialogIsVisible.value = true;
 };
 
-const onDeleteItem = (employee) => {
-    confirm.require({
-        message: `¿Está seguro de eliminar al colaborador ${employee.name} ${employee.lastName}?`,
-        header: 'Confirmación',
-        icon: 'pi pi-exclamation-triangle',
-        rejectClass: 'p-button-secondary p-button-outlined',
-        rejectLabel: 'Cancelar',
-        acceptLabel: 'Eliminar',
-        acceptClass: 'p-button-danger',
-        accept: async () => {
-            const result = await customerStore.deleteEmployee(customerId.value, employee.id);
-            
-            if (result.success) {
-                toast.add({
-                    severity: 'success',
-                    summary: 'Colaborador eliminado',
-                    detail: 'El colaborador ha sido eliminado exitosamente',
-                    life: 4000
-                });
-            } else {
-                toast.add({
-                    severity: 'error',
-                    summary: 'Error al eliminar',
-                    detail: result.message || 'No se pudo eliminar el colaborador',
-                    life: 4000
-                });
-            }
-        }
-    });
+const onDeleteItem = async (employee) => {
+    const result = await customerStore.deleteEmployee(customerId.value, employee.id);
+    
+    if (result.success) {
+        toast.add({
+            severity: 'success',
+            summary: 'Colaborador eliminado',
+            detail: `El colaborador ${employee.fullName} ha sido eliminado exitosamente`,
+            life: 4000
+        });
+    } else {
+        toast.add({
+            severity: 'error',
+            summary: 'Error al eliminar',
+            detail: result.message || 'No se pudo eliminar el colaborador',
+            life: 4000
+        });
+    }
 };
 
 const simulateLoadingProgress = () => {
