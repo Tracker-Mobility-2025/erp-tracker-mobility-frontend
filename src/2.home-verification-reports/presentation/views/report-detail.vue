@@ -35,19 +35,36 @@ const errorMessage = ref('');
 const emailDialogVisible = ref(false);
 const landlordInterviewCardRef = ref(null);
 const isDownloadingReport = ref(false);
+const isConfirmingResult = ref(false);
+
+// Estado para edición de confirmación de resultado
+const editableReport = ref({
+  finalResult: '',
+  summary: '',
+  observations: [],
+  casuistics: []
+});
 
 // Computed
 const canExportPDF = computed(() => {
   if (!report.value) return false;
-  // No permitir exportación si falta la entrevista con el arrendador o no hay reportId
-  return report.value.finalResult !== 'ENTREVISTA_ARRENDADOR_FALTANTE' && 
-         !!report.value.reportId;
+  // Permitir exportación solo si isResultValid es true
+  return report.value.isResultValid === true && !!report.value.reportId;
 });
 
 const canEditInterview = computed(() => {
   if (!report.value) return false;
   // Permitir edición si el resultado es ENTREVISTA_ARRENDADOR_FALTANTE
   return report.value.finalResult === 'ENTREVISTA_ARRENDADOR_FALTANTE';
+});
+
+const canConfirmResult = computed(() => {
+  if (!report.value) return false;
+  // Habilitar confirmación de resultado si:
+  // - isResultValid es false
+  // - finalResult NO es ENTREVISTA_ARRENDADOR_FALTANTE
+  return report.value.isResultValid === false && 
+         report.value.finalResult !== 'ENTREVISTA_ARRENDADOR_FALTANTE';
 });
 
 const isEditBlockedByFinalResult = computed(() => {
@@ -58,6 +75,10 @@ const isEditBlockedByFinalResult = computed(() => {
 
 const showInterviewAlert = computed(() => {
   return report.value?.finalResult === 'ENTREVISTA_ARRENDADOR_FALTANTE';
+});
+
+const showConfirmResultAlert = computed(() => {
+  return canConfirmResult.value;
 });
 
 // Loading steps
@@ -252,11 +273,88 @@ const scrollToInterviewCard = () => {
   }
 };
 
+const initializeEditableReport = () => {
+  if (report.value) {
+    editableReport.value = {
+      finalResult: report.value.finalResult || '',
+      summary: report.value.summary || '',
+      observations: report.value.observations || [],
+      casuistics: report.value.casuistics || []
+    };
+  }
+};
+
+const handleConfirmResult = async () => {
+  try {
+    if (!report.value?.reportId) {
+      showError('No se puede confirmar el resultado: ID de reporte no disponible');
+      return;
+    }
+
+    // Validar que los campos requeridos no estén vacíos
+    if (!editableReport.value.finalResult) {
+      showError('Debe seleccionar un resultado final');
+      return;
+    }
+
+    if (!editableReport.value.summary || editableReport.value.summary.trim() === '') {
+      showError('Debe ingresar un resumen');
+      return;
+    }
+
+    isConfirmingResult.value = true;
+
+    const updateData = {
+      finalResult: editableReport.value.finalResult,
+      summary: editableReport.value.summary,
+      observations: editableReport.value.observations,
+      casuistics: editableReport.value.casuistics,
+      glossary: report.value.glossary || [], // Mantener el glosario sin cambios
+      isResultValid: true // Marcar como validado
+    };
+
+    const result = await reportStore.updateReport(report.value.reportId, updateData);
+
+    if (result.success) {
+      showSuccess('Resultado confirmado exitosamente', 'Éxito');
+      // Recargar el reporte para obtener los datos actualizados
+      await getReportById(route.params.reportId);
+    } else {
+      throw new Error(result.message || 'Error al confirmar el resultado');
+    }
+  } catch (error) {
+    console.error('Error al confirmar resultado:', error);
+    showError(
+      error.message || 'No se pudo confirmar el resultado. Intente nuevamente.',
+      'Error al confirmar'
+    );
+  } finally {
+    isConfirmingResult.value = false;
+  }
+};
+
+const handleUpdateSummary = (value) => {
+  editableReport.value.summary = value;
+};
+
+const handleUpdateObservations = (value) => {
+  editableReport.value.observations = value;
+};
+
+const handleUpdateCasuistics = (value) => {
+  editableReport.value.casuistics = value;
+};
+
+const handleUpdateFinalResult = (value) => {
+  editableReport.value.finalResult = value;
+};
+
 // Lifecycle
 onMounted(async () => {
   const reportId = route.params.reportId;
   clearData();
   await loadData(reportId);
+  initializeEditableReport();
 });
 
 // Watch for route changes
@@ -264,8 +362,16 @@ watch(() => route.params.reportId, async (newId) => {
   if (newId) {
     clearData(); // Limpiar INMEDIATAMENTE (síncrono)
     await loadData(newId); // Luego cargar (asíncrono)
+    initializeEditableReport();
   }
 });
+
+// Watch report changes to update editable data
+watch(() => report.value, () => {
+  if (report.value) {
+    initializeEditableReport();
+  }
+}, { deep: true });
 </script>
 
 <template>
@@ -277,6 +383,16 @@ watch(() => route.params.reportId, async (newId) => {
       :show-back-button="true"
     >
       <template #actions>
+        <pv-button
+          v-if="!isLoading && !hasError && canConfirmResult"
+          label="Confirmar Resultado"
+          icon="pi pi-check"
+          class="p-button-success mr-2"
+          :loading="isConfirmingResult"
+          :disabled="isConfirmingResult"
+          v-tooltip.top="'Confirmar y validar el resultado del reporte'"
+          @click="handleConfirmResult"
+        />
         <pv-button
           v-if="!isLoading && !hasError"
           label="Enviar Email"
@@ -291,7 +407,7 @@ watch(() => route.params.reportId, async (newId) => {
           class="p-button-outlined"
           :loading="isDownloadingReport"
           :disabled="!canExportPDF || isDownloadingReport"
-          v-tooltip.top="!canExportPDF ? 'Complete la entrevista con el arrendador para exportar el PDF' : 'Exportar informe a PDF'"
+          v-tooltip.top="!canExportPDF ? 'Debe confirmar el resultado antes de exportar el PDF' : 'Exportar informe a PDF'"
           @click="handleExportPDF"
         />
       </template>
@@ -326,6 +442,17 @@ watch(() => route.params.reportId, async (newId) => {
 
       <!-- Report Content -->
       <div v-else-if="report" class="flex flex-column gap-4">
+        <!-- Alert: Confirmación de Resultado Pendiente -->
+        <pv-message v-if="showConfirmResultAlert" severity="info" :closable="false" class="mb-2">
+          <div class="flex align-items-center w-full gap-4">
+            <i class="pi pi-info-circle text-2xl"></i>
+            <div class="flex-1">
+              <p class="font-bold text-base m-0 mb-1">Confirmación de Resultado Pendiente</p>
+              <p class="m-0 text-sm">Este reporte requiere que revise y confirme el resultado final, resumen, observaciones y casuísticas antes de poder ser exportado.</p>
+            </div>
+          </div>
+        </pv-message>
+
         <!-- Alert: Entrevista con Arrendador Faltante -->
         <pv-message v-if="showInterviewAlert" severity="warn" :closable="false" class="mb-2">
           <div class="flex align-items-center w-full gap-4">
@@ -348,7 +475,9 @@ watch(() => route.params.reportId, async (newId) => {
           :verifier="report.verifierName"
           :address-location="report.addressLocation"
           :visit-date="report.visitDate"
-          :result="report.finalResult"
+          :result="canConfirmResult ? editableReport.finalResult : report.finalResult"
+          :can-edit="canConfirmResult"
+          @update:result="handleUpdateFinalResult"
         />
 
         <!-- Section 1: Applicant & Client Info -->
@@ -420,22 +549,28 @@ watch(() => route.params.reportId, async (newId) => {
 
         <!-- Section 6: Summary -->
         <summary-card
-          :summary="report.summary"
+          :summary="canConfirmResult ? editableReport.summary : report.summary"
+          :can-edit="canConfirmResult"
+          @update:summary="handleUpdateSummary"
         />
 
-        <!-- Section 7: Observations -->
+        <!-- Section 8: Observations -->
         <observations-card
-          :observations="report.observations || []"
+          :observations="canConfirmResult ? editableReport.observations : (report.observations || [])"
+          :can-edit="canConfirmResult"
+          @update:observations="handleUpdateObservations"
         />
 
-        <!-- Section 8: Glossary -->
+        <!-- Section 9: Glossary (Solo Lectura) -->
         <glossary-card
           :glossary="report.glossary || []"
         />
 
-        <!-- Section 9: Casuistics -->
+        <!-- Section 10: Casuistics -->
         <casuistics-card
-          :casuistics="report.casuistics || []"
+          :casuistics="canConfirmResult ? editableReport.casuistics : (report.casuistics || [])"
+          :can-edit="canConfirmResult"
+          @update:casuistics="handleUpdateCasuistics"
         />
        
         <!-- Section 12: Annexe 01 - Photographic Registry -->

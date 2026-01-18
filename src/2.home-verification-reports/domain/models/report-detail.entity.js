@@ -143,6 +143,7 @@ export class Report {
     addressLocation,
     visitDate,
     finalResult,
+    isResultValid,
     companyName,
     companyRuc,
     companyExecutiveName,
@@ -186,6 +187,7 @@ export class Report {
     this.addressLocation = addressLocation;
     this.visitDate = visitDate;
     this.finalResult = finalResult;
+    this.isResultValid = isResultValid;
     
     // Datos de la empresa solicitante
     this.companyName = companyName;

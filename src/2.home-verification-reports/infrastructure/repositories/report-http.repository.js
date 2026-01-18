@@ -3,6 +3,7 @@ import { ReportApi } from '../report.api.js';
 import { ReportSummaryAssembler } from '../assemblers/report-summary.assembler.js';
 import { ReportAssembler } from '../report.assembler.js';
 import { UpdateLandlordInterviewCommandAssembler } from '../assemblers/update-landlord-interview-command.assembler.js';
+import { UpdateReportCommandAssembler } from '../assemblers/update-report-command.assembler.js';
 
 /**
  * Implementación HTTP del repositorio de reportes.
@@ -46,6 +47,17 @@ export class ReportHttpRepository extends IReportRepository {
   async updateLandlordInterview(command) {
     const resource = UpdateLandlordInterviewCommandAssembler.toResource(command);
     const response = await this.#api.updateLandlordInterview(command.orderId, resource);
+    return response.data;
+  }
+
+  /**
+   * Actualiza un reporte de verificación (resultado, resumen, observaciones, etc.).
+   * @param {UpdateReportCommand} command - Command con datos del reporte
+   * @returns {Promise<Object>} La respuesta de la actualización
+   */
+  async updateReport(command) {
+    const resource = UpdateReportCommandAssembler.toResource(command);
+    const response = await this.#api.updateReport(command.reportId, resource);
     return response.data;
   }
 }

@@ -1,0 +1,33 @@
+/**
+ * Assembler para convertir UpdateReportCommand a resource DTO.
+ * Infrastructure layer - Data transformation
+ * Responsabilidad: Serializar Commands del dominio al formato esperado por la API.
+ * 
+ * @class UpdateReportCommandAssembler
+ */
+export class UpdateReportCommandAssembler {
+    
+    /**
+     * Convierte un UpdateReportCommand a un objeto resource para la API.
+     * @param {UpdateReportCommand} command - El comando de actualización de reporte.
+     * @returns {Object} El objeto resource formateado para la API.
+     */
+    static toResource(command) {
+        return {
+            finalResult: command.finalResult,
+            summary: command.summary,
+            observations: command.observations,
+            glossary: command.glossary,
+            casuistics: command.casuistics,
+            isResultValid: command.isResultValid
+        };
+    }
+    
+    /**
+     * Alias para compatibilidad con código existente.
+     * @deprecated Usar toResource() en su lugar
+     */
+    static toResourceFromCommand(command) {
+        return this.toResource(command);
+    }
+}

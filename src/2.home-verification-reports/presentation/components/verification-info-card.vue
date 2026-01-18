@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { DateFormatter } from '../../../shared-v2/utils/date-formatter.js';
 
 // Props
@@ -19,8 +19,36 @@ const props = defineProps({
   result: {
     type: String,
     default: ''
+  },
+  canEdit: {
+    type: Boolean,
+    default: false
   }
 });
+
+// Emits
+const emit = defineEmits(['update:result']);
+
+// State
+const localResult = ref(props.result || '');
+
+// Watch for external changes
+watch(() => props.result, (newValue) => {
+  localResult.value = newValue || '';
+}, { immediate: true });
+
+// Methods
+const handleResultChange = (value) => {
+  localResult.value = value;
+  emit('update:result', value);
+};
+
+// Opciones del dropdown
+const resultOptions = [
+  { label: 'Conforme', value: 'CONFORME' },
+  { label: 'Observado', value: 'OBSERVADO' },
+  { label: 'Rechazado', value: 'RECHAZADO' }
+];
 
 // Computed
 const isValidMapLink = computed(() => {
@@ -128,12 +156,25 @@ const formattedVisitDate = computed(() => {
         </div>
 
         <div class="col-12 md:col-6 lg:col-3">
-          <div class="p-3 border-round border-2 border-orange-300 bg-orange-50">
-            <p class="text-xs text-600 font-semibold m-0 mb-1">
+          <div class="p-3 border-round border-2 border-orange-300 bg-orange-50" :class="{ 'editable-field-box': canEdit }">
+            <p class="text-xs text-600 font-semibold m-0 mb-2 flex align-items-center gap-2">
               <i class="pi pi-flag mr-1"></i>
               Resultado
+              <span v-if="canEdit" class="text-xs font-bold px-2 py-1 border-round bg-orange-500 text-white">
+                EDITABLE
+              </span>
             </p>
-            <span :class="['status-tag', resultClass]">
+            <pv-select
+              v-if="canEdit"
+              v-model="localResult"
+              :options="resultOptions"
+              option-label="label"
+              option-value="value"
+              placeholder="Seleccione un resultado"
+              class="w-full"
+              @change="handleResultChange(localResult)"
+            />
+            <span v-else :class="['status-tag', resultClass]">
               {{ formattedResult }}
             </span>
           </div>
@@ -144,4 +185,17 @@ const formattedVisitDate = computed(() => {
 </template>
 
 <style scoped>
+.editable-field-box {
+  animation: pulse-border 2s ease-in-out infinite;
+  box-shadow: 0 0 0 3px rgba(255, 159, 64, 0.3);
+}
+
+@keyframes pulse-border {
+  0%, 100% {
+    box-shadow: 0 0 0 3px rgba(255, 159, 64, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(255, 159, 64, 0.5);
+  }
+}
 </style>

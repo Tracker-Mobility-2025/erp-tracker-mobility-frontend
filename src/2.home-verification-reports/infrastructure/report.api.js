@@ -57,6 +57,21 @@ export class ReportApi extends BaseApi {
   }
 
   /**
+   * Actualiza un reporte de verificación (resultado, resumen, observaciones, etc.).
+   * PATCH /api/v1/web/reports/{reportId}
+   * @param {string|number} reportId - El ID del reporte.
+   * @param {Object} data - Los datos actualizados del reporte.
+   * @returns {Promise} Una promesa que se resuelve con la respuesta de la actualización.
+   */
+  updateReport(reportId, data) {
+    const reportIdParsed = parseInt(reportId, 10);
+    if (isNaN(reportIdParsed) || reportIdParsed <= 0) {
+      throw new Error('El ID del reporte debe ser un número válido mayor a 0');
+    }
+    return this.http.patch(`${reportEndpointPath}/${reportIdParsed}`, data);
+  }
+
+  /**
    * Obtiene la URL de descarga del reporte de verificación domiciliaria (PDF).
    * GET /api/v1/web/reports/{reportId}/download-url
    * @param {string|number} reportId - El ID del reporte.

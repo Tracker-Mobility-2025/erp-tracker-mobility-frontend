@@ -4,6 +4,7 @@ import { ReportHttpRepository } from "../infrastructure/repositories/report-http
 import { ReportErrorHandler } from "./error-handlers/report-error.handler.js";
 import { useNotification } from "../../shared-v2/composables/use-notification.js";
 import { UpdateLandlordInterviewCommand } from "../domain/commands/update-landlord-interview.command.js";
+import { UpdateReportCommand } from "../domain/commands/update-report.command.js";
 
 /**
  * Store de Pinia para funcionalidad de reportes de verificación.
@@ -126,12 +127,42 @@ const useVerificationReportStore = defineStore('verificationReport', () => {
         }
     }
 
+    /**
+     * Actualiza un reporte de verificación (resultado, resumen, observaciones, etc.).
+     * @param {number} reportId - El ID del reporte.
+     * @param {Object} data - Los datos actualizados del reporte.
+     * @returns {Promise<Object>} Resultado { success, data?, message, code }
+     */
+    async function updateReport(reportId, data) {
+        try {
+            // Crear Command con validación automática
+            const command = new UpdateReportCommand({
+                reportId,
+                ...data
+            });
+
+            const result = await repository.updateReport(command);
+            
+            showSuccess('Resultado confirmado exitosamente', 'Reporte actualizado', 4000);
+            
+            return {
+                success: true,
+                data: result,
+                message: 'Reporte actualizado correctamente',
+                code: 'SUCCESS'
+            };
+        } catch (error) {
+            return errorHandler.handle(error, 'actualizar el reporte');
+        }
+    }
+
     return {
         verificationReports,
         fetchAll,
         fetchById,
         remove,
-        updateLandlordInterview
+        updateLandlordInterview,
+        updateReport
     };
 });
 

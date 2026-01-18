@@ -23,6 +23,7 @@ export class ReportAssembler {
       addressLocation: resource.addressLocation,
       visitDate: resource.visitDate,
       finalResult: resource.finalResult,
+      isResultValid: resource.isResultValid,
       companyName: resource.companyName,
       companyRuc: resource.companyRuc,
       companyExecutiveName: resource.companyExecutiveName,
