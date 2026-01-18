@@ -10,6 +10,7 @@ import { customerRoutes } from "../4.customer-management/presentation/customer.r
 import { verificationOrderRoutes } from "../1.verification-orders/presentation/verification-order.routes.js";
 import { verificationReportRoutes } from "../2.home-verification-reports/presentation/verification-report.routes.js";
 import { orderRequestRoutes } from "../0.verification-order-requests/presentation/order-request.routes.js";
+import { salesTeamRoutes } from "../5.sales-team/presentation/sales-team.routes.js";
 
 
 
@@ -32,7 +33,7 @@ const router = createRouter({
             component: LayoutTrackerMobilityComponent,
             meta: {
                 title: 'Tracker Mobility',
-                roles: ['ADMIN', 'MASTER_ADMIN', 'COMPANY_EMPLOYEE'] // Todos los roles autorizados
+                roles: ['ADMIN', 'MASTER_ADMIN', 'COMPANY_EMPLOYEE', 'GERENTE_VENTAS'] // Todos los roles autorizados
             },
             children: [
 
@@ -41,11 +42,15 @@ const router = createRouter({
                     path: '',
                     name: 'home',
                     redirect: (to) => {
-                        // Obtener el rol del usuario desde localStorage
-                        const userRole = localStorage.getItem('role');
+                        // Obtener el rol específico del usuario desde localStorage
+                        const specificRole = localStorage.getItem('role');
                         
-                        // Redirigir según el rol
-                        if (userRole === 'COMPANY_EMPLOYEE') {
+                        // Redirigir según el rol específico
+                        if (specificRole === 'GERENTE_VENTAS') {
+                            return { name: 'sales-team-list' };
+                        }
+                        
+                        if (specificRole === 'VENDEDOR' || specificRole === 'COMPANY_EMPLOYEE') {
                             return { name: 'order-requests-list' };
                         }
                         
@@ -109,6 +114,23 @@ const router = createRouter({
                     meta: {
                         title: 'Reportes de Verificación',
                         roles: ['ADMIN', 'MASTER_ADMIN']
+                    }
+                },
+
+                //========================================================
+
+
+                // ============== Rutas de GERENTE_VENTAS ==============
+                //========================================================
+
+                // Equipo de Ventas (nueva arquitectura - Bounded Context: 5.sales-team)
+                {
+                    path: 'sales-manager/sales-team',
+                    name: 'sales-team-module',
+                    children: salesTeamRoutes,
+                    meta: {
+                        title: 'Equipo de Ventas',
+                        roles: ['GERENTE_VENTAS']
                     }
                 },
 

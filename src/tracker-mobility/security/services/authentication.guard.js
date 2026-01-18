@@ -36,7 +36,7 @@ export const authenticationGuard = (to, from, next) => {
 
         // Verificar que solo usuarios con roles autorizados puedan acceder al sistema
         if (store.isSignedIn) {
-            const authorizedRoles = ['ADMIN', 'MASTER_ADMIN', 'COMPANY_EMPLOYEE'];
+            const authorizedRoles = ['ADMIN', 'MASTER_ADMIN', 'COMPANY_EMPLOYEE', 'GERENTE_VENTAS', 'VENDEDOR'];
             const hasAuthorizedRole = store.currentRoles.some(role => authorizedRoles.includes(role));
             
             if (!hasAuthorizedRole) {

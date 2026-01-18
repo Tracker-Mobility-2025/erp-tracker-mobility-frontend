@@ -43,6 +43,13 @@ export const useAuthenticationStore = defineStore('authentication', {
         currentRole: (state) => state['roles'][0] || '',
 
         /**
+         * Specific role (GERENTE_VENTAS, VENDEDOR, etc.)
+         * For COMPANY_EMPLOYEE users, returns their specific role
+         * @returns {string} - The specific role from localStorage
+         */
+        specificRole: () => localStorage.getItem('role'),
+
+        /**
          * Current token
          * @returns {string} - The current token
          */
@@ -92,6 +99,11 @@ export const useAuthenticationStore = defineStore('authentication', {
                 localStorage.setItem('userId', signInResponse.userId);
                 localStorage.setItem('username', signInResponse.username);
                 localStorage.setItem('roles', JSON.stringify(signInResponse.roles)); // Guardar como JSON
+                
+                // Guardar el rol específico (GERENTE_VENTAS, VENDEDOR, etc.)
+                // Buscar el rol específico que no sea COMPANY_EMPLOYEE
+                const specificRole = signInResponse.roles.find(role => role !== 'COMPANY_EMPLOYEE') || signInResponse.roles[0];
+                localStorage.setItem('role', specificRole);
 
                 console.log("✔ Login completo:", signInResponse);
 
@@ -151,6 +163,7 @@ export const useAuthenticationStore = defineStore('authentication', {
             localStorage.removeItem('userId');
             localStorage.removeItem('username');
             localStorage.removeItem('roles');
+            localStorage.removeItem('role');
             router.push({name: 'sign-in'});
         },
 
@@ -196,10 +209,12 @@ export const useAuthenticationStore = defineStore('authentication', {
             const defaultRoutesByRole = {
                 'ADMIN': '/app/admin/verification-orders',
                 'MASTER_ADMIN': '/app/admin/verification-orders',
-                'COMPANY_EMPLOYEE': '/app/applicant-company/order-requests'
+                'COMPANY_EMPLOYEE': '/app/applicant-company/order-requests',
+                'GERENTE_VENTAS': '/app/sales-manager/sales-team',
+                'VENDEDOR': '/app/applicant-company/order-requests'
             };
             
-            const authorizedRoles = ['ADMIN', 'MASTER_ADMIN', 'COMPANY_EMPLOYEE'];
+            const authorizedRoles = ['ADMIN', 'MASTER_ADMIN', 'COMPANY_EMPLOYEE', 'GERENTE_VENTAS', 'VENDEDOR'];
             
             // ⚠️ Verificar que al menos un rol está autorizado para hacer login
             const hasAuthorizedRole = userRoles.some(role => authorizedRoles.includes(role));
@@ -244,10 +259,19 @@ export const useAuthenticationStore = defineStore('authentication', {
                 }
             } else {
                 // No hay ruta de origen, ir a ruta por defecto
-                // Usar el primer rol autorizado para determinar la ruta por defecto
-                const primaryRole = userRoles.find(role => authorizedRoles.includes(role));
-                const defaultRoute = defaultRoutesByRole[primaryRole];
-                console.log(`🏠 [REDIRECT] Redirigiendo a ruta por defecto: ${defaultRoute}`);
+                // Para COMPANY_EMPLOYEE, usar el rol específico (GERENTE_VENTAS o VENDEDOR)
+                let targetRole;
+                if (userRoles.includes('COMPANY_EMPLOYEE')) {
+                    // Buscar el rol específico
+                    const specificRole = userRoles.find(role => role !== 'COMPANY_EMPLOYEE');
+                    targetRole = specificRole || 'COMPANY_EMPLOYEE';
+                } else {
+                    // Para otros roles, usar el primer rol autorizado
+                    targetRole = userRoles.find(role => authorizedRoles.includes(role));
+                }
+                
+                const defaultRoute = defaultRoutesByRole[targetRole];
+                console.log(`🏠 [REDIRECT] Redirigiendo a ruta por defecto para rol ${targetRole}: ${defaultRoute}`);
                 router.push(defaultRoute);
             }
             
@@ -294,8 +318,14 @@ export const useAuthenticationStore = defineStore('authentication', {
             // Rutas de solicitud de servicio (requieren rol COMPANY_EMPLOYEE o admin)
             if (routePath.startsWith('/app/applicant-company/')) {
                 return userRoles.includes('COMPANY_EMPLOYEE') || 
+                       userRoles.includes('VENDEDOR') ||
                        userRoles.includes('ADMIN') || 
                        userRoles.includes('MASTER_ADMIN');
+            }
+            
+            // Rutas de sales-manager (requieren rol GERENTE_VENTAS)
+            if (routePath.startsWith('/app/sales-manager/')) {
+                return userRoles.includes('GERENTE_VENTAS');
             }
             
             // Rutas públicas

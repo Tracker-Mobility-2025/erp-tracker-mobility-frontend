@@ -24,10 +24,25 @@ const isOpen = ref(true)
 const emit = defineEmits(['sidebar-toggle', 'menu-selected'])
 
 // Computed
-const currentUser = computed(() => ({
-  username: authStore.currentUsername || 'Usuario',
-  role: authStore.currentRole || 'Sin rol'
-}))
+const currentUser = computed(() => {
+  // Obtener el rol específico (GERENTE_VENTAS, VENDEDOR) o el rol genérico
+  const specificRole = authStore.specificRole;
+  const displayRole = specificRole || authStore.currentRole || 'Sin rol';
+  
+  // Formatear el nombre del rol para mostrar
+  const roleNames = {
+    'ADMIN': 'Administrador',
+    'MASTER_ADMIN': 'Super Administrador',
+    'COMPANY_EMPLOYEE': 'Empleado',
+    'GERENTE_VENTAS': 'Gerente de Ventas',
+    'VENDEDOR': 'Vendedor'
+  };
+  
+  return {
+    username: authStore.currentUsername || 'Usuario',
+    role: roleNames[displayRole] || displayRole
+  };
+});
 
 // Methods
 const toggleSidebar = () => {

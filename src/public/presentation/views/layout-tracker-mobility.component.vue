@@ -11,18 +11,34 @@ const sidebarOpen = ref(true);
 
 // Opciones del menú de navegación
 const allMenuItems = [
-  { roles: ['COMPANY_EMPLOYEE'], label: 'Mis Solicitudes', icon: 'pi pi-fw pi-list', to: `/app/applicant-company/order-requests` },
-  //{ roles: ['COMPANY_EMPLOYEE'], label: 'Nueva Solicitud', icon: 'pi pi-fw pi-plus-circle', to: `/app/applicant-company/order-requests/new` },
+  // Opciones para VENDEDOR (COMPANY_EMPLOYEE con rol VENDEDOR)
+  { roles: ['COMPANY_EMPLOYEE', 'VENDEDOR'], label: 'Mis Solicitudes', icon: 'pi pi-fw pi-list', to: `/app/applicant-company/order-requests` },
+  
+  // Opciones para GERENTE_VENTAS (COMPANY_EMPLOYEE con rol GERENTE_VENTAS)
+  { roles: ['GERENTE_VENTAS'], label: 'Equipo de Ventas', icon: 'pi pi-fw pi-users', to: `/app/sales-manager/sales-team` },
+  
+  // Opciones para ADMIN y MASTER_ADMIN
   { roles: ['ADMIN', 'MASTER_ADMIN'], label: 'Órdenes', icon: 'pi pi-fw pi-file-edit', to: `/app/admin/verification-orders` },
   { roles: ['ADMIN', 'MASTER_ADMIN'], label: 'Reportes', icon: 'pi pi-fw pi-chart-bar', to: `/app/admin/verification-reports` },
   { roles: ['ADMIN', 'MASTER_ADMIN'], label: 'Verificadores', icon: 'pi pi-fw pi-users', to: `/app/admin/verifiers` },
   { roles: ['ADMIN', 'MASTER_ADMIN'], label: 'Clientes', icon: 'pi pi-fw pi-user', to: `/app/admin/clients` },
 ];
 
-// Filtrar menú según el rol del usuario
+// Filtrar menú según el rol específico del usuario
 const menuItems = computed(() => {
-  const currentRole = authStore.currentRole;
-  return allMenuItems.filter(item => item.roles.includes(currentRole));
+  // Obtener el rol específico (GERENTE_VENTAS, VENDEDOR, ADMIN, etc.)
+  const specificRole = authStore.specificRole;
+  
+  // Si no hay rol específico, usar roles array
+  if (!specificRole) {
+    const userRoles = authStore.currentRoles;
+    return allMenuItems.filter(item => 
+      item.roles.some(role => userRoles.includes(role))
+    );
+  }
+  
+  // Filtrar items que incluyen el rol específico
+  return allMenuItems.filter(item => item.roles.includes(specificRole));
 });
 
 // Manejadores de eventos
