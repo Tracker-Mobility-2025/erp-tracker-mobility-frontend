@@ -28,12 +28,11 @@ const currentEmployee = computed(() => salesTeamStore.currentEmployee);
 
 // Configuración de columnas para el DataTable
 const columns = [
-    { field: 'name', header: 'Nombre', sortable: true },
-    { field: 'lastName', header: 'Apellido', sortable: true },
+    { field: 'fullName', header: 'Nombre Completo', sortable: true, template: 'body-fullName' },
     { field: 'email', header: 'Correo Electrónico', sortable: true },
     { field: 'phoneNumber', header: 'Teléfono', sortable: true },
     { field: 'brandName', header: 'Marca', sortable: true },
-    { field: 'status', header: 'Estado', sortable: true }
+    { field: 'status', header: 'Estado', sortable: true, template: 'body-status' }
 ];
 
 // Methods
@@ -143,39 +142,38 @@ const onSaveRequested = async (sellerData) => {
     }
 };
 
-const onDeleteSeller = (seller) => {
-    confirm.require({
-        message: `¿Está seguro de eliminar al vendedor ${seller.name} ${seller.lastName}?`,
-        header: 'Confirmación',
-        icon: 'pi pi-exclamation-triangle',
-        rejectClass: 'p-button-secondary p-button-outlined',
-        rejectLabel: 'Cancelar',
-        acceptLabel: 'Eliminar',
-        acceptClass: 'p-button-danger',
-        accept: async () => {
-            const companyId = currentEmployee.value.applicantCompanyId;
-            const result = await customerStore.deleteEmployee(companyId, seller.id);
-            
-            if (result.success) {
-                toast.add({
-                    severity: 'success',
-                    summary: 'Vendedor eliminado',
-                    detail: 'El vendedor ha sido eliminado exitosamente',
-                    life: 4000
-                });
-                
-                // Recargar lista
-                await salesTeamStore.fetchSalesTeam();
-            } else {
-                toast.add({
-                    severity: 'error',
-                    summary: 'Error al eliminar',
-                    detail: result.message || 'No se pudo eliminar el vendedor',
-                    life: 4000
-                });
-            }
-        }
-    });
+const onDeleteSeller = async (seller) => {
+    if (!currentEmployee.value) {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'No se pudo cargar la información del gerente',
+            life: 4000
+        });
+        return;
+    }
+    
+    const companyId = currentEmployee.value.applicantCompanyId;
+    const result = await customerStore.deleteEmployee(companyId, seller.id);
+    
+    if (result.success) {
+        toast.add({
+            severity: 'success',
+            summary: 'Vendedor eliminado',
+            detail: `${seller.fullName} ha sido eliminado exitosamente`,
+            life: 4000
+        });
+        
+        // Recargar lista
+        await salesTeamStore.fetchSalesTeam();
+    } else {
+        toast.add({
+            severity: 'error',
+            summary: 'Error al eliminar',
+            detail: result.message || 'No se pudo eliminar el vendedor',
+            life: 4000
+        });
+    }
 };
 
 // Lifecycle
@@ -241,14 +239,14 @@ onMounted(async () => {
                     />
                 </template>
 
-                <!-- Slot personalizado para nombre completo -->
-                <template #body-name="{ data }">
+                <!-- Slot personalizado para nombre completo con avatar -->
+                <template #body-fullName="{ data }">
                     <div class="flex align-items-center gap-2">
                         <div class="flex align-items-center justify-content-center border-circle bg-primary text-white" 
                              style="width: 32px; height: 32px;">
                             <i class="pi pi-user text-sm"></i>
                         </div>
-                        <span class="font-medium">{{ data.name }} {{ data.lastName }}</span>
+                        <span class="font-medium">{{ data.fullName }}</span>
                     </div>
                 </template>
             </data-manager>

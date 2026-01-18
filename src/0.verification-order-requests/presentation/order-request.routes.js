@@ -13,7 +13,7 @@ export const orderRequestRoutes = [
     component: OrderRequestsManagement,
     meta: {
       title: 'Mis Solicitudes',
-      roles: ['COMPANY_EMPLOYEE']
+      roles: ['COMPANY_EMPLOYEE', 'GERENTE_VENTAS', 'VENDEDOR']
     }
   },
   {
@@ -22,7 +22,7 @@ export const orderRequestRoutes = [
     component: OrderRequestForm,
     meta: {
       title: 'Nueva Solicitud de Orden',
-      roles: ['COMPANY_EMPLOYEE']
+      roles: ['COMPANY_EMPLOYEE', 'GERENTE_VENTAS', 'VENDEDOR']
     }
   },
   {
@@ -31,7 +31,7 @@ export const orderRequestRoutes = [
     component: OrderRequestDetail,
     meta: {
       title: 'Detalle de Solicitud',
-      roles: ['COMPANY_EMPLOYEE']
+      roles: ['COMPANY_EMPLOYEE', 'GERENTE_VENTAS', 'VENDEDOR']
     }
   }
 ];

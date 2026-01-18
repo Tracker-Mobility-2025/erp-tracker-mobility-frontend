@@ -23,6 +23,7 @@ const toast = useToast();
 const customerId = ref(null);
 const search = ref('');
 const selectStatus = ref('');
+const selectedBrand = ref(''); // Filtro por marca
 const isEdit = ref(false);
 const itemEmployee = ref(null);
 const createAndEditDialogIsVisible = ref(false);
@@ -43,6 +44,21 @@ const statusOptions = StatusFilterOptions;
 
 // Computed
 const customer = computed(() => customerStore.currentCustomer);
+
+// Brand options - generadas dinámicamente desde las marcas del cliente
+const brandOptions = computed(() => {
+    if (!customer.value?.brands || customer.value.brands.length === 0) {
+        return [{ label: 'Todas las marcas', value: '' }];
+    }
+    
+    return [
+        { label: 'Todas las marcas', value: '' },
+        ...customer.value.brands.map(brand => ({
+            label: brand.name || brand.value,
+            value: String(brand.id)
+        }))
+    ];
+});
 
 const filteredEmployees = computed(() => {
     let filtered = customerStore.employees;
@@ -78,6 +94,13 @@ const filteredEmployees = computed(() => {
         filtered = filtered.filter(employee => employee.status === selectStatus.value);
     }
 
+    // Filter by brand
+    if (selectedBrand.value) {
+        filtered = filtered.filter(employee => 
+            String(employee.brandId) === selectedBrand.value
+        );
+    }
+
     return filtered;
 });
 
@@ -109,6 +132,13 @@ const statusProps = computed(() => {
 // Methods
 const getCountByStatus = (status) => {
     return customerStore.employees.filter(e => e.status === status).length;
+};
+
+const getCountByBrand = (brandId) => {
+    if (!brandId) {
+        return customerStore.employees.length;
+    }
+    return customerStore.employees.filter(e => String(e.brandId) === String(brandId)).length;
 };
 
 const getStatusSeverity = (status) => {
@@ -286,6 +316,7 @@ const onSaveRequested = async (employeeData) => {
 const onClearFilters = () => {
     search.value = '';
     selectStatus.value = '';
+    selectedBrand.value = '';
 };
 
 const onEditItem = (employee) => {
@@ -345,6 +376,7 @@ const clearData = () => {
     customerStore.employees = [];
     search.value = '';
     selectStatus.value = '';
+    selectedBrand.value = '';
     loadingStep.value = 0;
 };
 
@@ -479,13 +511,47 @@ watch(() => route.query.id, async (newId) => {
                             <div class="flex align-items-center justify-content-between w-full">
                                 <span>{{ slotProps.option.label }}</span>
                                 <span 
-                                    v-if="slotProps.option.value !== ''"
-                                    class="badge badge-primary ml-2"
+                                    v-if="slotProps.option.value === 'ACTIVE'"
+                                    class="inline-flex align-items-center justify-content-center border-circle font-semibold text-xs ml-2"
+                                    style="min-width: 28px; min-height: 28px; background-color: #10b981; color: white;"
                                 >
                                     {{ getCountByStatus(slotProps.option.value) }}
                                 </span>
-                                <span v-else class="badge badge-secondary ml-2">
+                                <span 
+                                    v-else-if="slotProps.option.value === 'INACTIVE'"
+                                    class="inline-flex align-items-center justify-content-center border-circle font-semibold text-xs ml-2"
+                                    style="min-width: 28px; min-height: 28px; background-color: #ef4444; color: white;"
+                                >
+                                    {{ getCountByStatus(slotProps.option.value) }}
+                                </span>
+                                <span 
+                                    v-else
+                                    class="inline-flex align-items-center justify-content-center border-circle font-semibold text-xs ml-2"
+                                    style="min-width: 28px; min-height: 28px; background-color: #64748b; color: white;"
+                                >
                                     {{ customerStore.employees.length }}
+                                </span>
+                            </div>
+                        </template>
+                    </pv-dropdown>
+                    
+                    <pv-dropdown
+                        v-model="selectedBrand"
+                        :options="brandOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Filtrar por marca"
+                        class="w-full md:w-auto"
+                        style="min-width: 200px"
+                    >
+                        <template #option="slotProps">
+                            <div class="flex align-items-center justify-content-between w-full">
+                                <span>{{ slotProps.option.label }}</span>
+                                <span 
+                                    class="inline-flex align-items-center justify-content-center border-circle font-semibold text-xs ml-2"
+                                    style="min-width: 28px; min-height: 28px; background-color: #3b82f6; color: white;"
+                                >
+                                    {{ getCountByBrand(slotProps.option.value) }}
                                 </span>
                             </div>
                         </template>

@@ -13,7 +13,8 @@ export const salesTeamRoutes = [
         name: 'sales-team-list',
         component: SalesTeamList,
         meta: {
-            title: 'Equipo de Ventas'
+            title: 'Equipo de Ventas',
+            roles: ['GERENTE_VENTAS']
         }
     },
     {
@@ -21,15 +22,17 @@ export const salesTeamRoutes = [
         name: 'employee-orders',
         component: EmployeeOrders,
         meta: {
-            title: 'Órdenes del Vendedor'
+            title: 'Órdenes del Vendedor',
+            roles: ['GERENTE_VENTAS']
         }
     },
     {
         path: 'order/:orderId',
-        name: 'order-detail',
+        name: 'order-detail-sales',
         component: OrderDetail,
         meta: {
-            title: 'Detalle de Orden'
+            title: 'Detalle de Orden',
+            roles: ['GERENTE_VENTAS']
         }
     }
 ];

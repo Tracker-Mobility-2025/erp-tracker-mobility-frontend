@@ -11,10 +11,10 @@ const sidebarOpen = ref(true);
 
 // Opciones del menú de navegación
 const allMenuItems = [
-  // Opciones para VENDEDOR (COMPANY_EMPLOYEE con rol VENDEDOR)
-  { roles: ['COMPANY_EMPLOYEE', 'VENDEDOR'], label: 'Mis Solicitudes', icon: 'pi pi-fw pi-list', to: `/app/applicant-company/order-requests` },
+  // Opciones para VENDEDOR y GERENTE_VENTAS (acceso a solicitudes)
+  { roles: ['COMPANY_EMPLOYEE', 'VENDEDOR', 'GERENTE_VENTAS'], label: 'Mis Solicitudes', icon: 'pi pi-fw pi-list', to: `/app/applicant-company/order-requests` },
   
-  // Opciones para GERENTE_VENTAS (COMPANY_EMPLOYEE con rol GERENTE_VENTAS)
+  // Opciones exclusivas para GERENTE_VENTAS
   { roles: ['GERENTE_VENTAS'], label: 'Equipo de Ventas', icon: 'pi pi-fw pi-users', to: `/app/sales-manager/sales-team` },
   
   // Opciones para ADMIN y MASTER_ADMIN

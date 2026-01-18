@@ -11,11 +11,15 @@ export class SalesTeamAssembler {
     static toEmployeeDomain(dto) {
         if (!dto) return null;
 
+        const name = dto.name || '';
+        const lastName = dto.lastName || '';
+        
         return {
             id: dto.id,
             userId: dto.userId,
-            name: dto.name || '',
-            lastName: dto.lastName || '',
+            name,
+            lastName,
+            fullName: `${name} ${lastName}`.trim(), // Nombre completo para identificación
             email: dto.email || '',
             phoneNumber: dto.phoneNumber || '',
             status: dto.status || 'ACTIVE',
