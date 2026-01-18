@@ -54,6 +54,7 @@ import Rating from "primevue/rating";
 import Row from "primevue/row";
 import Drawer from "primevue/drawer";
 import Tag from "primevue/tag";
+import Popover from "primevue/popover";
 import Textarea from "primevue/textarea";
 import Toolbar from "primevue/toolbar";
 import TabList from "primevue/tablist";
@@ -76,7 +77,7 @@ import {
     AccordionHeader,
     AccordionPanel,
     AutoComplete,
-    Badge, Chips, DatePicker, Dropdown, InputMask, InputSwitch, Message, Paginator, ProgressBar, ProgressSpinner,
+    Badge, Chips, DatePicker, Dropdown, InputMask, InputSwitch, Message, MultiSelect, Paginator, ProgressBar, ProgressSpinner,
     Select,
     SplitButton,
     TabPanels
@@ -179,6 +180,7 @@ app.component('pv-button', Button)
     .component('pv-row', Row)
     .component('pv-drawer', Drawer)
     .component('pv-tag', Tag)
+    .component('pv-popover', Popover)
     .component('pv-textarea', Textarea)
     .component('pv-toolbar', Toolbar)
     .component('pv-toast', Toast)
@@ -196,6 +198,7 @@ app.component('pv-button', Button)
     .component('pv-split-button', SplitButton)
     .component('pv-auto-complete', AutoComplete)
     .component('pv-dropdown', Dropdown)
+    .component('pv-multi-select', MultiSelect)
     .component('pv-select', Select)
     .component('pv-progress-bar', ProgressBar)
     .component('pv-calendar', DatePicker)

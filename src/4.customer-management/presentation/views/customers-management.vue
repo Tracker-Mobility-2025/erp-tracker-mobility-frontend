@@ -48,7 +48,7 @@ const filteredClients = computed(() => {
         
         filtered = filtered.filter(customer => {
             // Normalizar cada campo antes de comparar
-            const ruc = normalizeText(customer.ruc);
+            const ruc = normalizeText(customer.getRucValue());
             const companyName = normalizeText(customer.companyName);
             const status = normalizeText(customer.status);
             
@@ -97,15 +97,13 @@ const onCancelRequested = () => {
 };
 
 const onSaveRequested = async (customerData) => {
-    console.log('[Component] onSaveRequested called at', new Date().toISOString());
-    
     // Validar RUC duplicado
     const rucExists = customerStore.customers.find(customer => {
         // Si estamos editando, excluir el cliente actual de la búsqueda
         if (isEdit.value && itemClient.value && customer.id === itemClient.value.id) {
             return false;
         }
-        return customer.ruc === customerData.ruc;
+        return customer.getRucValue() === customerData.ruc;
     });
     
     if (rucExists) {
@@ -120,17 +118,15 @@ const onSaveRequested = async (customerData) => {
     
     try {
         if (isEdit.value) {
-            console.log('[Component] Calling updateCustomer');
             await updateCustomer(customerData);
         } else {
-            console.log('[Component] Calling createCustomer');
             await createCustomer(customerData);
         }
         createAndEditDialogIsVisible.value = false;
         isEdit.value = false;
         itemClient.value = null;
     } catch (error) {
-        console.error('Error saving customer:', error);
+        // Error ya manejado por el composable
     }
 };
 
@@ -297,7 +293,7 @@ const resetPage = () => {
                             <div class="flex align-items-center gap-2 mb-2">
                                 <i class="pi pi-id-card text-muted"></i>
                                 <span class="text-muted text-sm font-medium">RUC:</span>
-                                <span class="text-dark font-semibold">{{ customer.ruc }}</span>
+                                <span class="text-dark font-semibold">{{ customer.getRucValue() }}</span>
                             </div>
                             <!-- Brands -->
                             <div v-if="customer.brands && customer.brands.length > 0" class="flex align-items-center gap-2 flex-wrap">

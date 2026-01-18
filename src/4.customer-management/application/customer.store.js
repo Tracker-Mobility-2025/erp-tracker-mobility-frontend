@@ -165,20 +165,15 @@ export const useCustomerStore = defineStore('customer', () => {
      * Crea un nuevo cliente
      */
     async function create(data) {
-        console.log('[Store] create called at', new Date().toISOString(), 'data:', data);
         loading.value = true;
         error.value = null;
 
         try {
-            console.log('[Store] Creating command with data:', data);
             const command = new CreateCustomerCommand(data);
-            console.log('[Store] Command created:', command);
             const newCustomer = await repository.create(command);
-            console.log('[Store] customer created successfully');
             
             customers.value.push(newCustomer);
 
-            console.log('[Store] Returning success result for create');
             return {
                 success: true,
                 data: newCustomer,
@@ -186,7 +181,6 @@ export const useCustomerStore = defineStore('customer', () => {
                 code: 'SUCCESS'
             };
         } catch (err) {
-            console.log('[Store] Error in create, handling error');
             error.value = errorHandler.handle(err, 'create');
             return error.value;
         } finally {
@@ -198,17 +192,12 @@ export const useCustomerStore = defineStore('customer', () => {
      * Actualiza un cliente existente
      */
     async function update(id, data) {
-        console.log('🔍 [Store] update called - id:', id);
-        console.log('🔍 [Store] data recibida:', JSON.stringify(data, null, 2));
         loading.value = true;
         error.value = null;
 
         try {
             const command = new UpdateCustomerCommand({ id, ...data });
-            console.log('🔍 [Store] UpdateCustomerCommand creado:', command);
-            console.log('🔍 [Store] command.brands:', command.brands);
             const updatedCustomer = await repository.update(id, command);
-            console.log('[Store] customer updated successfully');
 
             // Actualizar el cliente en la lista
             const index = customers.value.findIndex(c => c.id === id);
@@ -221,7 +210,6 @@ export const useCustomerStore = defineStore('customer', () => {
                 currentCustomer.value = updatedCustomer;
             }
 
-            console.log('[Store] Returning success result');
             return {
                 success: true,
                 data: updatedCustomer,
@@ -239,7 +227,7 @@ export const useCustomerStore = defineStore('customer', () => {
     /**
      * Elimina un cliente
      */
-    async function deleteCustomer(id) {
+    async function remove(id) {
         loading.value = true;
         error.value = null;
 
@@ -318,9 +306,23 @@ export const useCustomerStore = defineStore('customer', () => {
                 };
             }
 
+            // � Transformar roles (array) al primer elemento como role (string) si es necesario
+            let roleValue = employeeData.role;
+            if (!roleValue && employeeData.roles && Array.isArray(employeeData.roles) && employeeData.roles.length > 0) {
+                roleValue = employeeData.roles[0];
+                console.log('🔄 [Store] Transformación roles → role:', {
+                    rolesOriginal: employeeData.roles,
+                    roleTransformado: roleValue
+                });
+            }
+
             // 🔍 Validar campos requeridos por el backend
-            const requiredFields = ['email', 'password', 'name', 'lastName', 'phoneNumber', 'applicantCompanyId', 'brandId', 'role'];
+            const requiredFields = ['email', 'password', 'name', 'lastName', 'phoneNumber', 'applicantCompanyId', 'brandId'];
             const missingFields = requiredFields.filter(field => !employeeData[field]);
+            
+            if (!roleValue) {
+                missingFields.push('role');
+            }
             
             if (missingFields.length > 0) {
                 console.error('❌ [Store] Campos requeridos faltantes:', missingFields);
@@ -344,7 +346,7 @@ export const useCustomerStore = defineStore('customer', () => {
                 brandId: typeof employeeData.brandId === 'number' 
                     ? employeeData.brandId 
                     : parseInt(employeeData.brandId), // ✅ Asegurar que sea número
-                role: employeeData.role // String singular
+                role: roleValue // String singular (transformado desde roles si era necesario)
             };
 
             console.log('🚀 [Store] Enviando payload limpio:', JSON.stringify(cleanPayload, null, 2));
@@ -413,8 +415,19 @@ export const useCustomerStore = defineStore('customer', () => {
             console.log('💾 [Store] Estado anterior guardado para rollback');
 
             try {
+                // � Transformar roles (array) al primer elemento como role (string) si es necesario
+                let cleanEmployeeData = { ...employeeData };
+                if (cleanEmployeeData.roles && Array.isArray(cleanEmployeeData.roles) && cleanEmployeeData.roles.length > 0) {
+                    cleanEmployeeData.role = cleanEmployeeData.roles[0];
+                    delete cleanEmployeeData.roles;
+                    console.log('🔄 [Store] Transformación PATCH roles → role:', {
+                        rolesOriginal: employeeData.roles,
+                        roleTransformado: cleanEmployeeData.role
+                    });
+                }
+                
                 // 🚀 Actualización en el servidor
-                const updatedEmployee = await repository.updateEmployee(customerId, employeeId, employeeData);
+                const updatedEmployee = await repository.updateEmployee(customerId, employeeId, cleanEmployeeData);
 
                 // ✅ Actualización exitosa: actualizar en memoria
                 if (index !== -1) {
@@ -529,7 +542,7 @@ export const useCustomerStore = defineStore('customer', () => {
         fetchById,
         create,
         update,
-        delete: deleteCustomer,
+        remove,
         fetchEmployees,
         createEmployee,
         updateEmployee,

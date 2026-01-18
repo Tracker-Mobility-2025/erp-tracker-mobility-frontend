@@ -19,12 +19,9 @@ export function useCustomerCrud() {
      * @returns {Promise<Customer>}
      */
     const createCustomer = async (customerData) => {
-        console.log('[CRUD Composable] createCustomer called at', new Date().toISOString());
         const result = await customerStore.create(customerData);
-        console.log('[CRUD Composable] create result:', result);
         
         if (result.success) {
-            console.log('[CRUD Composable] Showing success toast for create');
             toast.add({
                 severity: 'success',
                 summary: 'Cliente creado',
@@ -33,7 +30,6 @@ export function useCustomerCrud() {
             });
             return result.data;
         } else {
-            console.log('[CRUD Composable] Showing error toast for create');
             toast.add({
                 severity: 'error',
                 summary: 'Error al crear',
@@ -50,12 +46,9 @@ export function useCustomerCrud() {
      * @returns {Promise<Customer>}
      */
     const updateCustomer = async (customerData) => {
-        console.log('[CRUD Composable] updateCustomer called at', new Date().toISOString());
         const result = await customerStore.update(customerData.id, customerData);
-        console.log('[CRUD Composable] result:', result);
         
         if (result.success) {
-            console.log('[CRUD Composable] Showing success toast');
             toast.add({
                 severity: 'success',
                 summary: 'Cliente actualizado',
@@ -90,7 +83,7 @@ export function useCustomerCrud() {
                 acceptLabel: 'Eliminar',
                 acceptClass: 'p-button-danger',
                 accept: async () => {
-                    const result = await customerStore.delete(customer.id);
+                    const result = await customerStore.remove(customer.id);
                     
                     if (result.success) {
                         toast.add({

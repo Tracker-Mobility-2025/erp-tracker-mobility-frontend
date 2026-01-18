@@ -4,12 +4,16 @@
  */
 import { useInputValidation } from '../../../shared-v2/composables/use-input-validation.js';
 import { CustomerMessages, EmployeeCollaboratorMessages, BusinessRules } from '../constants/customer.constants.js';
+import { Ruc } from '../value-objects/ruc.vo.js';
+import { Email } from '../value-objects/email.vo.js';
+import { PhoneNumber } from '../value-objects/phone-number.vo.js';
 
 const { isValidEmail, validateRequired } = useInputValidation();
 
 export class CustomerValidators {
     /**
      * Valida el RUC de un cliente
+     * Combina validación básica (shared) con reglas de dominio (Value Object).
      * @param {string} ruc
      * @returns {{valid: boolean, message?: string}}
      */
@@ -20,18 +24,13 @@ export class CustomerValidators {
             return { valid: false, message: CustomerMessages.RUC_REQUIRED };
         }
 
-        // Capa 2: Reglas de negocio (domain)
-        const rucClean = ruc.toString().trim();
-        if (rucClean.length !== BusinessRules.RUC_LENGTH) {
-            return { valid: false, message: CustomerMessages.RUC_INVALID_FORMAT };
+        // Capa 2: Validación de dominio con Value Object
+        try {
+            new Ruc(ruc);
+            return { valid: true };
+        } catch (error) {
+            return { valid: false, message: error.message };
         }
-
-        // Validar que sean solo números
-        if (!/^\d+$/.test(rucClean)) {
-            return { valid: false, message: CustomerMessages.RUC_INVALID_FORMAT };
-        }
-
-        return { valid: true };
     }
 
     /**
@@ -81,6 +80,7 @@ export class CustomerValidators {
 export class EmployeeCollaboratorValidators {
     /**
      * Valida el email del colaborador
+     * Combina validación básica de formato (shared) con reglas de dominio (Value Object).
      * @param {string} email
      * @returns {{valid: boolean, message?: string}}
      */
@@ -90,7 +90,13 @@ export class EmployeeCollaboratorValidators {
             return { valid: false, message: EmployeeCollaboratorMessages.EMAIL_INVALID };
         }
 
-        return { valid: true };
+        // Capa 2: Validación de dominio con Value Object
+        try {
+            new Email(email);
+            return { valid: true };
+        } catch (error) {
+            return { valid: false, message: error.message };
+        }
     }
 
     /**
@@ -131,6 +137,7 @@ export class EmployeeCollaboratorValidators {
 
     /**
      * Valida el teléfono del colaborador
+     * Combina validación básica (shared) con reglas de dominio (Value Object).
      * @param {string} phoneNumber
      * @returns {{valid: boolean, message?: string}}
      */
@@ -140,11 +147,12 @@ export class EmployeeCollaboratorValidators {
             return { valid: false, message: EmployeeCollaboratorMessages.PHONE_REQUIRED };
         }
 
-        const phoneClean = phoneNumber.toString().trim();
-        if (phoneClean.length < BusinessRules.PHONE_MIN_LENGTH || phoneClean.length > BusinessRules.PHONE_MAX_LENGTH) {
-            return { valid: false, message: EmployeeCollaboratorMessages.PHONE_INVALID };
+        // Validación de dominio con Value Object
+        try {
+            new PhoneNumber(phoneNumber);
+            return { valid: true };
+        } catch (error) {
+            return { valid: false, message: error.message };
         }
-
-        return { valid: true };
     }
 }

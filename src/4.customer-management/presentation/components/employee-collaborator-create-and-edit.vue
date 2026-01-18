@@ -140,7 +140,7 @@ const saveRequested = () => {
             phoneNumber: employeeForm.value.phoneNumber,
             applicantCompanyId: applicantCompanyIdNum, // ✅ Número explícito
             brandId: brandIdNum,                        // ✅ Número explícito
-            role: employeeForm.value.role               // ✅ String singular, no array
+            role: employeeForm.value.role               // ✅ String singular
         };
         
         // Include ID if editing
@@ -163,7 +163,9 @@ const saveRequested = () => {
             applicantCompanyId: typeof employeeData.applicantCompanyId,
             brandId: typeof employeeData.brandId,
             applicantCompanyIdValue: employeeData.applicantCompanyId,
-            brandIdValue: employeeData.brandId
+            brandIdValue: employeeData.brandId,
+            role: employeeData.role,
+            roleType: typeof employeeData.role
         });
         
         emit('save-requested', employeeData);
@@ -231,15 +233,19 @@ defineExpose({
 // Watch for dialog open
 watch(() => props.visible, (newValue) => {
     if (newValue && props.edit && props.item) {
+        // Tomar el primer rol disponible (excluyendo COMPANY_EMPLOYEE si existe)
+        const availableRoles = (props.item.roles || []).filter(r => r !== 'COMPANY_EMPLOYEE');
+        const roleValue = availableRoles.length > 0 ? availableRoles[0] : (props.item.roles?.[0] || '');
+        
         employeeForm.value = {
             name: props.item.name || '',
             lastName: props.item.lastName || '',
-            email: props.item.email || '',
+            email: props.item.getEmailValue?.() || props.item.email || '',
             password: '', // No mostrar password en edición
-            phoneNumber: props.item.phoneNumber || '',
+            phoneNumber: props.item.getPhoneValue?.() || props.item.phoneNumber || '',
             status: props.item.status || 'ACTIVE',
             brandId: props.item.brandId || null,
-            role: props.item.roles?.[0] || ''
+            role: roleValue
         };
     } else if (newValue && !props.edit) {
         resetForm();
@@ -421,7 +427,6 @@ watch(() => props.visible, (newValue) => {
                         optionValue="value"
                         placeholder="Seleccione un rol"
                         class="w-full"
-                        size="small"
                         :class="{ 'p-invalid': submitted && !employeeForm.role }"
                     />
                     <small v-if="submitted && !employeeForm.role" class="p-error">

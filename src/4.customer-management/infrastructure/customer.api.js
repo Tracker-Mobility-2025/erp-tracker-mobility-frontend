@@ -55,7 +55,6 @@ export class CustomerApi extends BaseApi {
      */
     createCustomer(command) {
         const resource = CreateCustomerCommandAssembler.toResourceFromCommand(command);
-        console.log('[API] Creating customer with resource:', resource);
         return this.#customerEndpoint.create(resource);
     }
 
@@ -65,10 +64,7 @@ export class CustomerApi extends BaseApi {
      * @returns {Promise} Una promesa que se resuelve con la respuesta del cliente actualizado.
      */
     updateCustomer(command) {
-        console.log('🔍 [API] UpdateCustomerCommand recibido:', command);
-        console.log('🔍 [API] command.brands:', command.brands);
         const resource = UpdateCustomerCommandAssembler.toResourceFromCommand(command);
-        console.log('🔍 [API] Resource para PATCH:', JSON.stringify(resource, null, 2));
         // Usar PATCH en lugar de PUT (BaseEndpoint.update usa PUT)
         return this.http.patch(`${customerEndpointPath}/${command.id}`, resource);
     }
@@ -99,31 +95,7 @@ export class CustomerApi extends BaseApi {
      * @returns {Promise} Una promesa que se resuelve con la respuesta del colaborador creado.
      */
     async createEmployee(employeeData) {
-        console.log('🎯 [API] POST /company-employees');
-        console.log('📦 [API] Payload:', JSON.stringify(employeeData, null, 2));
-        console.log('✅ [API] Campos esperados validados:', {
-            email: !!employeeData.email,
-            password: !!employeeData.password,
-            name: !!employeeData.name,
-            lastName: !!employeeData.lastName,
-            phoneNumber: !!employeeData.phoneNumber,
-            applicantCompanyId: !!employeeData.applicantCompanyId,
-            brandId: !!employeeData.brandId,
-            role: !!employeeData.role
-        });
-        
-        try {
-            const response = await this.http.post(employeeEndpointPath, employeeData);
-            console.log('✅ [API] Respuesta exitosa:', response.data);
-            return response;
-        } catch (error) {
-            console.error('❌ [API] Error en POST /company-employees');
-            console.error('🔴 [API] Status:', error.response?.status);
-            console.error('📝 [API] Mensaje del backend:', error.response?.data);
-            console.error('📝 [API] Headers de respuesta:', error.response?.headers);
-            console.error('📦 [API] Payload que causó el error:', JSON.stringify(employeeData, null, 2));
-            throw error; // Re-lanzar para que el store lo maneje
-        }
+        return this.http.post(employeeEndpointPath, employeeData);
     }
 
     /**

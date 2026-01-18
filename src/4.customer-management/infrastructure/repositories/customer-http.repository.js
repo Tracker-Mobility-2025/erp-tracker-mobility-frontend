@@ -93,10 +93,13 @@ export class CustomerHttpRepository extends ICustomerRepository {
     /**
      * Create new employee for customer
      * @param {number} customerId - Customer ID
-     * @param {Object} employeeData - Employee data
+     * @param {Object} employeeData - Employee data (ya con role como string desde el store)
      * @returns {Promise<EmployeeCollaborator>}
      */
     async createEmployee(customerId, employeeData) {
+        // El payload ya viene limpio desde el store con role como string
+        console.log('🚀 [Repository] Payload recibido para POST:', employeeData);
+        
         const response = await this.#api.createEmployee(employeeData);
         return EmployeeCollaboratorAssembler.toDomain(response.data);
     }
@@ -105,12 +108,19 @@ export class CustomerHttpRepository extends ICustomerRepository {
      * Update existing employee
      * @param {number} customerId - Customer ID
      * @param {number} employeeId - Employee ID
-     * @param {Object} employeeData - Employee data
+     * @param {Object} employeeData - Employee data (ya con role como string desde el store)
      * @returns {Promise<EmployeeCollaborator>}
      */
     async updateEmployee(customerId, employeeId, employeeData) {
-        // Exclude id and applicantCompanyId from payload (they're in the URL)
-        const { id, applicantCompanyId, ...updatePayload } = employeeData;
+        // Exclude id, applicantCompanyId y email from payload
+        // email no debe enviarse en PATCH (causa error de duplicidad)
+        const { id, applicantCompanyId, email, ...updatePayload } = employeeData;
+        
+        console.log('🚀 [Repository] Payload recibido para PATCH:', {
+            emailExcluido: email,
+            payloadFinal: updatePayload
+        });
+        
         const response = await this.#api.updateEmployee(employeeId, updatePayload);
         return EmployeeCollaboratorAssembler.toDomain(response.data);
     }

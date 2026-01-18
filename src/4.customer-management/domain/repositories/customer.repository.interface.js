@@ -7,8 +7,8 @@ export class ICustomerRepository {
     throw new Error('Method not implemented: findAll');
   }
 
-  async findAllByAdminId(adminId) {
-    throw new Error('Method not implemented: findAllByAdminId');
+  async findByAdminId(adminId) {
+    throw new Error('Method not implemented: findByAdminId');
   }
 
   async findById(id) {

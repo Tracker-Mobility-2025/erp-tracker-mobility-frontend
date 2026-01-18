@@ -27,6 +27,7 @@ const isEdit = ref(false);
 const itemEmployee = ref(null);
 const createAndEditDialogIsVisible = ref(false);
 const employeeFormRef = ref(null); // Ref al componente hijo
+const rolesPopoversRefs = ref(new Map()); // Map para referencias de popovers por ID
 
 // Loading states
 const isLoading = ref(true);
@@ -61,8 +62,8 @@ const filteredEmployees = computed(() => {
             // Normalizar cada campo antes de comparar
             const name = normalizeText(employee.name);
             const lastName = normalizeText(employee.lastName);
-            const email = normalizeText(employee.email);
-            const phoneNumber = normalizeText(employee.phoneNumber);
+            const email = normalizeText(employee.getEmailValue());
+            const phoneNumber = normalizeText(employee.getPhoneValue());
             
             // Buscar coincidencias parciales en cualquiera de los campos
             return name.includes(searchTerm) ||
@@ -119,25 +120,85 @@ const translateRole = (role) => {
 };
 
 /**
- * Obtiene el rol principal a mostrar (diferente a COMPANY_EMPLOYEE)
+ * Filtra roles excluyendo COMPANY_EMPLOYEE (rol base que todos tienen)
+ * @param {Array} roles - Array de roles del colaborador
+ * @returns {Array} Roles filtrados
+ */
+const filterRelevantRoles = (roles) => {
+    if (!roles || !Array.isArray(roles) || roles.length === 0) {
+        return [];
+    }
+    
+    // Filtrar roles que NO sean COMPANY_EMPLOYEE
+    const filtered = roles.filter(role => role !== 'COMPANY_EMPLOYEE');
+    
+    // Si después de filtrar no queda ninguno, retornar el original
+    return filtered.length > 0 ? filtered : roles;
+};
+
+/**
+ * Obtiene el rol principal a mostrar (primer rol relevante)
  * @param {Array} roles - Array de roles del colaborador
  * @returns {string} Rol traducido
  */
 const getDisplayRole = (roles) => {
-    if (!roles || !Array.isArray(roles) || roles.length === 0) {
+    const relevantRoles = filterRelevantRoles(roles);
+    
+    if (relevantRoles.length === 0) {
         return 'Sin rol';
     }
     
-    // Buscar el primer rol que NO sea COMPANY_EMPLOYEE
-    const specificRole = roles.find(role => role !== 'COMPANY_EMPLOYEE');
+    return translateRole(relevantRoles[0]);
+};
+
+/**
+ * Obtiene todos los roles traducidos
+ * @param {Array} roles - Array de roles del colaborador
+ * @returns {Array} Array de roles traducidos
+ */
+const getTranslatedRoles = (roles) => {
+    const relevantRoles = filterRelevantRoles(roles);
     
-    // Si encontró un rol específico, traducirlo
-    if (specificRole) {
-        return translateRole(specificRole);
+    if (relevantRoles.length === 0) {
+        return ['Sin rol'];
     }
     
-    // Si solo tiene COMPANY_EMPLOYEE, mostrar eso
-    return translateRole(roles[0]);
+    return relevantRoles.map(role => translateRole(role));
+};
+
+/**
+ * Cuenta cuántos roles tiene un colaborador (excluyendo COMPANY_EMPLOYEE)
+ * @param {Array} roles - Array de roles
+ * @returns {number} Cantidad de roles
+ */
+const getRolesCount = (roles) => {
+    const relevantRoles = filterRelevantRoles(roles);
+    return relevantRoles.length;
+};
+
+/**
+ * Alterna la visibilidad del popover de roles
+ * @param {Event} event - Evento del click
+ * @param {string} employeeId - ID del empleado para identificar el popover
+ */
+const toggleRolesPopover = (event, employeeId) => {
+    const popover = rolesPopoversRefs.value.get(employeeId);
+    if (popover) {
+        popover.toggle(event);
+    }
+};
+
+/**
+ * Callback para establecer la referencia del popover en el Map
+ * @param {Object} el - Elemento del popover
+ * @param {string} employeeId - ID del empleado
+ */
+const setPopoverRef = (el, employeeId) => {
+    if (el) {
+        rolesPopoversRefs.value.set(employeeId, el);
+    } else {
+        rolesPopoversRefs.value.delete(employeeId);
+    }
 };
 
 const onNewItem = () => {
@@ -154,17 +215,22 @@ const onCancelRequested = () => {
 
 const onSaveRequested = async (employeeData) => {
     // 🔍 Validar email duplicado
+    // Normalizar email a string para comparación
+    const emailToCompare = typeof employeeData.email === 'string' 
+        ? employeeData.email.toLowerCase() 
+        : String(employeeData.email || '').toLowerCase();
+    
     const emailExists = customerStore.employees.find(employee => {
         // Si estamos editando, excluir el colaborador actual de la búsqueda
         if (isEdit.value && itemEmployee.value && employee.id === itemEmployee.value.id) {
             return false;
         }
-        return employee.email && employee.email.toLowerCase() === employeeData.email.toLowerCase();
+        return employee.getEmailValue().toLowerCase() === emailToCompare;
     });
     
     if (emailExists) {
         // ❌ NO cerrar el dialog, solo mostrar error y hacer focus
-        const errorMessage = `Ya existe un colaborador con el email ${employeeData.email}`;
+        const errorMessage = `Ya existe un colaborador con el email ${emailToCompare}`;
         
         toast.add({
             severity: 'error',
@@ -291,8 +357,25 @@ const loadData = async (newCustomerId) => {
         await customerStore.fetchById(newCustomerId);
         await customerStore.fetchEmployees(newCustomerId);
         
+        // 📊 Log de colaboradores cargados
+        console.log('📋 [CustomerDetail] Colaboradores cargados:', {
+            total: customerStore.employees.length,
+            customerId: newCustomerId,
+            colaboradores: customerStore.employees.map(emp => ({
+                id: emp.id,
+                nombre: `${emp.name} ${emp.lastName}`,
+                email: emp.getEmailValue(),
+                telefono: emp.getPhoneValue(),
+                roles: emp.roles,
+                rolesTraducidos: emp.roles?.map(r => RoleTranslations[r] || r),
+                marca: emp.brandName,
+                estado: emp.status
+            }))
+        });
+        
         loadingStep.value = loadingSteps.length;
         isLoading.value = false;
+
     }
 };
 
@@ -301,6 +384,8 @@ onMounted(async () => {
     customerId.value = route.query.id;
     clearData();
     await loadData(customerId.value);
+
+
 });
 
 // Watch for route changes
@@ -422,9 +507,44 @@ watch(() => route.query.id, async (newId) => {
                 </template>
 
                 <template #roles="{ data }">
-                    <span class="badge bg-purple-100 text-purple-700 text-sm px-2 py-1">
-                        {{ getDisplayRole(data.roles) }}
-                    </span>
+                    <div class="flex align-items-center gap-2 flex-wrap">
+                        <!-- Si tiene solo 1 rol: badge simple -->
+                        <span 
+                            v-if="getRolesCount(data.roles) === 1"
+                            class="badge bg-purple-100 text-purple-700 text-sm px-2 py-1"
+                        >
+                            {{ getDisplayRole(data.roles) }}
+                        </span>
+                        
+                        <!-- Si tiene 2+ roles: dropdown desglosable -->
+                        <div v-else class="roles-dropdown-container">
+                            <pv-button
+                                :label="`${getRolesCount(data.roles)} roles`"
+                                icon="pi pi-chevron-down"
+                                icon-pos="right"
+                                size="small"
+                                outlined
+                                severity="secondary"
+                                class="roles-dropdown-trigger"
+                                @click="(event) => toggleRolesPopover(event, data.id)"
+                            />
+                            <pv-popover :ref="(el) => setPopoverRef(el, data.id)" class="roles-popover-panel">
+                                <div class="flex flex-column gap-2" style="min-width: 200px;">
+                                    <div class="text-sm font-semibold text-700 mb-1 pb-2 border-bottom-1 border-200">
+                                        Roles asignados
+                                    </div>
+                                    <div
+                                        v-for="(role, index) in getTranslatedRoles(data.roles)"
+                                        :key="index"
+                                        class="flex align-items-center gap-2 p-2 border-round hover:surface-100 transition-colors transition-duration-150"
+                                    >
+                                        <i class="pi pi-shield text-purple-500"></i>
+                                        <span class="text-900 text-sm">{{ role }}</span>
+                                    </div>
+                                </div>
+                            </pv-popover>
+                        </div>
+                    </div>
                 </template>
 
                 <template #status="{ data }">

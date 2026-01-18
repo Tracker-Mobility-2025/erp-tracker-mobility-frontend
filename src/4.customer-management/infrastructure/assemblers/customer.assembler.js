@@ -24,7 +24,7 @@ export class CustomerAssembler {
         
         return new Customer({
             id: dto.applicantCompanyId || dto.id, // Map applicantCompanyId -> id
-            ruc: dto.ruc,
+            ruc: dto.ruc, // El VO se crea automáticamente en el constructor
             companyName: dto.companyName,
             status: dto.status,
             brands: brands,
@@ -71,7 +71,7 @@ export class CustomerAssembler {
         
         const dto = {
             applicantCompanyId: entity.id, // Map id -> applicantCompanyId
-            ruc: entity.ruc,
+            ruc: entity.ruc.toString(), // Convertir VO a string
             companyName: entity.companyName,
             status: entity.status
         };
@@ -99,10 +99,10 @@ export class EmployeeCollaboratorAssembler {
         
         return new EmployeeCollaborator({
             id: dto.id,
-            email: dto.email,
+            email: dto.email, // El VO se crea automáticamente en el constructor
             name: dto.name,
             lastName: dto.lastName,
-            phoneNumber: dto.phoneNumber,
+            phoneNumber: dto.phoneNumber, // El VO se crea automáticamente en el constructor
             applicantCompanyId: dto.applicantCompanyId,
             applicantCompanyName: dto.applicantCompanyName,
             status: dto.status,
@@ -134,10 +134,10 @@ export class EmployeeCollaboratorAssembler {
         
         const dto = {
             id: entity.id,
-            email: entity.email,
+            email: entity.email.toString(), // Convertir VO a string
             name: entity.name,
             lastName: entity.lastName,
-            phoneNumber: entity.phoneNumber,
+            phoneNumber: entity.phoneNumber.toString(), // Convertir VO a string
             applicantCompanyId: entity.applicantCompanyId,
             status: entity.status
         };
