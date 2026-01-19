@@ -556,6 +556,7 @@ watch(() => report.value, () => {
 
         <!-- Section 8: Observations -->
         <observations-card
+          v-if="report.finalResult !== 'CONFORME'"
           :observations="canConfirmResult ? editableReport.observations : (report.observations || [])"
           :can-edit="canConfirmResult"
           @update:observations="handleUpdateObservations"
@@ -568,6 +569,7 @@ watch(() => report.value, () => {
 
         <!-- Section 10: Casuistics -->
         <casuistics-card
+          v-if="report.finalResult !== 'CONFORME'"
           :casuistics="canConfirmResult ? editableReport.casuistics : (report.casuistics || [])"
           :can-edit="canConfirmResult"
           @update:casuistics="handleUpdateCasuistics"
