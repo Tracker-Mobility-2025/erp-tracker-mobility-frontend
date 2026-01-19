@@ -6,6 +6,7 @@ import { ref, computed } from 'vue';
 export function useVerificationReportFilters(getReports) {
   const globalFilterValue = ref('');
   const selectedStatus = ref('');
+  const selectedValidationStatus = ref('');
 
   const filteredReports = computed(() => {
     let filtered = getReports();
@@ -36,9 +37,15 @@ export function useVerificationReportFilters(getReports) {
       });
     }
 
-    // Filtro por estado
+    // Filtro por estado de resultado
     if (selectedStatus.value) {
       filtered = filtered.filter(report => report.finalResult === selectedStatus.value);
+    }
+
+    // Filtro por estado de validación
+    if (selectedValidationStatus.value !== '') {
+      const isValid = selectedValidationStatus.value === 'validated';
+      filtered = filtered.filter(report => report.isResultValid === isValid);
     }
 
     return filtered;
@@ -52,22 +59,34 @@ export function useVerificationReportFilters(getReports) {
     selectedStatus.value = value;
   }
 
+  function updateValidationStatusFilter(value) {
+    selectedValidationStatus.value = value;
+  }
+
   function clearFilters() {
     globalFilterValue.value = '';
     selectedStatus.value = '';
+    selectedValidationStatus.value = '';
   }
 
   function getCountByStatus(status) {
     return getReports().filter(r => r.finalResult === status).length;
   }
 
+  function getCountByValidationStatus(isValid) {
+    return getReports().filter(r => r.isResultValid === isValid).length;
+  }
+
   return {
     globalFilterValue,
     selectedStatus,
+    selectedValidationStatus,
     filteredReports,
     updateGlobalFilter,
     updateStatusFilter,
+    updateValidationStatusFilter,
     clearFilters,
-    getCountByStatus
+    getCountByStatus,
+    getCountByValidationStatus
   };
 }

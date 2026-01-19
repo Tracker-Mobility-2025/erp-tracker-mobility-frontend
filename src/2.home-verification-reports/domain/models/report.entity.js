@@ -17,6 +17,7 @@ export class ReportSummary {
     reportId,
     reportCode,
     finalResult,
+    isResultValid,
     orderCode,
     requestDate,
     clientName,
@@ -33,6 +34,7 @@ export class ReportSummary {
     this.reportId = reportId;
     this.reportCode = reportCode;
     this.finalResult = finalResult; // Estado: FinalResultEnum
+    this.isResultValid = isResultValid === true; // Boolean: indica si el resultado está validado
     this.orderCode = orderCode;
     this.requestDate = requestDate;
     this.clientName = clientName;

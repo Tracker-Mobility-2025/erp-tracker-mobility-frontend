@@ -33,11 +33,14 @@ const {
 const {
   globalFilterValue,
   selectedStatus,
+  selectedValidationStatus,
   filteredReports,
   clearFilters,
   updateGlobalFilter,
   updateStatusFilter,
-  getCountByStatus
+  updateValidationStatusFilter,
+  getCountByStatus,
+  getCountByValidationStatus
 } = useVerificationReportFilters(() => reportStore.verificationReports);
 
 // Local state
@@ -46,6 +49,11 @@ const selectedItems = ref([]);
 
 // Configuración
 const statusOptions = StatusFilterOptions;
+const validationStatusOptions = [
+  { label: 'Todos los estados', value: '' },
+  { label: 'Pendientes de confirmación', value: 'pending' },
+  { label: 'Validados', value: 'validated' }
+];
 const title = VerificationReportUILabels.title;
 
 // Columnas de la tabla
@@ -56,6 +64,7 @@ const columns = [
   { field: 'companyName', header: 'Empresa', sortable: true, style: 'width: 150px;' },
   { field: 'requestDate', header: 'Fecha de Solicitud', sortable: true, template: 'requestDate', style: 'width: 150px;' },
   { field: 'finalResult', header: 'Resultado', sortable: true, template: 'status', style: 'width: 120px;' },
+  { field: 'isResultValid', header: 'Confirmación', sortable: true, template: 'validationStatus', style: 'width: 120px;' },
 ];
 
 // Métodos
@@ -141,11 +150,50 @@ onMounted(async () => {
         <!-- Filtro personalizado para el estado -->
         <template #filters="{ clearFilters }">
           <pv-dropdown
+            v-model="selectedValidationStatus"
+            :options="validationStatusOptions"
+            option-label="label"
+            option-value="value"
+            placeholder="Filtrar por confirmación"
+            class="w-full md:w-auto"
+            @change="updateValidationStatusFilter(selectedValidationStatus)"
+          >
+            <template #value="slotProps">
+              <div v-if="slotProps.value" class="flex align-items-center gap-2">
+                <span class="font-semibold">Confirmación:</span>
+                <span v-if="slotProps.value === 'pending'" class="status-tag status-pendiente">
+                  Pendientes
+                </span>
+                <span v-else-if="slotProps.value === 'validated'" class="status-tag status-conforme">
+                  Validados
+                </span>
+              </div>
+              <span v-else>{{ slotProps.placeholder }}</span>
+            </template>
+            <template #option="slotProps">
+              <div class="flex align-items-center justify-content-between w-full">
+                <span>{{ slotProps.option.label }}</span>
+                <span
+                  v-if="slotProps.option.value === 'pending'"
+                  class="badge-custom status-pendiente"
+                >
+                  {{ getCountByValidationStatus(false) }}
+                </span>
+                <span
+                  v-else-if="slotProps.option.value === 'validated'"
+                  class="badge-custom status-conforme"
+                >
+                  {{ getCountByValidationStatus(true) }}
+                </span>
+              </div>
+            </template>
+          </pv-dropdown>
+          <pv-dropdown
             v-model="selectedStatus"
             :options="statusOptions"
             option-label="label"
             option-value="value"
-            placeholder="Filtrar por estado"
+            placeholder="Filtrar por resultado"
             class="w-full md:w-auto"
             @change="updateStatusFilter(selectedStatus)"
           >
@@ -182,6 +230,18 @@ onMounted(async () => {
         <template #status="slotProps">
           <span :class="['status-tag', getStatusClass(slotProps.data.finalResult)]">
             {{ StatusTranslations[slotProps.data.finalResult] }}
+          </span>
+        </template>
+
+        <!-- Template para columna de estado de validación -->
+        <template #validationStatus="slotProps">
+          <span v-if="slotProps.data.isResultValid === true" class="status-tag status-conforme">
+            <i class="pi pi-check-circle mr-1"></i>
+            Validado
+          </span>
+          <span v-else class="status-tag status-pendiente">
+            <i class="pi pi-clock mr-1"></i>
+            Pendiente
           </span>
         </template>
 
