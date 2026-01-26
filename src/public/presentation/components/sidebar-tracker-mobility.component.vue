@@ -26,7 +26,8 @@ const emit = defineEmits(['sidebar-toggle', 'menu-selected'])
 // Computed
 const currentUser = computed(() => {
   // Obtener el rol específico (GERENTE_VENTAS, VENDEDOR) o el rol genérico
-  const specificRole = authStore.specificRole;
+  // Ahora desde el state reactivo del store, no desde localStorage
+  const specificRole = authStore.currentSpecificRole;
   const displayRole = specificRole || authStore.currentRole || 'Sin rol';
   
   // Formatear el nombre del rol para mostrar

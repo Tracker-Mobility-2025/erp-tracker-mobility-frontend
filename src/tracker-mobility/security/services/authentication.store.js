@@ -9,7 +9,13 @@ const authenticationService = new AuthenticationService();
  * Represents the authentication store
  */
 export const useAuthenticationStore = defineStore('authentication', {
-    state: () => ({ signedIn: false, userId: 0, username: '', roles: [] }),
+    state: () => ({ 
+        signedIn: false, 
+        userId: 0, 
+        username: '', 
+        roles: [],
+        specificRole: '' // Mover desde localStorage al state para reactividad
+    }),
     getters: {
         /**
          * Is signed in
@@ -45,9 +51,9 @@ export const useAuthenticationStore = defineStore('authentication', {
         /**
          * Specific role (GERENTE_VENTAS, VENDEDOR, etc.)
          * For COMPANY_EMPLOYEE users, returns their specific role
-         * @returns {string} - The specific role from localStorage
+         * @returns {string} - The specific role from state (now reactive)
          */
-        specificRole: () => localStorage.getItem('role'),
+        currentSpecificRole: (state) => state['specificRole'] || state['roles'][0] || '',
 
         /**
          * Current token
@@ -81,6 +87,41 @@ export const useAuthenticationStore = defineStore('authentication', {
          */
         async signIn(signInRequest, router) {
             try {
+                // 🧹 LIMPIAR datos residuales ANTES de iniciar nueva sesión
+                console.log('🧹 [LOGIN] Limpiando datos residuales antes de nueva sesión...');
+                
+                // Resetear estado actual completamente
+                this.signedIn = false;
+                this.userId = 0;
+                this.username = '';
+                this.roles = [];
+                this.specificRole = '';
+                
+                // Limpiar localStorage de sesión anterior
+                localStorage.removeItem('token');
+                localStorage.removeItem('userId');
+                localStorage.removeItem('username');
+                localStorage.removeItem('roles');
+                localStorage.removeItem('role');
+                localStorage.removeItem('redirectAfterLogin');
+                
+                // Resetear todos los stores de Pinia ANTES del login
+                try {
+                    const pinia = this.$pinia;
+                    if (pinia && pinia._s) {
+                        pinia._s.forEach((store, name) => {
+                            if (name !== 'authentication' && typeof store.$reset === 'function') {
+                                store.$reset();
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.warn('⚠️ [LOGIN] Error al resetear stores:', error);
+                }
+                
+                console.log('✅ [LOGIN] Datos residuales limpiados');
+                
+                // Proceder con el login
                 const response = await authenticationService.signIn(signInRequest);
 
                 const signInResponse = new SignInResponse(
@@ -94,15 +135,16 @@ export const useAuthenticationStore = defineStore('authentication', {
                 this.userId = signInResponse.userId;
                 this.username = signInResponse.username;
                 this.roles = signInResponse.roles;
+                
+                // Guardar el rol específico (GERENTE_VENTAS, VENDEDOR, etc.)
+                // Buscar el rol específico que no sea COMPANY_EMPLOYEE
+                const specificRole = signInResponse.roles.find(role => role !== 'COMPANY_EMPLOYEE') || signInResponse.roles[0];
+                this.specificRole = specificRole;
 
                 localStorage.setItem('token', signInResponse.token);
                 localStorage.setItem('userId', signInResponse.userId);
                 localStorage.setItem('username', signInResponse.username);
                 localStorage.setItem('roles', JSON.stringify(signInResponse.roles)); // Guardar como JSON
-                
-                // Guardar el rol específico (GERENTE_VENTAS, VENDEDOR, etc.)
-                // Buscar el rol específico que no sea COMPANY_EMPLOYEE
-                const specificRole = signInResponse.roles.find(role => role !== 'COMPANY_EMPLOYEE') || signInResponse.roles[0];
                 localStorage.setItem('role', specificRole);
 
                 console.log("✔ Login completo:", signInResponse);
@@ -152,18 +194,47 @@ export const useAuthenticationStore = defineStore('authentication', {
          * This method signs out the user.
          * It clears the token and redirects to the sign-in page.
          * It also sets the signedIn flag to false.
+         * Additionally, it resets ALL Pinia stores to prevent data leakage between sessions.
          * @param router - The router
          */
         async signOut(router) {
+            console.log('🔓 [LOGOUT] Cerrando sesión y limpiando todos los datos...');
+            
+            // Limpiar estado del store de autenticación
             this.signedIn = false;
             this.userId = 0;
             this.username = '';
             this.roles = [];
+            this.specificRole = '';
+            
+            // Limpiar localStorage completamente
             localStorage.removeItem('token');
             localStorage.removeItem('userId');
             localStorage.removeItem('username');
             localStorage.removeItem('roles');
             localStorage.removeItem('role');
+            localStorage.removeItem('redirectAfterLogin');
+            
+            // 🔥 CRÍTICO: Resetear TODOS los stores de Pinia para evitar datos residuales
+            // Esto previene que datos del usuario anterior persistan en la nueva sesión
+            try {
+                const pinia = this.$pinia;
+                if (pinia && pinia._s) {
+                    console.log('🔄 [LOGOUT] Reseteando todos los stores de Pinia...');
+                    pinia._s.forEach((store, name) => {
+                        // No resetear el store de autenticación (ya lo hicimos manualmente)
+                        if (name !== 'authentication' && typeof store.$reset === 'function') {
+                            console.log(`  ↳ Reseteando store: ${name}`);
+                            store.$reset();
+                        }
+                    });
+                    console.log('✅ [LOGOUT] Todos los stores reseteados');
+                }
+            } catch (error) {
+                console.error('❌ [LOGOUT] Error al resetear stores:', error);
+            }
+            
+            console.log('✅ [LOGOUT] Sesión cerrada completamente');
             router.push({name: 'sign-in'});
         },
 
@@ -173,11 +244,13 @@ export const useAuthenticationStore = defineStore('authentication', {
             const userId = localStorage.getItem('userId');
             const username = localStorage.getItem('username');
             const rolesStr = localStorage.getItem('roles');
+            const specificRole = localStorage.getItem('role');
 
             if (token && userId && username) {
                 this.signedIn = true;
                 this.userId = parseInt(userId);
                 this.username = username;
+                this.specificRole = specificRole || '';
                 
                 // Parsear roles desde JSON
                 try {
@@ -187,7 +260,7 @@ export const useAuthenticationStore = defineStore('authentication', {
                     this.roles = [];
                 }
                 
-                console.log('[INIT] Sesión restaurada:', this.username, 'Roles:', this.roles);
+                console.log('[INIT] Sesión restaurada:', this.username, 'Roles:', this.roles, 'Rol específico:', this.specificRole);
             } else {
                 console.warn('[INIT] No hay datos válidos en localStorage');
             }
