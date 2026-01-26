@@ -27,13 +27,6 @@ export class OrderRequestApi extends BaseApi {
   create(resource, files = []) {
     const formData = new FormData();
 
-    // Log del recurso para debugging
-    console.log('[OrderRequestApi] Resource to send:', JSON.stringify(resource, null, 2));
-    console.log('[OrderRequestApi] Files to upload:', files.length, 'archivos');
-    files.forEach((file, index) => {
-      console.log(`  - Archivo ${index + 1}:`, file.name, `(${(file.size / 1024).toFixed(2)} KB)`, file.type);
-    });
-
     // Añadir datos JSON como blob
     formData.append('order', new Blob([JSON.stringify(resource)], { type: 'application/json' }));
     
@@ -44,22 +37,9 @@ export class OrderRequestApi extends BaseApi {
       }
     });
 
-    // Log de FormData para verificar contenido
-    console.log('[OrderRequestApi] FormData entries:');
-    for (let [key, value] of formData.entries()) {
-      if (value instanceof File) {
-        console.log(`  ${key}:`, value.name, `(${value.type})`);
-      } else if (value instanceof Blob) {
-        console.log(`  ${key}: Blob (${value.type})`);
-      } else {
-        console.log(`  ${key}:`, value);
-      }
-    }
-
     // NO configurar Content-Type manualmente - axios lo configura con boundary automáticamente
     return this.http.post('/web/orders', formData)
       .then(response => {
-        console.log('[OrderRequestApi] Success response:', response.data);
         return response;
       })
       .catch(error => {

@@ -17,6 +17,7 @@ export class OrderDetail {
     companyRuc = null,
     companyEmail = null,
     companyPhoneNumber = null,
+    brandName = null,
     clientName = null,
     clientLastName = null,
     clientPhoneNumber = null,
@@ -46,6 +47,7 @@ export class OrderDetail {
     this.companyRuc = companyRuc;
     this.companyEmail = companyEmail;
     this.companyPhoneNumber = companyPhoneNumber;
+    this.brandName = brandName;
     this.clientName = clientName;
     this.clientLastName = clientLastName;
     this.clientPhoneNumber = clientPhoneNumber;

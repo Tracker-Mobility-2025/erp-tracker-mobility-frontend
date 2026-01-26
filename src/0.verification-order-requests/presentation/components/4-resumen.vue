@@ -32,7 +32,8 @@ const petitionerData = computed(() => {
   return {
     razonSocial: store.applicantCompany?.companyName || 'No especificado',
     nombreEjecutivo: store.applicantCompany?.executiveName || 'No especificado',
-    correoCorporativo: store.applicantCompany?.corporateEmail || 'No especificado'
+    correoCorporativo: store.applicantCompany?.corporateEmail || 'No especificado',
+    marca: store.applicantCompany?.brandName || 'No especificado'
   };
 });
 
@@ -135,9 +136,13 @@ const onFinish = () => {
                   </div>
                 </div>
                 <div class="col-12 md:col-6">
-                  <div class="flex flex-column">
+                  <div class="flex flex-column mb-3">
                     <span class="text-sm text-600 mb-1">Correo corporativo</span>
                     <span class="font-semibold text-900">{{ petitionerData.correoCorporativo }}</span>
+                  </div>
+                  <div class="flex flex-column">
+                    <span class="text-sm text-600 mb-1">Marca</span>
+                    <span class="font-semibold text-900">{{ petitionerData.marca }}</span>
                   </div>
                 </div>
               </div>

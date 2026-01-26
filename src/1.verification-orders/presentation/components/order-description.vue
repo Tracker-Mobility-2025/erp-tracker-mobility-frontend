@@ -212,6 +212,16 @@ const getFileColor = (url) => {
           </div>
 
           <div class="field col-12 md:col-4">
+            <div class="p-3 border-round border-2 surface-border bg-teal-50 h-full">
+              <label class="text-xs font-semibold text-teal-700 uppercase mb-2 flex align-items-center gap-2">
+                <i class="pi pi-tag text-teal-600"></i>
+                Marca
+              </label>
+              <p class="text-base font-bold text-900 m-0">{{ item?.brandName || 'No especificado' }}</p>
+            </div>
+          </div>
+
+          <div class="field col-12 md:col-4">
             <div class="p-3 border-round border-2 surface-border bg-indigo-50 h-full">
               <label class="text-xs font-semibold text-indigo-700 uppercase mb-2 flex align-items-center gap-2">
                 <i class="pi pi-id-card text-indigo-600"></i>
@@ -220,7 +230,8 @@ const getFileColor = (url) => {
               <p class="text-base font-bold text-900 m-0">{{ item?.companyRuc || 'No disponible' }}</p>
             </div>
           </div>
-          
+
+          <!-- Fila 2: Nombre de ejecutivo, Número de contacto y Correo corporativo -->
           <div class="field col-12 md:col-4">
             <div class="p-3 border-round border-2 surface-border bg-purple-50 h-full">
               <label class="text-xs font-semibold text-purple-700 uppercase mb-2 flex align-items-center gap-2">
@@ -230,7 +241,7 @@ const getFileColor = (url) => {
               <p class="text-base font-bold text-900 m-0">{{ item?.companyExecutiveName || 'No disponible' }}</p>
             </div>
           </div>
-          <!-- Fila 2: Número de contacto y Correo corporativo -->
+
           <div class="field col-12 md:col-4">
             <div class="p-3 border-round border-2 surface-border bg-green-50 h-full">
               <label class="text-xs font-semibold text-green-700 uppercase mb-2 flex align-items-center gap-2">
@@ -240,7 +251,8 @@ const getFileColor = (url) => {
               <p class="text-base font-bold text-900 m-0">{{ formatPhoneNumber(item?.companyPhoneNumber) }}</p>
             </div>
           </div>
-          <div class="field col-12 md:col-8">
+
+          <div class="field col-12 md:col-4">
             <div class="p-3 border-round border-2 surface-border bg-orange-50 h-full">
               <label class="text-xs font-semibold text-orange-700 uppercase mb-2 flex align-items-center gap-2">
                 <i class="pi pi-envelope text-orange-600"></i>

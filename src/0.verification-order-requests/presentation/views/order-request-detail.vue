@@ -1120,7 +1120,7 @@ onBeforeUnmount(() => {
           </template>
           <template #content>
             <div class="formgrid grid">
-              <!-- Fila 1: Razón Social, RUC y Nombre de ejecutivo -->
+              <!-- Fila 1: Razón Social, Marca y RUC -->
               <div class="field col-12 md:col-4">
                 <div class="p-3 border-round border-2 surface-border bg-blue-50 h-full">
                   <label class="text-xs font-semibold text-blue-700 uppercase mb-2 flex align-items-center gap-2">
@@ -1128,6 +1128,16 @@ onBeforeUnmount(() => {
                     Razón social
                   </label>
                   <p class="text-base font-bold text-900 m-0">{{ orderDetail?.companyName || 'No disponible' }}</p>
+                </div>
+              </div>
+
+              <div class="field col-12 md:col-4">
+                <div class="p-3 border-round border-2 surface-border bg-teal-50 h-full">
+                  <label class="text-xs font-semibold text-teal-700 uppercase mb-2 flex align-items-center gap-2">
+                    <i class="pi pi-tag text-teal-600"></i>
+                    Marca
+                  </label>
+                  <p class="text-base font-bold text-900 m-0">{{ orderDetail?.brandName || 'No especificado' }}</p>
                 </div>
               </div>
 
@@ -1140,7 +1150,8 @@ onBeforeUnmount(() => {
                   <p class="text-base font-bold text-900 m-0">{{ orderDetail?.companyRuc || 'No disponible' }}</p>
                 </div>
               </div>
-              
+
+              <!-- Fila 2: Nombre de ejecutivo, Número de contacto y Correo corporativo -->
               <div class="field col-12 md:col-4">
                 <div class="p-3 border-round border-2 surface-border bg-purple-50 h-full">
                   <label class="text-xs font-semibold text-purple-700 uppercase mb-2 flex align-items-center gap-2">
@@ -1150,8 +1161,7 @@ onBeforeUnmount(() => {
                   <p class="text-base font-bold text-900 m-0">{{ orderDetail?.companyExecutiveName || 'No disponible' }}</p>
                 </div>
               </div>
-              
-              <!-- Fila 2: Número de contacto y Correo corporativo -->
+
               <div class="field col-12 md:col-4">
                 <div class="p-3 border-round border-2 surface-border bg-green-50 h-full">
                   <label class="text-xs font-semibold text-green-700 uppercase mb-2 flex align-items-center gap-2">
@@ -1161,8 +1171,8 @@ onBeforeUnmount(() => {
                   <p class="text-base font-bold text-900 m-0">{{ formatPhoneNumber(orderDetail?.companyPhoneNumber) }}</p>
                 </div>
               </div>
-              
-              <div class="field col-12 md:col-8">
+
+              <div class="field col-12 md:col-4">
                 <div class="p-3 border-round border-2 surface-border bg-orange-50 h-full">
                   <label class="text-xs font-semibold text-orange-700 uppercase mb-2 flex align-items-center gap-2">
                     <i class="pi pi-envelope text-orange-600"></i>

@@ -23,6 +23,7 @@ export class OrderDetailAssembler {
       companyRuc: apiData.companyRuc,
       companyEmail: apiData.companyEmail,
       companyPhoneNumber: apiData.companyPhoneNumber,
+      brandName: apiData.brandName,
       clientName: apiData.clientName,
       clientLastName: apiData.clientLastName,
       clientPhoneNumber: apiData.clientPhoneNumber,

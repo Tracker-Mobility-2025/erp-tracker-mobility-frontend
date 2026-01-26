@@ -21,6 +21,7 @@ export class OrderRequest {
    * @param {string} params.companyRuc - RUC de la empresa
    * @param {string} params.companyEmail - Email de la empresa
    * @param {string} params.companyPhoneNumber - Teléfono de la empresa
+   * @param {string} [params.brandName] - Marca de la empresa
    * @param {string} params.clientName - Nombre del cliente
    * @param {string} params.clientLastName - Apellido del cliente
    * @param {string} params.clientPhoneNumber - Teléfono del cliente
@@ -52,6 +53,7 @@ export class OrderRequest {
     companyRuc,
     companyEmail,
     companyPhoneNumber,
+    brandName = null,
     clientName,
     clientLastName,
     clientPhoneNumber,
@@ -90,6 +92,7 @@ export class OrderRequest {
     this.companyRuc = companyRuc;
     this.companyEmail = companyEmail;
     this.companyPhoneNumber = companyPhoneNumber;
+    this.brandName = brandName;
 
     // Client data
     this.clientName = clientName;

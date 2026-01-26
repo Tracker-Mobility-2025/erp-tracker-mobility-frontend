@@ -9,13 +9,14 @@ export class CreateOrderRequestCommandAssembler {
    * @returns {Object} Resource DTO para enviar a la API
    */
   static toResource(command) {
-    return {
+    const resource = {
       // Applicant Company (estructura plana)
       companyName: command.applicantCompanyName,
       companyExecutiveName: command.applicantCompanyExecutiveName,
       companyRuc: command.applicantCompanyRuc,
       companyEmail: command.applicantCompanyEmail,
       companyPhoneNumber: command.applicantCompanyPhone,
+      brandName: command.applicantCompanyBrandName,
       
       // Client Personal Data (estructura plana)
       clientName: command.clientName,
@@ -39,5 +40,7 @@ export class CreateOrderRequestCommandAssembler {
       // Document Types (array plano de strings)
       documentTypes: command.clientDocuments.map(doc => doc.type)
     };
+    
+    return resource;
   }
 }

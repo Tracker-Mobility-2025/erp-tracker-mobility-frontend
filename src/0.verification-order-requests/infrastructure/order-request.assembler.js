@@ -25,6 +25,7 @@ export class OrderRequestAssembler {
       companyRuc: resource.companyRuc,
       companyEmail: resource.companyEmail,
       companyPhoneNumber: resource.companyPhoneNumber,
+      brandName: resource.brandName,
       // Client data
       clientName: resource.clientName,
       clientLastName: resource.clientLastName,

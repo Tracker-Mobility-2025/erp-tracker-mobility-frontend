@@ -29,7 +29,8 @@ export class CreateOrderRequestCommand {
     applicantCompanyRuc,
     applicantCompanyEmail,
     applicantCompanyPhone,
-    applicantCompanyExecutiveName
+    applicantCompanyExecutiveName,
+    applicantCompanyBrandName = null // Nombre de la marca (opcional)
   }) {
     // Validar datos del cliente (obligatorios)
     OrderRequestValidators.validateName(clientName, 'Nombre del cliente');
@@ -79,5 +80,6 @@ export class CreateOrderRequestCommand {
     this.applicantCompanyEmail = applicantCompanyEmail.trim().toLowerCase();
     this.applicantCompanyPhone = applicantCompanyPhone.toString().replace(/[\s-]/g, '');
     this.applicantCompanyExecutiveName = applicantCompanyExecutiveName.trim();
+    this.applicantCompanyBrandName = applicantCompanyBrandName ? applicantCompanyBrandName.trim() : null;
   }
 }

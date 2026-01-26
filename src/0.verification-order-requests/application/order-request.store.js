@@ -41,7 +41,8 @@ function createEmptyApplicantCompany() {
     executiveName: null,
     ruc: null,
     corporateEmail: null,
-    contactPhoneNumber: null
+    contactPhoneNumber: null,
+    brandName: null // Nombre de la marca asociada al empleado
   };
 }
 
@@ -192,7 +193,8 @@ export const useOrderRequestStore = defineStore('orderRequest', () => {
         applicantCompanyRuc: applicantCompany.value.ruc,
         applicantCompanyEmail: applicantCompany.value.corporateEmail,
         applicantCompanyPhone: applicantCompany.value.contactPhoneNumber,
-        applicantCompanyExecutiveName: applicantCompany.value.executiveName
+        applicantCompanyExecutiveName: applicantCompany.value.executiveName,
+        applicantCompanyBrandName: applicantCompany.value.brandName
       });
       
       // Guardar usando repository (Command se valida en constructor)
