@@ -58,11 +58,11 @@ const title = VerificationReportUILabels.title;
 
 // Columnas de la tabla
 const columns = [
-  { field: 'reportCode', header: 'Código de Reporte', sortable: true, style: 'width: 150px;' },
-  { field: 'orderCode', header: 'Código de Orden', sortable: true, style: 'width: 150px;' },
+  { field: 'reportCode', header: 'Cód. de Reporte', sortable: true, style: 'width: 150px;' },
+  { field: 'orderCode', header: 'Cód. de Orden', sortable: true, style: 'width: 200px;' },
   { field: 'clientName', header: 'Cliente', sortable: true, style: 'width: 300px;' },
   { field: 'companyName', header: 'Empresa', sortable: true, style: 'width: 150px;' },
-  { field: 'requestDate', header: 'Fecha de Solicitud', sortable: true, template: 'requestDate', style: 'width: 150px;' },
+  { field: 'requestDate', header: 'Fecha Solicitud', sortable: true, template: 'requestDate', style: 'width: 150px;' },
   { field: 'finalResult', header: 'Resultado', sortable: true, template: 'status', style: 'width: 120px;' },
   { field: 'isResultValid', header: 'Confirmación', sortable: true, template: 'validationStatus', style: 'width: 120px;' },
 ];

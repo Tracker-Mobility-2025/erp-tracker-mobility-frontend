@@ -18,11 +18,13 @@ export class UpdateCustomerCommand {
 
         // Validación de campos
         if (ruc !== undefined) {
-            const rucValidation = CustomerValidators.validateRuc(ruc);
+            // Extraer valor si es un objeto Ruc (value object)
+            const rucValue = typeof ruc === 'object' && ruc?.value ? ruc.value : ruc;
+            const rucValidation = CustomerValidators.validateRuc(rucValue);
             if (!rucValidation.valid) {
                 throw new Error(rucValidation.message);
             }
-            this.ruc = ruc.trim();
+            this.ruc = typeof rucValue === 'string' ? rucValue.trim() : rucValue;
         }
 
         if (companyName !== undefined) {

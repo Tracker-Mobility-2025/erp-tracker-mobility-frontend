@@ -234,7 +234,7 @@ watch(() => props.visible, (newValue, oldValue) => {
                     <label for="brands" class="block text-900 font-medium mb-2">
                         <i class="pi pi-tags mr-2"></i>Marcas
                     </label>
-                    <pv-chips
+                    <pv-input-chips
                         id="brands"
                         v-model="customerForm.brands"
                         class="w-full"

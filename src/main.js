@@ -77,7 +77,7 @@ import {
     AccordionHeader,
     AccordionPanel,
     AutoComplete,
-    Badge, Chips, DatePicker, Dropdown, InputMask, InputSwitch, Message, MultiSelect, Paginator, ProgressBar, ProgressSpinner,
+    Badge, Chips, DatePicker, Dropdown, InputChips, InputMask, InputSwitch, Message, MultiSelect, Paginator, ProgressBar, ProgressSpinner,
     Select,
     SplitButton,
     TabPanels
@@ -205,6 +205,7 @@ app.component('pv-button', Button)
     .component('pv-input-textarea', Textarea)
     .component('pv-input-switch', InputSwitch)
     .component('pv-chips', Chips)
+    .component('pv-input-chips', InputChips)
     .component('pv-progress-spinner', ProgressSpinner)
     .component('pv-input-mask', InputMask )
     .component('pv-chip', Chip)
