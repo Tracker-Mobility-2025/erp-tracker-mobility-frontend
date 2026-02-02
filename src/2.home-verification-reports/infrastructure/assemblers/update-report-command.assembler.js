@@ -13,7 +13,7 @@ export class UpdateReportCommandAssembler {
      * @returns {Object} El objeto resource formateado para la API.
      */
     static toResource(command) {
-        return {
+        const resource = {
             finalResult: command.finalResult,
             summary: command.summary,
             observations: command.observations,
@@ -21,6 +21,13 @@ export class UpdateReportCommandAssembler {
             casuistics: command.casuistics,
             isResultValid: command.isResultValid
         };
+        
+        console.log('[UpdateReportCommandAssembler] DEBUG - Convirtiendo a resource:', {
+            input: command,
+            output: resource
+        });
+        
+        return resource;
     }
     
     /**

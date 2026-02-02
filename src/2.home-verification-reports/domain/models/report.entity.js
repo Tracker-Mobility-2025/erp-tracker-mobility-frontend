@@ -1,5 +1,6 @@
 /**
  * Enum para el resultado final del reporte.
+ * @deprecated Usar FinalResult Value Object en su lugar
  */
 export const FinalResultEnum = Object.freeze({
   CONFORME: 'CONFORME',
@@ -33,7 +34,7 @@ export class ReportSummary {
 
     this.reportId = reportId;
     this.reportCode = reportCode;
-    this.finalResult = finalResult; // Estado: FinalResultEnum
+    this.finalResult = finalResult; // Estado: FinalResultEnum o string
     this.isResultValid = isResultValid === true; // Boolean: indica si el resultado está validado
     this.orderCode = orderCode;
     this.requestDate = requestDate;
@@ -53,5 +54,45 @@ export class ReportSummary {
    */
   getStatus() {
     return this.finalResult || FinalResultEnum.ENTREVISTA_ARRENDADOR_FALTANTE;
+  }
+
+  /**
+   * Verifica si el resultado requiere completar la entrevista con el arrendador
+   * @returns {boolean}
+   */
+  requiresLandlordInterview() {
+    return this.finalResult === FinalResultEnum.ENTREVISTA_ARRENDADOR_FALTANTE;
+  }
+
+  /**
+   * Verifica si el reporte puede ser exportado
+   * @returns {boolean}
+   */
+  canBeExported() {
+    return this.isResultValid && !this.requiresLandlordInterview();
+  }
+
+  /**
+   * Verifica si está conforme
+   * @returns {boolean}
+   */
+  isConforme() {
+    return this.finalResult === FinalResultEnum.CONFORME;
+  }
+
+  /**
+   * Verifica si está observado
+   * @returns {boolean}
+   */
+  isObservado() {
+    return this.finalResult === FinalResultEnum.OBSERVADO;
+  }
+
+  /**
+   * Verifica si está rechazado
+   * @returns {boolean}
+   */
+  isRechazado() {
+    return this.finalResult === FinalResultEnum.RECHAZADO;
   }
 }

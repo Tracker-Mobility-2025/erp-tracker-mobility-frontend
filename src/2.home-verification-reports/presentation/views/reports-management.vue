@@ -18,16 +18,8 @@ const reportStore = useVerificationReportStore();
 
 // Composables
 const {
-  createAndEditDialogIsVisible,
-  isEdit,
-  submitted,
-  currentItem,
-  onCreateItem,
-  onEditItem,
   onViewItem,
-  onDeleteItem,
-  onCancelRequested,
-  onSaveRequested
+  onDeleteItem
 } = useVerificationReportCrud();
 
 const {

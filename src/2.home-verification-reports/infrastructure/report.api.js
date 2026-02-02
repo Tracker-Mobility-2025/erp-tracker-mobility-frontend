@@ -68,6 +68,12 @@ export class ReportApi extends BaseApi {
     if (isNaN(reportIdParsed) || reportIdParsed <= 0) {
       throw new Error('El ID del reporte debe ser un número válido mayor a 0');
     }
+    
+    console.log('[ReportApi] DEBUG - updateReport:', {
+      reportId: reportIdParsed,
+      data
+    });
+    
     return this.http.patch(`${reportEndpointPath}/${reportIdParsed}`, data);
   }
 
@@ -87,6 +93,76 @@ export class ReportApi extends BaseApi {
       return response;
     } catch (error) {
       console.error('[ReportApi] Error getting report download URL:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Actualiza un attachment (anexo) del reporte.
+   * PATCH /api/v1/web/reports/{reportId}/attachment/{attachmentId}
+   * @param {string|number} reportId - El ID del reporte.
+   * @param {string|number} attachmentId - El ID del attachment.
+   * @param {File} file - El archivo de imagen.
+   * @param {string} type - El tipo de archivo.
+   * @returns {Promise} Una promesa que se resuelve con la respuesta de la actualización.
+   */
+  async updateAttachment(reportId, attachmentId, file, type) {
+    const reportIdParsed = parseInt(reportId, 10);
+    const attachmentIdParsed = parseInt(attachmentId, 10);
+    
+    if (isNaN(reportIdParsed) || reportIdParsed <= 0) {
+      throw new Error('El ID del reporte debe ser un número válido mayor a 0');
+    }
+    if (isNaN(attachmentIdParsed) || attachmentIdParsed <= 0) {
+      throw new Error('El ID del attachment debe ser un número válido mayor a 0');
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    console.log('[ReportApi] updateAttachment - Detalles:', {
+      reportId: reportIdParsed,
+      attachmentId: attachmentIdParsed,
+      fileName: file.name,
+      fileType: file.type,
+      fileSize: file.size
+    });
+
+    try {
+      const response = await this.http.patch(
+        `${reportEndpointPath}/${reportIdParsed}/attachment/${attachmentIdParsed}`,
+        formData
+      );
+      console.log('[ReportApi] updateAttachment - Éxito:', response);
+      return response;
+    } catch (error) {
+      console.error('[ReportApi] Error updating attachment:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Actualiza la verificación domiciliaria completa.
+   * PATCH /api/v1/mobile/reports/order/{orderId}/home-verification
+   * @param {string|number} orderId - El ID de la orden.
+   * @param {Object} data - Los datos de la verificación domiciliaria.
+   * @returns {Promise} Una promesa que se resuelve con la respuesta de la actualización.
+   */
+  async updateHomeVerification(orderId, data) {
+    const orderIdParsed = parseInt(orderId, 10);
+    
+    if (isNaN(orderIdParsed) || orderIdParsed <= 0) {
+      throw new Error('El ID de la orden debe ser un número válido mayor a 0');
+    }
+
+    try {
+      const response = await this.http.patch(
+        `/mobile/reports/order/${orderIdParsed}/home-verification`,
+        data
+      );
+      return response;
+    } catch (error) {
+      console.error('[ReportApi] Error updating home verification:', error);
       throw error;
     }
   }

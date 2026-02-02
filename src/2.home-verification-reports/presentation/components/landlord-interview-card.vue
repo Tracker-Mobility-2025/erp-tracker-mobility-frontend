@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
+import { useConfirm } from 'primevue/useconfirm';
 import { useNotification } from '../../../shared-v2/composables/use-notification.js';
 
 const props = defineProps({
@@ -44,6 +45,7 @@ const props = defineProps({
 const emit = defineEmits(['update-interview-details-requested']);
 
 // Composables
+const confirm = useConfirm();
 const { showWarning } = useNotification();
 
 // State
@@ -172,10 +174,25 @@ const onSaveEdit = () => {
     return;
   }
 
-  // Emitir evento al padre para gestionar la actualización
-  emit('update-interview-details-requested', { ...editForm.value });
-  // Mantener el componente en modo lectura tras guardar
-  isEditing.value = false;
+  // Mostrar diálogo de confirmación antes de aplicar los cambios
+  confirm.require({
+    message: '¿Está seguro de que desea guardar los cambios en la entrevista con el arrendador? \n Esta acción actualizará la información del reporte.',
+    header: 'Confirmar Actualización',
+    icon: 'pi pi-exclamation-triangle',
+    rejectLabel: 'Cancelar',
+    acceptLabel: 'Confirmar',
+    rejectClass: 'p-button-secondary',
+    acceptClass: 'p-button-success',
+    accept: () => {
+      // Emitir evento al padre para gestionar la actualización
+      emit('update-interview-details-requested', { ...editForm.value });
+      // Mantener el componente en modo lectura tras guardar
+      isEditing.value = false;
+    },
+    reject: () => {
+      // Usuario canceló la operación, no hacer nada
+    }
+  });
 };
 </script>
 

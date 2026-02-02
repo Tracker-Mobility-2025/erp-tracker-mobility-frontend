@@ -541,7 +541,7 @@ export default {
 </script>
 
 <template>
-  <pv-toast />
+  <!-- NOTA: pv-toast eliminado - se usa el global de App.vue para evitar duplicados -->
   
   <div class="request-container flex flex-column p-4 h-full w-full overflow-auto">
 

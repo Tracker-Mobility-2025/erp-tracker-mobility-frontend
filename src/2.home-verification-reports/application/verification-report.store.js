@@ -1,158 +1,156 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { ReportHttpRepository } from "../infrastructure/repositories/report-http.repository.js";
-import { ReportErrorHandler } from "./error-handlers/report-error.handler.js";
 import { useNotification } from "../../shared-v2/composables/use-notification.js";
-import { UpdateLandlordInterviewCommand } from "../domain/commands/update-landlord-interview.command.js";
-import { UpdateReportCommand } from "../domain/commands/update-report.command.js";
+import { getContainer } from "../infrastructure/di-container.js";
+import { SERVICE_KEYS, registerVerificationReportDependencies } from "../infrastructure/module.config.js";
 
 /**
  * Store de Pinia para funcionalidad de reportes de verificación.
- * Arquitectura: Presentation → Store → Repository → API
- * El Store contiene la lógica de negocio y gestiona estado reactivo.
+ * Refactorizado para usar Dependency Injection Container.
+ * Arquitectura: Presentation → Store → Use Cases → Repository → API
+ * 
+ * LIMPIO: Ya no instancia dependencias directamente, las resuelve desde el container.
  */
 const useVerificationReportStore = defineStore('verificationReport', () => {
     // State
     const verificationReports = ref([]);
 
-    // Dependencies
-    const repository = new ReportHttpRepository();
-    const { showSuccess, showError, showWarning } = useNotification();
-    const errorHandler = new ReportErrorHandler({ showSuccess, showError, showWarning });
+    // Obtener notificaciones de Vue
+    const notificationService = useNotification();
+
+    // Inicializar DI Container si no está configurado
+    const container = getContainer();
+    if (!container.has(SERVICE_KEYS.REPORT_REPOSITORY)) {
+        registerVerificationReportDependencies({ notificationService });
+    }
+
+    // Resolver Use Cases desde el container
+    const getFetchAllReportsUseCase = () => container.resolve(SERVICE_KEYS.FETCH_ALL_REPORTS_USE_CASE);
+    const getFetchReportByIdUseCase = () => container.resolve(SERVICE_KEYS.FETCH_REPORT_BY_ID_USE_CASE);
+    const getUpdateLandlordInterviewUseCase = () => container.resolve(SERVICE_KEYS.UPDATE_LANDLORD_INTERVIEW_USE_CASE);
+    const getUpdateReportUseCase = () => container.resolve(SERVICE_KEYS.UPDATE_REPORT_USE_CASE);
+    const getDeleteReportUseCase = () => container.resolve(SERVICE_KEYS.DELETE_REPORT_USE_CASE);
 
     /**
      * Obtiene todos los reportes resumidos.
+     * Delega a Use Case para separar lógica de negocio del estado reactivo.
      * @returns {Promise<Object>} Resultado { success, data?, message, code }
      */
     async function fetchAll() {
         // Limpiar datos SÍNCRONAMENTE antes de cargar
         verificationReports.value = [];
         
-        try {
-            const data = await repository.findAllSummaries();
-            verificationReports.value = data;
-            return {
-                success: true,
-                data,
-                message: `${data.length} reporte${data.length !== 1 ? 's' : ''} cargado${data.length !== 1 ? 's' : ''}`,
-                code: 'SUCCESS'
-            };
-        } catch (error) {
-            return errorHandler.handle(error, 'cargar los reportes');
+        const useCase = getFetchAllReportsUseCase();
+        const result = await useCase.execute();
+        
+        if (result.success) {
+            verificationReports.value = result.data;
         }
+        
+        return result;
     }
 
     /**
      * Obtiene un reporte por su ID.
+     * Delega a Use Case.
      * @param {string|number} id - El ID del reporte.
      * @returns {Promise<Object>} Resultado { success, data?, message, code }
      */
     async function fetchById(id) {
-        try {
-            const reportId = parseInt(id);
-            
-            if (!reportId) {
-                return {
-                    success: false,
-                    message: 'ID de reporte requerido',
-                    code: 'INVALID_PARAMS'
-                };
-            }
-
-            const data = await repository.findById(reportId);
-
-            if (!data) {
-                showWarning('Reporte no encontrado', 'No encontrado', 3000);
-                return {
-                    success: false,
-                    message: 'Reporte no encontrado',
-                    code: 'NOT_FOUND'
-                };
-            }
-
-            return {
-                success: true,
-                data,
-                message: 'Reporte cargado correctamente',
-                code: 'SUCCESS'
-            };
-        } catch (error) {
-            return errorHandler.handle(error, 'cargar el reporte');
+        const useCase = getFetchReportByIdUseCase();
+        const result = await useCase.execute(id);
+        
+        if (!result.success && result.code === 'NOT_FOUND') {
+            notificationService.showWarning('Reporte no encontrado', 'No encontrado', 3000);
         }
+        
+        return result;
     }
 
     /**
      * Elimina un reporte por su ID.
+     * Delega a Use Case.
      * @param {number} id - El ID del reporte a eliminar.
      * @returns {Promise<Object>} Resultado { success, message, code }
      */
     async function remove(id) {
-        try {
-            // TODO: Implementar eliminación cuando el API lo soporte
+        const useCase = getDeleteReportUseCase();
+        const result = await useCase.execute(id);
+        
+        if (result.success) {
+            // Actualizar estado local
             verificationReports.value = verificationReports.value.filter(r => r.reportId !== id);
-            showSuccess('Reporte eliminado exitosamente', 'Éxito', 3000);
-            return {
-                success: true,
-                message: 'Reporte eliminado correctamente',
-                code: 'DELETED'
-            };
-        } catch (error) {
-            return errorHandler.handle(error, 'eliminar el reporte');
+            notificationService.showSuccess('Reporte eliminado exitosamente', 'Éxito', 3000);
         }
+        
+        return result;
     }
 
     /**
      * Actualiza la entrevista con el arrendador.
+     * Delega a Use Case.
      * @param {number} orderId - El ID de la orden.
      * @param {Object} data - Los datos de la entrevista.
      * @returns {Promise<Object>} Resultado { success, data?, message, code }
      */
     async function updateLandlordInterview(orderId, data) {
-        try {
-            // Crear Command con validación automática
-            const command = new UpdateLandlordInterviewCommand({
-                orderId,
-                ...data
-            });
-
-            const result = await repository.updateLandlordInterview(command);
-            return {
-                success: true,
-                data: result,
-                message: 'Entrevista actualizada correctamente',
-                code: 'SUCCESS'
-            };
-        } catch (error) {
-            return errorHandler.handle(error, 'actualizar la entrevista con el arrendador');
-        }
+        const useCase = getUpdateLandlordInterviewUseCase();
+        return await useCase.execute(orderId, data);
     }
 
     /**
      * Actualiza un reporte de verificación (resultado, resumen, observaciones, etc.).
+     * Delega a Use Case.
      * @param {number} reportId - El ID del reporte.
      * @param {Object} data - Los datos actualizados del reporte.
      * @returns {Promise<Object>} Resultado { success, data?, message, code }
      */
     async function updateReport(reportId, data) {
-        try {
-            // Crear Command con validación automática
-            const command = new UpdateReportCommand({
-                reportId,
-                ...data
-            });
+        const useCase = getUpdateReportUseCase();
+        const result = await useCase.execute(reportId, data);
+        
+        // NOTA: No mostramos notificación aquí porque el componente ya maneja el feedback al usuario
+        // Esto evita notificaciones duplicadas
+        
+        return result;
+    }
 
-            const result = await repository.updateReport(command);
+    /**
+     * Obtiene la URL de descarga del reporte PDF.
+     * Evita que las vistas accedan directamente a la infraestructura.
+     * @param {number} reportId - El ID del reporte
+     * @returns {Promise<Object>} { success, data: { reportUrl }, message, code }
+     */
+    async function getReportDownloadUrl(reportId) {
+        try {
+            const parsedReportId = parseInt(reportId);
+            if (!parsedReportId || isNaN(parsedReportId) || parsedReportId <= 0) {
+                return {
+                    success: false,
+                    message: 'ID de reporte inválido',
+                    code: 'INVALID_PARAMS'
+                };
+            }
+
+            // Resolver el repositorio desde el container
+            const repository = container.resolve(SERVICE_KEYS.REPORT_REPOSITORY);
             
-            showSuccess('Resultado confirmado exitosamente', 'Reporte actualizado', 4000);
-            
+            // Acceder a la API a través del repositorio
+            // (Idealmente esto debería ser un método del repositorio, pero por ahora
+            // accedemos directamente para mantener compatibilidad)
+            const ReportApi = (await import('../infrastructure/report.api.js')).ReportApi;
+            const api = new ReportApi();
+            const response = await api.getReportDownloadUrl(parsedReportId);
+
             return {
                 success: true,
-                data: result,
-                message: 'Reporte actualizado correctamente',
+                data: response.data,
+                message: 'URL obtenida correctamente',
                 code: 'SUCCESS'
             };
         } catch (error) {
-            return errorHandler.handle(error, 'actualizar el reporte');
+            const errorHandler = container.resolve(SERVICE_KEYS.ERROR_HANDLER);
+            return errorHandler.handle(error, 'obtener la URL de descarga del reporte');
         }
     }
 
@@ -162,7 +160,8 @@ const useVerificationReportStore = defineStore('verificationReport', () => {
         fetchById,
         remove,
         updateLandlordInterview,
-        updateReport
+        updateReport,
+        getReportDownloadUrl
     };
 });
 

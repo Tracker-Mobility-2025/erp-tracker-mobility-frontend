@@ -57,12 +57,12 @@ const handleRemoveObservation = (index) => {
 <template>
   <pv-card v-if="visible && (observations.length > 0 || canEdit)" class="mb-4" :class="{ 'editable-card': canEdit }">
     <template #header>
-      <div class="p-3 border-bottom-1 surface-border">
+      <div class="p-3 border-bottom-1 surface-border" :class="{ 'editable-header': canEdit }">
         <div class="flex align-items-center gap-2">
-          <i class="pi pi-exclamation-circle text-2xl text-white"></i>
-          <span class="text-xl font-semibold">Observaciones</span>
-          <span v-if="canEdit" class="text-xs font-bold px-2 py-1 border-round bg-primary text-white ml-auto">
-            MODO EDICIÓN
+          <i class="pi pi-exclamation-circle text-2xl" :class="canEdit ? 'text-900' : 'text-white'"></i>
+          <span class="text-xl font-semibold" :class="canEdit ? 'text-900' : ''">Observaciones</span>
+          <span v-if="canEdit" class="text-xs font-bold px-2 py-1 border-round bg-orange-600 text-white ml-auto animate-pulse">
+            <i class="pi pi-pencil mr-1"></i>EDITABLE
           </span>
         </div>
       </div>
@@ -110,6 +110,11 @@ const handleRemoveObservation = (index) => {
 .editable-card {
   border: 3px solid var(--primary-color);
   box-shadow: 0 0 20px rgba(33, 150, 243, 0.3);
+}
+
+.editable-header {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+  border-bottom: 2px solid #ffc107 !important;
 }
 
 .editable-input {

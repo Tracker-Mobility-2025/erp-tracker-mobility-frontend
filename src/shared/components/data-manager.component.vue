@@ -135,9 +135,7 @@ export default {
 </script>
 
 <template>
-  <pv-toast />
-  <pv-confirm-dialog></pv-confirm-dialog>
-
+  <!-- NOTA: pv-toast eliminado - se usa el global de App.vue para evitar duplicados -->
 
   <div class="bg-white border-round-lg p-4 md:p-4 shadow-2 h-full flex flex-column overflow-hidden">
 

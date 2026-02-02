@@ -28,4 +28,18 @@ export default defineConfig({
     `)
 
   ],
+  test: {
+    globals: true,
+    environment: 'node',
+    include: ['src/**/*.test.js'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/',
+        'src/**/*.spec.js',
+        '**/*.config.js',
+      ]
+    }
+  }
 })

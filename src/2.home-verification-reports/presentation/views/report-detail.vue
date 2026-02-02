@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
+import { useConfirm } from 'primevue/useconfirm';
 import useVerificationReportStore from '../../application/verification-report.store.js';
 import { useNotification } from '../../../shared-v2/composables/use-notification.js';
 import { ReportApi } from '../../infrastructure/report.api.js';
@@ -23,9 +24,10 @@ import EmailSendDialog from '../components/email-send-dialog.vue';
 
 // Composables
 const route = useRoute();
+const confirm = useConfirm();
 const reportStore = useVerificationReportStore();
+const { showSuccess, showError, showWarning } = useNotification();
 const reportApi = new ReportApi();
-const { showSuccess, showError } = useNotification();
 
 // State
 const report = ref(null);
@@ -44,6 +46,19 @@ const editableReport = ref({
   observations: [],
   casuistics: []
 });
+
+// Estado para cambios en Anexo 06 (solo reemplazos)
+const annexe06Changes = ref({
+  photosToReplace: []
+});
+
+// Estado para cambios en riesgos de zona
+const zoneRisksChanged = ref(false);
+const editedAreaRisks = ref([]);
+
+// URLs temporales para previsualizaciones de imágenes reemplazadas
+const tempPhotoUrls = ref([]);
+
 
 // Computed
 const canExportPDF = computed(() => {
@@ -65,6 +80,12 @@ const canConfirmResult = computed(() => {
   // - finalResult NO es ENTREVISTA_ARRENDADOR_FALTANTE
   return report.value.isResultValid === false && 
          report.value.finalResult !== 'ENTREVISTA_ARRENDADOR_FALTANTE';
+});
+
+// Computed para las fotos del Anexo 06 (reactivo para previsualizaciones)
+const annexe06PhotosComputed = computed(() => {
+  if (!report.value || !report.value.annexe06Photos) return [];
+  return report.value.annexe06Photos;
 });
 
 const isEditBlockedByFinalResult = computed(() => {
@@ -185,11 +206,15 @@ const handleExportPDF = async () => {
   isDownloadingReport.value = true;
   
   try {
-    // Obtener URL de descarga del reporte
-    const response = await reportApi.getReportDownloadUrl(report.value.reportId);
+    // Obtener URL de descarga a través del Store (Clean Architecture)
+    const result = await reportStore.getReportDownloadUrl(report.value.reportId);
     
-    // El backend retorna { reportId, reportUrl }
-    const downloadUrl = response.data?.reportUrl;
+    if (!result.success) {
+      showError(result.message || 'No se pudo obtener la URL de descarga del reporte');
+      return;
+    }
+
+    const downloadUrl = result.data?.reportUrl;
     
     if (!downloadUrl) {
       showError('No se pudo obtener la URL de descarga del reporte');
@@ -250,6 +275,9 @@ const handleUpdateInterviewDetailsRequested = async (payload) => {
       
       // Recargar todo el reporte para obtener los datos actualizados del backend
       await getReportById(route.params.reportId);
+      
+      // Reinicializar los campos editables con los datos frescos del backend
+      initializeEditableReport();
     } else {
       throw new Error(result.message || 'Error al actualizar la entrevista');
     }
@@ -273,6 +301,68 @@ const scrollToInterviewCard = () => {
   }
 };
 
+// Handlers para Anexo 06
+const handleReplacePhotoInAnnexe06 = async ({ index, file }) => {
+  console.log('[handleReplacePhotoInAnnexe06] Iniciando reemplazo:', { index, fileName: file.name });
+  
+  const photo = report.value.annexe06Photos[index];
+  if (photo && photo.id) {
+    // Crear URL temporal para previsualización
+    const tempUrl = URL.createObjectURL(file);
+    console.log('[handleReplacePhotoInAnnexe06] URL temporal creada:', tempUrl);
+    tempPhotoUrls.value.push(tempUrl);
+    
+    // Guardar cambio para aplicar después
+    annexe06Changes.value.photosToReplace.push({
+      attachmentId: photo.id,
+      file: file,
+      originalUrl: photo.url // Guardar URL original por si se cancela
+    });
+    
+    // Crear nuevo array con la foto reemplazada
+    const newPhotos = [...report.value.annexe06Photos];
+    newPhotos[index] = {
+      ...photo,
+      url: tempUrl,
+      isTemporary: true
+    };
+    
+    console.log('[handleReplacePhotoInAnnexe06] Antes de actualizar:', report.value.annexe06Photos[index].url);
+    
+    // Actualizar el objeto report completo para forzar reactividad
+    report.value = {
+      ...report.value,
+      annexe06Photos: newPhotos
+    };
+    
+    console.log('[handleReplacePhotoInAnnexe06] Después de actualizar:', report.value.annexe06Photos[index].url);
+    
+    // Forzar actualización del DOM
+    await nextTick();
+    console.log('[handleReplacePhotoInAnnexe06] Reemplazo completado');
+  }
+};
+
+// Handler para cambios en riesgos de zona
+const handleAreaRiskUpdate = (newRisks) => {
+  console.log('[report-detail] DEBUG - handleAreaRiskUpdate llamado:', newRisks);
+  const originalRisks = report.value.zone?.areaRisk || [];
+  const risksChanged = JSON.stringify(originalRisks.sort()) !== JSON.stringify(newRisks.sort());
+  
+  zoneRisksChanged.value = risksChanged;
+  editedAreaRisks.value = newRisks;
+  console.log('[report-detail] DEBUG - zoneRisksChanged:', risksChanged);
+};
+
+const handleDeletePhotoFromAnnexe06 = (index) => {
+  const photo = report.value.annexe06Photos[index];
+  if (photo && photo.id) {
+    annexe06Changes.value.photosToDelete.push(photo.id);
+    // Remover visualmente de la lista
+    report.value.annexe06Photos.splice(index, 1);
+  }
+};
+
 const initializeEditableReport = () => {
   if (report.value) {
     editableReport.value = {
@@ -281,6 +371,16 @@ const initializeEditableReport = () => {
       observations: report.value.observations || [],
       casuistics: report.value.casuistics || []
     };
+    
+    // Inicializar riesgos de zona editables
+    editedAreaRisks.value = [...(report.value.zone?.areaRisk || [])];
+    zoneRisksChanged.value = false;
+    
+    console.log('[report-detail] DEBUG - initializeEditableReport:', {
+      observations: editableReport.value.observations,
+      casuistics: editableReport.value.casuistics,
+      areaRisks: editedAreaRisks.value
+    });
   }
 };
 
@@ -302,8 +402,100 @@ const handleConfirmResult = async () => {
       return;
     }
 
+    // Construir mensaje de confirmación
+    const hasAnnexe06Changes = annexe06Changes.value.photosToReplace.length > 0;
+    const hasZoneRiskChanges = zoneRisksChanged.value;
+
+    let confirmMessage = '¿Está seguro de que desea confirmar y validar el resultado del reporte?';
+    
+    const changes = [];
+    if (hasAnnexe06Changes) {
+      changes.push(`${annexe06Changes.value.photosToReplace.length} foto(s) del Anexo 06`);
+    }
+    if (hasZoneRiskChanges) {
+      changes.push('riesgos de la zona');
+    }
+    
+    if (changes.length > 0) {
+      confirmMessage = `¿Está seguro de que desea confirmar y validar el resultado del reporte?\n\nSe actualizarán: ${changes.join(' y ')}.`;
+    }
+
+    // Mostrar diálogo de confirmación
+    confirm.require({
+      message: confirmMessage,
+      header: 'Confirmar Validación de Resultado',
+      icon: 'pi pi-exclamation-triangle',
+      rejectLabel: 'Cancelar',
+      acceptLabel: 'Confirmar y Validar',
+      rejectClass: 'p-button-secondary',
+      acceptClass: 'p-button-success',
+      accept: async () => {
+        await processConfirmResult();
+      }
+    });
+  } catch (error) {
+    console.error('Error al preparar confirmación:', error);
+    showError(error.message || 'Error al preparar la confirmación');
+  }
+};
+
+const processConfirmResult = async () => {
+  try {
     isConfirmingResult.value = true;
 
+    // 1. Procesar cambios del Anexo 06 (solo reemplazos)
+    if (annexe06Changes.value.photosToReplace.length > 0) {
+      // Procesar reemplazos
+      for (const change of annexe06Changes.value.photosToReplace) {
+        try {
+          console.log('[report-detail] Procesando reemplazo:', {
+            attachmentId: change.attachmentId,
+            fileName: change.file.name,
+            fileType: change.file.type
+          });
+          
+          await reportApi.updateAttachment(
+            report.value.reportId,
+            change.attachmentId,
+            change.file
+          );
+        } catch (error) {
+          console.error(`Error al reemplazar attachment ${change.attachmentId}:`, error);
+          throw new Error(`Error al actualizar foto del Anexo 06: ${error.message}`);
+        }
+      }
+    }
+
+    // 2. Procesar cambios en riesgos de zona
+    console.log('[report-detail] DEBUG - Verificando actualización de zone risks:', {
+      zoneRisksChanged: zoneRisksChanged.value,
+      orderId: report.value.orderId,
+      editedAreaRisks: editedAreaRisks.value
+    });
+    
+    if (zoneRisksChanged.value && report.value.orderId) {
+      try {
+        console.log('[report-detail] Actualizando riesgos de zona:', editedAreaRisks.value);
+        
+        await reportApi.updateHomeVerification(report.value.orderId, {
+          zone: {
+            areaRisks: editedAreaRisks.value
+          }
+        });
+        
+        console.log('[report-detail] Riesgos de zona actualizados exitosamente');
+      } catch (error) {
+        console.error('Error al actualizar riesgos de zona:', error);
+        throw new Error(`Error al actualizar riesgos de la zona: ${error.message}`);
+      }
+    } else {
+      console.log('[report-detail] DEBUG - NO se actualizarán riesgos de zona porque:', {
+        zoneRisksChanged: zoneRisksChanged.value ? 'Sí' : 'No',
+        orderId: report.value.orderId ? report.value.orderId : 'NO EXISTE'
+      });
+    }
+
+    // 3. Actualizar el resultado del reporte
     const updateData = {
       finalResult: editableReport.value.finalResult,
       summary: editableReport.value.summary,
@@ -313,12 +505,36 @@ const handleConfirmResult = async () => {
       isResultValid: true // Marcar como validado
     };
 
+    console.log('[report-detail] DEBUG - Datos antes de actualizar:', {
+      observations: editableReport.value.observations,
+      casuistics: editableReport.value.casuistics,
+      areaRisks: editedAreaRisks.value,
+      updateData
+    });
+
     const result = await reportStore.updateReport(report.value.reportId, updateData);
 
     if (result.success) {
-      showSuccess('Resultado confirmado exitosamente', 'Éxito');
+      showSuccess('Resultado validado exitosamente', 'Éxito');
+      
+      // Limpiar URLs temporales
+      tempPhotoUrls.value.forEach(url => URL.revokeObjectURL(url));
+      tempPhotoUrls.value = [];
+      
+      // Limpiar cambios del Anexo 06
+      annexe06Changes.value = {
+        photosToReplace: []
+      };
+      
+      // Limpiar cambios de riesgos de zona
+      zoneRisksChanged.value = false;
+      editedAreaRisks.value = [];
+      
       // Recargar el reporte para obtener los datos actualizados
       await getReportById(route.params.reportId);
+      
+      // Reinicializar los campos editables con los datos frescos del backend
+      initializeEditableReport();
     } else {
       throw new Error(result.message || 'Error al confirmar el resultado');
     }
@@ -338,10 +554,12 @@ const handleUpdateSummary = (value) => {
 };
 
 const handleUpdateObservations = (value) => {
+  console.log('[report-detail] DEBUG - handleUpdateObservations llamado:', value);
   editableReport.value.observations = value;
 };
 
 const handleUpdateCasuistics = (value) => {
+  console.log('[report-detail] DEBUG - handleUpdateCasuistics llamado:', value);
   editableReport.value.casuistics = value;
 };
 
@@ -366,12 +584,9 @@ watch(() => route.params.reportId, async (newId) => {
   }
 });
 
-// Watch report changes to update editable data
-watch(() => report.value, () => {
-  if (report.value) {
-    initializeEditableReport();
-  }
-}, { deep: true });
+// NOTA: Se eliminó el watch profundo de report.value que estaba causando
+// que se reinicializaran los campos editables cada vez que se modificaba
+// el objeto report (ej: al reemplazar fotos), lo que borraba los cambios del usuario
 </script>
 
 <template>
@@ -518,10 +733,12 @@ watch(() => report.value, () => {
           :dwelling-condition="report.dwelling?.dwellingCondition"
           :zone-type="report.zone?.zoneType"
           :zone-characteristics="report.zone?.zoneCharacteristics || []"
-          :area-risk="report.zone?.areaRisk || []"
+          :area-risk="canConfirmResult ? editedAreaRisks : (report.zone?.areaRisk || [])"
           :access-type="report.zone?.accessType"
           :garage-type="report.garage?.garageType"
           :distance-to-dwelling="report.garage?.distanceToDwelling"
+          :can-edit="canConfirmResult"
+          @update:area-risk="handleAreaRiskUpdate"
         />
 
         <!-- Section 4: Contact References -->
@@ -631,8 +848,11 @@ watch(() => report.value, () => {
           icon="pi-id-card"
           :description="report.annexe06Description"
           description-label="Información adicional"
-          :photos="report.annexe06Photos || []"
+          :photos="annexe06PhotosComputed"
+          :can-edit="canConfirmResult"
+          :replace-only="true"
           @view-photo="handleViewPhoto"
+          @replace-photo="handleReplacePhotoInAnnexe06"
         />
       </div>
     </div>

@@ -218,7 +218,7 @@ watch(() => route.query.id, async (newId) => {
 
 <template>
   <pv-confirm-dialog/>
-  <pv-toast/>
+  <!-- NOTA: pv-toast eliminado - se usa el global de App.vue para evitar duplicados -->
 
   <div class="h-full w-full flex flex-column">
     <toolbar 

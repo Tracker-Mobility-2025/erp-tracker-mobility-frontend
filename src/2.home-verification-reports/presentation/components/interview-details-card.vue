@@ -14,6 +14,9 @@ import {
   AccessTypeTranslations,
   AreaRiskTranslations
 } from '../constants/verification-report-ui.constants.js';
+import { AreaRiskOptions } from '../../domain/value-objects/area-risk.value-object.js';
+
+const emit = defineEmits(['update:area-risk']);
 
 /**
  * Componente para mostrar los detalles de la entrevista de verificación domiciliaria.
@@ -103,6 +106,12 @@ const props = defineProps({
   visible: {
     type: Boolean,
     default: true
+  },
+  
+  // Control de edición
+  canEdit: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -268,9 +277,26 @@ const zoneTypeText = computed(() => {
       <!-- Cajas destacadas -->
       <div class="grid mt-4">
         <div class="col-12 md:col-4">
-          <div class="success-card text-center p-3">
-            <div class="text-sm font-semibold text-600 mb-2 uppercase">Riesgo de la Zona</div>
-            <div class="text-lg font-bold text-900">{{ areaRiskText }}</div>
+          <div class="success-card text-center p-3" :class="{ 'editable-box': canEdit }">
+            <div class="text-sm font-semibold text-600 mb-2 uppercase flex align-items-center justify-content-center gap-2">
+              Riesgo de la Zona
+              <span v-if="canEdit" class="text-xs font-bold px-2 py-1 border-round bg-orange-600 text-white animate-pulse">
+                <i class="pi pi-pencil" style="font-size: 0.6rem;"></i>
+              </span>
+            </div>
+            <div v-if="!canEdit" class="text-lg font-bold text-900">{{ areaRiskText }}</div>
+            <pv-multi-select
+              v-else
+              :modelValue="props.areaRisk"
+              @update:modelValue="emit('update:area-risk', $event)"
+              :options="AreaRiskOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Seleccione riesgos"
+              display="chip"
+              :maxSelectedLabels="2"
+              class="w-full"
+            />
           </div>
         </div>
 
@@ -302,5 +328,20 @@ const zoneTypeText = computed(() => {
 .dwelling-info-card {
   border: 2px solid var(--green-300);
   background: var(--green-50);
+}
+
+.editable-box {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%) !important;
+  border: 2px solid #ffc107 !important;
+  animation: pulse-border 2s ease-in-out infinite;
+}
+
+@keyframes pulse-border {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(255, 193, 7, 0);
+  }
 }
 </style>

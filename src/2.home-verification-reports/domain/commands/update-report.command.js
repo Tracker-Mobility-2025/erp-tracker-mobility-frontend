@@ -14,6 +14,15 @@ export class UpdateReportCommand {
     casuistics,
     isResultValid
   }) {
+    console.log('[UpdateReportCommand] DEBUG - Constructor recibió:', {
+      reportId,
+      finalResult,
+      summary,
+      observations,
+      casuistics,
+      isResultValid
+    });
+    
     // Validaciones requeridas
     if (!reportId) {
       throw new Error('El ID del reporte es requerido');
@@ -55,5 +64,10 @@ export class UpdateReportCommand {
       : [];
     
     this.isResultValid = isResultValid === true; // Asegurar boolean
+    
+    console.log('[UpdateReportCommand] DEBUG - Después del procesamiento:', {
+      observations: this.observations,
+      casuistics: this.casuistics
+    });
   }
 }

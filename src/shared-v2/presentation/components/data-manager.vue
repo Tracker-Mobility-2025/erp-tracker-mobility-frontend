@@ -254,7 +254,7 @@ onMounted(() => initFilters())
 </script>
 
 <template>
-  <pv-toast />
+  <!-- NOTA: pv-toast eliminado - se usa el global de App.vue para evitar duplicados -->
 
   <div class="surface-0 border-round-lg p-4 shadow-2 h-full flex flex-column overflow-hidden" style="border: 1px solid var(--border-medium);">
 
