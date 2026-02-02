@@ -112,12 +112,20 @@ const loadingSteps = [
 
 // Methods
 const getReportById = async (reportId) => {
+  const startTime = performance.now();
+  console.log('[report-detail] Iniciando carga del reporte...');
+  
   try {
     const result = await reportStore.fetchById(reportId);
+    const fetchTime = performance.now();
+    console.log(`[report-detail] Fetch completado en ${(fetchTime - startTime).toFixed(2)}ms`);
     
     if (result.success && result.data) {
       report.value = result.data;
       isLoading.value = false;
+      
+      const totalTime = performance.now();
+      console.log(`[report-detail] Reporte cargado completamente en ${(totalTime - startTime).toFixed(2)}ms`);
     } else {
       throw new Error(result.message || 'Reporte no encontrado');
     }
@@ -234,6 +242,9 @@ const handleExportPDF = async () => {
 };
 
 const handleUpdateInterviewDetailsRequested = async (payload) => {
+  const startTime = performance.now();
+  console.log('[report-detail] Iniciando actualización de entrevista...');
+  
   try {
     isLoading.value = true;
 
@@ -267,20 +278,63 @@ const handleUpdateInterviewDetailsRequested = async (payload) => {
       interviewObservation: cleanString(payload?.interviewObservation)
     };
 
-    // Enviar actualización al backend (el store creará el Command)
+    console.log('[report-detail] Enviando actualización de entrevista al backend...');
+    const updateStart = performance.now();
+    
+    // 1. Enviar actualización de la entrevista al backend
     const result = await reportStore.updateLandlordInterview(orderId, commandData);
+    
+    const updateEnd = performance.now();
+    console.log(`[report-detail] Actualización de entrevista completada en ${(updateEnd - updateStart).toFixed(2)}ms`);
 
-    if (result.success) {
-      showSuccess('Entrevista con el arrendador actualizada exitosamente', 'Éxito');
-      
-      // Recargar todo el reporte para obtener los datos actualizados del backend
-      await getReportById(route.params.reportId);
-      
-      // Reinicializar los campos editables con los datos frescos del backend
-      initializeEditableReport();
-    } else {
+    if (!result.success) {
       throw new Error(result.message || 'Error al actualizar la entrevista');
     }
+
+    // 2. Si hay imágenes para subir, subirlas inmediatamente después
+    if (payload?.imageFiles && payload.imageFiles.length > 0) {
+      try {
+        console.log(`[report-detail] Subiendo ${payload.imageFiles.length} imagen(es) de entrevista...`);
+        const imageStart = performance.now();
+        
+        // Subir cada imagen secuencialmente
+        for (let i = 0; i < payload.imageFiles.length; i++) {
+          const imageFile = payload.imageFiles[i];
+          console.log(`[report-detail] Subiendo imagen ${i + 1} de ${payload.imageFiles.length}...`);
+          await reportApi.addAttachment(report.value.reportId, imageFile, 'OTROS');
+        }
+        
+        const imageEnd = performance.now();
+        console.log(`[report-detail] ${payload.imageFiles.length} imagen(es) subida(s) en ${(imageEnd - imageStart).toFixed(2)}ms`);
+      } catch (imageError) {
+        console.error('Error al subir imagen:', imageError);
+        // No fallar todo el proceso si la imagen falla
+        showWarning(
+          'La entrevista se guardó correctamente pero hubo un error al subir una o más imágenes. Puede intentar subirlas nuevamente.',
+          'Advertencia',
+          5000
+        );
+      }
+    }
+
+    showSuccess('Entrevista con el arrendador actualizada exitosamente', 'Éxito');
+    
+    // 3. Recargar el reporte completo desde el backend
+    console.log('[report-detail] Recargando reporte...');
+    const reloadStart = performance.now();
+    
+    await getReportById(route.params.reportId);
+    
+    const reloadEnd = performance.now();
+    console.log(`[report-detail] Recarga completada en ${(reloadEnd - reloadStart).toFixed(2)}ms`);
+    
+    // 4. Reinicializar campos editables con datos frescos del backend
+    console.log('[report-detail] Reinicializando campos editables...');
+    initializeEditableReport();
+    
+    const totalTime = performance.now();
+    console.log(`[report-detail] ⏱️ Tiempo total de operación: ${(totalTime - startTime).toFixed(2)}ms`);
+    
   } catch (error) {
     console.error('Error al actualizar entrevista:', error);
     showError(
@@ -299,6 +353,18 @@ const scrollToInterviewCard = () => {
       block: 'center' 
     });
   }
+};
+
+// Obtiene los attachments con tipo "OTROS" para la entrevista (máximo 2)
+const getInterviewAttachments = () => {
+  if (!report.value || !report.value.attachments) return [];
+  
+  // Buscar todos los attachments con tipo "OTROS"
+  const interviewAttachments = report.value.attachments.filter(
+    att => att.type === 'OTROS'
+  );
+  
+  return interviewAttachments;
 };
 
 // Handlers para Anexo 06
@@ -761,6 +827,8 @@ watch(() => route.params.reportId, async (newId) => {
           :interview-observation="report.interviewDetails?.interviewObservation"
           :can-edit="canEditInterview"
           :blocked-by-final-result="isEditBlockedByFinalResult"
+          :report-id="report.reportId"
+          :interview-attachments="getInterviewAttachments()"
           @update-interview-details-requested="handleUpdateInterviewDetailsRequested"
         />
 

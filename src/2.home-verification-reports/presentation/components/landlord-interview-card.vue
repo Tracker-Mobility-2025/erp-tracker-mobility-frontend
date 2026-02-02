@@ -39,6 +39,14 @@ const props = defineProps({
   blockedByFinalResult: {
     type: Boolean,
     default: false
+  },
+  reportId: {
+    type: Number,
+    required: true
+  },
+  interviewAttachments: {
+    type: Array,
+    default: () => []
   }
 });
 
@@ -46,7 +54,7 @@ const emit = defineEmits(['update-interview-details-requested']);
 
 // Composables
 const confirm = useConfirm();
-const { showWarning } = useNotification();
+const { showWarning, showSuccess, showError } = useNotification();
 
 // State
 const isEditing = ref(false);
@@ -58,6 +66,18 @@ const editForm = ref({
   clientRentalTime: '',
   clientFloorNumber: '',
   interviewObservation: ''
+});
+
+// Estado para manejo de imagen
+const selectedImages = ref([]);
+const imagePreviews = ref([]);
+const fileInputRef = ref(null);
+
+const maxImages = 2;
+
+// Computed para saber cuántas imágenes totales habrá
+const totalImagesCount = computed(() => {
+  return props.interviewAttachments.length + selectedImages.value.length;
 });
 
 const booleanOptions = [
@@ -175,8 +195,16 @@ const onSaveEdit = () => {
   }
 
   // Mostrar diálogo de confirmación antes de aplicar los cambios
+  const imageCount = selectedImages.value.length;
+  let confirmMessage = '¿Está seguro de que desea guardar los cambios en la entrevista con el arrendador?\n\nEsta acción actualizará la información del reporte.';
+  
+  if (imageCount > 0) {
+    const imageText = imageCount === 1 ? 'la imagen seleccionada' : `las ${imageCount} imágenes seleccionadas`;
+    confirmMessage = `¿Está seguro de que desea guardar los cambios en la entrevista con el arrendador?\n\nSe guardará la información y se subirá ${imageText}.`;
+  }
+
   confirm.require({
-    message: '¿Está seguro de que desea guardar los cambios en la entrevista con el arrendador? \n Esta acción actualizará la información del reporte.',
+    message: confirmMessage,
     header: 'Confirmar Actualización',
     icon: 'pi pi-exclamation-triangle',
     rejectLabel: 'Cancelar',
@@ -184,8 +212,21 @@ const onSaveEdit = () => {
     rejectClass: 'p-button-secondary',
     acceptClass: 'p-button-success',
     accept: () => {
-      // Emitir evento al padre para gestionar la actualización
-      emit('update-interview-details-requested', { ...editForm.value });
+      // Emitir evento al padre con datos del formulario e imágenes (si existen)
+      const payload = {
+        ...editForm.value,
+        imageFiles: selectedImages.value // Array de imágenes
+      };
+      
+      emit('update-interview-details-requested', payload);
+      
+      // Limpiar estado de imágenes después de emitir
+      selectedImages.value = [];
+      imagePreviews.value = [];
+      if (fileInputRef.value) {
+        fileInputRef.value.value = null;
+      }
+      
       // Mantener el componente en modo lectura tras guardar
       isEditing.value = false;
     },
@@ -193,6 +234,92 @@ const onSaveEdit = () => {
       // Usuario canceló la operación, no hacer nada
     }
   });
+};
+
+// Métodos para manejo de imagen
+const onImageSelect = (event) => {
+  const files = event.target.files;
+  
+  if (!files || files.length === 0) return;
+
+  // Calcular cuántas imágenes se pueden agregar
+  const currentTotal = props.interviewAttachments.length + selectedImages.value.length;
+  const availableSlots = maxImages - currentTotal;
+
+  if (availableSlots <= 0) {
+    showError(
+      `Ya se alcanzó el límite máximo de ${maxImages} imágenes`,
+      'Límite alcanzado',
+      4000
+    );
+    return;
+  }
+
+  // Procesar solo las imágenes que caben en los slots disponibles
+  const filesToProcess = Array.from(files).slice(0, availableSlots);
+
+  for (const file of filesToProcess) {
+    // Validar que sea una imagen
+    if (!file.type.startsWith('image/')) {
+      showError(
+        `El archivo "${file.name}" no es una imagen válida`,
+        'Tipo de archivo inválido',
+        4000
+      );
+      continue;
+    }
+
+    // Validar tamaño (máximo 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      showError(
+        `La imagen "${file.name}" no puede superar los 5MB`,
+        'Archivo muy grande',
+        4000
+      );
+      continue;
+    }
+
+    // Agregar al array de imágenes seleccionadas
+    selectedImages.value.push(file);
+
+    // Crear preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      imagePreviews.value.push({
+        url: e.target.result,
+        name: file.name
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Limpiar el input para permitir seleccionar las mismas imágenes de nuevo si se eliminan
+  if (fileInputRef.value) {
+    fileInputRef.value.value = null;
+  }
+
+  // Mostrar mensaje si se intentaron agregar más imágenes de las permitidas
+  if (files.length > filesToProcess.length) {
+    showWarning(
+      `Solo se pueden agregar ${availableSlots} imagen(es) más. Se agregaron ${filesToProcess.length} de ${files.length} seleccionadas.`,
+      'Límite de imágenes',
+      5000
+    );
+  }
+};
+
+const onRemoveImage = (index) => {
+  selectedImages.value.splice(index, 1);
+  imagePreviews.value.splice(index, 1);
+};
+
+const onCancelAllImages = () => {
+  selectedImages.value = [];
+  imagePreviews.value = [];
+  if (fileInputRef.value) {
+    fileInputRef.value.value = null;
+  }
 };
 </script>
 
@@ -394,6 +521,138 @@ const onSaveEdit = () => {
               placeholder="Ingrese observaciones adicionales sobre la entrevista (opcional)"
             />
           </template>
+        </div>
+
+        <!-- Cuarta fila - Imagen adjunta -->
+        <div class="field col-12">
+          <div class="p-3 border-round border-2 surface-border bg-teal-50">
+            <label class="text-xs font-semibold text-teal-700 uppercase mb-3 flex align-items-center gap-2">
+              <i class="pi pi-image text-teal-600"></i>
+              Imágenes de la entrevista (máximo 2)
+            </label>
+
+            <!-- Imágenes existentes (modo lectura) -->
+            <div v-if="interviewAttachments.length > 0 && !isEditing" class="grid">
+              <div 
+                v-for="(attachment, index) in interviewAttachments" 
+                :key="attachment.id"
+                class="col-12 md:col-6 mb-3"
+              >
+                <div class="relative">
+                  <img 
+                    :src="attachment.url" 
+                    :alt="`Imagen ${index + 1}`"
+                    class="border-round shadow-2 w-full"
+                    style="max-height: 300px; object-fit: contain;"
+                  />
+                  <div class="absolute top-0 right-0 m-2 bg-black-alpha-60 text-white px-2 py-1 border-round text-xs">
+                    Imagen {{ index + 1 }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sección de subida (solo en modo edición) -->
+            <div v-if="isEditing && canEdit">
+              <!-- Imágenes existentes en modo edición -->
+              <div v-if="interviewAttachments.length > 0" class="mb-3">
+                <p class="text-sm text-600 mb-2">Imágenes actuales ({{ interviewAttachments.length }}/{{ maxImages }}):</p>
+                <div class="grid">
+                  <div 
+                    v-for="(attachment, index) in interviewAttachments" 
+                    :key="attachment.id"
+                    class="col-12 md:col-6"
+                  >
+                    <div class="relative">
+                      <img 
+                        :src="attachment.url" 
+                        :alt="`Imagen ${index + 1}`"
+                        class="border-round shadow-2 w-full"
+                        style="max-height: 250px; object-fit: contain;"
+                      />
+                      <div class="absolute top-0 right-0 m-2 bg-black-alpha-60 text-white px-2 py-1 border-round text-xs">
+                        Imagen {{ index + 1 }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Nuevas imágenes seleccionadas -->
+              <div v-if="selectedImages.length > 0" class="mb-3">
+                <div class="flex justify-content-between align-items-center mb-2">
+                  <p class="text-sm font-semibold text-600 m-0">
+                    Nuevas imágenes seleccionadas ({{ selectedImages.length }}) - se subirán al guardar:
+                  </p>
+                  <pv-button
+                    icon="pi pi-times"
+                    label="Quitar todas"
+                    class="p-button-text p-button-danger p-button-sm"
+                    v-tooltip.top="'Quitar todas las imágenes seleccionadas'"
+                    @click="onCancelAllImages"
+                  />
+                </div>
+                <div class="grid">
+                  <div 
+                    v-for="(preview, index) in imagePreviews" 
+                    :key="index"
+                    class="col-12 md:col-6"
+                  >
+                    <div class="relative">
+                      <img 
+                        :src="preview.url" 
+                        :alt="preview.name"
+                        class="border-round shadow-2 w-full"
+                        style="max-height: 250px; object-fit: contain;"
+                      />
+                      <div class="absolute top-0 left-0 m-2 bg-success text-white px-2 py-1 border-round text-xs">
+                        Nueva {{ index + 1 }}
+                      </div>
+                      <pv-button
+                        icon="pi pi-trash"
+                        class="p-button-danger p-button-rounded p-button-sm absolute top-0 right-0 m-2"
+                        v-tooltip.top="'Quitar esta imagen'"
+                        @click="onRemoveImage(index)"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Input de archivo -->
+              <div v-if="totalImagesCount < maxImages" class="flex flex-column gap-2">
+                <p class="text-sm text-600 m-0 flex align-items-center gap-2">
+                  <i class="pi pi-info-circle"></i>
+                  <span>
+                    Puede agregar {{ maxImages - totalImagesCount }} imagen(es) más 
+                    (Total: {{ totalImagesCount }}/{{ maxImages }})
+                  </span>
+                </p>
+                <input
+                  ref="fileInputRef"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  class="w-full"
+                  @change="onImageSelect"
+                />
+                <p class="text-xs text-500 m-0">
+                  <i class="pi pi-check-circle text-success"></i>
+                  Puede seleccionar múltiples imágenes a la vez (máximo 5MB cada una)
+                </p>
+              </div>
+
+              <div v-else class="text-sm text-600">
+                <i class="pi pi-check-circle text-success"></i>
+                Se alcanzó el límite máximo de {{ maxImages }} imágenes
+              </div>
+            </div>
+
+            <!-- Mensaje cuando no hay imagen -->
+            <p v-if="interviewAttachments.length === 0 && !isEditing" class="text-sm text-500 m-0">
+              No se han agregado imágenes
+            </p>
+          </div>
         </div>
       </div>
     </template>

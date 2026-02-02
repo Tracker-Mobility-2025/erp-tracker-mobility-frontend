@@ -166,4 +166,48 @@ export class ReportApi extends BaseApi {
       throw error;
     }
   }
+
+  /**
+   * Agrega un nuevo attachment (anexo) al reporte.
+   * POST /api/v1/web/reports/{reportId}/attachment
+   * @param {string|number} reportId - El ID del reporte.
+   * @param {File} file - El archivo de imagen.
+   * @param {string} type - El tipo de archivo (ej: 'OTROS').
+   * @returns {Promise} Una promesa que se resuelve con la respuesta de la creación.
+   */
+  async addAttachment(reportId, file, type) {
+    const reportIdParsed = parseInt(reportId, 10);
+    
+    if (isNaN(reportIdParsed) || reportIdParsed <= 0) {
+      throw new Error('El ID del reporte debe ser un número válido mayor a 0');
+    }
+
+    if (!file) {
+      throw new Error('El archivo es requerido');
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('type', type);
+
+    console.log('[ReportApi] addAttachment - Detalles:', {
+      reportId: reportIdParsed,
+      fileName: file.name,
+      fileType: file.type,
+      fileSize: file.size,
+      type
+    });
+
+    try {
+      const response = await this.http.post(
+        `${reportEndpointPath}/${reportIdParsed}/attachment`,
+        formData
+      );
+      console.log('[ReportApi] addAttachment - Éxito:', response);
+      return response;
+    } catch (error) {
+      console.error('[ReportApi] Error adding attachment:', error);
+      throw error;
+    }
+  }
 }
