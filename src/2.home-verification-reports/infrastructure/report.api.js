@@ -53,7 +53,15 @@ export class ReportApi extends BaseApi {
     if (isNaN(orderIdParsed) || orderIdParsed <= 0) {
       throw new Error('El ID de la orden debe ser un número válido mayor a 0');
     }
-    return this.http.patch(`${reportEndpointPath}/order/${orderIdParsed}/landlord-interview`, data);
+    
+    const url = `${reportEndpointPath}/order/${orderIdParsed}/landlord-interview`;
+    console.log('[ReportApi] updateLandlordInterview - Request:', {
+      orderId: orderIdParsed,
+      url,
+      data
+    });
+    
+    return this.http.patch(url, data);
   }
 
   /**

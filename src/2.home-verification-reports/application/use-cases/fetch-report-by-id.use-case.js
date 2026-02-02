@@ -21,7 +21,7 @@ export class FetchReportByIdUseCase {
    */
   async execute(id) {
     try {
-      const reportId = parseInt(id);
+      const reportId = parseInt(id, 10);
       
       if (!reportId || isNaN(reportId) || reportId <= 0) {
         return {

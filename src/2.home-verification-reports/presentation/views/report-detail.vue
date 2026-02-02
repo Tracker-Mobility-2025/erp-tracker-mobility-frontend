@@ -259,6 +259,13 @@ const handleUpdateInterviewDetailsRequested = async (payload) => {
     // Obtener el orderId desde el reporte
     const orderId = report.value?.orderId;
 
+    console.log('[report-detail] DEBUG - handleUpdateInterviewDetailsRequested:', {
+      orderId,
+      reportId: report.value?.reportId,
+      reportCode: report.value?.reportCode,
+      payload
+    });
+
     if (!orderId) {
       showError(
         'El backend no está enviando el orderId. Por favor, contacte al administrador del sistema.',

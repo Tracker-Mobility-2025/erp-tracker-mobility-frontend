@@ -25,7 +25,7 @@ export class UpdateLandlordInterviewUseCase {
   async execute(orderId, data) {
     try {
       // Validar ID de orden
-      const parsedOrderId = parseInt(orderId);
+      const parsedOrderId = parseInt(orderId, 10);
       if (!parsedOrderId || isNaN(parsedOrderId) || parsedOrderId <= 0) {
         return {
           success: false,

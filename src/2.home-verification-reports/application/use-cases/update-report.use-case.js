@@ -25,7 +25,7 @@ export class UpdateReportUseCase {
   async execute(reportId, data) {
     try {
       // Validar ID de reporte
-      const parsedReportId = parseInt(reportId);
+      const parsedReportId = parseInt(reportId, 10);
       if (!parsedReportId || isNaN(parsedReportId) || parsedReportId <= 0) {
         return {
           success: false,

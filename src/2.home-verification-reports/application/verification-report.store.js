@@ -123,7 +123,7 @@ const useVerificationReportStore = defineStore('verificationReport', () => {
      */
     async function getReportDownloadUrl(reportId) {
         try {
-            const parsedReportId = parseInt(reportId);
+            const parsedReportId = parseInt(reportId, 10);
             if (!parsedReportId || isNaN(parsedReportId) || parsedReportId <= 0) {
                 return {
                     success: false,

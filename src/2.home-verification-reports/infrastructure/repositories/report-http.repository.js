@@ -45,7 +45,14 @@ export class ReportHttpRepository extends IReportRepository {
    * @returns {Promise<Object>} La respuesta de la actualización
    */
   async updateLandlordInterview(command) {
+    console.log('[ReportHttpRepository] updateLandlordInterview - Command:', {
+      orderId: command.orderId,
+      command
+    });
+    
     const resource = UpdateLandlordInterviewCommandAssembler.toResource(command);
+    console.log('[ReportHttpRepository] Resource transformado:', resource);
+    
     const response = await this.#api.updateLandlordInterview(command.orderId, resource);
     return response.data;
   }

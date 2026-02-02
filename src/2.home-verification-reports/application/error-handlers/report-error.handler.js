@@ -93,6 +93,15 @@ export class ReportErrorHandler {
 
     // Error 404 - Not Found
     if (status === 404) {
+      console.error('[ReportErrorHandler] 404 Error - Detalles completos:', {
+        url: error.config?.url,
+        method: error.config?.method,
+        data: error.config?.data,
+        responseData: error.response?.data,
+        responseStatus: error.response?.status,
+        context
+      });
+      
       this.notificationService.showWarning(
         'El reporte solicitado no fue encontrado',
         'No encontrado',
