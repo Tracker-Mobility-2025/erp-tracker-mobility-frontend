@@ -31,8 +31,14 @@ export class BaseApi {
       (error) => Promise.reject(error)
     );
 
-    // Auth interceptor goes here
+    // Auth interceptor with token validation
     this.#http.interceptors.request.use(authenticationInterceptor);
+    
+    // Response interceptor for error handling (401/403)
+    this.#http.interceptors.response.use(
+      authenticationResponseInterceptor,
+      authenticationErrorInterceptor
+    );
   }
 
   get http() {

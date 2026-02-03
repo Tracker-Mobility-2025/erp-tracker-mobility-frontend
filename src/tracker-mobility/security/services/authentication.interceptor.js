@@ -3,6 +3,7 @@ import {useAuthenticationStore} from "./authentication.store.js";
 /**
  * REQUEST INTERCEPTOR
  * Interceptor to add authentication token to the request header
+ * Validates token expiration BEFORE sending request
  * @summary
  * This interceptor is used to add the authentication token to the request header.
  * @param config - Axios request configuration
@@ -11,10 +12,41 @@ import {useAuthenticationStore} from "./authentication.store.js";
 export const authenticationInterceptor = (config) => {
     const authenticationStore = useAuthenticationStore();
     const isSignedIn = authenticationStore.isSignedIn;
+    
     if (isSignedIn) {
-        config.headers.Authorization = `Bearer ${authenticationStore.currentToken}`;
-        console.log('[INTERCEPTOR REQUEST]', config);
+        const token = authenticationStore.currentToken;
+        
+        try {
+            // Decodificar JWT para verificar expiración (sin validar firma)
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const payload = JSON.parse(window.atob(base64));
+            const expiresAt = payload.exp * 1000; // Convertir a milisegundos
+            const now = Date.now();
+            
+            // Verificar si el token ya expiró o expirará en menos de 5 minutos
+            const fiveMinutesInMs = 5 * 60 * 1000;
+            
+            if (now >= expiresAt) {
+                console.warn('⏰ [INTERCEPTOR] Token expirado - Cerrando sesión preventiva');
+                authenticationStore.signOut();
+                return Promise.reject(new Error('Token expirado'));
+            } else if (now >= (expiresAt - fiveMinutesInMs)) {
+                console.warn('⏰ [INTERCEPTOR] Token expirará pronto - Cerrando sesión preventiva');
+                authenticationStore.signOut();
+                return Promise.reject(new Error('Token próximo a expirar'));
+            }
+            
+            // Token válido, agregar al header
+            config.headers.Authorization = `Bearer ${token}`;
+            console.log('[INTERCEPTOR REQUEST]', config);
+        } catch (error) {
+            console.error('❌ [INTERCEPTOR] Error al validar token:', error);
+            authenticationStore.signOut();
+            return Promise.reject(new Error('Token inválido'));
+        }
     }
+    
     return config;
 }
 
@@ -53,11 +85,10 @@ export const authenticationErrorInterceptor = (error) => {
                 authenticationStore.userId = 0;
                 authenticationStore.username = '';
                 authenticationStore.roles = [];
-                localStorage.removeItem('token');
-                localStorage.removeItem('userId');
-                localStorage.removeItem('username');
-                localStorage.removeItem('roles');
-                localStorage.removeItem('redirectAfterLogin');
+                
+                // Limpiar TODO el localStorage y sessionStorage (seguridad total)
+                localStorage.clear();
+                sessionStorage.clear();
 
                 // Obtener router dinámicamente para evitar dependencia circular
                 // Usar window.location para redirección si router no está disponible

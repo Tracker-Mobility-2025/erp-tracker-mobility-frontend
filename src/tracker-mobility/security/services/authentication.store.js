@@ -200,22 +200,22 @@ export const useAuthenticationStore = defineStore('authentication', {
         async signOut(router) {
             console.log('🔓 [LOGOUT] Cerrando sesión y limpiando todos los datos...');
             
-            // Limpiar estado del store de autenticación
+            // 1. Limpiar estado del store de autenticación
             this.signedIn = false;
             this.userId = 0;
             this.username = '';
             this.roles = [];
             this.specificRole = '';
             
-            // Limpiar localStorage completamente
-            localStorage.removeItem('token');
-            localStorage.removeItem('userId');
-            localStorage.removeItem('username');
-            localStorage.removeItem('roles');
-            localStorage.removeItem('role');
-            localStorage.removeItem('redirectAfterLogin');
+            // 2. Limpiar localStorage COMPLETAMENTE (incluye tokens, preferencias, caché, etc.)
+            console.log('🧹 [LOGOUT] Limpiando localStorage completo...');
+            localStorage.clear();
             
-            // 🔥 CRÍTICO: Resetear TODOS los stores de Pinia para evitar datos residuales
+            // 3. Limpiar sessionStorage COMPLETAMENTE
+            console.log('🧹 [LOGOUT] Limpiando sessionStorage completo...');
+            sessionStorage.clear();
+            
+            // 4. 🔥 CRÍTICO: Resetear TODOS los stores de Pinia para evitar datos residuales
             // Esto previene que datos del usuario anterior persistan en la nueva sesión
             try {
                 const pinia = this.$pinia;
@@ -234,7 +234,7 @@ export const useAuthenticationStore = defineStore('authentication', {
                 console.error('❌ [LOGOUT] Error al resetear stores:', error);
             }
             
-            console.log('✅ [LOGOUT] Sesión cerrada completamente');
+            console.log('✅ [LOGOUT] Sesión cerrada completamente - Todo el caché limpiado');
             router.push({name: 'sign-in'});
         },
 

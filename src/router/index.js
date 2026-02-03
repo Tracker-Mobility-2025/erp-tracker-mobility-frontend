@@ -176,6 +176,31 @@ router.beforeEach((to, from, next) => {
     next();
 })
 
+// =========================================================================
+// MANEJO DE ERRORES DE CHUNKS (Lazy Loading)
+// =========================================================================
+// Detecta cuando un chunk falla al cargar (por deploy durante uso activo)
+// y recarga la página automáticamente para obtener los chunks nuevos
+router.onError((error, to) => {
+    const chunkFailedMessage = /Loading chunk [\d]+ failed|Failed to fetch dynamically imported module/;
+    
+    if (chunkFailedMessage.test(error.message)) {
+        console.warn('🔄 [ROUTER] Chunk loading failed - Nueva versión detectada, recargando aplicación...');
+        console.warn('   Ruta destino:', to.fullPath);
+        console.warn('   Error:', error.message);
+        
+        // Guardar ruta destino para restaurar después del reload
+        sessionStorage.setItem('routeBeforeReload', to.fullPath);
+        
+        // Recargar página con la ruta destino (fuerza descarga de chunks nuevos)
+        // Esto resuelve automáticamente el problema sin que el usuario vea error
+        window.location.href = to.fullPath;
+    } else {
+        // Otros errores del router se propagan normalmente
+        console.error('❌ [ROUTER] Error:', error);
+    }
+});
+
 
 
 
