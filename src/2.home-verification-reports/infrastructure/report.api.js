@@ -77,12 +77,51 @@ export class ReportApi extends BaseApi {
       throw new Error('El ID del reporte debe ser un número válido mayor a 0');
     }
     
-    console.log('[ReportApi] DEBUG - updateReport:', {
-      reportId: reportIdParsed,
-      data
-    });
+    const fullUrl = `${reportEndpointPath}/${reportIdParsed}`;
     
-    return this.http.patch(`${reportEndpointPath}/${reportIdParsed}`, data);
+    console.log('═══════════════════════════════════════════════════════');
+    console.log('[PROD DEBUG] ReportApi.updateReport - AXIOS CONFIG:');
+    console.log('─────────────────────────────────────────────────────────');
+    console.log('reportId ORIGINAL:', reportId, '| Tipo:', typeof reportId);
+    console.log('reportId PARSED:', reportIdParsed, '| Tipo:', typeof reportIdParsed);
+    console.log('reportEndpointPath:', reportEndpointPath);
+    console.log('fullUrl (relativa):', fullUrl);
+    console.log('baseURL axios:', this.http.defaults.baseURL);
+    console.log('URL FINAL:', `${this.http.defaults.baseURL}${fullUrl}`);
+    console.log('Headers Content-Type:', this.http.defaults.headers?.['Content-Type']);
+    console.log('Headers Authorization:', this.http.defaults.headers?.['Authorization'] ? '✅ SI' : '❌ NO');
+    console.log('Payload completo:', JSON.stringify(data, null, 2));
+    console.log('═══════════════════════════════════════════════════════');
+    
+    return this.http.patch(fullUrl, data)
+      .then(response => {
+        console.log('═══════════════════════════════════════════════════════');
+        console.log('[PROD DEBUG] ✅ PATCH EXITOSO');
+        console.log('Status:', response.status);
+        console.log('Data:', response.data);
+        console.log('═══════════════════════════════════════════════════════');
+        return response;
+      })
+      .catch(error => {
+        console.error('═══════════════════════════════════════════════════════');
+        console.error('[PROD DEBUG] ❌ ERROR EN PATCH');
+        console.error('─────────────────────────────────────────────────────────');
+        console.error('URL intentada:', error.config?.url);
+        console.error('baseURL usada:', error.config?.baseURL);
+        console.error('Method:', error.config?.method?.toUpperCase());
+        console.error('Headers enviados:', JSON.stringify(error.config?.headers, null, 2));
+        console.error('Payload enviado:', error.config?.data);
+        console.error('─────────────────────────────────────────────────────────');
+        console.error('Response Status:', error.response?.status);
+        console.error('Response StatusText:', error.response?.statusText);
+        console.error('Response Data:', error.response?.data);
+        console.error('Response Headers:', JSON.stringify(error.response?.headers, null, 2));
+        console.error('─────────────────────────────────────────────────────────');
+        console.error('Mensaje error:', error.message);
+        console.error('Error code:', error.code);
+        console.error('═══════════════════════════════════════════════════════');
+        throw error;
+      });
   }
 
   /**

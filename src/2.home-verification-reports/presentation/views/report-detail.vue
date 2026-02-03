@@ -459,6 +459,17 @@ const initializeEditableReport = () => {
 
 const handleConfirmResult = async () => {
   try {
+    console.log('═══════════════════════════════════════════════════════');
+    console.log('[PROD DEBUG] Estado COMPLETO del reporte ANTES de confirmar:');
+    console.log('─────────────────────────────────────────────────────────');
+    console.log('reportId:', report.value?.reportId, '| Tipo:', typeof report.value?.reportId);
+    console.log('orderId:', report.value?.orderId, '| Tipo:', typeof report.value?.orderId);
+    console.log('isResultValid:', report.value?.isResultValid);
+    console.log('finalResult:', report.value?.finalResult);
+    console.log('reportCode:', report.value?.reportCode);
+    console.log('Reporte completo:', JSON.stringify(report.value, null, 2));
+    console.log('═══════════════════════════════════════════════════════');
+    
     if (!report.value?.reportId) {
       showError('No se puede confirmar el resultado: ID de reporte no disponible');
       return;
@@ -584,6 +595,13 @@ const processConfirmResult = async () => {
       areaRisks: editedAreaRisks.value,
       updateData
     });
+    
+    console.log('═══════════════════════════════════════════════════════');
+    console.log('[PROD DEBUG] PAYLOAD FINAL a enviar:');
+    console.log('─────────────────────────────────────────────────────────');
+    console.log('reportId que se usará:', report.value.reportId, '| Tipo:', typeof report.value.reportId);
+    console.log('updateData JSON:', JSON.stringify(updateData, null, 2));
+    console.log('═══════════════════════════════════════════════════════');
 
     const result = await reportStore.updateReport(report.value.reportId, updateData);
 
